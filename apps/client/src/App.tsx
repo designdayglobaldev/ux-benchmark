@@ -72,8 +72,9 @@ function App() {
           <a href="#" className="px-4 py-1.5 hover:text-white transition-colors">Technology</a>
           <a href="#" className="px-4 py-1.5 hover:text-white transition-colors">Entertainment</a>
           <a href="#" className="px-4 py-1.5 hover:text-white transition-colors">Finance & Banking</a>
+          
         </div>
-
+         
       </main>
     </div>
   )
