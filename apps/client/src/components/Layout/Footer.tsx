@@ -1,0 +1,76 @@
+import { Button } from "@/components/ui/button";
+import { Plus, ArrowUpRight } from "lucide-react";
+import designdayLogo from "@/assets/Designday_logo1.png";
+import { SubmitModule } from "../Submit_module";
+
+export function Footer() {
+  return (
+    <footer className="w-full bg-[#161616] text-[#EAEAEA] py-6 pl-[72px] pr-6 md:pl-[144px] md:pr-12 border-t border-[#222222]">
+      <div className="max-w-[1400px] mx-auto w-full">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8">
+          
+          {/* Column 1: Branding & Description */}
+          <div className="md:col-span-5 flex flex-col gap-6">
+            <div className="flex items-center gap-2.5">
+              {/* Designday Logo */}
+              <img src={designdayLogo} alt="Designday" className="h-6 object-contain" />
+            </div>
+            
+            <p className="text-[#888888] text-[14px] leading-[1.6] max-w-[360px]">
+              Built by Designday — A suite of AI-powered tools,
+              frameworks, and strategic solutions helping businesses
+              make smarter product decisions, build better digital
+              experiences, and accelerate growth.
+            </p>
+          </div>
+
+          {/* Column 2: Solutions */}
+          <div className="md:col-span-3 flex flex-col gap-5 mt-3">
+            <h4 className="text-[#666666] text-[13px] font-medium tracking-wider">SOLUTIONS</h4>
+            <div className="flex flex-col gap-3.5">
+              <a href="#" className="text-[#A1A1A1] hover:text-white transition-colors text-[14px]">UX ROI Calculator</a>
+              <a href="#" className="text-[#A1A1A1] hover:text-white transition-colors text-[14px]">UX Benchmark Library</a>
+              <a href="#" className="text-[#A1A1A1] hover:text-white transition-colors text-[14px]">AI Design System</a>
+            </div>
+          </div>
+
+          {/* Column 3: Information */}
+          <div className="md:col-span-4 flex flex-col gap-5 mt-3">
+            <h4 className="text-[#666666] text-[13px] font-medium tracking-wider">INFORMATION</h4>
+            <div className="flex flex-col gap-3.5">
+              <a href="#" className="text-[#A1A1A1] hover:text-white transition-colors text-[14px]">Terms of Service</a>
+              <a href="#" className="text-[#A1A1A1] hover:text-white transition-colors text-[14px]">Privacy Policy</a>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Section */}
+        <div className="mt-8 flex items-center justify-between w-full">
+          <div className="w-1/3 text-left">
+            <p className="text-[#888888] text-[13px]">
+              © 2026 Designday Software Solutions Pvt Ltd
+            </p>
+          </div>
+          
+          <div className="w-1/3 flex justify-center">
+            {/* Action Pill */}
+            <div className="flex items-center p-1.5 rounded-full border border-[#333333] bg-[#1A1A1A]">
+              <SubmitModule>
+                <Button variant="ghost" className="rounded-full text-[#A1A1A1] hover:text-white hover:bg-[#2A2A2A] h-9 px-4 font-normal text-[14px]">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Submit
+                </Button>
+              </SubmitModule>
+              <Button className="rounded-full bg-white text-black hover:bg-gray-200 h-9 px-5 font-medium text-[14px]">
+                <ArrowUpRight className="mr-1.5 h-4 w-4" />
+                Get My Report
+              </Button>
+            </div>
+          </div>
+
+          <div className="w-1/3"></div>
+        </div>
+      </div>
+    </footer>
+  );
+}
