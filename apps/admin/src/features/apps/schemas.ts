@@ -1,0 +1,50 @@
+import { z } from 'zod'
+
+export const appSchema = z.object({
+  name: z.string().min(1, 'App name is required'),
+  slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
+  categoryId: z.string().min(1, 'Category is required'),
+  sourceUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  description: z.string().optional(),
+  status: z.enum(['DRAFT', 'LIVE']).default('DRAFT'),
+  isStaffPick: z.boolean().default(false),
+  
+  platform: z.array(z.string()).min(1, 'Select at least one platform'),
+  market: z.array(z.string()).optional(),
+  targetAudience: z.string().optional(),
+  palette: z.array(z.string()).optional(),
+
+  appLogo: z.union([z.instanceof(File), z.string()]).optional().refine((val) => val !== undefined && val !== '', 'Logo is required'),
+  appThumbnail: z.union([z.instanceof(File), z.string()]).optional().refine((val) => val !== undefined && val !== '', 'Thumbnail is required'),
+
+  // Visuals - UI
+  visualUiTypography: z.string().optional(),
+  visualUiShape: z.string().optional(),
+  visualUiImagery: z.string().optional(),
+
+  // Experience - UX
+  experienceUxSolves: z.string().optional(),
+  experienceUxOverall: z.string().optional(),
+  experienceUxTone: z.string().optional(),
+
+  // Tag arrays and text
+  lookAndFeelTags: z.array(z.string()).optional(),
+  lookAndFeelText: z.string().optional(),
+  
+  easeOfUseTags: z.array(z.string()).optional(),
+  easeOfUseText: z.string().optional(),
+  
+  contentClarityTags: z.array(z.string()).optional(),
+  contentClarityText: z.string().optional(),
+  
+  trustTags: z.array(z.string()).optional(),
+  trustText: z.string().optional(),
+  
+  accessibilityTags: z.array(z.string()).optional(),
+  accessibilityText: z.string().optional(),
+  
+  takeawayTags: z.array(z.string()).optional(),
+  takeawayText: z.string().optional(),
+})
+
+export type AppFormValues = z.infer<typeof appSchema>

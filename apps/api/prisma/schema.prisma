@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Status {
+  LIVE
+  DRAFT
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model Staff {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  password    String   // Hashed password
+  role        Role     @default(EDITOR)
+  permissions String[] // e.g., ["MANAGE_USERS", "MANAGE_APPS", "MANAGE_TAXONOMY"]
+  status      Status   @default(LIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  description String?
+  status      Status   @default(DRAFT)
+  apps        App[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model App {
+  id           String   @id @default(uuid())
+  categoryId   String
+  category     Category @relation(fields: [categoryId], references: [id])
+  name         String
+  slug         String   @unique
+  appLogo      String
+  appThumbnail String
+  status       Status   @default(DRAFT)
+  isStaffPick  Boolean  @default(false)
+  sourceUrl    String?
+  description  String?
+  platform     String[]
+  tags         String[]
+  palette      Json?
+
+  market             String[]
+  targetAudience     String?
+  
+  // Deep Dive Analysis
+  visualUiTypography String?
+  visualUiShape      String?
+  visualUiImagery    String?
+
+  experienceUxSolves  String?
+  experienceUxOverall String?
+  experienceUxTone    String?
+
+  lookAndFeelTags    String[]
+  lookAndFeelText    String?
+  easeOfUseTags      String[]
+  easeOfUseText      String?
+  contentClarityTags String[]
+  contentClarityText String?
+  trustTags          String[]
+  trustText          String?
+  accessibilityTags  String[]
+  accessibilityText  String?
+  
+  takeawayTags       String[]
+  takeawayText       String?
+
+  screens Screen[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Flow {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String?
+  status      Status    @default(DRAFT)
+  screens     Screen[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Screen {
+  id                 String      @id @default(uuid())
+  appId              String
+  app                App         @relation(fields: [appId], references: [id])
+  flowId             String?
+  flow               Flow?       @relation(fields: [flowId], references: [id])
+  screenNo           Int?
+  name               String
+  slug               String      @unique
+  imageUrl           String
+
+  // Screen Analysis Fields
+  uxAnalysis         String?
+  tonalityAndContent String?
+  keyHighlights      String?
+  evidenceWhoWhy     String?
+  whereToUse         String?
+  whereNotToUse      String?
+
+  similarApps        String[]
+  uiElements         UiElement[]
+  patterns           Pattern[]
+  status             Status      @default(DRAFT)
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
+
+model UiElement {
+  id        String   @id @default(uuid())
+  title     String
+  slug      String   @unique
+  content   String?
+  status    Status   @default(DRAFT)
+  screens   Screen[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Pattern {
+  id        String   @id @default(uuid())
+  title     String
+  slug      String   @unique
+  content   String?
+  status    Status   @default(DRAFT)
+  screens   Screen[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

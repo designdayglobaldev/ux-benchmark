@@ -1,13 +1,29 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-
+import categoryRoutes from './routes/category.routes';
+import appRoutes from './routes/app.routes';
+import flowRoutes from './routes/flow.routes';
+import uiElementRoutes from './routes/uiElement.routes';
+import patternRoutes from './routes/pattern.routes';
+import screenRoutes from './routes/screen.routes';
+import analyticsRoutes from './routes/analytics.routes';
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Hello from the Monolithic API!' });
+  res.json({ message: 'Hello from the UX Library API!' });
 });
+
+// API Routes
+app.use('/api/v1/categories', categoryRoutes);
+app.use('/api/v1/apps', appRoutes);
+app.use('/api/v1/flows', flowRoutes);
+app.use('/api/v1/ui-elements', uiElementRoutes);
+app.use('/api/v1/patterns', patternRoutes);
+app.use('/api/v1/screens', screenRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
