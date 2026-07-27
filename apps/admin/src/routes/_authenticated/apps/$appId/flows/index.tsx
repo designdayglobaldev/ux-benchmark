@@ -100,7 +100,7 @@ function AppFlows() {
               </CardContent>
               <CardFooter className="p-0">
                 <Link 
-                  to={`/apps/${appId}/flows/${flow.id}`}
+                  to="/apps/$appId/flows/$flowId" params={{ appId, flowId: flow.id }}
                   className="w-full flex items-center justify-center p-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 border-t transition-colors"
                 >
                   View Flow Details <ArrowRight className="ml-2 w-4 h-4" />

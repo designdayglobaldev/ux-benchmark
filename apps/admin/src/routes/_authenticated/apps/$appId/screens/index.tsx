@@ -101,7 +101,7 @@ function AppScreens() {
                 
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-[2px]">
                   <Button size="sm" variant="secondary" className="h-8 shadow-md" asChild>
-                    <Link to={`/screens/${screen.id}`}>
+                    <Link to={`/screens/$screenId`} params={{ screenId: screen.id }}>
                       <Eye className="w-4 h-4 mr-2" /> View
                     </Link>
                   </Button>

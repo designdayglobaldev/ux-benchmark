@@ -17,8 +17,8 @@ import { TableSkeleton } from '@/components/ui/table-skeleton'
 const route = getRouteApi('/_authenticated/categories/')
 
 export function Categories() {
-  const { filter = '' } = route.useSearch()
-  const navigate = useNavigate({ from: route.id })
+  const { filter = '' } = route.useSearch() as any
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState(filter)
   const [categories, setCategories] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -45,10 +45,10 @@ export function Categories() {
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
     navigate({
-      search: (prev: any) => ({
+      search: ((prev: any) => ({
         ...prev,
         filter: e.target.value || undefined,
-      }),
+      })) as any,
     })
   }
 

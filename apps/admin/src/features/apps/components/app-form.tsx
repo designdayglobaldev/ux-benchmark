@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getRouteApi, Link, useNavigate, useParams } from '@tanstack/react-router'
+import { Link, useNavigate, useParams } from '@tanstack/react-router'
 import { ArrowLeft, Save, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Separator } from '@/components/ui/separator'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ImageDropzone } from '@/components/image-dropzone'
 import { MultiSelect } from '@/components/multi-select'
@@ -36,9 +35,9 @@ export function AppForm() {
   const isEditing = !!appId
 
   const form = useForm<AppFormValues>({
-    resolver: zodResolver(appSchema),
+    resolver: zodResolver(appSchema) as any,
     defaultValues: {
-      status: 'DRAFT',
+      status: 'DRAFT' as const,
       isStaffPick: false,
       platform: [],
       market: [],
@@ -212,7 +211,7 @@ export function AppForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(onSubmit as any, onInvalid)(e); }}>
       <Header>
         <div className='flex items-center gap-4'>
           <Button type='button' variant='ghost' size='icon' asChild>

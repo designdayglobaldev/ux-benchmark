@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, ArrowRight, Play, Settings2, Trash2, GripVertical, Save } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Settings2, Trash2, GripVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -30,14 +30,10 @@ export const Route = createFileRoute('/_authenticated/apps/$appId/flows/$flowId'
 
 function AppFlowDetail() {
   const { appId, flowId } = Route.useParams()
-  const navigate = useNavigate({ from: Route.id })
+  const navigate = useNavigate()
   const [flow, setFlow] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isManageSequenceOpen, setIsManageSequenceOpen] = useState(false)
-  const [orderedScreens, setOrderedScreens] = useState<any[]>([])
-  const [isSavingSequence, setIsSavingSequence] = useState(false)
-  const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null)
-  const [draggedOverItemIndex, setDraggedOverItemIndex] = useState<number | null>(null)
 
   useEffect(() => {
     fetch(`http://localhost:4000/api/v1/flows/${flowId}`)
@@ -46,7 +42,7 @@ function AppFlowDetail() {
         // Sort screens by screenNo if available, otherwise by createdAt
         if (data && data.screens) {
           data.screens.sort((a: any, b: any) => (a.screenNo || 0) - (b.screenNo || 0))
-          setOrderedScreens(data.screens)
+
         }
         setFlow(data)
         setIsLoading(false)
@@ -63,7 +59,7 @@ function AppFlowDetail() {
         method: 'DELETE',
       })
       if (res.ok) {
-        navigate({ to: `/apps/${appId}/flows` })
+        navigate({ to: "/apps/$appId/flows", params: { appId } })
       }
     } catch (error) {
       console.error('Failed to delete flow:', error)
@@ -98,7 +94,7 @@ function AppFlowDetail() {
       <div className="flex w-full items-start border-b pb-6">
         <div className="flex flex-1 items-start gap-4">
           <Button variant="outline" size="icon" asChild className="shrink-0 mt-0.5">
-            <Link to={`/apps/${appId}/flows`}>
+            <Link to="/apps/$appId/flows" params={{ appId }}>
               <ArrowLeft className="w-4 h-4" />
             </Link>
           </Button>
@@ -175,7 +171,7 @@ function AppFlowDetail() {
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                     <Button size="sm" variant="secondary" className="shadow-md" asChild>
-                      <Link to={`/screens/${screen.id}`}>
+                      <Link to={`/screens/$screenId`} params={{ screenId: screen.id }}>
                         View Screen
                       </Link>
                     </Button>

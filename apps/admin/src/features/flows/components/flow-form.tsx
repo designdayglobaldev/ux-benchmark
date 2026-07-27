@@ -30,7 +30,7 @@ export function FlowForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<FlowFormValues>({
-    resolver: zodResolver(flowSchema),
+    resolver: zodResolver(flowSchema) as any,
     defaultValues: {
       status: 'DRAFT',
     }
@@ -118,7 +118,7 @@ export function FlowForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)}>
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(onSubmit as any, onInvalid)(e); }}>
       <Header>
         <div className='flex items-center gap-4'>
           <Button type='button' variant='ghost' size='icon' asChild>
@@ -134,7 +134,7 @@ export function FlowForm() {
             variant='outline' 
             onClick={() => {
               setValue('status', 'DRAFT')
-              handleSubmit(onSubmit, onInvalid)()
+              handleSubmit(onSubmit as any, onInvalid)()
             }}
             disabled={isSubmitting}
           >

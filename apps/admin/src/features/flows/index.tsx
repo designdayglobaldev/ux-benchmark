@@ -1,6 +1,6 @@
 import { useState, useEffect, type ChangeEvent } from 'react'
-import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
-import { Plus, Loader2, Waypoints, Trash2 } from 'lucide-react'
+import { getRouteApi, Link } from '@tanstack/react-router'
+import { Plus, Waypoints, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -28,10 +28,12 @@ const route = getRouteApi('/_authenticated/flows/')
 
 export function Flows() {
   const { filter = '' } = route.useSearch()
-  const navigate = useNavigate({ from: route.id })
+  const navigate = route.useNavigate()
   const [searchTerm, setSearchTerm] = useState(filter)
   const [flows, setFlows] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 20
 
   const fetchFlows = async () => {
     try {
@@ -69,6 +71,7 @@ export function Flows() {
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
+    setCurrentPage(1)
     navigate({
       search: (prev: any) => ({
         ...prev,
@@ -136,7 +139,7 @@ export function Flows() {
           </div>
         ) : (
           <>
-            <div className='border rounded-md mt-4'>
+            <div className='border rounded-md mt-4 flex-1 overflow-auto'>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -148,12 +151,13 @@ export function Flows() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredFlows.map((flow) => (
+                  {filteredFlows.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((flow) => (
                     <TableRow 
                       key={flow.id} 
                       className='cursor-pointer hover:bg-muted/50'
                       onClick={(e) => {
-                        if (!(e.target as HTMLElement).closest('button') && !(e.target as HTMLElement).closest('a')) {
+                        const target = e.target as HTMLElement
+                        if (!target.closest('button') && !target.closest('a')) {
                           navigate({ to: '/flows/$flowId', params: { flowId: flow.id } })
                         }
                       }}
@@ -175,7 +179,10 @@ export function Flows() {
                       <TableCell className='text-right'>
                         <div className="flex justify-end gap-2">
                           <Button variant='ghost' size='sm' asChild>
-                            <Link to='/flows/$flowId/edit' params={{ flowId: flow.id }}>
+                            <Link 
+                              to='/flows/$flowId/edit' 
+                              params={{ flowId: flow.id }}
+                            >
                               Edit
                             </Link>
                           </Button>
@@ -219,16 +226,26 @@ export function Flows() {
             {/* Pagination Footer */}
             <div className='flex items-center justify-between px-2 py-4'>
               <div className='text-sm text-muted-foreground'>
-                Showing 1 to {filteredFlows.length} of {filteredFlows.length} entries
+                Showing {filteredFlows.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredFlows.length)} of {filteredFlows.length} entries
               </div>
               <div className='flex items-center space-x-2'>
-                <Button variant='outline' size='sm' disabled>
+                <Button 
+                  variant='outline' 
+                  size='sm' 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                >
                   Previous
                 </Button>
-                <Button variant='outline' size='sm' className='bg-primary text-primary-foreground hover:bg-primary/90'>
-                  1
-                </Button>
-                <Button variant='outline' size='sm' disabled>
+                <div className='text-sm font-medium'>
+                  Page {currentPage} of {Math.max(1, Math.ceil(filteredFlows.length / ITEMS_PER_PAGE))}
+                </div>
+                <Button 
+                  variant='outline' 
+                  size='sm' 
+                  disabled={currentPage >= Math.ceil(filteredFlows.length / ITEMS_PER_PAGE) || filteredFlows.length === 0}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                >
                   Next
                 </Button>
               </div>

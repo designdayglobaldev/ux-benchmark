@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getRouteApi, Link } from '@tanstack/react-router'
-import { ArrowLeft, Edit, Loader2 } from 'lucide-react'
+import { ArrowLeft, Edit } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'

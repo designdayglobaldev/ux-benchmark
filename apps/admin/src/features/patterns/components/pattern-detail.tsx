@@ -9,7 +9,7 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { DetailPageSkeleton } from '@/components/ui/detail-page-skeleton'
+
 
 // Mock Data
 const MOCK_PATTERN = {
@@ -23,8 +23,8 @@ const MOCK_PATTERN = {
 }
 
 export function PatternDetail() {
-  const routeApi = getRouteApi('/_authenticated/patterns/$patternId')
-  const { patternId } = routeApi.useParams()
+  const routeApi = getRouteApi('/_authenticated/patterns/$patternId/')
+  routeApi.useParams()
   const [searchTerm, setSearchTerm] = useState('')
 
   const pattern = MOCK_PATTERN

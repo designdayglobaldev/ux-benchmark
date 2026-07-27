@@ -1,5 +1,5 @@
 import { useState, useEffect, type ChangeEvent } from 'react'
-import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
+import { getRouteApi, Link } from '@tanstack/react-router'
 import { Plus, Compass, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -17,11 +17,13 @@ import { TableSkeleton } from '@/components/ui/table-skeleton'
 const route = getRouteApi('/_authenticated/patterns/')
 
 export function Patterns() {
-  const { filter = '' } = route.useSearch()
-  const navigate = useNavigate({ from: route.id })
+  const { filter = '' } = route.useSearch() as any
+  const navigate = route.useNavigate()
   const [searchTerm, setSearchTerm] = useState(filter)
   const [patterns, setPatterns] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const ITEMS_PER_PAGE = 20
 
   useEffect(() => {
     const fetchPatterns = async () => {
@@ -45,6 +47,7 @@ export function Patterns() {
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
+    setCurrentPage(1)
     navigate({
       search: (prev: any) => ({
         ...prev,
@@ -146,7 +149,7 @@ export function Patterns() {
           </div>
         ) : (
           <>
-            <div className='border rounded-md mt-4'>
+            <div className='border rounded-md mt-4 flex-1 overflow-auto'>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -158,12 +161,13 @@ export function Patterns() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredPatterns.map((pat) => (
+                  {filteredPatterns.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((pat) => (
                     <TableRow 
                       key={pat.id} 
                       className='cursor-pointer hover:bg-muted/50'
                       onClick={(e) => {
-                        if (!(e.target as HTMLElement).closest('button')) {
+                        const target = e.target as HTMLElement
+                        if (!target.closest('button') && !target.closest('a')) {
                           navigate({ to: '/patterns/$patternId', params: { patternId: pat.id } })
                         }
                       }}
@@ -185,7 +189,10 @@ export function Patterns() {
                       <TableCell className='text-right'>
                         <div className="flex justify-end gap-2">
                           <Button variant='ghost' size='sm' asChild>
-                            <Link to='/patterns/$patternId/edit' params={{ patternId: pat.id }}>
+                            <Link 
+                              to='/patterns/$patternId/edit' 
+                              params={{ patternId: pat.id }}
+                            >
                               Edit
                             </Link>
                           </Button>
@@ -208,16 +215,26 @@ export function Patterns() {
             {/* Pagination Footer */}
             <div className='flex items-center justify-between px-2 py-4'>
               <div className='text-sm text-muted-foreground'>
-                Showing 1 to {filteredPatterns.length} of {filteredPatterns.length} entries
+                Showing {filteredPatterns.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredPatterns.length)} of {filteredPatterns.length} entries
               </div>
               <div className='flex items-center space-x-2'>
-                <Button variant='outline' size='sm' disabled>
+                <Button 
+                  variant='outline' 
+                  size='sm' 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                >
                   Previous
                 </Button>
-                <Button variant='outline' size='sm' className='bg-primary text-primary-foreground hover:bg-primary/90'>
-                  1
-                </Button>
-                <Button variant='outline' size='sm' disabled>
+                <div className='text-sm font-medium'>
+                  Page {currentPage} of {Math.max(1, Math.ceil(filteredPatterns.length / ITEMS_PER_PAGE))}
+                </div>
+                <Button 
+                  variant='outline' 
+                  size='sm' 
+                  disabled={currentPage >= Math.ceil(filteredPatterns.length / ITEMS_PER_PAGE) || filteredPatterns.length === 0}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                >
                   Next
                 </Button>
               </div>

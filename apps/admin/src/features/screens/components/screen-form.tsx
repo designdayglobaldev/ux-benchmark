@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getRouteApi, Link, useNavigate, useParams } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft, Save } from 'lucide-react'
@@ -27,7 +27,7 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
   const [isLoading, setIsLoading] = useState(false)
   
   const form = useForm<ScreenFormValues>({
-    resolver: zodResolver(screenSchema),
+    resolver: zodResolver(screenSchema) as any,
     defaultValues: {
       name: '',
       slug: '',
@@ -167,11 +167,11 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
         <div className='ml-auto flex items-center gap-4'>
           <Button variant='outline' onClick={() => {
             form.setValue('status', 'DRAFT')
-            form.handleSubmit(onSubmit)()
+            form.handleSubmit(onSubmit as any)()
           }} disabled={isLoading}>Save Draft</Button>
           <Button onClick={() => {
             form.setValue('status', 'LIVE')
-            form.handleSubmit(onSubmit)()
+            form.handleSubmit(onSubmit as any)()
           }} disabled={isLoading}>
             <Save className='mr-2 h-4 w-4' /> Publish Screen
           </Button>
@@ -180,7 +180,7 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
       </Header>
 
       <Main className='max-w-4xl mx-auto'>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='grid gap-6'>
+        <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(onSubmit as any)(e); }} className='grid gap-6'>
           
           <Card>
             <CardHeader>

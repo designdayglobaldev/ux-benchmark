@@ -19,7 +19,7 @@ import { ScreenDetailSkeleton } from '@/components/ui/screen-detail-skeleton'
 export function ScreenDetail() {
   const routeApi = getRouteApi('/_authenticated/screens/$screenId')
   const { screenId } = routeApi.useParams()
-  const navigate = useNavigate({ from: routeApi.id })
+  const navigate = useNavigate()
 
   const [screen, setScreen] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)

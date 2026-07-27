@@ -22,8 +22,6 @@ export function AppDetailLayout() {
   // In a real app, we would fetch the data using appId
   const app = MOCK_APP
   
-  const currentTab = location.pathname.split('/').pop() || 'overview'
-
   return (
     <>
       <Header>
@@ -52,19 +50,22 @@ export function AppDetailLayout() {
       <div className='border-b px-6 pt-4'>
         <div className='max-w-6xl mx-auto flex space-x-6'>
           <Link 
-            to={`/apps/${appId}`} 
+            to="/apps/$appId"
+            params={{ appId }} 
             className={`pb-3 font-medium text-sm transition-colors border-b-2 ${location.pathname === `/apps/${appId}` ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
           >
             Overview
           </Link>
           <Link 
-            to={`/apps/${appId}/flows`} 
+            to="/apps/$appId/flows"
+            params={{ appId }} 
             className={`pb-3 font-medium text-sm transition-colors border-b-2 ${location.pathname.includes('/flows') ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
           >
             Flows
           </Link>
           <Link 
-            to={`/apps/${appId}/screens`} 
+            to="/apps/$appId/screens"
+            params={{ appId }} 
             className={`pb-3 font-medium text-sm transition-colors border-b-2 ${location.pathname.includes('/screens') ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
           >
             Screens

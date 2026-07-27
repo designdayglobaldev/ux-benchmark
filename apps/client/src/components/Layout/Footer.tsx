@@ -1,7 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { Plus, ArrowUpRight } from "lucide-react";
 import designdayLogo from "@/assets/Designday_logo1.png";
-import { SubmitModule } from "../Submit_module";
 import { useLocation } from "react-router-dom";
 
 export function Footer() {

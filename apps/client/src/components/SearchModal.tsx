@@ -16,7 +16,7 @@ export function SearchModal() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
     const currentWord = placeholders[placeholderIndex];
     
     if (isDeleting) {

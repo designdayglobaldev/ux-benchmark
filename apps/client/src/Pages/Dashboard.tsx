@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowUpRight, Plus } from "lucide-react";
 import revolutImg from "@/assets/Revolut.png";
 import revolutLogo from "@/assets/Revolut_logo.png";
+// @ts-ignore
 import { SubmitModule } from "../components/Submit_module";
 import { useApps } from "@/hooks/useApps";
 import { Skeleton } from "@/components/ui/skeleton";

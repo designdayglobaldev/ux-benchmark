@@ -9,7 +9,7 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { DetailPageSkeleton } from '@/components/ui/detail-page-skeleton'
+
 
 // Mock Data
 const MOCK_UI_ELEMENT = {
@@ -23,8 +23,8 @@ const MOCK_UI_ELEMENT = {
 }
 
 export function UiElementDetail() {
-  const routeApi = getRouteApi('/_authenticated/ui-elements/$elementId')
-  const { elementId } = routeApi.useParams()
+  const routeApi = getRouteApi('/_authenticated/ui-elements/$elementId/')
+  routeApi.useParams()
   const [searchTerm, setSearchTerm] = useState('')
 
   const element = MOCK_UI_ELEMENT

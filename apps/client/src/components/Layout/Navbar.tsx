@@ -1,5 +1,4 @@
-import { Bell, Search, Scan } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Bell } from "lucide-react";
 import { SearchModal } from "@/components/SearchModal";
 
 export function Navbar() {

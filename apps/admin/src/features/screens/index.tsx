@@ -28,7 +28,7 @@ const route = getRouteApi('/_authenticated/screens/')
 
 export function Screens() {
   const { filter = '' } = route.useSearch()
-  const navigate = useNavigate({ from: route.id })
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState(filter)
   const [screens, setScreens] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -71,10 +71,10 @@ export function Screens() {
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
     navigate({
-      search: (prev: any) => ({
+      search: ((prev: any) => ({
         ...prev,
         filter: e.target.value || undefined,
-      }),
+      })) as any,
     })
   }
 

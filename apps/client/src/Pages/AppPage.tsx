@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function AppPage() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate()
-    const { data: appData, isLoading, error } = useAppDetails(slug || '');
+    const { data: appData, isLoading } = useAppDetails(slug || '');
     const [api, setApi] = useState<CarouselApi>()
     const [current, setCurrent] = useState(0)
 

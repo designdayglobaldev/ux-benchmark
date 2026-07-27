@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getRouteApi, Link } from '@tanstack/react-router'
-import { ArrowLeft, Edit, Loader2 } from 'lucide-react'
+import { ArrowLeft, Edit } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DetailPageSkeleton } from '@/components/ui/detail-page-skeleton'
 
 export function FlowDetail() {
-  const routeApi = getRouteApi('/_authenticated/flows/$flowId')
+  const routeApi = getRouteApi('/_authenticated/flows/$flowId/')
   const { flowId } = routeApi.useParams()
   const [searchTerm, setSearchTerm] = useState('')
   const [flow, setFlow] = useState<any>(null)

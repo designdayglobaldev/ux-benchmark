@@ -1,7 +1,6 @@
-import React, { useState, KeyboardEvent } from 'react'
+import { useState, KeyboardEvent } from 'react'
 import { X } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
 interface ColorPaletteInputProps {
