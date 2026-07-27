@@ -56,7 +56,7 @@ export function AppForm() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/v1/categories')
+        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/categories')
         const data = await res.json()
         setCategories(data)
       } catch (err) {
@@ -71,7 +71,7 @@ export function AppForm() {
       const fetchApp = async () => {
         setIsFetchingData(true)
         try {
-          const res = await fetch(`http://localhost:4000/api/v1/apps/${appId}`)
+          const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/apps/${appId}`)
           if (!res.ok) throw new Error('Failed to fetch app')
           const data = await res.json()
           
@@ -164,8 +164,8 @@ export function AppForm() {
       }
       
       const url = isEditing 
-        ? `http://localhost:4000/api/v1/apps/${appId}`
-        : 'http://localhost:4000/api/v1/apps'
+        ? `${import.meta.env.VITE_API_URL || ''}/api/v1/apps/${appId}`
+        : (import.meta.env.VITE_API_URL || '') + '/api/v1/apps'
 
       const res = await fetch(url, {
         method: isEditing ? 'PUT' : 'POST',

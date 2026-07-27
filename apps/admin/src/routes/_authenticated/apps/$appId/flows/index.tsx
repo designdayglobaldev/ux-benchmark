@@ -15,7 +15,7 @@ function AppFlows() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`http://localhost:4000/api/v1/flows?appId=${appId}`)
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows?appId=${appId}`)
       .then(res => res.json())
       .then(data => {
         setFlows(data)

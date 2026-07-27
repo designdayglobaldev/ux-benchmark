@@ -41,7 +41,7 @@ export function UiElementForm() {
       const fetchUiElement = async () => {
         setIsFetchingData(true)
         try {
-          const res = await fetch(`http://localhost:4000/api/v1/ui-elements/${elementId}`)
+          const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/ui-elements/${elementId}`)
           if (!res.ok) throw new Error('Failed to fetch UI Element')
           const data = await res.json()
           
@@ -83,8 +83,8 @@ export function UiElementForm() {
       toast.loading(isEditing ? 'Updating UI Element...' : 'Saving UI Element...')
       
       const url = isEditing 
-        ? `http://localhost:4000/api/v1/ui-elements/${elementId}`
-        : 'http://localhost:4000/api/v1/ui-elements'
+        ? `${import.meta.env.VITE_API_URL || ''}/api/v1/ui-elements/${elementId}`
+        : (import.meta.env.VITE_API_URL || '') + '/api/v1/ui-elements'
 
       const res = await fetch(url, {
         method: isEditing ? 'PUT' : 'POST',

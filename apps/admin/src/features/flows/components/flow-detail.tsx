@@ -21,7 +21,7 @@ export function FlowDetail() {
   useEffect(() => {
     const fetchFlow = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/v1/flows/${flowId}`)
+        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}`)
         if (!res.ok) throw new Error('Failed to fetch flow')
         const data = await res.json()
         setFlow(data)

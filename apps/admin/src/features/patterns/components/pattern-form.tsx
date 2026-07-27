@@ -41,7 +41,7 @@ export function PatternForm() {
       const fetchPattern = async () => {
         setIsFetchingData(true)
         try {
-          const res = await fetch(`http://localhost:4000/api/v1/patterns/${patternId}`)
+          const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/patterns/${patternId}`)
           if (!res.ok) throw new Error('Failed to fetch Pattern')
           const data = await res.json()
           
@@ -83,8 +83,8 @@ export function PatternForm() {
       toast.loading(isEditing ? 'Updating Pattern...' : 'Saving Pattern...')
       
       const url = isEditing 
-        ? `http://localhost:4000/api/v1/patterns/${patternId}`
-        : 'http://localhost:4000/api/v1/patterns'
+        ? `${import.meta.env.VITE_API_URL || ''}/api/v1/patterns/${patternId}`
+        : (import.meta.env.VITE_API_URL || '') + '/api/v1/patterns'
 
       const res = await fetch(url, {
         method: isEditing ? 'PUT' : 'POST',

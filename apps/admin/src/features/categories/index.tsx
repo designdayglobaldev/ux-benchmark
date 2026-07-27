@@ -26,7 +26,7 @@ export function Categories() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/v1/categories')
+        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/categories')
         const data = await res.json()
         setCategories(data)
       } catch (error) {
@@ -62,7 +62,7 @@ export function Categories() {
 
   const handleDelete = async () => {
     if (!categoryToDelete) return
-    const res = await fetch(`http://localhost:4000/api/v1/categories/${categoryToDelete.id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/categories/${categoryToDelete.id}`, {
       method: 'DELETE',
     })
     if (res.ok) {
@@ -74,7 +74,7 @@ export function Categories() {
 
   const handleMigrate = async (targetId: string) => {
     if (!categoryToDelete) return
-    const res = await fetch(`http://localhost:4000/api/v1/categories/${categoryToDelete.id}/migrate`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/categories/${categoryToDelete.id}/migrate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ targetId }),

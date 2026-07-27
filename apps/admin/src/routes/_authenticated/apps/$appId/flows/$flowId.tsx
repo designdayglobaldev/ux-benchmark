@@ -36,7 +36,7 @@ function AppFlowDetail() {
   const [isManageSequenceOpen, setIsManageSequenceOpen] = useState(false)
 
   useEffect(() => {
-    fetch(`http://localhost:4000/api/v1/flows/${flowId}`)
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}`)
       .then(res => res.json())
       .then(data => {
         // Sort screens by screenNo if available, otherwise by createdAt
@@ -55,7 +55,7 @@ function AppFlowDetail() {
 
   const handleDeleteFlow = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/flows/${flowId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}`, {
         method: 'DELETE',
       })
       if (res.ok) {
@@ -263,7 +263,7 @@ function ManageSequenceModal({ open, onOpenChange, initialScreens, flowId, onSav
   const handleSaveSequence = async () => {
     setIsSavingSequence(true)
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/flows/${flowId}/reorder`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}/reorder`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

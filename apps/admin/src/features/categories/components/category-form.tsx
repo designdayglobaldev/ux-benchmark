@@ -41,7 +41,7 @@ export function CategoryForm() {
       const fetchCategory = async () => {
         setIsFetchingData(true)
         try {
-          const res = await fetch(`http://localhost:4000/api/v1/categories/${categoryId}`)
+          const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/categories/${categoryId}`)
           if (!res.ok) throw new Error('Failed to fetch category')
           const data = await res.json()
           
@@ -83,8 +83,8 @@ export function CategoryForm() {
       toast.loading(isEditing ? 'Updating category...' : 'Saving category...')
       
       const url = isEditing 
-        ? `http://localhost:4000/api/v1/categories/${categoryId}`
-        : 'http://localhost:4000/api/v1/categories'
+        ? `${import.meta.env.VITE_API_URL || ''}/api/v1/categories/${categoryId}`
+        : (import.meta.env.VITE_API_URL || '') + '/api/v1/categories'
 
       const res = await fetch(url, {
         method: isEditing ? 'PUT' : 'POST',

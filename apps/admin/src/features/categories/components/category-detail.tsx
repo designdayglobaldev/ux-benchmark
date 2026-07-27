@@ -21,7 +21,7 @@ export function CategoryDetail() {
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/v1/categories/${categoryId}`)
+        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/categories/${categoryId}`)
         if (!res.ok) throw new Error('Failed to fetch category')
         const data = await res.json()
         setCategory(data)

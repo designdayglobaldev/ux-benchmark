@@ -51,7 +51,7 @@ export function FlowForm() {
       const fetchFlow = async () => {
         setIsFetchingData(true)
         try {
-          const res = await fetch(`http://localhost:4000/api/v1/flows/${flowId}`)
+          const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}`)
           if (!res.ok) throw new Error('Failed to fetch flow')
           const data = await res.json()
           
@@ -76,8 +76,8 @@ export function FlowForm() {
     setIsSubmitting(true)
     try {
       const url = flowId 
-        ? `http://localhost:4000/api/v1/flows/${flowId}` 
-        : 'http://localhost:4000/api/v1/flows'
+        ? `${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}` 
+        : (import.meta.env.VITE_API_URL || '') + '/api/v1/flows'
       const method = flowId ? 'PUT' : 'POST'
 
       const res = await fetch(url, {

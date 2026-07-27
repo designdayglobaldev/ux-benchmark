@@ -28,7 +28,7 @@ export function Patterns() {
   useEffect(() => {
     const fetchPatterns = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/v1/patterns')
+        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/patterns')
         if (!res.ok) throw new Error('Failed to fetch patterns')
         const data = await res.json()
         setPatterns(data)
@@ -66,7 +66,7 @@ export function Patterns() {
 
   const handleDelete = async () => {
     if (!patternToDelete) return
-    const res = await fetch(`http://localhost:4000/api/v1/patterns/${patternToDelete.id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/patterns/${patternToDelete.id}`, {
       method: 'DELETE',
     })
     if (res.ok) {
@@ -78,7 +78,7 @@ export function Patterns() {
 
   const handleMigrate = async (targetId: string) => {
     if (!patternToDelete) return
-    const res = await fetch(`http://localhost:4000/api/v1/patterns/${patternToDelete.id}/migrate`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/patterns/${patternToDelete.id}/migrate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ targetId }),

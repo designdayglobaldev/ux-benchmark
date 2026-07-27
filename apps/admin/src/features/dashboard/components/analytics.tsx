@@ -14,7 +14,7 @@ export function Analytics() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/v1/analytics')
+    fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/analytics')
       .then(res => res.json())
       .then(result => {
         setData(result)

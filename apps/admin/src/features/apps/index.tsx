@@ -35,7 +35,7 @@ export function Apps() {
   useEffect(() => {
     const fetchApps = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/v1/apps')
+        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/apps')
         const data = await res.json()
         setApps(data)
       } catch (error) {
@@ -49,7 +49,7 @@ export function Apps() {
 
   const handleDeleteApp = async (appId: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/apps/${appId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/apps/${appId}`, {
         method: 'DELETE',
       })
       if (res.ok) {

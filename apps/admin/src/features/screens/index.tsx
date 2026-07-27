@@ -34,7 +34,7 @@ export function Screens() {
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchScreens = () => {
-    fetch('http://localhost:4000/api/v1/screens')
+    fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/screens')
       .then(res => res.json())
       .then(data => {
         setScreens(data)
@@ -52,7 +52,7 @@ export function Screens() {
 
   const handleDeleteScreen = async (screenId: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/screens/${screenId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens/${screenId}`, {
         method: 'DELETE',
       })
       if (res.ok) {

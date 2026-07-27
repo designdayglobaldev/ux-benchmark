@@ -28,7 +28,7 @@ export function UiElements() {
   useEffect(() => {
     const fetchUiElements = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/v1/ui-elements')
+        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/ui-elements')
         if (!res.ok) throw new Error('Failed to fetch UI elements')
         const data = await res.json()
         setUiElements(data)
@@ -66,7 +66,7 @@ export function UiElements() {
 
   const handleDelete = async () => {
     if (!uiElementToDelete) return
-    const res = await fetch(`http://localhost:4000/api/v1/ui-elements/${uiElementToDelete.id}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/ui-elements/${uiElementToDelete.id}`, {
       method: 'DELETE',
     })
     if (res.ok) {
@@ -78,7 +78,7 @@ export function UiElements() {
 
   const handleMigrate = async (targetId: string) => {
     if (!uiElementToDelete) return
-    const res = await fetch(`http://localhost:4000/api/v1/ui-elements/${uiElementToDelete.id}/migrate`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/ui-elements/${uiElementToDelete.id}/migrate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ targetId }),

@@ -33,7 +33,7 @@ export function ScreenDetail() {
   })
 
   useEffect(() => {
-    fetch(`http://localhost:4000/api/v1/screens/${screenId}`)
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens/${screenId}`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch screen details')
         return res.json()
@@ -47,7 +47,7 @@ export function ScreenDetail() {
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/screens/${screenId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens/${screenId}`, {
         method: 'DELETE',
       })
       if (res.ok) {

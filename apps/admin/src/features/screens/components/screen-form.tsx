@@ -73,10 +73,10 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
   useEffect(() => {
     // Fetch options
     Promise.all([
-      fetch('http://localhost:4000/api/v1/apps').then(r => r.json()),
-      fetch('http://localhost:4000/api/v1/flows').then(r => r.json()),
-      fetch('http://localhost:4000/api/v1/ui-elements').then(r => r.json()),
-      fetch('http://localhost:4000/api/v1/patterns').then(r => r.json())
+      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/apps').then(r => r.json()),
+      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/flows').then(r => r.json()),
+      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/ui-elements').then(r => r.json()),
+      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/patterns').then(r => r.json())
     ]).then(([appsData, flowsData, uiElemsData, patternsData]) => {
       setApps(appsData)
       setFlows(flowsData)
@@ -85,7 +85,7 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
     })
 
     if (screenId) {
-      fetch(`http://localhost:4000/api/v1/screens/${screenId}`)
+      fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens/${screenId}`)
         .then(res => res.json())
         .then(data => {
           form.reset({
@@ -127,8 +127,8 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
       }
 
       const url = screenId 
-        ? `http://localhost:4000/api/v1/screens/${screenId}`
-        : 'http://localhost:4000/api/v1/screens'
+        ? `${import.meta.env.VITE_API_URL || ''}/api/v1/screens/${screenId}`
+        : (import.meta.env.VITE_API_URL || '') + '/api/v1/screens'
       
       const method = screenId ? 'PUT' : 'POST'
       

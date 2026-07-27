@@ -37,7 +37,7 @@ export function Flows() {
 
   const fetchFlows = async () => {
     try {
-      const res = await fetch('http://localhost:4000/api/v1/flows')
+      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/flows')
       if (!res.ok) throw new Error('Failed to fetch flows')
       const data = await res.json()
       setFlows(data)
@@ -54,7 +54,7 @@ export function Flows() {
 
   const handleDeleteFlow = async (flowId: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/v1/flows/${flowId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}`, {
         method: 'DELETE',
       })
       if (res.ok) {
