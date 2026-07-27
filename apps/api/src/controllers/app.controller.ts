@@ -17,9 +17,26 @@ export const getAllApps = async (req: Request, res: Response) => {
 export const getAppById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const app = await prisma.app.findUnique({
-      where: { id },
-      include: { category: true }
+    const app = await prisma.app.findFirst({
+      where: { 
+        OR: [
+          { id: id },
+          { slug: id }
+        ]
+      },
+      include: { 
+        category: true, 
+        screens: {
+          orderBy: {
+            screenNo: 'asc'
+          },
+          include: {
+            flow: true,
+            uiElements: true,
+            patterns: true
+          }
+        } 
+      }
     });
     
     if (!app) {

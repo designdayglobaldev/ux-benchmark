@@ -1,27 +1,24 @@
-import { useState } from "react"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { Navbar } from "./components/Layout/Navbar"
 import { Footer } from "./components/Layout/Footer"
 import { Dashboard } from "./Pages/Dashboard"
-import { Revolut1 } from "./Pages/Revolut1"
-import { Revolut2 } from "./Pages/Revolut2"
+import { AppPage } from "./Pages/AppPage"
+import { AppScreens } from "./Pages/AppScreens"
 
 function App() {
-  const [currentPage, setCurrentPage] = useState("dashboard")
-
   return (
-    <div className="min-h-screen bg-black text-white relative font-sans flex flex-col">
-      <Navbar />
-      {currentPage === "dashboard" && (
-        <Dashboard onNavigate={(page) => setCurrentPage(page)} />
-      )}
-      {currentPage === "revolut1" && (
-        <Revolut1 onBack={() => setCurrentPage("dashboard")} onNavigate={(page) => setCurrentPage(page)} />
-      )}
-      {currentPage === "revolut2" && (
-        <Revolut2 onBack={() => setCurrentPage("revolut1")} />
-      )}
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <div className="min-h-screen bg-black text-white relative font-sans flex flex-col">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/app/:slug" element={<AppPage />} />
+          <Route path="/app/:slug/screens" element={<AppScreens />} />
+          <Route path="/app/:slug/screens/:screenSlug" element={<AppScreens />} />
+        </Routes>
+        <Footer />
+      </div>
+    </BrowserRouter>
   )
 }
 

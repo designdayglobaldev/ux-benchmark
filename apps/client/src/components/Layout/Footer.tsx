@@ -2,8 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Plus, ArrowUpRight } from "lucide-react";
 import designdayLogo from "@/assets/Designday_logo1.png";
 import { SubmitModule } from "../Submit_module";
+import { useLocation } from "react-router-dom";
 
 export function Footer() {
+  const location = useLocation();
+  const isScreensPage = location.pathname.includes('/screens');
+
+  if (isScreensPage) {
+    return null;
+  }
+
   return (
     <footer className="w-full bg-[#161616] text-[#EAEAEA] py-6 pl-[72px] pr-6 md:pl-[144px] md:pr-12 border-t border-[#222222]">
       <div className="max-w-[1400px] mx-auto w-full">
@@ -53,19 +61,6 @@ export function Footer() {
           </div>
           
           <div className="w-1/3 flex justify-center">
-            {/* Action Pill */}
-            <div className="flex items-center p-1.5 rounded-full border border-[#333333] bg-[#1A1A1A]">
-              <SubmitModule>
-                <Button variant="ghost" className="rounded-full text-[#A1A1A1] hover:text-white hover:bg-[#2A2A2A] h-9 px-4 font-normal text-[14px]">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Submit
-                </Button>
-              </SubmitModule>
-              <Button className="rounded-full bg-white text-black hover:bg-gray-200 h-9 px-5 font-medium text-[14px]">
-                <ArrowUpRight className="mr-1.5 h-4 w-4" />
-                Get My Report
-              </Button>
-            </div>
           </div>
 
           <div className="w-1/3"></div>

@@ -1,5 +1,6 @@
-import { Calendar } from "lucide-react";
+import { Bell, Search, Scan } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SearchModal } from "@/components/SearchModal";
 
 export function Navbar() {
   return (
@@ -24,20 +25,19 @@ export function Navbar() {
           </a>
         </div>
 
-        {/* Center: Nav links */}
-        <nav className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-8 text-[15px] font-medium">
-          <a href="#" className="text-[#EAEAEA] hover:text-white transition-colors">Benchmark library</a>
-          <a href="#" className="text-[#EAEAEA] hover:text-white transition-colors">UX ROI calculator</a>
-          <a href="#" className="text-[#EAEAEA] hover:text-white transition-colors">AI design system</a>
-        </nav>
+        {/* Center: Searchbar */}
+        <div className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center w-[40%] max-w-[560px]">
+          <SearchModal />
+        </div>
 
-        {/* Right side: About & Button */}
-        <div className="flex items-center gap-8">
-          <a href="#" className="text-[15px] font-medium text-[#EAEAEA] hover:text-white transition-colors">About</a>
-          <Button variant="outline" className="rounded-full bg-transparent border-[#333333] text-[#EAEAEA] hover:bg-[#222222] hover:text-white h-10 px-5 text-[15px] font-medium">
-            <Calendar className="mr-2 h-4 w-4" />
-            Book a Demo
-          </Button>
+        {/* Right side: Notifications & Profile */}
+        <div className="flex items-center gap-5">
+          <button className="text-[#A1A1A1] hover:text-white transition-colors relative">
+            <Bell className="h-[22px] w-[22px]" />
+          </button>
+          <button className="h-[34px] w-[34px] rounded-full bg-[#1F4932] flex items-center justify-center text-[#93D7B1] text-[15px] font-medium hover:opacity-90 transition-opacity">
+            S
+          </button>
         </div>
       </div>
     </header>

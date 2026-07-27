@@ -1,15 +1,10 @@
 import { useState } from "react";
 
-const sameInfo =
-    "This launch screen guides users to either Sign Up or Log In with minimal distraction. Strong branding and two equally weighted buttons keep the choice simple, while the consent text is placed directly above the actions to satisfy legal requirements. Account Recovery is intentionally de-emphasized as a secondary link so it remains available without competing with the main paths.";
+import type { ScreenType } from "@/hooks/useAppDetails";
 
-const sections = [
-    { title: "UX ANALYSIS", content: sameInfo, defaultOpen: true },
-    { title: "KEY HIGHLIGHTS & UX PRINCIPLES", content: sameInfo, defaultOpen: false },
-    { title: "EVIDENCE - WHO & WHY", content: sameInfo, defaultOpen: false },
-    { title: "WHERE TO USE", content: sameInfo, defaultOpen: false },
-    { title: "WHERE NOT TO USE", content: sameInfo, defaultOpen: false },
-];
+interface LeftsideProps {
+    activeScreen?: ScreenType;
+}
 
 function PlusMinusIcon({ isOpen }: { isOpen: boolean }) {
     return (
@@ -22,7 +17,15 @@ function PlusMinusIcon({ isOpen }: { isOpen: boolean }) {
     );
 }
 
-export function Leftside() {
+export function Leftside({ activeScreen }: LeftsideProps) {
+    const sections = [
+        { title: "UX ANALYSIS", content: activeScreen?.uxAnalysis || "Analysis not available.", defaultOpen: true },
+        { title: "KEY HIGHLIGHTS & UX PRINCIPLES", content: activeScreen?.keyHighlights || "Not available.", defaultOpen: false },
+        { title: "EVIDENCE - WHO & WHY", content: activeScreen?.evidenceWhoWhy || "Not available.", defaultOpen: false },
+        { title: "WHERE TO USE", content: activeScreen?.whereToUse || "Not available.", defaultOpen: false },
+        { title: "WHERE NOT TO USE", content: activeScreen?.whereNotToUse || "Not available.", defaultOpen: false },
+    ];
+
     const [openStates, setOpenStates] = useState<boolean[]>(
         sections.map((s) => s.defaultOpen)
     );
@@ -36,19 +39,19 @@ export function Leftside() {
     };
 
     return (
-        <div className="w-full flex flex-col gap-2 mt-8 xl:mt-[30px]">
+        <div className="w-full flex flex-col gap-3 mt-8 xl:mt-[30px]">
             {sections.map((section, index) => {
                 const isOpen = openStates[index];
                 return (
                     <div
                         key={section.title}
-                        className="w-full rounded-[12px] bg-[#111111] border border-[#1F1F1F] overflow-hidden"
+                        className="w-full rounded-[12px] bg-[#111111] overflow-hidden"
                     >
                         <div
                             onClick={() => toggleSection(index)}
                             className="flex flex-row items-center justify-between p-5 sm:px-6 cursor-pointer select-none"
                         >
-                            <span className="font-['Inter'] font-medium text-[13px] leading-none tracking-[0.1em] uppercase text-[#878787]">
+                            <span className="font-['Inter'] font-normal text-[12px] leading-normal tracking-[0.04em] uppercase text-[#BDBDBD]">
                                 {section.title}
                             </span>
                             <PlusMinusIcon isOpen={isOpen} />

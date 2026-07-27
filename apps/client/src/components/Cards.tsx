@@ -1,4 +1,20 @@
-export function Cards() {
+interface CardsProps {
+    visualUiTypography?: string;
+    visualUiShape?: string;
+    visualUiImagery?: string;
+    experienceUxSolves?: string;
+    experienceUxOverall?: string;
+    experienceUxTone?: string;
+}
+
+export function Cards({
+    visualUiTypography,
+    visualUiShape,
+    visualUiImagery,
+    experienceUxSolves,
+    experienceUxOverall,
+    experienceUxTone
+}: CardsProps) {
     return (
         <div className="mt-12 flex flex-col md:flex-row gap-4 w-full">
             {/* Card 1: Visual · UI */}
@@ -11,17 +27,17 @@ export function Cards() {
                 </div>
 
                 <span className="mt-8 font-['Inter'] font-normal text-[11px] leading-none tracking-[0.12em] uppercase text-[#878787]">TYPOGRAPHY</span>
-                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">Clean geometric sans</span>
+                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">{visualUiTypography || 'Clean geometric sans'}</span>
 
                 <div className="my-5 w-full h-[1px] bg-[#2B2B29]"></div>
 
                 <span className="font-['Inter'] font-normal text-[11px] leading-none tracking-[0.12em] uppercase text-[#878787]">SHAPE</span>
-                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">Soft-rounded cards</span>
+                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">{visualUiShape || 'Soft-rounded cards'}</span>
 
                 <div className="my-5 w-full h-[1px] bg-[#2B2B29]"></div>
 
                 <span className="font-['Inter'] font-normal text-[11px] leading-none tracking-[0.12em] uppercase text-[#878787]">IMAGERY</span>
-                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">Data-forward, minimal photography</span>
+                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">{visualUiImagery || 'Data-forward, minimal photography'}</span>
             </div>
 
             {/* Card 2: Experience · UX */}
@@ -35,17 +51,17 @@ export function Cards() {
                 </div>
 
                 <span className="mt-8 font-['Inter'] font-normal text-[11px] leading-none tracking-[0.12em] uppercase text-[#878787]">WHAT IT SOLVES</span>
-                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">Solves borderless money</span>
+                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">{experienceUxSolves || 'Solves borderless money'}</span>
 
                 <div className="my-5 w-full h-[1px] bg-[#2B2B29]"></div>
 
                 <span className="font-['Inter'] font-normal text-[11px] leading-none tracking-[0.12em] uppercase text-[#878787]">OVERALL EXPERIENCE</span>
-                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">Hub-and-tile control panel</span>
+                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">{experienceUxOverall || 'Hub-and-tile control panel'}</span>
 
                 <div className="my-5 w-full h-[1px] bg-[#2B2B29]"></div>
 
                 <span className="font-['Inter'] font-normal text-[11px] leading-none tracking-[0.12em] uppercase text-[#878787]">TONE</span>
-                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">Confident, crisp, grown-up</span>
+                <span className="mt-2.5 font-['Inter'] font-normal text-[16px] leading-none text-[#E5E7EB]">{experienceUxTone || 'Confident, crisp, grown-up'}</span>
             </div>
         </div>
     );
