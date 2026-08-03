@@ -18,14 +18,14 @@ export const appSchema = z.object({
   appThumbnail: z.union([z.instanceof(File), z.string()]).optional().refine((val) => val !== undefined && val !== '', 'Thumbnail is required'),
 
   // Visuals - UI
-  visualUiTypography: z.string().optional(),
-  visualUiShape: z.string().optional(),
-  visualUiImagery: z.string().optional(),
+  visualUiTypography: z.string().min(1, 'Typography is required'),
+  visualUiShape: z.string().min(1, 'Shape is required'),
+  visualUiImagery: z.string().min(1, 'Imagery is required'),
 
   // Experience - UX
-  experienceUxSolves: z.string().optional(),
-  experienceUxOverall: z.string().optional(),
-  experienceUxTone: z.string().optional(),
+  experienceUxSolves: z.string().min(1, 'What it solves is required'),
+  experienceUxOverall: z.string().min(1, 'Overall experience is required'),
+  experienceUxTone: z.string().min(1, 'Tone is required'),
 
   // Tag arrays and text
   lookAndFeelTags: z.array(z.string()).optional(),
@@ -36,12 +36,15 @@ export const appSchema = z.object({
   
   contentClarityTags: z.array(z.string()).optional(),
   contentClarityText: z.string().optional(),
+  contentClarityQuoteTitle: z.string().optional(),
+  contentClarityQuoteText: z.string().optional(),
   
   trustTags: z.array(z.string()).optional(),
   trustText: z.string().optional(),
   
   accessibilityTags: z.array(z.string()).optional(),
   accessibilityText: z.string().optional(),
+  accessibilityUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   
   takeawayTags: z.array(z.string()).optional(),
   takeawayText: z.string().optional(),

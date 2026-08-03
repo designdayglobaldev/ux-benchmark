@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DOMPurify from 'dompurify';
 
 import type { ScreenType } from "@/hooks/useAppDetails";
 
@@ -58,9 +59,10 @@ export function Leftside({ activeScreen }: LeftsideProps) {
                         </div>
 
                         {isOpen && (
-                            <p className="m-0 px-5 pb-5 sm:px-6 sm:pb-6 font-['Inter'] font-normal text-[14px] sm:text-[15px] leading-[24px] sm:leading-[26px] text-[#E5E7EB]">
-                                {section.content}
-                            </p>
+                            <div 
+                                className="m-0 px-5 pb-5 sm:px-6 sm:pb-6 font-['Inter'] font-normal text-[14px] sm:text-[15px] leading-[24px] sm:leading-[26px] text-[#E5E7EB] prose prose-sm prose-invert max-w-none"
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(section.content, { ADD_ATTR: ['style'] }) }}
+                            />
                         )}
                     </div>
                 );

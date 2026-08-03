@@ -72,12 +72,15 @@ model App {
   lookAndFeelText    String?
   easeOfUseTags      String[]
   easeOfUseText      String?
-  contentClarityTags String[]
-  contentClarityText String?
-  trustTags          String[]
-  trustText          String?
+  contentClarityTags       String[]
+  contentClarityText       String?
+  contentClarityQuoteTitle String?
+  contentClarityQuoteText  String?
+  trustTags                String[]
+  trustText                String?
   accessibilityTags  String[]
   accessibilityText  String?
+  accessibilityUrl   String?
   
   takeawayTags       String[]
   takeawayText       String?

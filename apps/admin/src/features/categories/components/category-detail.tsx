@@ -1,3 +1,4 @@
+import { useDebounce } from '@/hooks/use-debounce';
 import { useState, useEffect } from 'react'
 import { getRouteApi, Link } from '@tanstack/react-router'
 import { ArrowLeft, Edit } from 'lucide-react'
@@ -12,9 +13,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DetailPageSkeleton } from '@/components/ui/detail-page-skeleton'
 
 export function CategoryDetail() {
-  const routeApi = getRouteApi('/_authenticated/categories/$categoryId')
+  const routeApi = getRouteApi('/_authenticated/categories/$categoryId/')
   const { categoryId } = routeApi.useParams()
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [category, setCategory] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -44,7 +46,7 @@ export function CategoryDetail() {
 
   const apps = category.apps || []
   const filteredApps = apps.filter((app: any) => 
-    app.name.toLowerCase().includes(searchTerm.toLowerCase())
+    app.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   )
 
   return (

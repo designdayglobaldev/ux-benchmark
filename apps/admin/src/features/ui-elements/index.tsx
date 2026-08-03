@@ -1,3 +1,4 @@
+import { useDebounce } from '@/hooks/use-debounce';
 import { useState, useEffect, type ChangeEvent } from 'react'
 import { getRouteApi, Link } from '@tanstack/react-router'
 import { Plus, LayoutTemplate, Trash2 } from 'lucide-react'
@@ -20,6 +21,7 @@ export function UiElements() {
   const { filter = '' } = route.useSearch() as any
   const navigate = route.useNavigate()
   const [searchTerm, setSearchTerm] = useState(filter)
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [uiElements, setUiElements] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
@@ -42,18 +44,17 @@ export function UiElements() {
   }, [])
 
   const filteredElements = uiElements.filter((el) =>
-    el.title.toLowerCase().includes(searchTerm.toLowerCase())
+    el.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   )
+
+  useEffect(() => {
+    if (typeof navigate === 'function') {
+      navigate({ search: (prev: any) => ({ ...prev, filter: debouncedSearchTerm || undefined }) as any })
+    }
+  }, [debouncedSearchTerm, navigate])
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
-    setCurrentPage(1)
-    navigate({
-      search: (prev: any) => ({
-        ...prev,
-        filter: e.target.value || undefined,
-      }),
-    })
   }
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)

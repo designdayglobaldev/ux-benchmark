@@ -29,7 +29,6 @@ import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppsAppIdRouteImport } from './routes/_authenticated/apps/$appId'
 import { Route as AuthenticatedAppsNewRouteImport } from './routes/_authenticated/apps/new'
 import { Route as AuthenticatedCategoriesIndexRouteImport } from './routes/_authenticated/categories/index'
-import { Route as AuthenticatedCategoriesCategoryIdRouteImport } from './routes/_authenticated/categories/$categoryId'
 import { Route as AuthenticatedCategoriesNewRouteImport } from './routes/_authenticated/categories/new'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
@@ -57,6 +56,7 @@ import { Route as ClerkauthSignUpRouteImport } from './routes/clerk/(auth)/sign-
 import { Route as ClerkAuthenticatedUserManagementRouteImport } from './routes/clerk/_authenticated/user-management'
 import { Route as AuthenticatedAppsAppIdIndexRouteImport } from './routes/_authenticated/apps/$appId/index'
 import { Route as AuthenticatedAppsAppIdEditRouteImport } from './routes/_authenticated/apps/$appId/edit'
+import { Route as AuthenticatedCategoriesCategoryIdIndexRouteImport } from './routes/_authenticated/categories/$categoryId/index'
 import { Route as AuthenticatedCategoriesCategoryIdEditRouteImport } from './routes/_authenticated/categories/$categoryId/edit'
 import { Route as AuthenticatedFlowsFlowIdIndexRouteImport } from './routes/_authenticated/flows/$flowId/index'
 import { Route as AuthenticatedFlowsFlowIdEditRouteImport } from './routes/_authenticated/flows/$flowId/edit'
@@ -166,12 +166,6 @@ const AuthenticatedCategoriesIndexRoute =
   AuthenticatedCategoriesIndexRouteImport.update({
     id: '/categories/',
     path: '/categories/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedCategoriesCategoryIdRoute =
-  AuthenticatedCategoriesCategoryIdRouteImport.update({
-    id: '/categories/$categoryId',
-    path: '/categories/$categoryId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCategoriesNewRoute =
@@ -326,11 +320,17 @@ const AuthenticatedAppsAppIdEditRoute =
     path: '/edit',
     getParentRoute: () => AuthenticatedAppsAppIdRoute,
   } as any)
+const AuthenticatedCategoriesCategoryIdIndexRoute =
+  AuthenticatedCategoriesCategoryIdIndexRouteImport.update({
+    id: '/categories/$categoryId/',
+    path: '/categories/$categoryId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCategoriesCategoryIdEditRoute =
   AuthenticatedCategoriesCategoryIdEditRouteImport.update({
-    id: '/edit',
-    path: '/edit',
-    getParentRoute: () => AuthenticatedCategoriesCategoryIdRoute,
+    id: '/categories/$categoryId/edit',
+    path: '/categories/$categoryId/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedFlowsFlowIdIndexRoute =
   AuthenticatedFlowsFlowIdIndexRouteImport.update({
@@ -409,7 +409,6 @@ export interface FileRoutesByFullPath {
   '/503': typeof errors503Route
   '/apps/$appId': typeof AuthenticatedAppsAppIdRouteWithChildren
   '/apps/new': typeof AuthenticatedAppsNewRoute
-  '/categories/$categoryId': typeof AuthenticatedCategoriesCategoryIdRouteWithChildren
   '/categories/new': typeof AuthenticatedCategoriesNewRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/flows/new': typeof AuthenticatedFlowsNewRoute
@@ -444,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/screens/$screenId/edit': typeof AuthenticatedScreensScreenIdEditRoute
   '/ui-elements/$elementId/edit': typeof AuthenticatedUiElementsElementIdEditRoute
   '/apps/$appId/': typeof AuthenticatedAppsAppIdIndexRoute
+  '/categories/$categoryId/': typeof AuthenticatedCategoriesCategoryIdIndexRoute
   '/flows/$flowId/': typeof AuthenticatedFlowsFlowIdIndexRoute
   '/patterns/$patternId/': typeof AuthenticatedPatternsPatternIdIndexRoute
   '/ui-elements/$elementId/': typeof AuthenticatedUiElementsElementIdIndexRoute
@@ -465,7 +465,6 @@ export interface FileRoutesByTo {
   '/503': typeof errors503Route
   '/': typeof AuthenticatedIndexRoute
   '/apps/new': typeof AuthenticatedAppsNewRoute
-  '/categories/$categoryId': typeof AuthenticatedCategoriesCategoryIdRouteWithChildren
   '/categories/new': typeof AuthenticatedCategoriesNewRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/flows/new': typeof AuthenticatedFlowsNewRoute
@@ -500,6 +499,7 @@ export interface FileRoutesByTo {
   '/screens/$screenId/edit': typeof AuthenticatedScreensScreenIdEditRoute
   '/ui-elements/$elementId/edit': typeof AuthenticatedUiElementsElementIdEditRoute
   '/apps/$appId': typeof AuthenticatedAppsAppIdIndexRoute
+  '/categories/$categoryId': typeof AuthenticatedCategoriesCategoryIdIndexRoute
   '/flows/$flowId': typeof AuthenticatedFlowsFlowIdIndexRoute
   '/patterns/$patternId': typeof AuthenticatedPatternsPatternIdIndexRoute
   '/ui-elements/$elementId': typeof AuthenticatedUiElementsElementIdIndexRoute
@@ -527,7 +527,6 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/apps/$appId': typeof AuthenticatedAppsAppIdRouteWithChildren
   '/_authenticated/apps/new': typeof AuthenticatedAppsNewRoute
-  '/_authenticated/categories/$categoryId': typeof AuthenticatedCategoriesCategoryIdRouteWithChildren
   '/_authenticated/categories/new': typeof AuthenticatedCategoriesNewRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/flows/new': typeof AuthenticatedFlowsNewRoute
@@ -562,6 +561,7 @@ export interface FileRoutesById {
   '/_authenticated/screens/$screenId_/edit': typeof AuthenticatedScreensScreenIdEditRoute
   '/_authenticated/ui-elements/$elementId/edit': typeof AuthenticatedUiElementsElementIdEditRoute
   '/_authenticated/apps/$appId/': typeof AuthenticatedAppsAppIdIndexRoute
+  '/_authenticated/categories/$categoryId/': typeof AuthenticatedCategoriesCategoryIdIndexRoute
   '/_authenticated/flows/$flowId/': typeof AuthenticatedFlowsFlowIdIndexRoute
   '/_authenticated/patterns/$patternId/': typeof AuthenticatedPatternsPatternIdIndexRoute
   '/_authenticated/ui-elements/$elementId/': typeof AuthenticatedUiElementsElementIdIndexRoute
@@ -587,7 +587,6 @@ export interface FileRouteTypes {
     | '/503'
     | '/apps/$appId'
     | '/apps/new'
-    | '/categories/$categoryId'
     | '/categories/new'
     | '/errors/$error'
     | '/flows/new'
@@ -622,6 +621,7 @@ export interface FileRouteTypes {
     | '/screens/$screenId/edit'
     | '/ui-elements/$elementId/edit'
     | '/apps/$appId/'
+    | '/categories/$categoryId/'
     | '/flows/$flowId/'
     | '/patterns/$patternId/'
     | '/ui-elements/$elementId/'
@@ -643,7 +643,6 @@ export interface FileRouteTypes {
     | '/503'
     | '/'
     | '/apps/new'
-    | '/categories/$categoryId'
     | '/categories/new'
     | '/errors/$error'
     | '/flows/new'
@@ -678,6 +677,7 @@ export interface FileRouteTypes {
     | '/screens/$screenId/edit'
     | '/ui-elements/$elementId/edit'
     | '/apps/$appId'
+    | '/categories/$categoryId'
     | '/flows/$flowId'
     | '/patterns/$patternId'
     | '/ui-elements/$elementId'
@@ -704,7 +704,6 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/apps/$appId'
     | '/_authenticated/apps/new'
-    | '/_authenticated/categories/$categoryId'
     | '/_authenticated/categories/new'
     | '/_authenticated/errors/$error'
     | '/_authenticated/flows/new'
@@ -739,6 +738,7 @@ export interface FileRouteTypes {
     | '/_authenticated/screens/$screenId_/edit'
     | '/_authenticated/ui-elements/$elementId/edit'
     | '/_authenticated/apps/$appId/'
+    | '/_authenticated/categories/$categoryId/'
     | '/_authenticated/flows/$flowId/'
     | '/_authenticated/patterns/$patternId/'
     | '/_authenticated/ui-elements/$elementId/'
@@ -902,13 +902,6 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/categories/'
       preLoaderRoute: typeof AuthenticatedCategoriesIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/categories/$categoryId': {
-      id: '/_authenticated/categories/$categoryId'
-      path: '/categories/$categoryId'
-      fullPath: '/categories/$categoryId'
-      preLoaderRoute: typeof AuthenticatedCategoriesCategoryIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/categories/new': {
@@ -1100,12 +1093,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppsAppIdEditRouteImport
       parentRoute: typeof AuthenticatedAppsAppIdRoute
     }
+    '/_authenticated/categories/$categoryId/': {
+      id: '/_authenticated/categories/$categoryId/'
+      path: '/categories/$categoryId'
+      fullPath: '/categories/$categoryId/'
+      preLoaderRoute: typeof AuthenticatedCategoriesCategoryIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/categories/$categoryId/edit': {
       id: '/_authenticated/categories/$categoryId/edit'
-      path: '/edit'
+      path: '/categories/$categoryId/edit'
       fullPath: '/categories/$categoryId/edit'
       preLoaderRoute: typeof AuthenticatedCategoriesCategoryIdEditRouteImport
-      parentRoute: typeof AuthenticatedCategoriesCategoryIdRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/flows/$flowId/': {
       id: '/_authenticated/flows/$flowId/'
@@ -1228,27 +1228,11 @@ const AuthenticatedAppsAppIdRouteWithChildren =
     AuthenticatedAppsAppIdRouteChildren,
   )
 
-interface AuthenticatedCategoriesCategoryIdRouteChildren {
-  AuthenticatedCategoriesCategoryIdEditRoute: typeof AuthenticatedCategoriesCategoryIdEditRoute
-}
-
-const AuthenticatedCategoriesCategoryIdRouteChildren: AuthenticatedCategoriesCategoryIdRouteChildren =
-  {
-    AuthenticatedCategoriesCategoryIdEditRoute:
-      AuthenticatedCategoriesCategoryIdEditRoute,
-  }
-
-const AuthenticatedCategoriesCategoryIdRouteWithChildren =
-  AuthenticatedCategoriesCategoryIdRoute._addFileChildren(
-    AuthenticatedCategoriesCategoryIdRouteChildren,
-  )
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAppsAppIdRoute: typeof AuthenticatedAppsAppIdRouteWithChildren
   AuthenticatedAppsNewRoute: typeof AuthenticatedAppsNewRoute
-  AuthenticatedCategoriesCategoryIdRoute: typeof AuthenticatedCategoriesCategoryIdRouteWithChildren
   AuthenticatedCategoriesNewRoute: typeof AuthenticatedCategoriesNewRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
   AuthenticatedFlowsNewRoute: typeof AuthenticatedFlowsNewRoute
@@ -1268,10 +1252,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedUiElementsIndexRoute: typeof AuthenticatedUiElementsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
+  AuthenticatedCategoriesCategoryIdEditRoute: typeof AuthenticatedCategoriesCategoryIdEditRoute
   AuthenticatedFlowsFlowIdEditRoute: typeof AuthenticatedFlowsFlowIdEditRoute
   AuthenticatedPatternsPatternIdEditRoute: typeof AuthenticatedPatternsPatternIdEditRoute
   AuthenticatedScreensScreenIdEditRoute: typeof AuthenticatedScreensScreenIdEditRoute
   AuthenticatedUiElementsElementIdEditRoute: typeof AuthenticatedUiElementsElementIdEditRoute
+  AuthenticatedCategoriesCategoryIdIndexRoute: typeof AuthenticatedCategoriesCategoryIdIndexRoute
   AuthenticatedFlowsFlowIdIndexRoute: typeof AuthenticatedFlowsFlowIdIndexRoute
   AuthenticatedPatternsPatternIdIndexRoute: typeof AuthenticatedPatternsPatternIdIndexRoute
   AuthenticatedUiElementsElementIdIndexRoute: typeof AuthenticatedUiElementsElementIdIndexRoute
@@ -1282,8 +1268,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAppsAppIdRoute: AuthenticatedAppsAppIdRouteWithChildren,
   AuthenticatedAppsNewRoute: AuthenticatedAppsNewRoute,
-  AuthenticatedCategoriesCategoryIdRoute:
-    AuthenticatedCategoriesCategoryIdRouteWithChildren,
   AuthenticatedCategoriesNewRoute: AuthenticatedCategoriesNewRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
   AuthenticatedFlowsNewRoute: AuthenticatedFlowsNewRoute,
@@ -1303,12 +1287,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedUiElementsIndexRoute: AuthenticatedUiElementsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
+  AuthenticatedCategoriesCategoryIdEditRoute:
+    AuthenticatedCategoriesCategoryIdEditRoute,
   AuthenticatedFlowsFlowIdEditRoute: AuthenticatedFlowsFlowIdEditRoute,
   AuthenticatedPatternsPatternIdEditRoute:
     AuthenticatedPatternsPatternIdEditRoute,
   AuthenticatedScreensScreenIdEditRoute: AuthenticatedScreensScreenIdEditRoute,
   AuthenticatedUiElementsElementIdEditRoute:
     AuthenticatedUiElementsElementIdEditRoute,
+  AuthenticatedCategoriesCategoryIdIndexRoute:
+    AuthenticatedCategoriesCategoryIdIndexRoute,
   AuthenticatedFlowsFlowIdIndexRoute: AuthenticatedFlowsFlowIdIndexRoute,
   AuthenticatedPatternsPatternIdIndexRoute:
     AuthenticatedPatternsPatternIdIndexRoute,

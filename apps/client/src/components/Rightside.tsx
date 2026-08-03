@@ -1,4 +1,5 @@
 import { Smallbox } from "./Smallbox";
+import DOMPurify from 'dompurify';
 import type { ScreenType } from "@/hooks/useAppDetails";
 
 interface RightsideProps {
@@ -19,9 +20,16 @@ export function Rightside({ activeScreen, appName, categoryTitle }: RightsidePro
                 <h2 className="font-['Inter'] font-medium text-[16px] leading-[22px] text-white/80 m-0">
                     {activeScreen?.name || 'Screen Name'}
                 </h2>
-                <p className="font-['Inter'] font-normal text-[14px] leading-[22px] text-white/75 m-0">
-                    {activeScreen?.uxAnalysis || 'Select a screen to view details.'}
-                </p>
+                {activeScreen?.uxAnalysis ? (
+                    <div 
+                        className="font-['Inter'] font-normal text-[14px] leading-[22px] text-white/75 m-0 prose prose-sm prose-invert max-w-none"
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(activeScreen.uxAnalysis, { ADD_ATTR: ['style'] }) }}
+                    />
+                ) : (
+                    <p className="font-['Inter'] font-normal text-[14px] leading-[22px] text-white/75 m-0">
+                        Select a screen to view details.
+                    </p>
+                )}
             </div>
 
             {/* Box 2: UI Elements */}

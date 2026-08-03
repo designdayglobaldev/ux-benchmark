@@ -38,8 +38,8 @@ export function AppOverview() {
     return <div className="text-center py-12 text-muted-foreground">App not found.</div>
   }
 
-  const DeepDiveSection = ({ title, tags, text }: { title: string, tags: string[], text: string }) => {
-    if ((!tags || tags.length === 0) && !text) return null
+  const DeepDiveSection = ({ title, tags, text, quoteTitle, quoteText, linkUrl, linkText }: { title: string, tags: string[], text: string, quoteTitle?: string, quoteText?: string, linkUrl?: string, linkText?: string }) => {
+    if ((!tags || tags.length === 0) && !text && !quoteText && !linkUrl) return null
     return (
       <Card>
         <CardHeader>
@@ -57,6 +57,23 @@ export function AppOverview() {
             <p className='text-sm text-muted-foreground leading-relaxed'>
               {text}
             </p>
+          )}
+          {quoteText && (
+            <div className='mt-4 p-5 rounded-xl bg-muted/40 border border-muted-foreground/10'>
+              {quoteTitle && (
+                <div className='text-[11px] font-bold tracking-widest text-muted-foreground uppercase mb-2'>
+                  {quoteTitle}
+                </div>
+              )}
+              <p className='text-[15px] text-foreground leading-relaxed font-medium'>
+                {quoteText}
+              </p>
+            </div>
+          )}
+          {linkUrl && (
+            <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm font-medium text-primary hover:underline mt-2">
+              {linkText || 'Learn more'} <ExternalLink className="ml-1 h-3.5 w-3.5" />
+            </a>
           )}
         </CardContent>
       </Card>
@@ -203,6 +220,8 @@ export function AppOverview() {
             title="Content & Clarity" 
             tags={app.contentClarityTags} 
             text={app.contentClarityText} 
+            quoteTitle={app.contentClarityQuoteTitle}
+            quoteText={app.contentClarityQuoteText}
           />
           <DeepDiveSection 
             title="Trust & Security" 
@@ -213,6 +232,8 @@ export function AppOverview() {
             title="Accessibility" 
             tags={app.accessibilityTags} 
             text={app.accessibilityText} 
+            linkUrl={app.accessibilityUrl}
+            linkText={`${app.name} accessibility statement`}
           />
           <DeepDiveSection 
             title="Key Takeaway" 

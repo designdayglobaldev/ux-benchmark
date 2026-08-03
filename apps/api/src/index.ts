@@ -8,9 +8,10 @@ import uiElementRoutes from './routes/uiElement.routes';
 import patternRoutes from './routes/pattern.routes';
 import screenRoutes from './routes/screen.routes';
 import analyticsRoutes from './routes/analytics.routes';
+import aiRoutes from './routes/ai.routes';
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); // Increased limit for base64 images
 
 app.get('/', (req, res) => {
   res.json({ message: 'Hello from the UX Library API!' });
@@ -24,6 +25,7 @@ app.use('/api/v1/ui-elements', uiElementRoutes);
 app.use('/api/v1/patterns', patternRoutes);
 app.use('/api/v1/screens', screenRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/ai', aiRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

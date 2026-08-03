@@ -1,3 +1,4 @@
+import { useDebounce } from '@/hooks/use-debounce';
 import { useState } from 'react'
 import { getRouteApi, Link } from '@tanstack/react-router'
 import { ArrowLeft, Edit } from 'lucide-react'
@@ -26,12 +27,13 @@ export function UiElementDetail() {
   const routeApi = getRouteApi('/_authenticated/ui-elements/$elementId/')
   routeApi.useParams()
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
   const element = MOCK_UI_ELEMENT
 
   const filteredScreens = element.screens.filter(s => 
-    s.appName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    s.screenName.toLowerCase().includes(searchTerm.toLowerCase())
+    s.appName.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) || 
+    s.screenName.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   )
 
   return (

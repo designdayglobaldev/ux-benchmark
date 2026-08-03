@@ -1,5 +1,9 @@
+import { useState, useRef } from 'react';
 import RevolutScreenshot from "@/assets/Revolut.png";
 import type { ScreenType } from "@/hooks/useAppDetails";
+import { useInspectMode } from "@/contexts/InspectContext";
+import { RegionSelector, type Region } from "./RegionSelector";
+import { AiResponseDialog } from "./AiResponseDialog";
 
 interface MiddleProps {
     activeScreen?: ScreenType;
@@ -12,6 +16,62 @@ interface MiddleProps {
 }
 
 export function Middle({ activeScreen, appName, appSlug, activeIndex, totalScreens, onNext, onPrev }: MiddleProps) {
+    const { isInspectMode, setIsInspectMode } = useInspectMode();
+    const [isAiLoading, setIsAiLoading] = useState(false);
+    const [aiResponse, setAiResponse] = useState<string | null>(null);
+    const imgRef = useRef<HTMLImageElement>(null);
+
+    const handleAiSubmit = async (region: Region, prompt: string) => {
+        if (!imgRef.current) return;
+        
+        setIsAiLoading(true);
+        setAiResponse(null);
+        
+        try {
+            // Draw image to canvas to get base64
+            const canvas = document.createElement('canvas');
+            canvas.width = imgRef.current.naturalWidth;
+            canvas.height = imgRef.current.naturalHeight;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) throw new Error("Could not get canvas context");
+            
+            ctx.drawImage(imgRef.current, 0, 0);
+            const imageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+            
+            // Map the drawn region from screen-scale to natural image scale
+            const scaleX = imgRef.current.naturalWidth / imgRef.current.clientWidth;
+            const scaleY = imgRef.current.naturalHeight / imgRef.current.clientHeight;
+            
+            const scaledRegion = {
+                x: region.x * scaleX,
+                y: region.y * scaleY,
+                width: region.width * scaleX,
+                height: region.height * scaleY
+            };
+
+            const response = await fetch('http://localhost:4000/api/v1/ai/inspect', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prompt,
+                    region: scaledRegion,
+                    imageBase64
+                })
+            });
+            
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Failed to fetch AI response');
+            
+            setAiResponse(data.response);
+        } catch (error: any) {
+            console.error('Error fetching AI response:', error);
+            setAiResponse(`Error: ${error.message || 'Something went wrong.'}`);
+        } finally {
+            setIsAiLoading(false);
+        }
+    };
+
+    
     return (
         <div className="w-full flex justify-center xl:sticky xl:top-[30px] mt-8 xl:mt-[30px] z-10">
             {/* Container for screenshot and buttons */}
@@ -51,11 +111,31 @@ export function Middle({ activeScreen, appName, appSlug, activeIndex, totalScree
                             </svg>
                         </button>
 
-                        <img
-                            src={activeScreen?.imageUrl || RevolutScreenshot}
-                            alt="App Screenshot"
-                            className="w-[200px] sm:w-[230px] h-[430px] sm:h-[500px] rounded-[16px] object-contain mx-auto block"
-                        />
+                        <div className="relative w-[200px] sm:w-[230px] mx-auto">
+                            <img
+                                ref={imgRef}
+                                crossOrigin="anonymous"
+                                src={activeScreen?.imageUrl || RevolutScreenshot}
+                                alt="App Screenshot"
+                                className="w-[200px] sm:w-[230px] h-[430px] sm:h-[500px] rounded-[16px] object-contain mx-auto block"
+                            />
+                            {isInspectMode && (
+                                <RegionSelector 
+                                    onClose={() => setIsInspectMode(false)}
+                                    onSubmit={handleAiSubmit}
+                                />
+                            )}
+                            
+                            <AiResponseDialog
+                                isOpen={isAiLoading || aiResponse !== null}
+                                isLoading={isAiLoading}
+                                response={aiResponse}
+                                onClose={() => {
+                                    setAiResponse(null);
+                                    setIsAiLoading(false);
+                                }}
+                            />
+                        </div>
 
                         {/* Right Navigation Button */}
                         <button 

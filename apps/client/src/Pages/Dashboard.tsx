@@ -61,7 +61,7 @@ export function Dashboard() {
 
             {/* Categories Bar */}
             <div className="sticky top-[73px] z-40 w-full bg-black pl-4 sm:pl-[30px] py-4 overflow-x-auto no-scrollbar">
-                <div className="flex items-center text-[14px] font-medium whitespace-nowrap">
+                <div className="flex items-center text-[14px] font-normal whitespace-nowrap">
                     {categories.map((category) => (
                         <button
                             key={category}

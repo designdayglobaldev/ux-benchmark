@@ -48,10 +48,13 @@ export interface AppDetailsType {
   easeOfUseText?: string;
   contentClarityTags?: string[];
   contentClarityText?: string;
+  contentClarityQuoteTitle?: string;
+  contentClarityQuoteText?: string;
   trustTags?: string[];
   trustText?: string;
   accessibilityTags?: string[];
   accessibilityText?: string;
+  accessibilityUrl?: string;
   takeawayTags?: string[];
   takeawayText?: string;
   category?: {

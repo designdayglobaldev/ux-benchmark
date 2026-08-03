@@ -1,3 +1,4 @@
+import { useDebounce } from '@/hooks/use-debounce';
 import { useState, useEffect } from 'react'
 import { getRouteApi, Link } from '@tanstack/react-router'
 import { ArrowLeft, Edit } from 'lucide-react'
@@ -15,6 +16,7 @@ export function FlowDetail() {
   const routeApi = getRouteApi('/_authenticated/flows/$flowId/')
   const { flowId } = routeApi.useParams()
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [flow, setFlow] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -44,8 +46,8 @@ export function FlowDetail() {
 
   const screens = flow.screens || []
   const filteredScreens = screens.filter((s: any) => 
-    (s.app?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (s.name || s.screenName || '').toLowerCase().includes(searchTerm.toLowerCase())
+    (s.app?.name || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase()) || 
+    (s.name || s.screenName || '').toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   )
 
   return (

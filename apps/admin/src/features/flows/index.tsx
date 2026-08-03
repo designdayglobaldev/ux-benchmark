@@ -1,3 +1,4 @@
+import { useDebounce } from '@/hooks/use-debounce';
 import { useState, useEffect, type ChangeEvent } from 'react'
 import { getRouteApi, Link } from '@tanstack/react-router'
 import { Plus, Waypoints, Trash2 } from 'lucide-react'
@@ -30,6 +31,7 @@ export function Flows() {
   const { filter = '' } = route.useSearch()
   const navigate = route.useNavigate()
   const [searchTerm, setSearchTerm] = useState(filter)
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [flows, setFlows] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
@@ -66,18 +68,17 @@ export function Flows() {
   }
 
   const filteredFlows = flows.filter((flow) =>
-    flow.name.toLowerCase().includes(searchTerm.toLowerCase())
+    flow.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   )
+
+  useEffect(() => {
+    if (typeof navigate === 'function') {
+      navigate({ search: (prev: any) => ({ ...prev, filter: debouncedSearchTerm || undefined }) as any })
+    }
+  }, [debouncedSearchTerm, navigate])
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
-    setCurrentPage(1)
-    navigate({
-      search: (prev: any) => ({
-        ...prev,
-        filter: e.target.value || undefined,
-      }),
-    })
   }
 
   return (

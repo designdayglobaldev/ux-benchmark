@@ -207,13 +207,11 @@ export function AppPage() {
                     <div className="flex flex-wrap gap-[12px]">
                         {(() => {
                             let colors = ['#0A0A15', '#1C14E9', '#8E7EFE', '#FFFFFF', '#00E4C8'];
-                            let desc = 'Near-black canvas · electric indigo signature · cool, premium, high-contrast';
                             if (appData?.palette) {
                                 if (Array.isArray(appData.palette)) {
                                     colors = appData.palette;
                                 } else if (typeof appData.palette === 'object') {
                                     if (Array.isArray(appData.palette.colors)) colors = appData.palette.colors;
-                                    if (appData.palette.description) desc = appData.palette.description;
                                 }
                             }
                             return (
@@ -221,9 +219,6 @@ export function AppPage() {
                                     {colors.map((color, i) => (
                                         <div key={i} className="w-[48px] h-[48px] sm:w-[64px] sm:h-[64px] rounded-[12px] border border-[#424241]" style={{ backgroundColor: color }}></div>
                                     ))}
-                                    <span className="font-['Inter'] font-normal text-[16px] sm:text-[20px] leading-[1.3] text-white flex-1 md:ml-4">
-                                        {desc}
-                                    </span>
                                 </>
                             );
                         })()}
@@ -281,15 +276,21 @@ export function AppPage() {
                     />
                 </div>
 
-                {/* App Store Listing Card */}
-                <div className="mt-4 w-full rounded-[12px] border border-[#1F1F1F] bg-[#181818] p-6 flex flex-col justify-center">
-                    <span className="font-['Inter'] font-semibold text-[12px] leading-none tracking-[0.12em] uppercase text-[#4B5563]">
-                        App Store listing
-                    </span>
-                    <p className="mt-3.5 font-['Inter'] font-normal text-[20px] leading-none text-[#E5E7EB] m-0">
-                        Make your spend, well-spent.
-                    </p>
-                </div>
+                {/* Quote Block */}
+                {(appData?.contentClarityQuoteTitle || appData?.contentClarityQuoteText) && (
+                    <div className="mt-4 w-full rounded-[12px] border border-[#1F1F1F] bg-[#181818] p-6 flex flex-col justify-center">
+                        {appData.contentClarityQuoteTitle && (
+                            <span className="font-['Inter'] font-semibold text-[12px] leading-none tracking-[0.12em] uppercase text-[#4B5563]">
+                                {appData.contentClarityQuoteTitle}
+                            </span>
+                        )}
+                        {appData.contentClarityQuoteText && (
+                            <p className={`${appData.contentClarityQuoteTitle ? 'mt-3.5' : ''} font-['Inter'] font-normal text-[20px] leading-none text-[#E5E7EB] m-0`}>
+                                {appData.contentClarityQuoteText}
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 {/* Trust / Accessibility / Takeaway */}
                 <div className="mt-16 flex flex-col gap-12">
@@ -300,12 +301,6 @@ export function AppPage() {
                         description={appData?.trustText || "Real-time spend notifications, card freeze/unfreeze, single-use virtual cards, and deposit protection under EU/UK schemes build day-to-day confidence. Fees and exchange rates are shown before you commit. The caveat: support is app-and-chat only, and reviews split sharply on how disputes get resolved."}
                     />
 
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 -mt-6">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                        <span className="font-['Inter'] font-normal text-[13px] leading-none text-[#878787]">
-                            Trustpilot 4.7 across 424k+ reviews · 75M+ customers (annual report, 2026)
-                        </span>
-                    </div>
 
                     <Paragraph
                         icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>}
@@ -314,12 +309,16 @@ export function AppPage() {
                         description={appData?.accessibilityText || "Revolut states a WCAG 2.2 AA target and the App Store lists support: VoiceOver/TalkBack, text scaling to 200%+, a first-class dark theme, contrast controls, shape-plus-text (not color alone) to convey meaning, and motion reduction. The dark-first, data-dense aesthetic is the tension to watch, high-contrast helps, but small numeric readouts demand the scaling to actually be used."}
                     />
 
-                    <a
-                        href="#"
-                        className="-mt-6 font-['Inter'] font-normal text-[13px] leading-none text-[#8E7EFE] underline"
-                    >
-                        {appData?.name || 'Revolut'} accessibility statement ↗
-                    </a>
+                    {appData?.accessibilityUrl && (
+                        <a
+                            href={appData.accessibilityUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="-mt-6 font-['Inter'] font-normal text-[13px] leading-none text-[#8E7EFE] underline hover:text-[#A798FF] transition-colors"
+                        >
+                            {appData.name} accessibility statement ↗
+                        </a>
+                    )}
 
                     <Paragraph
                         icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12l9-9 9 9"></path><path d="M9 21V12h6v9"></path></svg>}

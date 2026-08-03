@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { getRouteApi, Link, Outlet, useLocation } from '@tanstack/react-router'
 import { ArrowLeft, Edit } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -6,21 +7,29 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 
-// Using mock data for scaffolding
-const MOCK_APP = {
-  id: 'revolut',
-  name: 'Revolut',
-  status: 'Live',
-  isStaffPick: true,
-}
-
 export function AppDetailLayout() {
   const routeApi = getRouteApi('/_authenticated/apps/$appId')
   const { appId } = routeApi.useParams()
   const location = useLocation()
   
-  // In a real app, we would fetch the data using appId
-  const app = MOCK_APP
+  const [app, setApp] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchApp = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/apps/${appId}`)
+        if (!res.ok) throw new Error('Failed to fetch app')
+        const data = await res.json()
+        setApp(data)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    if (appId) fetchApp()
+  }, [appId])
   
   return (
     <>
@@ -32,14 +41,22 @@ export function AppDetailLayout() {
             </Link>
           </Button>
           <div className='flex items-center gap-2'>
-            <h1 className='text-lg font-semibold'>{app.name}</h1>
-            <Badge variant={app.status === 'Live' ? 'default' : 'secondary'}>{app.status}</Badge>
-            {app.isStaffPick && <Badge variant='secondary' className='bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20'>Staff Pick</Badge>}
+            {isLoading ? (
+              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
+            ) : app ? (
+              <>
+                <h1 className='text-lg font-semibold'>{app.name}</h1>
+                <Badge variant={app.status === 'Live' ? 'default' : 'secondary'}>{app.status || 'Draft'}</Badge>
+                {app.isStaffPick && <Badge variant='secondary' className='bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20'>Staff Pick</Badge>}
+              </>
+            ) : (
+              <h1 className='text-lg font-semibold'>Not Found</h1>
+            )}
           </div>
         </div>
         <div className='ml-auto flex items-center gap-4'>
-          <Button variant='outline' asChild>
-            <Link to='/apps/new'>
+          <Button variant='outline' asChild disabled={isLoading || !app}>
+            <Link to="/apps/$appId/edit" params={{ appId }}>
               <Edit className='mr-2 h-4 w-4' /> Edit App
             </Link>
           </Button>

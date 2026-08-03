@@ -52,7 +52,12 @@ export const getAppById = async (req: Request, res: Response) => {
 
 export const createApp = async (req: Request, res: Response) => {
   try {
-    const data = req.body;
+    const data = { ...req.body };
+    
+    if (data.categoryId) {
+      data.category = { connect: { id: data.categoryId } };
+      delete data.categoryId;
+    }
     
     const app = await prisma.app.create({
       data,
@@ -68,7 +73,12 @@ export const createApp = async (req: Request, res: Response) => {
 export const updateApp = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const data = req.body;
+    const data = { ...req.body };
+    
+    if (data.categoryId) {
+      data.category = { connect: { id: data.categoryId } };
+      delete data.categoryId;
+    }
     
     const app = await prisma.app.update({
       where: { id },

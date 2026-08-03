@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -14,6 +13,7 @@ import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { ImageDropzone } from '@/components/image-dropzone'
 import { MultiSelect } from '@/components/multi-select'
+import { RichTextEditor } from '@/components/ui/rich-text-editor'
 import { uploadAppImage } from '@/lib/supabase'
 import { toast } from 'sonner'
 import { screenSchema, type ScreenFormValues } from '../schemas'
@@ -271,14 +271,18 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
               </div>
 
               <div className='grid gap-3'>
-                <Label>Similar Apps (Comma separated)</Label>
-                <Input 
-                  placeholder='e.g. Monzo, Duolingo' 
-                  value={form.watch('similarApps').join(', ')}
-                  onChange={(e) => {
-                    const values = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
-                    form.setValue('similarApps', values);
-                  }}
+                <Label>Similar Apps</Label>
+                <Controller
+                  control={form.control}
+                  name='similarApps'
+                  render={({ field }) => (
+                    <MultiSelect
+                      placeholder='Select similar apps...'
+                      options={apps.map(a => ({ label: a.name, value: a.name }))}
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                    />
+                  )}
                 />
               </div>
             </CardContent>
@@ -297,10 +301,15 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
               <CardContent className='grid gap-6 pt-6'>
                 <div className='grid gap-3'>
                   <Label className='text-xs uppercase font-semibold text-muted-foreground'>UX Analysis</Label>
-                  <Textarea 
-                    {...form.register('uxAnalysis')}
-                    placeholder='Explain the layout, structure, and prominent elements of the screen...'
-                    className='min-h-[120px]'
+                  <Controller
+                    control={form.control}
+                    name='uxAnalysis'
+                    render={({ field }) => (
+                      <RichTextEditor 
+                        value={field.value || ''} 
+                        onChange={field.onChange} 
+                      />
+                    )}
                   />
                 </div>
                 
@@ -308,10 +317,15 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
                 
                 <div className='grid gap-3'>
                   <Label className='text-xs uppercase font-semibold text-muted-foreground'>Tonality & Content</Label>
-                  <Textarea 
-                    {...form.register('tonalityAndContent')}
-                    placeholder='Describe the tone of voice, messaging, and content strategy...'
-                    className='min-h-[100px]'
+                  <Controller
+                    control={form.control}
+                    name='tonalityAndContent'
+                    render={({ field }) => (
+                      <RichTextEditor 
+                        value={field.value || ''} 
+                        onChange={field.onChange} 
+                      />
+                    )}
                   />
                 </div>
 
@@ -319,10 +333,15 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
 
                 <div className='grid gap-3'>
                   <Label className='text-xs uppercase font-semibold text-muted-foreground'>Key Highlights & UX Principles</Label>
-                  <Textarea 
-                    {...form.register('keyHighlights')}
-                    placeholder='List the main takeaways or UX principles applied (e.g., as bullet points)...'
-                    className='min-h-[100px]'
+                  <Controller
+                    control={form.control}
+                    name='keyHighlights'
+                    render={({ field }) => (
+                      <RichTextEditor 
+                        value={field.value || ''} 
+                        onChange={field.onChange} 
+                      />
+                    )}
                   />
                 </div>
               </CardContent>
@@ -335,10 +354,15 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
               <CardContent className='grid gap-6'>
                 <div className='grid gap-3'>
                   <Label className='text-xs uppercase font-semibold text-muted-foreground'>Evidence — Who & Why</Label>
-                  <Textarea 
-                    {...form.register('evidenceWhoWhy')}
-                    placeholder='Which other apps use this pattern and why? (e.g., Monzo, Cash App)...'
-                    className='min-h-[100px]'
+                  <Controller
+                    control={form.control}
+                    name='evidenceWhoWhy'
+                    render={({ field }) => (
+                      <RichTextEditor 
+                        value={field.value || ''} 
+                        onChange={field.onChange} 
+                      />
+                    )}
                   />
                 </div>
 
@@ -346,20 +370,29 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
 
                 <div className='grid grid-cols-2 gap-6'>
                   <div className='grid gap-3'>
-                    <Label className='text-xs uppercase font-semibold text-muted-foreground'>Where To Use This</Label>
-                    <Textarea 
-                      {...form.register('whereToUse')}
-                      placeholder='Best scenarios or contexts for this pattern...'
-                      className='min-h-[80px]'
+                    <Label className='text-xs uppercase font-semibold text-muted-foreground'>Where to use this</Label>
+                    <Controller
+                      control={form.control}
+                      name='whereToUse'
+                      render={({ field }) => (
+                        <RichTextEditor 
+                          value={field.value || ''} 
+                          onChange={field.onChange} 
+                        />
+                      )}
                     />
                   </div>
-                  
                   <div className='grid gap-3'>
-                    <Label className='text-xs uppercase font-semibold text-muted-foreground'>Where Not To Use This</Label>
-                    <Textarea 
-                      {...form.register('whereNotToUse')}
-                      placeholder='Scenarios where this pattern should be avoided...'
-                      className='min-h-[80px]'
+                    <Label className='text-xs uppercase font-semibold text-muted-foreground'>Where not to use this</Label>
+                    <Controller
+                      control={form.control}
+                      name='whereNotToUse'
+                      render={({ field }) => (
+                        <RichTextEditor 
+                          value={field.value || ''} 
+                          onChange={field.onChange} 
+                        />
+                      )}
                     />
                   </div>
                 </div>

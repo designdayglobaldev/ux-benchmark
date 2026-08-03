@@ -86,9 +86,9 @@ export function ScreenDetail() {
   }
   if (screen.whereToUse || screen.whereNotToUse) {
     let content = ''
-    if (screen.whereToUse) content += `Where to Use:\n${screen.whereToUse}\n\n`
-    if (screen.whereNotToUse) content += `Where Not to Use:\n${screen.whereNotToUse}`
-    dynamicSections.push({ id: 'wheretouse', title: 'WHERE TO USE', content: content.trim() })
+    if (screen.whereToUse) content += `<strong>Where to Use:</strong><br/>${screen.whereToUse}<br/><br/>`
+    if (screen.whereNotToUse) content += `<strong>Where Not to Use:</strong><br/>${screen.whereNotToUse}`
+    dynamicSections.push({ id: 'wheretouse', title: 'WHERE TO USE', content: content })
   }
 
   return (
@@ -145,9 +145,10 @@ export function ScreenDetail() {
                       ))}
                     </div>
                   )}
-                  <div className='text-[13px] leading-relaxed text-foreground/80 whitespace-pre-wrap font-normal'>
-                    {section.content}
-                  </div>
+                  <div 
+                    className='text-[13px] leading-relaxed text-foreground/80 font-normal prose prose-sm dark:prose-invert max-w-none'
+                    dangerouslySetInnerHTML={{ __html: section.content }}
+                  />
                 </CollapsibleContent>
               </Collapsible>
             ))}

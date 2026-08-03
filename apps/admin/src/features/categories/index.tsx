@@ -1,3 +1,4 @@
+import { useDebounce } from '@/hooks/use-debounce';
 import { useState, useEffect, type ChangeEvent } from 'react'
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
 import { Plus, FolderOpen, Trash2 } from 'lucide-react'
@@ -20,8 +21,11 @@ export function Categories() {
   const { filter = '' } = route.useSearch() as any
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState(filter)
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [categories, setCategories] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -39,17 +43,27 @@ export function Categories() {
   }, [])
 
   const filteredCategories = categories.filter((cat) =>
-    cat.title.toLowerCase().includes(searchTerm.toLowerCase())
+    cat.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   )
 
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
+  const paginatedCategories = filteredCategories.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage)
+
+  useEffect(() => {
     navigate({
       search: ((prev: any) => ({
         ...prev,
-        filter: e.target.value || undefined,
+        filter: debouncedSearchTerm || undefined,
       })) as any,
     })
+  }, [debouncedSearchTerm, navigate])
+
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+    setCurrentPage(1)
   }
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -156,12 +170,13 @@ export function Categories() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredCategories.map((cat) => (
+                  {paginatedCategories.map((cat) => (
                     <TableRow 
                       key={cat.id} 
                       className='cursor-pointer hover:bg-muted/50'
                       onClick={(e) => {
-                        if (!(e.target as HTMLElement).closest('button')) {
+                        const target = e.target as HTMLElement;
+                        if (!target.closest('button') && !target.closest('a')) {
                           navigate({ to: '/categories/$categoryId', params: { categoryId: cat.id } })
                         }
                       }}
@@ -203,22 +218,44 @@ export function Categories() {
             </div>
 
             {/* Pagination Footer */}
-            <div className='flex items-center justify-between px-2 py-4'>
-              <div className='text-sm text-muted-foreground'>
-                Showing 1 to {filteredCategories.length} of {filteredCategories.length} entries
+            {totalPages > 0 && (
+              <div className='flex items-center justify-between px-2 py-4'>
+                <div className='text-sm text-muted-foreground'>
+                  Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredCategories.length)} of {filteredCategories.length} entries
+                </div>
+                <div className='flex items-center space-x-2'>
+                  <Button 
+                    variant='outline' 
+                    size='sm' 
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                      <Button 
+                        key={i + 1}
+                        variant={currentPage === i + 1 ? 'default' : 'outline'}
+                        size='sm' 
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={currentPage === i + 1 ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
+                      >
+                        {i + 1}
+                      </Button>
+                    ))}
+                  </div>
+                  <Button 
+                    variant='outline' 
+                    size='sm' 
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
-              <div className='flex items-center space-x-2'>
-                <Button variant='outline' size='sm' disabled>
-                  Previous
-                </Button>
-                <Button variant='outline' size='sm' className='bg-primary text-primary-foreground hover:bg-primary/90'>
-                  1
-                </Button>
-                <Button variant='outline' size='sm' disabled>
-                  Next
-                </Button>
-              </div>
-            </div>
+            )}
           </>
         )}
       </Main>

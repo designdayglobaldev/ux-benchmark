@@ -1,3 +1,4 @@
+import { useDebounce } from '@/hooks/use-debounce';
 import { useState, useEffect, type ChangeEvent } from 'react'
 import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
 import { Plus, Smartphone, Trash2 } from 'lucide-react'
@@ -30,6 +31,7 @@ export function Screens() {
   const { filter = '' } = route.useSearch()
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState(filter)
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [screens, setScreens] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -64,18 +66,18 @@ export function Screens() {
   }
 
   const filteredScreens = screens.filter((screen) =>
-    screen.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    screen.app?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    screen.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) || 
+    screen.app?.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   )
+
+  useEffect(() => {
+    if (typeof navigate === 'function') {
+      navigate({ search: (prev: any) => ({ ...prev, filter: debouncedSearchTerm || undefined }) } as any)
+    }
+  }, [debouncedSearchTerm, navigate])
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
-    navigate({
-      search: ((prev: any) => ({
-        ...prev,
-        filter: e.target.value || undefined,
-      })) as any,
-    })
   }
 
   return (
