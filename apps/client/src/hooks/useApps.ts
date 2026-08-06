@@ -12,7 +12,7 @@ export interface AppType {
 }
 
 const fetchApps = async (): Promise<AppType[]> => {
-  const { data } = await api.get('/apps');
+  const { data } = await api.get('/apps?status=LIVE');
   return data;
 };
 

@@ -3,7 +3,11 @@ import { prisma } from '../db/prisma';
 
 export const getAllApps = async (req: Request, res: Response) => {
   try {
+    const { status } = req.query;
+    const where = status ? { status: String(status) as any } : {};
+
     const apps = await prisma.app.findMany({
+      where,
       orderBy: { name: 'asc' },
       include: { category: true }
     });
