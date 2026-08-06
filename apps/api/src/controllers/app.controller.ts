@@ -44,7 +44,7 @@ export const getAppById = async (req: Request, res: Response) => {
     }
     
     // Fetch authentic similar apps (same category, exclude current app)
-    let similarApps = [];
+    let similarApps: any[] = [];
     if (app.categoryId) {
       similarApps = await prisma.app.findMany({
         where: { 
