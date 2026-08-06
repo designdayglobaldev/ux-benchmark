@@ -43,7 +43,26 @@ export const getAppById = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'App not found' });
     }
     
-    res.json(app);
+    // Fetch authentic similar apps (same category, exclude current app)
+    let similarApps = [];
+    if (app.categoryId) {
+      similarApps = await prisma.app.findMany({
+        where: { 
+          categoryId: app.categoryId,
+          id: { not: app.id }
+        },
+        include: {
+          category: true,
+          screens: {
+            orderBy: { screenNo: 'asc' },
+            take: 1
+          }
+        },
+        take: 3 // Show up to 3 similar apps
+      });
+    }
+    
+    res.json({ ...app, similarApps });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch app' });

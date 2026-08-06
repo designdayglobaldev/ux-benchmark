@@ -159,7 +159,7 @@ export function Categories() {
           </div>
         ) : (
           <>
-            <div className='border rounded-md mt-4'>
+            <div className='border rounded-md mt-4 flex-1 overflow-auto'>
               <Table>
                 <TableHeader>
                   <TableRow>

@@ -50,7 +50,7 @@ export function Leftside({ activeScreen }: LeftsideProps) {
                     >
                         <div
                             onClick={() => toggleSection(index)}
-                            className="flex flex-row items-center justify-between p-5 sm:px-6 cursor-pointer select-none"
+                            className="flex flex-row items-center justify-between p-4 cursor-pointer select-none"
                         >
                             <span className="font-['Inter'] font-normal text-[12px] leading-normal tracking-[0.04em] uppercase text-[#BDBDBD]">
                                 {section.title}
@@ -60,7 +60,7 @@ export function Leftside({ activeScreen }: LeftsideProps) {
 
                         {isOpen && (
                             <div 
-                                className="m-0 px-5 pb-5 sm:px-6 sm:pb-6 font-['Inter'] font-normal text-[14px] sm:text-[15px] leading-[24px] sm:leading-[26px] text-[#E5E7EB] prose prose-sm prose-invert max-w-none"
+                                className="m-0 px-4 pb-4 font-['Inter'] font-normal text-[13px] leading-[22px] text-[#E5E7EB] prose prose-sm prose-invert max-w-none"
                                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(section.content, { ADD_ATTR: ['style'] }) }}
                             />
                         )}

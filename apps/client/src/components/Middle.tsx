@@ -1,9 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import floatIcon from '@/assets/floaticon.svg';
 import RevolutScreenshot from "@/assets/Revolut.png";
 import type { ScreenType } from "@/hooks/useAppDetails";
 import { useInspectMode } from "@/contexts/InspectContext";
 import { RegionSelector, type Region } from "./RegionSelector";
 import { AiResponseDialog } from "./AiResponseDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface MiddleProps {
     activeScreen?: ScreenType;
@@ -11,15 +14,20 @@ interface MiddleProps {
     appSlug?: string;
     activeIndex: number;
     totalScreens: number;
-    onNext: () => void;
-    onPrev: () => void;
+    nextUrl?: string;
+    prevUrl?: string;
 }
 
-export function Middle({ activeScreen, appName, appSlug, activeIndex, totalScreens, onNext, onPrev }: MiddleProps) {
+export function Middle({ activeScreen, appName, appSlug, activeIndex, totalScreens, nextUrl, prevUrl }: MiddleProps) {
     const { isInspectMode, setIsInspectMode } = useInspectMode();
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [aiResponse, setAiResponse] = useState<string | null>(null);
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
     const imgRef = useRef<HTMLImageElement>(null);
+
+    useEffect(() => {
+        setIsImageLoaded(false);
+    }, [activeScreen?.imageUrl]);
 
     const handleAiSubmit = async (region: Region, prompt: string) => {
         if (!imgRef.current) return;
@@ -102,23 +110,37 @@ export function Middle({ activeScreen, appName, appSlug, activeIndex, totalScree
                     {/* Image Wrapper with Relative Positioning for Buttons */}
                     <div className="relative">
                         {/* Left Navigation Button */}
-                        <button 
-                            onClick={onPrev}
-                            disabled={activeIndex === 0}
-                            className={`absolute top-1/2 -translate-y-1/2 right-full mr-4 xl:mr-[60px] z-20 w-[40px] h-[40px] xl:w-[48px] xl:h-[48px] rounded-full bg-[#27272A] border-none flex items-center justify-center transition-colors shadow-lg ${activeIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-[#3f3f46]'}`}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                        </button>
+                        {prevUrl ? (
+                            <Link 
+                                to={prevUrl}
+                                className={`absolute top-1/2 -translate-y-1/2 right-full mr-4 xl:mr-[60px] z-20 w-[40px] h-[40px] xl:w-[48px] xl:h-[48px] rounded-full bg-[#27272A] border-none flex items-center justify-center transition-colors shadow-lg cursor-pointer hover:bg-[#3f3f46]`}
+                            >
+                                <svg className="pointer-events-none" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </Link>
+                        ) : (
+                            <button 
+                                disabled
+                                className={`absolute top-1/2 -translate-y-1/2 right-full mr-4 xl:mr-[60px] z-20 w-[40px] h-[40px] xl:w-[48px] xl:h-[48px] rounded-full bg-[#27272A] border-none flex items-center justify-center transition-colors shadow-lg opacity-50 cursor-not-allowed`}
+                            >
+                                <svg className="pointer-events-none" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15 18L9 12L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </button>
+                        )}
 
                         <div className="relative w-[200px] sm:w-[230px] mx-auto">
+                            {!isImageLoaded && (
+                                <Skeleton className="absolute inset-0 w-full h-[430px] sm:h-[500px] rounded-[16px] z-10" />
+                            )}
                             <img
                                 ref={imgRef}
                                 crossOrigin="anonymous"
                                 src={activeScreen?.imageUrl || RevolutScreenshot}
                                 alt="App Screenshot"
-                                className="w-[200px] sm:w-[230px] h-[430px] sm:h-[500px] rounded-[16px] object-contain mx-auto block"
+                                onLoad={() => setIsImageLoaded(true)}
+                                className={`w-[200px] sm:w-[230px] h-[430px] sm:h-[500px] rounded-[16px] object-contain mx-auto block transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                             />
                             {isInspectMode && (
                                 <RegionSelector 
@@ -136,18 +158,30 @@ export function Middle({ activeScreen, appName, appSlug, activeIndex, totalScree
                                     setIsAiLoading(false);
                                 }}
                             />
+
+                            {/* AI Inspect Button is now moved below the dots */}
                         </div>
 
                         {/* Right Navigation Button */}
-                        <button 
-                            onClick={onNext}
-                            disabled={activeIndex === totalScreens - 1}
-                            className={`absolute top-1/2 -translate-y-1/2 left-full ml-4 xl:ml-[60px] z-20 w-[40px] h-[40px] xl:w-[48px] xl:h-[48px] rounded-full bg-[#27272A] border-none flex items-center justify-center transition-colors shadow-lg ${activeIndex === totalScreens - 1 || totalScreens === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-[#3f3f46]'}`}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                        </button>
+                        {nextUrl ? (
+                            <Link 
+                                to={nextUrl}
+                                className={`absolute top-1/2 -translate-y-1/2 left-full ml-4 xl:ml-[60px] z-20 w-[40px] h-[40px] xl:w-[48px] xl:h-[48px] rounded-full bg-[#27272A] border-none flex items-center justify-center transition-colors shadow-lg cursor-pointer hover:bg-[#3f3f46]`}
+                            >
+                                <svg className="pointer-events-none" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </Link>
+                        ) : (
+                            <button 
+                                disabled
+                                className={`absolute top-1/2 -translate-y-1/2 left-full ml-4 xl:ml-[60px] z-20 w-[40px] h-[40px] xl:w-[48px] xl:h-[48px] rounded-full bg-[#27272A] border-none flex items-center justify-center transition-colors shadow-lg opacity-50 cursor-not-allowed`}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 18L15 12L9 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </button>
+                        )}
                     </div>
 
                     {/* Carousel Dots */}
@@ -161,6 +195,26 @@ export function Middle({ activeScreen, appName, appSlug, activeIndex, totalScree
                             ))}
                         </div>
                     )}
+
+                    {/* AI Inspect Button (Positioned below the dots, aligned right) */}
+                    <div className="w-full flex justify-end px-4 mt-2">
+                        <div className="relative group z-30 flex flex-col items-end">
+                            {/* Tooltip above the button */}
+                            <div className="absolute -top-10 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-zinc-800 text-zinc-200 px-3 py-1.5 rounded-full text-xs shadow-xl whitespace-nowrap pointer-events-none">
+                                Ask me about this screen
+                                <div className="absolute top-full right-4 border-[5px] border-transparent border-t-zinc-800"></div>
+                            </div>
+                            
+                            <button
+                                onClick={() => setIsInspectMode(!isInspectMode)}
+                                className={`transition-transform hover:scale-110 active:scale-95 flex items-center justify-center p-1.5 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.1)] bg-black/20 backdrop-blur-md border border-white/10 ${
+                                    isInspectMode ? 'ring-2 ring-blue-500/50' : ''
+                                }`}
+                            >
+                                <img src={floatIcon} alt="Inspect Mode" className="h-14 w-14 drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

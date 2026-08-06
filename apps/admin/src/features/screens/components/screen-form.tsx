@@ -14,6 +14,7 @@ import { ProfileDropdown } from '@/components/profile-dropdown'
 import { ImageDropzone } from '@/components/image-dropzone'
 import { MultiSelect } from '@/components/multi-select'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
+import { Skeleton } from '@/components/ui/skeleton'
 import { uploadAppImage } from '@/lib/supabase'
 import { toast } from 'sonner'
 import { screenSchema, type ScreenFormValues } from '../schemas'
@@ -25,6 +26,8 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
   const [uiElements, setUiElements] = useState<any[]>([])
   const [patterns, setPatterns] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const isEditing = !!screenId
+  const [isFetchingData, setIsFetchingData] = useState(isEditing)
   
   const form = useForm<ScreenFormValues>({
     resolver: zodResolver(screenSchema) as any,
@@ -49,7 +52,6 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
   })
 
   const screenName = form.watch('name')
-  const isEditing = !!screenId
 
   useEffect(() => {
     if (!isEditing && screenName) {
@@ -85,6 +87,7 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
     })
 
     if (screenId) {
+      setIsFetchingData(true)
       fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens/${screenId}`)
         .then(res => res.json())
         .then(data => {
@@ -106,9 +109,11 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
             uiElementIds: data.uiElements?.map((u: any) => u.id) || [],
             patternIds: data.patterns?.map((p: any) => p.id) || [],
           })
+          setIsFetchingData(false)
         })
+        .catch(() => setIsFetchingData(false))
     }
-  }, [screenId, form])
+  }, [screenId, form.reset])
 
   const onSubmit = async (data: ScreenFormValues) => {
     setIsLoading(true)
@@ -180,6 +185,61 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
       </Header>
 
       <Main className='max-w-4xl mx-auto'>
+        {isFetchingData ? (
+          <div className='grid gap-6'>
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-32 mb-2" />
+                <Skeleton className="h-4 w-64" />
+              </CardHeader>
+              <CardContent className="grid gap-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <Skeleton className="h-[150px] w-full" />
+                <div className="grid grid-cols-2 gap-6">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <Skeleton className="h-10 w-full" />
+              </CardContent>
+            </Card>
+            
+            <div className='flex items-center justify-between'>
+              <div>
+                <Skeleton className="h-6 w-48 mb-2" />
+                <Skeleton className="h-4 w-72" />
+              </div>
+            </div>
+
+            <div className='space-y-6'>
+              <Card>
+                <CardContent className='grid gap-6 pt-6'>
+                  <Skeleton className="h-[120px] w-full" />
+                  <Separator />
+                  <Skeleton className="h-[120px] w-full" />
+                  <Separator />
+                  <Skeleton className="h-[120px] w-full" />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className='grid gap-6 pt-6'>
+                  <Skeleton className="h-[120px] w-full" />
+                  <Separator />
+                  <div className='grid grid-cols-2 gap-6'>
+                    <Skeleton className="h-[120px] w-full" />
+                    <Skeleton className="h-[120px] w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        ) : (
         <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(onSubmit as any)(e); }} className='grid gap-6'>
           
           <Card>
@@ -401,6 +461,7 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
           </div>
 
         </form>
+        )}
       </Main>
     </>
   )

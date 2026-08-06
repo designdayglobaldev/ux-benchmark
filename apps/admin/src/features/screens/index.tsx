@@ -34,6 +34,8 @@ export function Screens() {
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [screens, setScreens] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
 
   const fetchScreens = () => {
     fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/screens')
@@ -70,6 +72,12 @@ export function Screens() {
     screen.app?.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   )
 
+  const paginatedScreens = filteredScreens.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
+  const totalPages = Math.ceil(filteredScreens.length / itemsPerPage)
+
   useEffect(() => {
     if (typeof navigate === 'function') {
       navigate({ search: (prev: any) => ({ ...prev, filter: debouncedSearchTerm || undefined }) } as any)
@@ -78,6 +86,7 @@ export function Screens() {
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value)
+    setCurrentPage(1)
   }
 
   return (
@@ -139,7 +148,7 @@ export function Screens() {
           </div>
         ) : (
           <>
-            <div className='border rounded-md mt-4'>
+            <div className='border rounded-md mt-4 flex-1 overflow-auto'>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -152,7 +161,7 @@ export function Screens() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredScreens.map((screen) => (
+                  {paginatedScreens.map((screen) => (
                     <TableRow 
                       key={screen.id} 
                       className='cursor-pointer hover:bg-muted/50'
@@ -238,22 +247,44 @@ export function Screens() {
             </div>
 
             {/* Pagination Footer */}
-            <div className='flex items-center justify-between px-2 py-4'>
-              <div className='text-sm text-muted-foreground'>
-                Showing 1 to {filteredScreens.length} of {filteredScreens.length} entries
+            {totalPages > 0 && (
+              <div className='flex items-center justify-between px-2 py-4'>
+                <div className='text-sm text-muted-foreground'>
+                  Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredScreens.length)} of {filteredScreens.length} entries
+                </div>
+                <div className='flex items-center space-x-2'>
+                  <Button 
+                    variant='outline' 
+                    size='sm' 
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                      <Button 
+                        key={i + 1}
+                        variant={currentPage === i + 1 ? 'default' : 'outline'}
+                        size='sm' 
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={currentPage === i + 1 ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
+                      >
+                        {i + 1}
+                      </Button>
+                    ))}
+                  </div>
+                  <Button 
+                    variant='outline' 
+                    size='sm' 
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  >
+                    Next
+                  </Button>
+                </div>
               </div>
-              <div className='flex items-center space-x-2'>
-                <Button variant='outline' size='sm' disabled>
-                  Previous
-                </Button>
-                <Button variant='outline' size='sm' className='bg-primary text-primary-foreground hover:bg-primary/90'>
-                  1
-                </Button>
-                <Button variant='outline' size='sm' disabled>
-                  Next
-                </Button>
-              </div>
-            </div>
+            )}
           </>
         )}
       </Main>

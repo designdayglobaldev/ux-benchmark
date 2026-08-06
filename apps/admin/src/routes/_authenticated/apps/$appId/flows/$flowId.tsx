@@ -36,7 +36,7 @@ function AppFlowDetail() {
   const [isManageSequenceOpen, setIsManageSequenceOpen] = useState(false)
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}`)
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}?appId=${appId}`)
       .then(res => res.json())
       .then(data => {
         // Sort screens by screenNo if available, otherwise by createdAt

@@ -34,6 +34,8 @@ export interface AppDetailsType {
   description: string;
   tags: string[];
   platform: string[];
+  market?: string[];
+  targetAudience?: string;
   screens: ScreenType[];
   palette?: any;
   visualUiTypography?: string;
@@ -61,6 +63,7 @@ export interface AppDetailsType {
     id: string;
     title: string;
   };
+  similarApps?: AppDetailsType[];
 }
 
 const fetchAppDetails = async (slug: string): Promise<AppDetailsType> => {

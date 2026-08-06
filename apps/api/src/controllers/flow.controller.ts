@@ -33,10 +33,13 @@ export const getAllFlows = async (req: Request, res: Response) => {
 export const getFlowById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const { appId } = req.query;
+    
     const flow = await prisma.flow.findUnique({
       where: { id },
       include: {
         screens: {
+          where: appId ? { appId: String(appId) } : undefined,
           include: {
             app: { select: { name: true } }
           }

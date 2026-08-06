@@ -69,21 +69,21 @@ export const createScreen = async (req: Request, res: Response) => {
         whereNotToUse,
         similarApps: similarApps || [],
         status,
-        app: { connect: { id: appId } },
-        ...(flowId && { flow: { connect: { id: flowId } } }),
+        appId,
+        flowId: flowId || null,
         uiElements: {
-          connect: uiElementIds?.map((id: String) => ({ id })) || [],
+          connect: uiElementIds?.map((id: string) => ({ id })) || [],
         },
         patterns: {
-          connect: patternIds?.map((id: String) => ({ id })) || [],
+          connect: patternIds?.map((id: string) => ({ id })) || [],
         },
       },
     });
 
     res.status(201).json(screen);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to create screen' });
+    res.status(500).json({ error: error.message || 'Failed to create screen' });
   }
 };
 
@@ -111,21 +111,21 @@ export const updateScreen = async (req: Request, res: Response) => {
         whereNotToUse,
         similarApps: similarApps || [],
         status,
-        app: { connect: { id: appId } },
-        ...(flowId ? { flow: { connect: { id: flowId } } } : { flow: { disconnect: true } }),
+        appId,
+        flowId: flowId || null,
         uiElements: {
-          set: uiElementIds?.map((id: String) => ({ id })) || [],
+          set: uiElementIds?.map((id: string) => ({ id })) || [],
         },
         patterns: {
-          set: patternIds?.map((id: String) => ({ id })) || [],
+          set: patternIds?.map((id: string) => ({ id })) || [],
         },
       },
     });
 
     res.json(screen);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to update screen' });
+    res.status(500).json({ error: error.message || 'Failed to update screen' });
   }
 };
 

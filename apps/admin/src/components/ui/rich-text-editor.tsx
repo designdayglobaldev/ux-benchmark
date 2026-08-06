@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Bold, Italic, Strikethrough, List, ListOrdered, Quote, Heading1, Heading2, Heading3, Code, Undo, Redo, Minus, Highlighter } from 'lucide-react'
@@ -37,6 +38,13 @@ export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   if (!editor) {
     return null
   }
+
+  // Sync external value changes (e.g. from async form reset on edit screens)
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value)
+    }
+  }, [value, editor])
 
   const toggleClass = (isActive: boolean) => 
     `inline-flex items-center justify-center rounded-sm text-sm font-medium transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 h-8 px-2.5 ${isActive ? "bg-muted text-foreground" : "text-muted-foreground bg-transparent"}`

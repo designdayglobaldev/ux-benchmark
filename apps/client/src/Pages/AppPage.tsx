@@ -15,6 +15,12 @@ import {
     type CarouselApi
 } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function AppPage() {
     const { slug } = useParams<{ slug: string }>();
@@ -22,6 +28,10 @@ export function AppPage() {
     const { data: appData, isLoading } = useAppDetails(slug || '');
     const [api, setApi] = useState<CarouselApi>()
     const [current, setCurrent] = useState(0)
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [slug]);
 
     useEffect(() => {
         if (!api) return
@@ -91,7 +101,8 @@ export function AppPage() {
     }
 
     return (
-        <main className="flex-1 w-full bg-black relative pb-32 flex flex-col xl:flex-row xl:justify-center px-4 sm:px-8 xl:px-4 gap-8">
+        <main className="flex-1 w-full bg-black relative pb-32 flex flex-col items-center">
+            <div className="w-full max-w-[1400px] flex flex-col xl:flex-row xl:justify-center px-4 sm:px-8 xl:px-4 gap-8">
             {/* Left Content Column */}
             <div className="w-full max-w-[832px] flex flex-col mt-8 xl:mt-[48px] xl:ml-[60px]">
 
@@ -143,28 +154,28 @@ export function AppPage() {
                     <div className="grid grid-cols-2 md:flex md:flex-row md:items-center md:justify-between w-full gap-y-6">
                         <div className="flex flex-col gap-[10px]">
                             <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Category</span>
-                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.tags?.[0] || 'Finance'}</span>
+                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.category?.title || appData?.tags?.[0] || 'Finance'}</span>
                         </div>
 
                         <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
 
                         <div className="flex flex-col gap-[10px]">
                             <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Platform</span>
-                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.platform?.join(' · ') || 'iOS · Android'}</span>
+                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.platform && appData.platform.length > 0) ? appData.platform.join(' · ') : 'iOS · Android'}</span>
                         </div>
 
                         <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
 
                         <div className="flex flex-col gap-[10px]">
                             <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Market</span>
-                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">Worldwide</span>
+                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.market && appData.market.length > 0) ? appData.market.join(' · ') : 'Worldwide'}</span>
                         </div>
 
                         <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
 
                         <div className="flex flex-col gap-[10px]">
                             <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Target User</span>
-                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">Busy urban, on the go</span>
+                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.targetAudience || 'Busy urban, on the go'}</span>
                         </div>
                     </div>
 
@@ -205,6 +216,7 @@ export function AppPage() {
 
                 <div className="mt-4 flex flex-col md:flex-row md:items-center gap-6">
                     <div className="flex flex-wrap gap-[12px]">
+                        <TooltipProvider>
                         {(() => {
                             let colors = ['#0A0A15', '#1C14E9', '#8E7EFE', '#FFFFFF', '#00E4C8'];
                             if (appData?.palette) {
@@ -217,11 +229,19 @@ export function AppPage() {
                             return (
                                 <>
                                     {colors.map((color, i) => (
-                                        <div key={i} className="w-[48px] h-[48px] sm:w-[64px] sm:h-[64px] rounded-[12px] border border-[#424241]" style={{ backgroundColor: color }}></div>
+                                        <Tooltip key={i} delayDuration={200}>
+                                            <TooltipTrigger asChild>
+                                                <div className="w-[48px] h-[48px] sm:w-[64px] sm:h-[64px] rounded-[12px] border border-[#424241] cursor-pointer" style={{ backgroundColor: color }}></div>
+                                            </TooltipTrigger>
+                                            <TooltipContent className="bg-[#1C1C1C] text-white border-[#323232]">
+                                                <p>{color}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
                                     ))}
                                 </>
                             );
                         })()}
+                        </TooltipProvider>
                     </div>
                 </div>
 
@@ -328,62 +348,6 @@ export function AppPage() {
                     />
                 </div>
 
-                {/* Similar apps */}
-                <h2 className="mt-12 font-['Inter'] font-medium text-[24px] sm:text-[28px] leading-none tracking-[-0.03em] text-[#E5E7EB] m-0">
-                    Similar apps
-                </h2>
-
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                    {/* Similar App Card 1 */}
-                    <div className="flex flex-col gap-4 cursor-pointer group">
-                        <div className="aspect-square w-full rounded-[16px] bg-[#161616] border border-[#222222] hover:bg-[#1A1A1A] transition-colors duration-300 relative overflow-hidden flex justify-center pt-[46px] group-hover:pt-[41px]">
-                            <img
-                                src={RevolutScreenshot}
-                                alt="Similar app screenshot"
-                                className="w-[45%] h-auto object-cover object-top rounded-t-[12px] shadow-lg transition-all duration-300"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 h-[100px] bg-gradient-to-t from-[#161616] to-transparent z-10 pointer-events-none"></div>
-                        </div>
-                        <div className="flex gap-3 px-1">
-                            <img 
-                                src={RevolutLogo} 
-                                alt="Wise Logo" 
-                                className="w-10 h-10 rounded-lg bg-[#CCFF00] object-contain p-1" 
-                            />
-                            <div className="flex flex-col">
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-[#EAEAEA] text-[15px] font-medium">Wise</span>
-                                    <span className="text-[#666666] text-[14px]">•</span>
-                                    <span className="text-[#666666] text-[14px]">Finance</span>
-                                </div>
-                                <span className="text-[#666666] text-[13px] mt-0.5">All-in-one finance app for your money</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Similar App Card 2 */}
-                    <div className="flex flex-col gap-4 cursor-pointer group">
-                        <div className="aspect-square w-full rounded-[16px] bg-[#161616] border border-[#222222] hover:bg-[#1A1A1A] transition-colors duration-300 relative overflow-hidden flex justify-center pt-[46px] group-hover:pt-[41px]">
-                            <img
-                                src={RevolutScreenshot}
-                                alt="Similar app screenshot"
-                                className="w-[45%] h-auto object-cover object-top rounded-t-[12px] shadow-lg transition-all duration-300"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 h-[100px] bg-gradient-to-t from-[#161616] to-transparent z-10 pointer-events-none"></div>
-                        </div>
-                        <div className="flex gap-3 px-1">
-                            <div className="w-10 h-10 rounded-lg bg-[#0052FF] flex items-center justify-center p-1 text-white font-bold text-xl">C</div>
-                            <div className="flex flex-col">
-                                <div className="flex items-center gap-1.5">
-                                    <span className="text-[#EAEAEA] text-[15px] font-medium">Coinbase</span>
-                                    <span className="text-[#666666] text-[14px]">•</span>
-                                    <span className="text-[#666666] text-[14px]">Finance</span>
-                                </div>
-                                <span className="text-[#666666] text-[13px] mt-0.5">All-in-one finance app for your money</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* Sticky Sidebar Container (Desktop Only) */}
@@ -442,7 +406,55 @@ export function AppPage() {
                         </div>
                     </Carousel>
                 </div>
+                </div>
             </div>
+
+            {/* Similar apps - Placed below the main grid so sticky sidebar stops above it */}
+            {appData?.similarApps && appData.similarApps.length > 0 && (
+                <div className="w-full max-w-[1400px] px-4 sm:px-8 xl:px-[60px] mt-20 flex flex-col">
+                    <h2 className="font-['Inter'] font-medium text-[24px] sm:text-[28px] leading-none tracking-[-0.03em] text-[#E5E7EB] m-0">
+                        Similar apps
+                    </h2>
+
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8 w-full">
+                        {appData.similarApps.map((similarApp) => (
+                            <div 
+                                key={similarApp.id}
+                                className="flex flex-col gap-4 cursor-pointer group"
+                                onClick={() => navigate(`/app/${similarApp.slug}`)}
+                            >
+                                <div className="aspect-square w-full rounded-[16px] bg-[#161616] border border-[#222222] hover:bg-[#1A1A1A] transition-colors duration-300 relative overflow-hidden flex justify-center pt-[46px] group-hover:pt-[41px]">
+                                    <img
+                                        src={similarApp.screens?.[0]?.imageUrl || similarApp.appThumbnail || '/default-screenshot.png'}
+                                        alt={`${similarApp.name} screenshot`}
+                                        className="w-[45%] h-auto object-cover object-top rounded-t-[12px] shadow-lg transition-all duration-300"
+                                    />
+                                    <div className="absolute bottom-0 left-0 right-0 h-[100px] bg-gradient-to-t from-[#161616] to-transparent z-10 pointer-events-none"></div>
+                                </div>
+                                <div className="flex gap-3 px-1">
+                                    <img 
+                                        src={similarApp.appLogo || '/default-logo.png'} 
+                                        alt={`${similarApp.name} Logo`} 
+                                        className="w-10 h-10 rounded-lg bg-[#333333] object-contain p-1" 
+                                    />
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[#EAEAEA] text-[15px] font-medium">{similarApp.name}</span>
+                                            {similarApp.category && (
+                                                <>
+                                                    <span className="text-[#666666] text-[14px]">•</span>
+                                                    <span className="text-[#666666] text-[14px]">{similarApp.category.title}</span>
+                                                </>
+                                            )}
+                                        </div>
+                                        <span className="text-[#666666] text-[13px] mt-0.5 line-clamp-1">{similarApp.description}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

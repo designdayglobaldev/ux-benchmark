@@ -13,7 +13,7 @@ export function Rightside({ activeScreen, appName, categoryTitle }: RightsidePro
         <div className="w-full flex flex-col gap-3 mt-8 xl:mt-[30px] xl:sticky xl:top-[30px]">
             
             {/* Box 1: App Info */}
-            <div className="w-full rounded-[6px] bg-[#181818] px-[14px] pt-[10px] pb-[14px] flex flex-col gap-3">
+            <div className="w-full rounded-[6px] bg-[#111111] px-[14px] pt-[10px] pb-[14px] flex flex-col gap-3">
                 <span className="font-['Inter'] font-normal text-[14px] leading-[22px] text-[#BDBDBD]">
                     {appName || 'App'} · {categoryTitle || 'Category'}
                 </span>
@@ -22,18 +22,18 @@ export function Rightside({ activeScreen, appName, categoryTitle }: RightsidePro
                 </h2>
                 {activeScreen?.uxAnalysis ? (
                     <div 
-                        className="font-['Inter'] font-normal text-[14px] leading-[22px] text-white/75 m-0 prose prose-sm prose-invert max-w-none"
+                        className="m-0 font-['Inter'] font-normal text-[13px] leading-[22px] text-[#E5E7EB] prose prose-sm prose-invert max-w-none"
                         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(activeScreen.uxAnalysis, { ADD_ATTR: ['style'] }) }}
                     />
                 ) : (
-                    <p className="font-['Inter'] font-normal text-[14px] leading-[22px] text-white/75 m-0">
+                    <p className="m-0 font-['Inter'] font-normal text-[13px] leading-[22px] text-[#E5E7EB]">
                         Select a screen to view details.
                     </p>
                 )}
             </div>
 
             {/* Box 2: UI Elements */}
-            <div className="w-full rounded-[6px] bg-[#181818] px-[14px] pt-[10px] pb-[14px] flex flex-col gap-3">
+            <div className="w-full rounded-[6px] bg-[#111111] px-[14px] pt-[10px] pb-[14px] flex flex-col gap-3">
                 <span className="font-['Inter'] font-normal text-[12px] leading-normal tracking-[0.04em] uppercase text-[#BDBDBD]">
                     UI Elements
                 </span>
@@ -49,7 +49,7 @@ export function Rightside({ activeScreen, appName, categoryTitle }: RightsidePro
             </div>
 
             {/* Box 3: Patterns */}
-            <div className="w-full rounded-[6px] bg-[#181818] px-[14px] pt-[10px] pb-[14px] flex flex-col gap-3">
+            <div className="w-full rounded-[6px] bg-[#111111] px-[14px] pt-[10px] pb-[14px] flex flex-col gap-3">
                 <span className="font-['Inter'] font-normal text-[12px] leading-normal tracking-[0.04em] uppercase text-[#BDBDBD]">
                     Patterns
                 </span>
@@ -65,7 +65,7 @@ export function Rightside({ activeScreen, appName, categoryTitle }: RightsidePro
             </div>
 
             {/* Box 4: Flow */}
-            <div className="w-full rounded-[6px] bg-[#181818] px-[14px] pt-[10px] pb-[14px] flex flex-col gap-3">
+            <div className="w-full rounded-[6px] bg-[#111111] px-[14px] pt-[10px] pb-[14px] flex flex-col gap-3">
                 <span className="font-['Inter'] font-normal text-[12px] leading-normal tracking-[0.04em] uppercase text-[#BDBDBD]">
                     Flow
                 </span>
