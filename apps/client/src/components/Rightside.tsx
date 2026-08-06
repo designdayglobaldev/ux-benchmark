@@ -20,16 +20,7 @@ export function Rightside({ activeScreen, appName, categoryTitle }: RightsidePro
                 <h2 className="font-['Inter'] font-medium text-[16px] leading-[22px] text-white/80 m-0">
                     {activeScreen?.name || 'Screen Name'}
                 </h2>
-                {activeScreen?.uxAnalysis ? (
-                    <div 
-                        className="m-0 font-['Inter'] font-normal text-[13px] leading-[22px] text-[#E5E7EB] prose prose-sm prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(activeScreen.uxAnalysis, { ADD_ATTR: ['style'] }) }}
-                    />
-                ) : (
-                    <p className="m-0 font-['Inter'] font-normal text-[13px] leading-[22px] text-[#E5E7EB]">
-                        Select a screen to view details.
-                    </p>
-                )}
+
             </div>
 
             {/* Box 2: UI Elements */}
