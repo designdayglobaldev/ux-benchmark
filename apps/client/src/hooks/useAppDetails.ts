@@ -67,7 +67,7 @@ export interface AppDetailsType {
 }
 
 const fetchAppDetails = async (slug: string): Promise<AppDetailsType> => {
-  const { data } = await api.get(`/apps/${slug}`);
+  const { data } = await api.get(`/apps/${slug}?status=LIVE`);
   return data;
 };
 

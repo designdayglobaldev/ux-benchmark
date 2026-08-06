@@ -21,16 +21,19 @@ export const getAllApps = async (req: Request, res: Response) => {
 export const getAppById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const { status } = req.query;
     const app = await prisma.app.findFirst({
       where: { 
         OR: [
           { id: id },
           { slug: id }
-        ]
+        ],
+        ...(status && { status: String(status) as any })
       },
       include: { 
         category: true, 
         screens: {
+          where: status ? { status: String(status) as any } : undefined,
           orderBy: {
             screenNo: 'asc'
           },
@@ -53,11 +56,13 @@ export const getAppById = async (req: Request, res: Response) => {
       similarApps = await prisma.app.findMany({
         where: { 
           categoryId: app.categoryId,
-          id: { not: app.id }
+          id: { not: app.id },
+          ...(status && { status: String(status) as any })
         },
         include: {
           category: true,
           screens: {
+            where: status ? { status: String(status) as any } : undefined,
             orderBy: { screenNo: 'asc' },
             take: 1
           }
