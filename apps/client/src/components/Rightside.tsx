@@ -1,5 +1,5 @@
 import { Smallbox } from "./Smallbox";
-import DOMPurify from 'dompurify';
+
 import type { ScreenType } from "@/hooks/useAppDetails";
 
 interface RightsideProps {
