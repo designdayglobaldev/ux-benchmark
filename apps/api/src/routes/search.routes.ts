@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { searchClient } from '../services/meilisearch';
+import { getSearchClient } from '../services/meilisearch';
 
 const router = Router();
 
@@ -7,6 +7,7 @@ router.get('/', async (req: Request, res: Response) => {
   const { q = '' } = req.query;
 
   try {
+    const searchClient = await getSearchClient();
     const index = searchClient.index('ux_library');
     
     // Check if Meilisearch is reachable and index exists

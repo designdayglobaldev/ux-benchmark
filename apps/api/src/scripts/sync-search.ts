@@ -1,10 +1,11 @@
 import { prisma } from '../db/prisma';
-import { searchClient, initMeilisearch } from '../services/meilisearch';
+import { getSearchClient, initMeilisearch } from '../services/meilisearch';
 
 async function main() {
   console.log('🔄 Starting Search Synchronization...');
   await initMeilisearch();
   
+  const searchClient = await getSearchClient();
   const index = searchClient.index('ux_library');
 
   // Fetch all apps
