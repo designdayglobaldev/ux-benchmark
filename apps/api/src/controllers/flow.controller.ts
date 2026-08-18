@@ -5,12 +5,22 @@ export const getAllFlows = async (req: Request, res: Response) => {
   try {
     const { appId } = req.query;
     
-    // For flows, filtering by appId might mean they contain screens that belong to the app
-    // Alternatively, if flows are associated directly with an app (wait, let me check prisma schema!)
-    // If not, we might need to filter by screens.some: { appId }
-    // Let's assume flows don't have appId directly, but if they do, we use it.
-    // I'll check prisma schema just in case. But for now, filtering by screens might be safest.
-    const whereClause = appId ? { screens: { some: { appId: String(appId) } } } : {};
+    let actualAppId: string | undefined;
+    
+    if (appId) {
+      const app = await prisma.app.findFirst({
+        where: {
+          OR: [{ id: String(appId) }, { slug: String(appId) }]
+        }
+      });
+      if (app) {
+        actualAppId = app.id;
+      } else {
+        actualAppId = String(appId); // Fallback
+      }
+    }
+
+    const whereClause = actualAppId ? { screens: { some: { appId: actualAppId } } } : {};
 
     const flows = await prisma.flow.findMany({
       where: whereClause,
@@ -19,10 +29,22 @@ export const getAllFlows = async (req: Request, res: Response) => {
           include: {
             app: { select: { name: true } }
           }
-        }
+        },
+        appFlows: actualAppId ? {
+          where: { appId: actualAppId }
+        } : false
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: !actualAppId ? { createdAt: 'desc' } : undefined,
     });
+
+    if (actualAppId) {
+      flows.sort((a, b) => {
+        const seqA = a.appFlows?.[0]?.sequence ?? 999999;
+        const seqB = b.appFlows?.[0]?.sequence ?? 999999;
+        return seqA - seqB || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    }
+
     res.json(flows);
   } catch (error) {
     console.error(error);
@@ -118,5 +140,48 @@ export const reorderScreens = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to reorder screens' });
+  }
+};
+
+export const reorderAppFlows = async (req: Request, res: Response) => {
+  try {
+    const { appId: idOrSlug } = req.params;
+    const { flowIds } = req.body;
+
+    const app = await prisma.app.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }]
+      }
+    });
+
+    if (!app) {
+      return res.status(404).json({ error: 'App not found' });
+    }
+
+    const actualAppId = app.id;
+
+    for (let i = 0; i < flowIds.length; i++) {
+      await prisma.appFlow.upsert({
+        where: {
+          appId_flowId: {
+            appId: actualAppId,
+            flowId: flowIds[i]
+          }
+        },
+        update: {
+          sequence: i + 1
+        },
+        create: {
+          appId: actualAppId,
+          flowId: flowIds[i],
+          sequence: i + 1
+        }
+      });
+    }
+
+    res.json({ message: 'App Flow sequence updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to reorder app flows' });
   }
 };

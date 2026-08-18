@@ -20,7 +20,7 @@ function PlusMinusIcon({ isOpen }: { isOpen: boolean }) {
 
 export function Leftside({ activeScreen }: LeftsideProps) {
     const sections = [
-        { title: "UX ANALYSIS", content: activeScreen?.uxAnalysis || "Analysis not available.", defaultOpen: true },
+        { title: "UX ANALYSIS", content: activeScreen?.uxAnalysis || "Analysis not available.", defaultOpen: false },
         { title: "KEY HIGHLIGHTS & UX PRINCIPLES", content: activeScreen?.keyHighlights || "Not available.", defaultOpen: false },
         { title: "EVIDENCE - WHO & WHY", content: activeScreen?.evidenceWhoWhy || "Not available.", defaultOpen: false },
         { title: "WHERE TO USE", content: activeScreen?.whereToUse || "Not available.", defaultOpen: false },
@@ -50,7 +50,7 @@ export function Leftside({ activeScreen }: LeftsideProps) {
                     >
                         <div
                             onClick={() => toggleSection(index)}
-                            className="flex flex-row items-center justify-between p-4 cursor-pointer select-none"
+                            className="flex flex-row items-center justify-between px-4 py-3 cursor-pointer select-none"
                         >
                             <span className="font-['Inter'] font-normal text-[12px] leading-normal tracking-[0.04em] uppercase text-[#BDBDBD]">
                                 {section.title}
@@ -60,7 +60,7 @@ export function Leftside({ activeScreen }: LeftsideProps) {
 
                         {isOpen && (
                             <div 
-                                className="m-0 px-4 pb-4 font-['Inter'] font-normal text-[13px] leading-[22px] text-[#E5E7EB] prose prose-sm prose-invert max-w-none"
+                                className="m-0 px-4 pb-3 pt-0 font-['Inter'] font-normal text-[13px] leading-[22px] text-[#E5E7EB] prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(section.content, { ADD_ATTR: ['style'] }) }}
                             />
                         )}

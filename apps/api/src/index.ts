@@ -9,6 +9,7 @@ import patternRoutes from './routes/pattern.routes';
 import screenRoutes from './routes/screen.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import aiRoutes from './routes/ai.routes';
+import searchRoutes from './routes/search.routes';
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Increased limit for base64 images
@@ -26,8 +27,10 @@ app.use('/api/v1/patterns', patternRoutes);
 app.use('/api/v1/screens', screenRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/ai', aiRoutes);
+app.use('/api/v1/search', searchRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+// Trigger restart 8

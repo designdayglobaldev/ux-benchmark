@@ -11,14 +11,15 @@ export interface AppType {
   tags: string[];
 }
 
-const fetchApps = async (): Promise<AppType[]> => {
-  const { data } = await api.get('/apps?status=LIVE');
+const fetchApps = async (queryString: string = ''): Promise<AppType[]> => {
+  const url = queryString ? `/apps?status=LIVE&${queryString}` : '/apps?status=LIVE';
+  const { data } = await api.get(url);
   return data;
 };
 
-export const useApps = () => {
+export const useApps = (queryString: string = '') => {
   return useQuery({
-    queryKey: ['apps'],
-    queryFn: fetchApps,
+    queryKey: ['apps', queryString],
+    queryFn: () => fetchApps(queryString),
   });
 };

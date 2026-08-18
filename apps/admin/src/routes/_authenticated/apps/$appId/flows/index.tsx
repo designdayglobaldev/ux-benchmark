@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { FlowCardSkeleton } from '@/components/ui/flow-card-skeleton'
 
+import { ReorderFlowsDialog } from '@/features/flows/components/reorder-flows-dialog'
+
 export const Route = createFileRoute('/_authenticated/apps/$appId/flows/')({
   component: AppFlows,
 })
@@ -14,7 +16,8 @@ function AppFlows() {
   const [flows, setFlows] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
+  const fetchFlows = () => {
+    setIsLoading(true)
     fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows?appId=${appId}`)
       .then(res => res.json())
       .then(data => {
@@ -25,6 +28,10 @@ function AppFlows() {
         console.error(err)
         setIsLoading(false)
       })
+  }
+
+  useEffect(() => {
+    fetchFlows()
   }, [appId])
   return (
     <div className="space-y-6 pb-10">
@@ -33,11 +40,16 @@ function AppFlows() {
           <h2 className="text-2xl font-bold tracking-tight">App Flows</h2>
           <p className="text-muted-foreground">Manage flows specifically for this application.</p>
         </div>
-        <Button asChild>
-          <Link to="/flows/new">
-            <Plus className="mr-2 h-4 w-4" /> Create Flow
-          </Link>
-        </Button>
+        <div className="flex items-center">
+          {flows.length > 1 && (
+            <ReorderFlowsDialog appId={appId} flows={flows} onSuccess={fetchFlows} />
+          )}
+          <Button asChild>
+            <Link to="/flows/new" search={{ appId }}>
+              <Plus className="mr-2 h-4 w-4" /> Create Flow
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (

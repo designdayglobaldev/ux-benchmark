@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Send, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface Point {
   x: number;
@@ -17,16 +16,27 @@ export interface Region {
 
 interface RegionSelectorProps {
   onClose: () => void;
-  onSubmit: (region: Region, prompt: string) => void;
+  onSelectRegion: (region: Region | null) => void;
+  selectedRegion?: Region | null;
+  hideInstructions?: boolean;
 }
 
-export function RegionSelector({ onClose, onSubmit }: RegionSelectorProps) {
+export function RegionSelector({ onClose, onSelectRegion, selectedRegion, hideInstructions }: RegionSelectorProps) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPoint, setStartPoint] = useState<Point | null>(null);
   const [currentPoint, setCurrentPoint] = useState<Point | null>(null);
   const [selectionBox, setSelectionBox] = useState<Region | null>(null);
-  const [prompt, setPrompt] = useState('');
+  const [hasConfirmed, setHasConfirmed] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!selectedRegion && hasConfirmed) {
+      setSelectionBox(null);
+      setStartPoint(null);
+      setCurrentPoint(null);
+      setHasConfirmed(false);
+    }
+  }, [selectedRegion, hasConfirmed]);
 
   const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
     if (!overlayRef.current) {
@@ -53,6 +63,7 @@ export function RegionSelector({ onClose, onSubmit }: RegionSelectorProps) {
   const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
     if (selectionBox) return;
     setIsDrawing(true);
+    setHasConfirmed(false);
     const pos = getCoordinates(e);
     setStartPoint(pos);
     setCurrentPoint(pos);
@@ -73,23 +84,50 @@ export function RegionSelector({ onClose, onSubmit }: RegionSelectorProps) {
     const height = Math.abs(currentPoint.y - startPoint.y);
 
     if (width > 20 && height > 20) {
-      setSelectionBox({ x, y, width, height });
+      const region = { x, y, width, height };
+      setSelectionBox(region);
+      // Removed auto-select here, waits for checkmark click
     } else {
       setStartPoint(null);
       setCurrentPoint(null);
+      setSelectionBox(null);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectionBox && prompt.trim()) {
-      onSubmit(selectionBox, prompt);
-      setSelectionBox(null);
-      setStartPoint(null);
-      setCurrentPoint(null);
-      setPrompt('');
-      onClose();
+  const handleResizeStart = (e: React.MouseEvent | React.TouchEvent, handle: 'tl' | 'tr' | 'bl' | 'br') => {
+    e.stopPropagation();
+    if (!selectionBox) return;
+
+    let fixedPoint: Point;
+    let movingPoint: Point;
+
+    const { x, y, width, height } = selectionBox;
+
+    switch (handle) {
+      case 'tl':
+        fixedPoint = { x: x + width, y: y + height };
+        movingPoint = { x, y };
+        break;
+      case 'tr':
+        fixedPoint = { x, y: y + height };
+        movingPoint = { x: x + width, y };
+        break;
+      case 'bl':
+        fixedPoint = { x: x + width, y };
+        movingPoint = { x, y: y + height };
+        break;
+      case 'br':
+        fixedPoint = { x, y };
+        movingPoint = { x: x + width, y: y + height };
+        break;
     }
+
+    setStartPoint(fixedPoint);
+    setCurrentPoint(movingPoint);
+    setSelectionBox(null);
+    setIsDrawing(true);
+    setHasConfirmed(false);
+    onSelectRegion(null);
   };
 
   const currentBox = isDrawing && startPoint && currentPoint
@@ -126,54 +164,66 @@ export function RegionSelector({ onClose, onSubmit }: RegionSelectorProps) {
         <X className="h-4 w-4" />
       </Button>
 
-      {!isDrawing && !selectionBox && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white bg-zinc-900/90 border border-zinc-700 px-4 py-3 rounded-xl shadow-2xl flex flex-col items-center justify-center gap-2 pointer-events-none animate-pulse w-[85%] max-w-[200px] text-center text-sm">
-          <div className="flex items-center gap-2">
-             <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-             <span className="font-medium">Inspect Mode</span>
-          </div>
-          <span className="text-zinc-300 text-xs">Click & drag anywhere</span>
+      {!isDrawing && !selectionBox && !hideInstructions && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white flex flex-col items-center justify-center gap-3 pointer-events-none w-[85%] max-w-[200px] text-center">
+            <img src="/inspect.svg" className="w-5 h-5 text-white" alt="Inspect" />
+            <span className="text-[13px] font-medium leading-snug">
+                Drag an area of the screen<br/>to inspect
+            </span>
         </div>
       )}
       
       {currentBox && (
         <div
-          className="absolute border-2 border-blue-500 bg-blue-500/10 pointer-events-none"
+          className={`absolute border-2 border-dashed border-[#4E6BFF] bg-transparent ${!isDrawing ? 'pointer-events-auto' : 'pointer-events-none'}`}
           style={{
             left: currentBox.x,
             top: currentBox.y,
             width: currentBox.width,
             height: currentBox.height,
           }}
-        />
-      )}
-
-      {selectionBox && (
-        <form 
-          onSubmit={handleSubmit}
-          className="absolute bg-zinc-900 border border-zinc-800 p-2 rounded-xl shadow-2xl flex items-center gap-2 pointer-events-auto z-[90]"
-          style={{
-            left: '50%',
-            transform: 'translateX(-50%)',
-            top: Math.min(selectionBox.y + selectionBox.height + 12, (overlayRef.current?.clientHeight || 500) - 60),
-            width: '90%',
-            maxWidth: '280px'
-          }}
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
         >
-          <Input
-            autoFocus
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Ask AI about this area..."
-            className="flex-1 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-400 focus-visible:ring-blue-500 h-10 min-w-0"
+          {/* Top Left Handle */}
+          <div 
+            className="absolute -top-[5px] -left-[5px] w-2.5 h-2.5 bg-white border border-[#4E6BFF] cursor-nwse-resize pointer-events-auto" 
+            onMouseDown={(e) => handleResizeStart(e, 'tl')}
+            onTouchStart={(e) => handleResizeStart(e, 'tl')}
           />
-          <Button type="submit" size="icon" className="shrink-0 h-10 w-10 bg-blue-600 hover:bg-blue-700 text-white" disabled={!prompt.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
+          {/* Top Right Handle */}
+          <div 
+            className="absolute -top-[5px] -right-[5px] w-2.5 h-2.5 bg-white border border-[#4E6BFF] cursor-nesw-resize pointer-events-auto"
+            onMouseDown={(e) => handleResizeStart(e, 'tr')}
+            onTouchStart={(e) => handleResizeStart(e, 'tr')}
+          />
+          {/* Bottom Left Handle */}
+          <div 
+            className="absolute -bottom-[5px] -left-[5px] w-2.5 h-2.5 bg-white border border-[#4E6BFF] cursor-nesw-resize pointer-events-auto"
+            onMouseDown={(e) => handleResizeStart(e, 'bl')}
+            onTouchStart={(e) => handleResizeStart(e, 'bl')}
+          />
+          {/* Bottom Right Handle */}
+          <div 
+            className="absolute -bottom-[5px] -right-[5px] w-2.5 h-2.5 bg-white border border-[#4E6BFF] cursor-nwse-resize pointer-events-auto"
+            onMouseDown={(e) => handleResizeStart(e, 'br')}
+            onTouchStart={(e) => handleResizeStart(e, 'br')}
+          />
+          
+          {/* Checkmark Button */}
+          {!isDrawing && !hasConfirmed && (
+            <button
+                className="absolute -bottom-[6px] -right-[6px] translate-y-full flex items-center justify-center w-6 h-6 bg-[#4E6BFF] rounded-[4px] hover:bg-[#3d55d1] transition-colors"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectRegion(currentBox);
+                    setHasConfirmed(true);
+                }}
+            >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

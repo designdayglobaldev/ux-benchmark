@@ -7,25 +7,35 @@ import revolutLogo from "@/assets/Revolut_logo.png";
 import { SubmitModule } from "../components/Submit_module";
 import { useApps } from "@/hooks/useApps";
 import { Skeleton } from "@/components/ui/skeleton";
-
-const categories = [
-    "Latest",
-    "Productivity",
-    "Lifestyle",
-    "Technology",
-    "Entertainment",
-    "Finance & Banking",
-    "Travel & Transportation",
-    "Communication",
-    "Education"
-];
+import { OptimizedImage } from "@/components/ui/optimized-image";
+import { useEffect } from "react";
 
 import { useNavigate } from 'react-router-dom'
 
 export function Dashboard() {
-    const navigate = useNavigate()
-    const [activeCategory, setActiveCategory] = useState("Latest");
-    const { data: apps, isLoading, error } = useApps();
+    const navigate = useNavigate();
+    const [activeCategorySlug, setActiveCategorySlug] = useState("latest");
+    const [categories, setCategories] = useState<{slug: string, name: string}[]>([]);
+    
+    // Build query string for the active category
+    const queryString = activeCategorySlug !== 'latest' ? `category=${activeCategorySlug}` : '';
+    const { data: apps, isLoading, error } = useApps(queryString);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+                const catRes = await fetch(`${apiUrl}/api/v1/categories`);
+                const data = await catRes.json();
+                setCategories([{ slug: 'latest', name: 'Latest' }, ...data]);
+            } catch (e) {
+                console.error("Failed to fetch categories", e);
+                // Fallback
+                setCategories([{ slug: 'latest', name: 'Latest' }]);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     return (
         <main className="flex-1 w-full bg-black flex flex-col items-center pt-8 sm:pt-[50px] px-4 sm:px-6 pb-20 sm:pb-32">
@@ -62,18 +72,21 @@ export function Dashboard() {
             {/* Categories Bar */}
             <div className="sticky top-[73px] z-40 w-full bg-black pl-4 sm:pl-[30px] py-4 overflow-x-auto no-scrollbar">
                 <div className="flex items-center text-[14px] font-normal whitespace-nowrap">
-                    {categories.map((category) => (
-                        <button
-                            key={category}
-                            onClick={() => setActiveCategory(category)}
-                            className={`transition-colors ${activeCategory === category
-                                    ? "text-white bg-[#1A1A1A] px-3 py-2 rounded-full"
-                                    : "text-[#A1A1A1] hover:text-white px-3 py-2 rounded-full"
-                                }`}
-                        >
-                            {category}
-                        </button>
-                    ))}
+                    {categories.map((category: any) => {
+                        const displayName = category.name || category.title;
+                        return (
+                            <button
+                                key={category.slug}
+                                onClick={() => setActiveCategorySlug(category.slug)}
+                                className={`transition-colors ${activeCategorySlug === category.slug
+                                        ? "text-white bg-[#1A1A1A] px-3 py-2 rounded-full"
+                                        : "text-[#A1A1A1] hover:text-white px-3 py-2 rounded-full"
+                                    }`}
+                            >
+                                {displayName}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -119,9 +132,11 @@ export function Dashboard() {
                                     </div>
 
                                     <div className="absolute bottom-0 left-[80px] right-[80px] top-[46px] group-hover:left-[70px] group-hover:right-[70px] group-hover:top-[41px] transition-all duration-300 rounded-t-[16px] overflow-hidden">
-                                        <img 
+                                        <OptimizedImage 
                                             src={app.appThumbnail || revolutImg} 
                                             alt={app.name} 
+                                            optimizationWidth={600}
+                                            containerClassName="w-full h-full"
                                             className="w-full h-full object-cover object-top" 
                                         />
                                         {/* Inside Black Fade */}
@@ -132,9 +147,11 @@ export function Dashboard() {
                                 </div>
                                 {/* App Details Below Box */}
                                 <div className="flex items-center gap-3 px-1">
-                                    <img 
+                                    <OptimizedImage 
                                         src={app.appLogo || revolutLogo} 
                                         alt={`${app.name} Logo`} 
+                                        optimizationWidth={100}
+                                        containerClassName="w-10 h-10 rounded-lg shrink-0"
                                         className="w-10 h-10 rounded-lg object-contain bg-white" 
                                     />
                                     <div className="flex flex-col">

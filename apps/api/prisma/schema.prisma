@@ -85,7 +85,8 @@ model App {
   takeawayTags       String[]
   takeawayText       String?
 
-  screens Screen[]
+  screens  Screen[]
+  appFlows AppFlow[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -98,8 +99,20 @@ model Flow {
   description String?
   status      Status    @default(DRAFT)
   screens     Screen[]
+  appFlows    AppFlow[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model AppFlow {
+  id        String   @id @default(uuid())
+  appId     String
+  flowId    String
+  sequence  Int      @default(0)
+  app       App      @relation(fields: [appId], references: [id], onDelete: Cascade)
+  flow      Flow     @relation(fields: [flowId], references: [id], onDelete: Cascade)
+
+  @@unique([appId, flowId])
 }
 
 model Screen {

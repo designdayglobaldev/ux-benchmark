@@ -3,8 +3,33 @@ import { prisma } from '../db/prisma';
 
 export const getAllApps = async (req: Request, res: Response) => {
   try {
-    const { status } = req.query;
-    const where = status ? { status: String(status) as any } : {};
+    const { status, category, platform, flows, uiElements, patterns } = req.query;
+    const where: any = {};
+    
+    if (status) where.status = String(status);
+    if (category) where.category = { slug: String(category) };
+    if (platform) where.platform = { hasSome: String(platform).split(',') };
+
+    const AND: any[] = [];
+    if (flows) {
+      AND.push({
+        screens: { some: { flow: { slug: { in: String(flows).split(',') } } } }
+      });
+    }
+    if (uiElements) {
+      AND.push({
+        screens: { some: { uiElements: { some: { slug: { in: String(uiElements).split(',') } } } } }
+      });
+    }
+    if (patterns) {
+      AND.push({
+        screens: { some: { patterns: { some: { slug: { in: String(patterns).split(',') } } } } }
+      });
+    }
+    
+    if (AND.length > 0) {
+      where.AND = AND;
+    }
 
     const apps = await prisma.app.findMany({
       where,
@@ -31,7 +56,8 @@ export const getAppById = async (req: Request, res: Response) => {
         ...(status && { status: String(status) as any })
       },
       include: { 
-        category: true, 
+        category: true,
+        appFlows: true, 
         screens: {
           where: status ? { status: String(status) as any } : undefined,
           orderBy: {

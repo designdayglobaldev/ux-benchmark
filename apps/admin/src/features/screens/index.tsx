@@ -174,12 +174,12 @@ export function Screens() {
                       }}
                     >
                       <TableCell>
-                        <div className='h-12 w-8 bg-muted rounded overflow-hidden'>
+                        <div className='h-16 w-12 bg-muted rounded overflow-hidden'>
                           {screen.imageUrl ? (
                             <img 
                               src={screen.imageUrl} 
                               alt={screen.name} 
-                              className='w-full h-full object-cover' 
+                              className='w-full h-full object-contain bg-white' 
                             />
                           ) : (
                             <div className='w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-[10px]'>No Img</div>
@@ -262,17 +262,29 @@ export function Screens() {
                     Previous
                   </Button>
                   <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }).map((_, i) => (
-                      <Button 
-                        key={i + 1}
-                        variant={currentPage === i + 1 ? 'default' : 'outline'}
-                        size='sm' 
-                        onClick={() => setCurrentPage(i + 1)}
-                        className={currentPage === i + 1 ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
-                      >
-                        {i + 1}
-                      </Button>
-                    ))}
+                    {(() => {
+                      const getVisiblePages = (current: number, total: number) => {
+                        if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+                        if (current <= 4) return [1, 2, 3, 4, 5, '...', total];
+                        if (current >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+                        return [1, '...', current - 1, current, current + 1, '...', total];
+                      };
+                      return getVisiblePages(currentPage, totalPages).map((page, i) => (
+                        page === '...' ? (
+                          <span key={`ellipsis-${i}`} className="px-2 text-muted-foreground">...</span>
+                        ) : (
+                          <Button 
+                            key={page}
+                            variant={currentPage === page ? 'default' : 'outline'}
+                            size='sm' 
+                            onClick={() => setCurrentPage(page as number)}
+                            className={currentPage === page ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
+                          >
+                            {page}
+                          </Button>
+                        )
+                      ));
+                    })()}
                   </div>
                   <Button 
                     variant='outline' 

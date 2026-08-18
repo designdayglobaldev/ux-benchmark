@@ -13,6 +13,8 @@ export interface ScreenType {
   whereNotToUse?: string;
   uiElements?: { title: string }[];
   patterns?: { title: string }[];
+  flowId?: string;
+  screenNo?: number;
   flow?: {
     id: string;
     name: string;
@@ -63,6 +65,10 @@ export interface AppDetailsType {
     id: string;
     title: string;
   };
+  appFlows?: {
+    flowId: string;
+    sequence: number;
+  }[];
   similarApps?: AppDetailsType[];
 }
 

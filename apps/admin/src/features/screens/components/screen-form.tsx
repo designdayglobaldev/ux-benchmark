@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft, Save, Check, ChevronsUpDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +16,19 @@ import { ImageDropzone } from '@/components/image-dropzone'
 import { MultiSelect } from '@/components/multi-select'
 import { RichTextEditor } from '@/components/ui/rich-text-editor'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { uploadAppImage } from '@/lib/supabase'
 import { toast } from 'sonner'
 import { screenSchema, type ScreenFormValues } from '../schemas'
@@ -158,6 +172,64 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
     }
   }
 
+  const handleGenerateAIData = async () => {
+    let imageUrl = form.getValues('imageUrl');
+    if (!imageUrl) {
+      toast.error('Please upload an image first');
+      return;
+    }
+
+    setIsLoading(true);
+    toast.loading('Analyzing UI with AI...');
+
+    try {
+      let base64Data = imageUrl;
+
+      // If imageUrl is a File object, convert it to base64
+      if (typeof imageUrl !== 'string' && imageUrl instanceof File) {
+        base64Data = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(imageUrl as unknown as Blob);
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = error => reject(error);
+        });
+      }
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/ai/generate-screen-data`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          imageBase64: base64Data,
+          appId: form.getValues('appId') || undefined
+        })
+      });
+
+      if (!res.ok) throw new Error('Failed to generate AI data');
+      
+      const data = await res.json();
+      
+      // Auto-fill fields
+      if (data.name && !form.getValues('name')) form.setValue('name', data.name, { shouldValidate: true });
+      if (data.uxAnalysis) form.setValue('uxAnalysis', data.uxAnalysis);
+      if (data.tonalityAndContent) form.setValue('tonalityAndContent', data.tonalityAndContent);
+      if (data.keyHighlights) form.setValue('keyHighlights', data.keyHighlights);
+      if (data.evidenceWhoWhy) form.setValue('evidenceWhoWhy', data.evidenceWhoWhy);
+      if (data.whereToUse) form.setValue('whereToUse', data.whereToUse);
+      if (data.whereNotToUse) form.setValue('whereNotToUse', data.whereNotToUse);
+      if (data.uiElementIds && Array.isArray(data.uiElementIds)) form.setValue('uiElementIds', data.uiElementIds);
+      if (data.patternIds && Array.isArray(data.patternIds)) form.setValue('patternIds', data.patternIds);
+
+      toast.dismiss();
+      toast.success('AI data generated successfully!');
+    } catch (error: any) {
+      toast.dismiss();
+      toast.error(error.message || 'Failed to generate AI data');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <Header>
@@ -265,22 +337,114 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
               <div className='grid grid-cols-2 gap-6'>
                 <div className='grid gap-3'>
                   <Label htmlFor='appName'>Associated App</Label>
-                  <select id='appName' {...form.register('appId')} className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'>
-                    <option value=''>Select an App...</option>
-                    {apps.map(app => (
-                      <option key={app.id} value={app.id}>{app.name}</option>
-                    ))}
-                  </select>
+                  <Controller
+                    control={form.control}
+                    name="appId"
+                    render={({ field }) => (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between font-normal text-left px-3",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? apps.find((app) => app.id === field.value)?.name
+                              : "Select an App..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="Search apps..." />
+                            <CommandList>
+                              <CommandEmpty>No app found.</CommandEmpty>
+                              <CommandGroup>
+                                {apps.map((app) => (
+                                  <CommandItem
+                                    value={app.name}
+                                    key={app.id}
+                                    onSelect={() => {
+                                      form.setValue("appId", app.id)
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        app.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {app.name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  />
                   {form.formState.errors.appId && <span className="text-sm text-red-500">{form.formState.errors.appId.message}</span>}
                 </div>
                 <div className='grid gap-3'>
                   <Label htmlFor='assignedFlow'>Assigned Flow</Label>
-                  <select id='assignedFlow' {...form.register('flowId')} className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring'>
-                    <option value=''>Select a Flow...</option>
-                    {flows.map(flow => (
-                      <option key={flow.id} value={flow.id}>{flow.name}</option>
-                    ))}
-                  </select>
+                  <Controller
+                    control={form.control}
+                    name="flowId"
+                    render={({ field }) => (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between font-normal text-left px-3",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? flows.find((flow) => flow.id === field.value)?.name
+                              : "Select a Flow..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="Search flows..." />
+                            <CommandList>
+                              <CommandEmpty>No flow found.</CommandEmpty>
+                              <CommandGroup>
+                                {flows.map((flow) => (
+                                  <CommandItem
+                                    value={flow.name}
+                                    key={flow.id}
+                                    onSelect={() => {
+                                      form.setValue("flowId", flow.id)
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        flow.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {flow.name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    )}
+                  />
                 </div>
               </div>
 
@@ -349,11 +513,20 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
           </Card>
 
           {/* Fixed Analysis Blocks */}
-          <div className='flex items-center justify-between'>
+          <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
             <div>
               <h2 className='text-lg font-semibold'>Screen Analysis</h2>
               <p className='text-sm text-muted-foreground'>Provide detailed insights and context for this screen.</p>
             </div>
+            <Button 
+              type="button" 
+              variant="secondary" 
+              className="bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 border border-indigo-500/20"
+              onClick={handleGenerateAIData}
+              disabled={isLoading || !form.watch('imageUrl')}
+            >
+              ✨ Auto-Fill with AI
+            </Button>
           </div>
 
           <div className='space-y-6'>

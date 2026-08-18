@@ -22,6 +22,24 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 
+function ImageWithSkeleton({ src, alt, className, loading }: { src: string, alt: string, className?: string, loading?: "eager" | "lazy" }) {
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    return (
+        <div className={`relative ${className}`}>
+            {!isLoaded && <Skeleton className="absolute inset-0 rounded-[8px]" />}
+            <img 
+                src={src} 
+                alt={alt}
+                loading={loading}
+                className={`w-full h-full object-cover rounded-[8px] ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
+                onLoad={() => setIsLoaded(true)}
+            />
+        </div>
+    );
+}
+
+
 export function AppPage() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate()
@@ -43,16 +61,38 @@ export function AppPage() {
         })
     }, [api])
 
-    const uniqueFlows = appData?.screens 
-        ? Array.from(new Set(appData.screens.map(s => s.flow?.name).filter(Boolean))) 
+    const uniqueFlows = appData?.screens
+        ? Array.from(new Set(appData.screens.map(s => s.flow?.name).filter(Boolean)))
         : [];
+    
+    if (appData?.appFlows && uniqueFlows.length > 0) {
+        uniqueFlows.sort((a, b) => {
+            const flowA = appData.screens.find(s => s.flow?.name === a)?.flow;
+            const flowB = appData.screens.find(s => s.flow?.name === b)?.flow;
+            const seqA = appData.appFlows?.find((af: any) => af.flowId === flowA?.id)?.sequence ?? 999999;
+            const seqB = appData.appFlows?.find((af: any) => af.flowId === flowB?.id)?.sequence ?? 999999;
+            return seqA - seqB;
+        });
+    }
+
+    const sortedScreens = appData?.screens ? [...appData.screens].sort((a, b) => {
+        const seqA = appData.appFlows?.find((af: any) => af.flowId === a.flowId)?.sequence ?? 999999;
+        const seqB = appData.appFlows?.find((af: any) => af.flowId === b.flowId)?.sequence ?? 999999;
+        
+        if (seqA !== seqB) {
+            return seqA - seqB;
+        }
+        
+        return (a.screenNo || 0) - (b.screenNo || 0);
+    }) : [];
     const screenCount = appData?.screens?.length || 0;
 
     if (isLoading) {
         return (
-            <main className="flex-1 w-full bg-black relative pb-32 flex flex-col xl:flex-row xl:justify-center px-4 sm:px-8 xl:px-4 gap-8">
-                {/* Left Content Column Skeleton */}
-                <div className="w-full max-w-[832px] flex flex-col mt-8 xl:mt-[48px] xl:ml-[60px] gap-12">
+            <main className="flex-1 w-full bg-black relative pb-32 flex flex-col items-center">
+                <div className="flex flex-col xl:flex-row justify-between items-center xl:items-stretch pt-6 px-4 xl:px-6 gap-8 xl:gap-4 w-full max-w-[1920px] mx-auto">
+                    {/* Left Content Column Skeleton */}
+                    <div className="w-full xl:max-w-[1100px] flex flex-col gap-12">
                     <div className="rounded-[12px] border border-[#2B2B29] bg-[#111111] w-full p-6 sm:p-8 flex flex-col">
                         <div className="flex justify-between items-center mb-8">
                             <Skeleton className="h-10 w-24 rounded-full" />
@@ -73,7 +113,7 @@ export function AppPage() {
                         </div>
                         <Skeleton className="h-8 w-64 mt-10" />
                     </div>
-                    
+
                     {/* More about Skeleton */}
                     <div className="flex flex-col gap-4">
                         <Skeleton className="h-4 w-48" />
@@ -93,332 +133,329 @@ export function AppPage() {
                 </div>
 
                 {/* Right Carousel Skeleton */}
-                <div className="hidden xl:flex w-[440px] shrink-0 relative mt-[48px]">
+                <div className="hidden xl:flex w-[440px] shrink-0 relative">
                     <Skeleton className="w-full h-[611px] rounded-[12px]" />
                 </div>
-            </main>
+            </div>
+        </main>
         );
     }
 
     return (
         <main className="flex-1 w-full bg-black relative pb-32 flex flex-col items-center">
-            <div className="w-full max-w-[1400px] flex flex-col xl:flex-row xl:justify-center px-4 sm:px-8 xl:px-4 gap-8">
-            {/* Left Content Column */}
-            <div className="w-full max-w-[832px] flex flex-col mt-8 xl:mt-[48px] xl:ml-[60px]">
+            <div className="flex flex-col xl:flex-row justify-between items-center xl:items-stretch pt-6 px-4 xl:px-6 gap-8 xl:gap-4 w-full max-w-[1920px] mx-auto">
+                {/* Left Content Column */}
+                <div className="w-full xl:max-w-[1100px] flex flex-col">
 
-                {/* Main Card Container */}
-                <div className="rounded-[12px] border border-[#2B2B29] bg-[#111111] w-full p-6 sm:p-8 flex flex-col relative overflow-hidden">
-                            {/* Header Row: Buttons */}
-                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
-                        <button
-                            onClick={() => navigate("/")}
-                            className="flex items-center justify-center rounded-full border border-[#323232] bg-transparent text-white transition-colors hover:bg-white/10 px-4 py-[10px] font-['Inter'] font-normal text-[14px] leading-tight"
-                        >
-                            Back
-                        </button>
-
-                        <div className="flex flex-wrap items-center gap-3">
+                    {/* Main Card Container */}
+                    <div className="rounded-[12px] border border-[#2B2B29] bg-[#111111] w-full p-6 sm:p-8 flex flex-col relative overflow-hidden">
+                        {/* Header Row: Buttons */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
                             <button
-                                onClick={() => navigate(`/app/${slug}/screens`)}
-                                className="flex items-center justify-center rounded-full border border-[#323232] bg-[#0099FF] text-white px-4 py-2.5 font-['Inter'] font-medium text-[14px] leading-none text-center"
+                                onClick={() => navigate("/")}
+                                className="flex items-center justify-center rounded-full border border-[#323232] bg-transparent text-white transition-colors hover:bg-white/10 px-4 py-[10px] font-['Inter'] font-normal text-[14px] leading-tight"
                             >
-                                Start Exploring
+                                Back
                             </button>
-                            <button
-                                className="flex items-center justify-center rounded-full border border-[#323232] bg-transparent text-white px-4 py-2.5 font-['Inter'] font-medium text-[14px] leading-none text-center"
-                            >
-                                View All Flows
-                            </button>
-                        </div>
-                    </div>
 
-                    {/* App Logo & Title */}
-                    <div className="mt-[60px] flex flex-col">
-                        <img
-                            src={appData?.appLogo || RevolutLogo}
-                            alt={`${appData?.name || 'App'} Logo`}
-                            className="w-[80px] h-[80px] rounded-[20px]"
-                        />
-                        <h1 className="mt-[40px] font-['Inter'] font-medium text-[32px] sm:text-[40px] leading-none tracking-[-0.03em] text-[#E5E7EB] m-0">
-                            {appData?.name || 'App Name'}
-                        </h1>
-                        <p className="mt-[15px] font-['Inter'] font-normal text-[14px] sm:text-[16px] leading-none text-[#5E5E5E] m-0">
-                            {appData?.description || 'All-in-one finance app for your money'}
-                        </p>
-                    </div>
-
-                    {/* Horizontal Divider */}
-                    <div className="my-[30px] w-full border-t border-[#2B2B29]"></div>
-
-                    {/* Metadata Row */}
-                    <div className="grid grid-cols-2 md:flex md:flex-row md:items-center md:justify-between w-full gap-y-6">
-                        <div className="flex flex-col gap-[10px]">
-                            <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Category</span>
-                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.category?.title || appData?.tags?.[0] || 'Finance'}</span>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <button
+                                    onClick={() => navigate(`/app/${slug}/screens`)}
+                                    className="flex items-center justify-center rounded-full border border-[#323232] bg-[#0099FF] text-white px-4 py-2.5 font-['Inter'] font-medium text-[14px] leading-none text-center"
+                                >
+                                    Start Exploring
+                                </button>
+                                <button
+                                    onClick={() => navigate(`/app/${slug}/flows`)}
+                                    className="flex items-center justify-center rounded-full border border-[#323232] bg-transparent text-white px-4 py-2.5 font-['Inter'] font-medium text-[14px] leading-none text-center"
+                                >
+                                    View All Flows
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
-
-                        <div className="flex flex-col gap-[10px]">
-                            <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Platform</span>
-                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.platform && appData.platform.length > 0) ? appData.platform.join(' · ') : 'iOS · Android'}</span>
-                        </div>
-
-                        <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
-
-                        <div className="flex flex-col gap-[10px]">
-                            <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Market</span>
-                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.market && appData.market.length > 0) ? appData.market.join(' · ') : 'Worldwide'}</span>
-                        </div>
-
-                        <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
-
-                        <div className="flex flex-col gap-[10px]">
-                            <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Target User</span>
-                            <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.targetAudience || 'Busy urban, on the go'}</span>
-                        </div>
-                    </div>
-
-                    {/* Tags Section */}
-                    <div className="mt-10 flex flex-col gap-[10px]">
-                        <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Tags</span>
-                        <div className="flex flex-wrap gap-[10px]">
-                            {(appData?.tags || ["Finance", "Management"]).map(tag => (
-                                <Smallbox key={tag} text={tag} />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="xl:hidden w-full relative mt-8">
-                    <div className="w-full aspect-[440/611] max-h-[611px] rounded-[12px] bg-[#181818] flex items-center justify-center overflow-hidden">
-                        <img
-                            src={appData?.screens?.[0]?.imageUrl || RevolutScreenshot}
-                            alt="Revolut Screenshot"
-                            className="w-[193px] h-auto rounded-[8px] object-cover"
-                        />
-                    </div>
-                </div>
-
-                {/* "More about Revolut" Section */}
-                <h2 className="mt-12 font-['Inter'] font-medium text-[16px] leading-none tracking-[-0.03em] text-[#5E5E5E] m-0">
-                    More about {appData?.name || 'Revolut'}
-                </h2>
-
-                <p className="mt-[18px] font-['Inter'] font-normal text-[20px] sm:text-[28px] leading-[1.2] tracking-[-0.015em] text-white m-0 max-w-full">
-                    {appData?.description || 'A dark, precise money super-app that treats your finances like a live dashboard, every currency, card, and account controllable in a tap.'}
-                </p>
-
-                {/* "Palette" Section */}
-                <h3 className="mt-12 font-['Inter'] font-medium text-[16px] leading-none tracking-[-0.03em] text-[#5E5E5E] m-0">
-                    Palette
-                </h3>
-
-                <div className="mt-4 flex flex-col md:flex-row md:items-center gap-6">
-                    <div className="flex flex-wrap gap-[12px]">
-                        <TooltipProvider>
-                        {(() => {
-                            let colors = ['#0A0A15', '#1C14E9', '#8E7EFE', '#FFFFFF', '#00E4C8'];
-                            if (appData?.palette) {
-                                if (Array.isArray(appData.palette)) {
-                                    colors = appData.palette;
-                                } else if (typeof appData.palette === 'object') {
-                                    if (Array.isArray(appData.palette.colors)) colors = appData.palette.colors;
-                                }
-                            }
-                            return (
-                                <>
-                                    {colors.map((color, i) => (
-                                        <Tooltip key={i} delayDuration={200}>
-                                            <TooltipTrigger asChild>
-                                                <div className="w-[48px] h-[48px] sm:w-[64px] sm:h-[64px] rounded-[12px] border border-[#424241] cursor-pointer" style={{ backgroundColor: color }}></div>
-                                            </TooltipTrigger>
-                                            <TooltipContent className="bg-[#1C1C1C] text-white border-[#323232]">
-                                                <p>{color}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    ))}
-                                </>
-                            );
-                        })()}
-                        </TooltipProvider>
-                    </div>
-                </div>
-
-                {/* "Flows" Section */}
-                <h3 className="mt-12 font-['Inter'] font-normal text-[11px] leading-none tracking-[0.12em] uppercase text-[#878787] m-0">
-                    Flows
-                </h3>
-
-                <div className="mt-3 flex flex-wrap gap-2 items-center">
-                    {(() => {
-                        const flowsToRender = uniqueFlows.length > 0 
-                            ? uniqueFlows 
-                            : ["Editing profile", "Deleting & Deactivating Account", "Login", "Logout", "Resetting Password", "Switching Account"];
-                        
-                        return flowsToRender.map((flow, i) => (
-                            <Smallbox key={i} text={flow as string} />
-                        ));
-                    })()}
-                </div>
-
-                {/* Cards Section */}
-                <Cards 
-                    visualUiTypography={appData?.visualUiTypography}
-                    visualUiShape={appData?.visualUiShape}
-                    visualUiImagery={appData?.visualUiImagery}
-                    experienceUxSolves={appData?.experienceUxSolves}
-                    experienceUxOverall={appData?.experienceUxOverall}
-                    experienceUxTone={appData?.experienceUxTone}
-                />
-
-                {/* Paragraphs Section */}
-                <div className="mt-12 flex flex-col gap-12">
-                    <Paragraph
-                        icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>}
-                        title="Look & feel"
-                        tags={(appData?.lookAndFeelTags || ["Dark by default", "Numbers as hero", "Indigo accents"]).map(t => ({ text: t }))}
-                        description={appData?.lookAndFeelText || "A near-black canvas with a single electric-indigo signature makes balances and charts glow like a trading terminal. Rounded tiles, generous spacing, and restrained iconography keep a busy feature set feeling calm and premium rather than cluttered. Photography is rare, your data is the imagery."}
-                    />
-
-                    <Paragraph
-                        icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 13V5a2 2 0 0 1 4 0v8"></path><path d="M12 13V4a2 2 0 0 1 4 0v9"></path><path d="M16 13V6a2 2 0 0 1 4 0v11.23c0 2.21-1.34 4.23-3.37 4.96l-4.57 1.63A4.54 4.54 0 0 1 10.3 22l-4.96-5.83A2 2 0 0 1 5.48 13h2.52"></path></svg>}
-                        title="Ease of use"
-                        tags={(appData?.easeOfUseTags || ["Tile hub", "Feature-dense", "Fast core actions"]).map(t => ({ text: t }))}
-                        description={appData?.easeOfUseText || "A home hub of tiles routes into many sub-apps, cards, exchange, stocks, crypto, savings, kids accounts. Everyday actions (send, exchange, freeze a card) are one or two taps, but the sheer breadth means the app rewards the confident and can overwhelm the casual. It's a control panel, not a guided path."}
-                    />
-
-                    <Paragraph
-                        icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>}
-                        title="Content & clarity"
-                        tags={(appData?.contentClarityTags || ["Crisp & confident", "Playful edge"]).map(t => ({ text: t }))}
-                        description={appData?.contentClarityText || "Copy is short, declarative, and lightly witty, grown-up fintech with a wink, never chatty. Labels favor plain money words over jargon, and spending analytics are framed as tidy summaries you can scan at a glance."}
-                    />
-                </div>
-
-                {/* Quote Block */}
-                {(appData?.contentClarityQuoteTitle || appData?.contentClarityQuoteText) && (
-                    <div className="mt-4 w-full rounded-[12px] border border-[#1F1F1F] bg-[#181818] p-6 flex flex-col justify-center">
-                        {appData.contentClarityQuoteTitle && (
-                            <span className="font-['Inter'] font-semibold text-[12px] leading-none tracking-[0.12em] uppercase text-[#4B5563]">
-                                {appData.contentClarityQuoteTitle}
-                            </span>
-                        )}
-                        {appData.contentClarityQuoteText && (
-                            <p className={`${appData.contentClarityQuoteTitle ? 'mt-3.5' : ''} font-['Inter'] font-normal text-[20px] leading-none text-[#E5E7EB] m-0`}>
-                                {appData.contentClarityQuoteText}
+                        {/* App Logo & Title */}
+                        <div className="mt-[60px] flex flex-col">
+                            <img
+                                src={appData?.appLogo || RevolutLogo}
+                                alt={`${appData?.name || 'App'} Logo`}
+                                className="w-[80px] h-[80px] rounded-[20px]"
+                            />
+                            <h1 className="mt-[40px] font-['Inter'] font-medium text-[32px] sm:text-[40px] leading-none tracking-[-0.03em] text-[#E5E7EB] m-0">
+                                {appData?.name || 'App Name'}
+                            </h1>
+                            <p className="mt-[15px] font-['Inter'] font-normal text-[14px] sm:text-[16px] leading-none text-[#5E5E5E] m-0">
+                                {appData?.description || 'All-in-one finance app for your money'}
                             </p>
-                        )}
+                        </div>
+
+                        {/* Horizontal Divider */}
+                        <div className="my-[30px] w-full border-t border-[#2B2B29]"></div>
+
+                        {/* Metadata Row */}
+                        <div className="grid grid-cols-2 md:flex md:flex-row md:items-center md:justify-between w-full gap-y-6">
+                            <div className="flex flex-col gap-[10px]">
+                                <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Category</span>
+                                <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.category?.title || appData?.tags?.[0] || 'Finance'}</span>
+                            </div>
+
+                            <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
+
+                            <div className="flex flex-col gap-[10px]">
+                                <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Platform</span>
+                                <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.platform && appData.platform.length > 0) ? appData.platform.join(' · ') : 'iOS · Android'}</span>
+                            </div>
+
+                            <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
+
+                            <div className="flex flex-col gap-[10px]">
+                                <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Market</span>
+                                <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.market && appData.market.length > 0) ? appData.market.join(' · ') : 'Worldwide'}</span>
+                            </div>
+
+                            <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
+
+                            <div className="flex flex-col gap-[10px]">
+                                <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Target User</span>
+                                <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.targetAudience || 'Busy urban, on the go'}</span>
+                            </div>
+                        </div>
+
+                        {/* Tags Section */}
+                        <div className="mt-10 flex flex-col gap-[10px]">
+                            <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Tags</span>
+                            <div className="flex flex-wrap gap-[10px]">
+                                {(appData?.tags || ["Finance", "Management"]).map(tag => (
+                                    <Smallbox key={tag} text={tag} />
+                                ))}
+                            </div>
+                        </div>
                     </div>
-                )}
 
-                {/* Trust / Accessibility / Takeaway */}
-                <div className="mt-16 flex flex-col gap-12">
-                    <Paragraph
-                        icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>}
-                        title="Trust"
-                        tags={(appData?.trustTags || ["Licensed bank", "Instant controls", "Fee-visible"]).map(t => ({ text: t }))}
-                        description={appData?.trustText || "Real-time spend notifications, card freeze/unfreeze, single-use virtual cards, and deposit protection under EU/UK schemes build day-to-day confidence. Fees and exchange rates are shown before you commit. The caveat: support is app-and-chat only, and reviews split sharply on how disputes get resolved."}
+                    <div className="xl:hidden w-full relative mt-8">
+                        <div className="w-full aspect-[440/611] max-h-[611px] rounded-[12px] bg-[#181818] flex items-center justify-center overflow-hidden">
+                            <ImageWithSkeleton
+                                src={sortedScreens?.[0]?.imageUrl || RevolutScreenshot}
+                                alt="Revolut Screenshot"
+                                loading="eager"
+                                className="w-[193px] aspect-[9/19.5]"
+                            />
+                        </div>
+                    </div>
+
+                    {/* "More about Revolut" Section */}
+                    <h2 className="mt-12 font-['Inter'] font-medium text-[16px] leading-none tracking-[-0.03em] text-[#5E5E5E] m-0">
+                        More about {appData?.name || 'Revolut'}
+                    </h2>
+
+                    <p className="mt-[18px] font-['Inter'] font-normal text-[20px] sm:text-[28px] leading-[1.2] tracking-[-0.015em] text-white m-0 max-w-full">
+                        {appData?.description || 'A dark, precise money super-app that treats your finances like a live dashboard, every currency, card, and account controllable in a tap.'}
+                    </p>
+
+                    {/* "Palette" Section */}
+                    <h3 className="mt-12 font-['Inter'] font-medium text-[16px] leading-none tracking-[-0.03em] text-[#5E5E5E] m-0">
+                        Palette
+                    </h3>
+
+                    <div className="mt-4 flex flex-col md:flex-row md:items-center gap-6">
+                        <div className="flex flex-wrap gap-[12px]">
+                            <TooltipProvider>
+                                {(() => {
+                                    let colors = ['#0A0A15', '#1C14E9', '#8E7EFE', '#FFFFFF', '#00E4C8'];
+                                    if (appData?.palette) {
+                                        if (Array.isArray(appData.palette)) {
+                                            colors = appData.palette;
+                                        } else if (typeof appData.palette === 'object') {
+                                            if (Array.isArray(appData.palette.colors)) colors = appData.palette.colors;
+                                        }
+                                    }
+                                    return (
+                                        <>
+                                            {colors.map((color, i) => (
+                                                <Tooltip key={i} delayDuration={200}>
+                                                    <TooltipTrigger asChild>
+                                                        <div className="w-[48px] h-[48px] sm:w-[64px] sm:h-[64px] rounded-[12px] border border-[#424241] cursor-pointer" style={{ backgroundColor: color }}></div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent className="bg-[#1C1C1C] text-white border-[#323232]">
+                                                        <p>{color}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            ))}
+                                        </>
+                                    );
+                                })()}
+                            </TooltipProvider>
+                        </div>
+                    </div>
+
+                    {/* "Flows" Section */}
+                    <h3 className="mt-12 font-['Inter'] font-normal text-[11px] leading-none tracking-[0.12em] uppercase text-[#878787] m-0">
+                        Flows
+                    </h3>
+
+                    <div className="mt-3 flex flex-wrap gap-2 items-center">
+                        {(() => {
+                            const flowsToRender = uniqueFlows.length > 0
+                                ? uniqueFlows
+                                : ["Editing profile", "Deleting & Deactivating Account", "Login", "Logout", "Resetting Password", "Switching Account"];
+
+                            return flowsToRender.map((flow, i) => (
+                                <Smallbox key={i} text={flow as string} />
+                            ));
+                        })()}
+                    </div>
+
+                    {/* Cards Section */}
+                    <Cards
+                        visualUiTypography={appData?.visualUiTypography}
+                        visualUiShape={appData?.visualUiShape}
+                        visualUiImagery={appData?.visualUiImagery}
+                        experienceUxSolves={appData?.experienceUxSolves}
+                        experienceUxOverall={appData?.experienceUxOverall}
+                        experienceUxTone={appData?.experienceUxTone}
                     />
 
+                    {/* Paragraphs Section */}
+                    <div className="mt-12 flex flex-col gap-12">
+                        <Paragraph
+                            icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>}
+                            title="Look & feel"
+                            tags={(appData?.lookAndFeelTags || ["Dark by default", "Numbers as hero", "Indigo accents"]).map(t => ({ text: t }))}
+                            description={appData?.lookAndFeelText || "A near-black canvas with a single electric-indigo signature makes balances and charts glow like a trading terminal. Rounded tiles, generous spacing, and restrained iconography keep a busy feature set feeling calm and premium rather than cluttered. Photography is rare, your data is the imagery."}
+                        />
 
-                    <Paragraph
-                        icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>}
-                        title="Accessibility"
-                        tags={(appData?.accessibilityTags || ["Screen-reader ready", "200% dynamic type", "Reduced motion"]).map(t => ({ text: t }))}
-                        description={appData?.accessibilityText || "Revolut states a WCAG 2.2 AA target and the App Store lists support: VoiceOver/TalkBack, text scaling to 200%+, a first-class dark theme, contrast controls, shape-plus-text (not color alone) to convey meaning, and motion reduction. The dark-first, data-dense aesthetic is the tension to watch, high-contrast helps, but small numeric readouts demand the scaling to actually be used."}
-                    />
+                        <Paragraph
+                            icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 13V5a2 2 0 0 1 4 0v8"></path><path d="M12 13V4a2 2 0 0 1 4 0v9"></path><path d="M16 13V6a2 2 0 0 1 4 0v11.23c0 2.21-1.34 4.23-3.37 4.96l-4.57 1.63A4.54 4.54 0 0 1 10.3 22l-4.96-5.83A2 2 0 0 1 5.48 13h2.52"></path></svg>}
+                            title="Ease of use"
+                            tags={(appData?.easeOfUseTags || ["Tile hub", "Feature-dense", "Fast core actions"]).map(t => ({ text: t }))}
+                            description={appData?.easeOfUseText || "A home hub of tiles routes into many sub-apps, cards, exchange, stocks, crypto, savings, kids accounts. Everyday actions (send, exchange, freeze a card) are one or two taps, but the sheer breadth means the app rewards the confident and can overwhelm the casual. It's a control panel, not a guided path."}
+                        />
 
-                    {appData?.accessibilityUrl && (
-                        <a
-                            href={appData.accessibilityUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="-mt-6 font-['Inter'] font-normal text-[13px] leading-none text-[#8E7EFE] underline hover:text-[#A798FF] transition-colors"
-                        >
-                            {appData.name} accessibility statement ↗
-                        </a>
+                        <Paragraph
+                            icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>}
+                            title="Content & clarity"
+                            tags={(appData?.contentClarityTags || ["Crisp & confident", "Playful edge"]).map(t => ({ text: t }))}
+                            description={appData?.contentClarityText || "Copy is short, declarative, and lightly witty, grown-up fintech with a wink, never chatty. Labels favor plain money words over jargon, and spending analytics are framed as tidy summaries you can scan at a glance."}
+                        />
+                    </div>
+
+                    {/* Quote Block */}
+                    {(appData?.contentClarityQuoteTitle || appData?.contentClarityQuoteText) && (
+                        <div className="mt-4 w-full rounded-[12px] border border-[#1F1F1F] bg-[#181818] p-6 flex flex-col justify-center">
+                            {appData.contentClarityQuoteTitle && (
+                                <span className="font-['Inter'] font-semibold text-[12px] leading-none tracking-[0.12em] uppercase text-[#4B5563]">
+                                    {appData.contentClarityQuoteTitle}
+                                </span>
+                            )}
+                            {appData.contentClarityQuoteText && (
+                                <p className={`${appData.contentClarityQuoteTitle ? 'mt-3.5' : ''} font-['Inter'] font-normal text-[20px] leading-none text-[#E5E7EB] m-0`}>
+                                    {appData.contentClarityQuoteText}
+                                </p>
+                            )}
+                        </div>
                     )}
 
-                    <Paragraph
-                        icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12l9-9 9 9"></path><path d="M9 21V12h6v9"></path></svg>}
-                        title="Takeaway"
-                        tags={(appData?.takeawayTags || []).map(t => ({ text: t }))}
-                        description={appData?.takeawayText || "For the mobile-first traveler and multi-currency power user, Revolut is the most complete, most controllable money app on the phone, at the cost of a dense, terminal-like surface and human support that lives entirely behind a chat window."}
-                    />
+                    {/* Trust / Accessibility / Takeaway */}
+                    <div className="mt-16 flex flex-col gap-12">
+                        <Paragraph
+                            icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>}
+                            title="Trust"
+                            tags={(appData?.trustTags || ["Licensed bank", "Instant controls", "Fee-visible"]).map(t => ({ text: t }))}
+                            description={appData?.trustText || "Real-time spend notifications, card freeze/unfreeze, single-use virtual cards, and deposit protection under EU/UK schemes build day-to-day confidence. Fees and exchange rates are shown before you commit. The caveat: support is app-and-chat only, and reviews split sharply on how disputes get resolved."}
+                        />
+
+
+                        <Paragraph
+                            icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>}
+                            title="Accessibility"
+                            tags={(appData?.accessibilityTags || ["Screen-reader ready", "200% dynamic type", "Reduced motion"]).map(t => ({ text: t }))}
+                            description={appData?.accessibilityText || "Revolut states a WCAG 2.2 AA target and the App Store lists support: VoiceOver/TalkBack, text scaling to 200%+, a first-class dark theme, contrast controls, shape-plus-text (not color alone) to convey meaning, and motion reduction. The dark-first, data-dense aesthetic is the tension to watch, high-contrast helps, but small numeric readouts demand the scaling to actually be used."}
+                        />
+
+                        {appData?.accessibilityUrl && (
+                            <a
+                                href={appData.accessibilityUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="-mt-6 font-['Inter'] font-normal text-[13px] leading-none text-[#8E7EFE] underline hover:text-[#A798FF] transition-colors"
+                            >
+                                {appData.name} accessibility statement ↗
+                            </a>
+                        )}
+
+                        <Paragraph
+                            icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#878787" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12l9-9 9 9"></path><path d="M9 21V12h6v9"></path></svg>}
+                            title="Takeaway"
+                            tags={(appData?.takeawayTags || []).map(t => ({ text: t }))}
+                            description={appData?.takeawayText || "For the mobile-first traveler and multi-currency power user, Revolut is the most complete, most controllable money app on the phone, at the cost of a dense, terminal-like surface and human support that lives entirely behind a chat window."}
+                        />
+                    </div>
+
                 </div>
 
-            </div>
+                {/* Sticky Sidebar Container (Desktop Only) */}
+                <div className="hidden xl:flex w-[440px] shrink-0 relative flex-col gap-4">
+                    {/* Sticky Box */}
+                    <div className="xl:sticky xl:top-6 flex flex-col gap-4">
+                        <Carousel
+                            setApi={setApi}
+                            opts={{ loop: true }}
+                            plugins={[
+                                Autoplay({
+                                    delay: 3000,
+                                    stopOnInteraction: false
+                                }),
+                            ]}
+                            className="w-full aspect-[440/611] max-h-[611px] rounded-[12px] bg-[#181818] overflow-hidden relative"
+                        >
+                            <CarouselContent className="h-full ml-0">
+                                {sortedScreens.length ? sortedScreens.map((screen, i) => (
+                                    <CarouselItem key={i} className="pl-0 h-full flex flex-col items-center justify-center pt-8 pb-12 gap-4">
+                                        <ImageWithSkeleton
+                                            src={screen.imageUrl || RevolutScreenshot}
+                                            alt={screen.name || `Screenshot ${i + 1}`}
+                                            loading={i === 0 ? "eager" : "lazy"}
+                                            className="w-[193px] aspect-[9/19.5]"
+                                        />
+                                    </CarouselItem>
+                                )) : [1, 2, 3, 4].map((_, i) => (
+                                    <CarouselItem key={i} className="pl-0 h-full flex flex-col items-center justify-center pt-8 pb-12 gap-4">
+                                        <ImageWithSkeleton
+                                            src={RevolutScreenshot}
+                                            alt={`Revolut Screenshot ${i + 1}`}
+                                            loading={i === 0 ? "eager" : "lazy"}
+                                            className="w-[193px] aspect-[9/19.5]"
+                                        />
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
 
-            {/* Sticky Sidebar Container (Desktop Only) */}
-            <div className="hidden xl:flex w-[440px] shrink-0 relative mt-[48px] flex-col gap-4">
-                {/* Sticky Box */}
-                <div className="xl:sticky xl:top-[120px] flex flex-col gap-4">
-                    <Carousel
-                        setApi={setApi}
-                        opts={{ loop: true }}
-                        plugins={[
-                            Autoplay({
-                                delay: 3000,
-                                stopOnInteraction: false
-                            }),
-                        ]}
-                        className="w-full aspect-[440/611] max-h-[611px] rounded-[12px] bg-[#181818] overflow-hidden relative"
-                    >
-                        <CarouselContent className="h-full ml-0">
-                            {appData?.screens?.length ? appData.screens.map((screen, i) => (
-                                <CarouselItem key={i} className="pl-0 h-full flex items-center justify-center pt-8 pb-12">
-                                    <img
-                                        src={screen.imageUrl || RevolutScreenshot}
-                                        alt={screen.name || `Screenshot ${i + 1}`}
-                                        className="w-[193px] h-auto rounded-[8px] object-cover"
-                                    />
-                                </CarouselItem>
-                            )) : [1, 2, 3, 4].map((_, i) => (
-                                <CarouselItem key={i} className="pl-0 h-full flex items-center justify-center pt-8 pb-12">
-                                    <img
-                                        src={RevolutScreenshot}
-                                        alt={`Revolut Screenshot ${i + 1}`}
-                                        className="w-[193px] h-auto rounded-[8px] object-cover"
-                                    />
-                                </CarouselItem>
-                            ))}
-                        </CarouselContent>
+                            {/* Static Counter Overlay */}
+                            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 bg-[#111111]/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 shadow-lg pointer-events-none">
+                                <span className="text-[#EAEAEA] text-[12px] font-medium tracking-widest font-['Inter']">
+                                    {current + 1} / {appData?.screens?.length || 4}
+                                </span>
+                            </div>
 
-                        {/* Meta Text */}
-                        <div className="absolute bottom-6 left-6 font-['Inter'] font-normal text-[13px] text-[#5E5E5E] hidden sm:block z-20">
-                            {screenCount} {screenCount === 1 ? 'Screen' : 'Screens'} | {uniqueFlows.length} {uniqueFlows.length === 1 ? 'Flow' : 'Flows'}
-                        </div>
-                        
-                        {/* Pagination Dots (Higher than text) */}
-                        <div className="absolute bottom-22 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-1.5 z-20 max-w-[250px]">
-                            {appData?.screens?.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => api?.scrollTo(index)}
-                                    className={`h-1.5 rounded-full transition-all duration-300 ${current === index
-                                            ? 'w-6 bg-white'
-                                            : 'w-1.5 bg-[#424241]'
-                                        }`}
-                                    aria-label={`Go to slide ${index + 1}`}
-                                />
-                            ))}
-                        </div>
-                    </Carousel>
-                </div>
+                            {/* Meta Text */}
+                            <div className="absolute bottom-6 left-6 font-['Inter'] font-normal text-[13px] text-[#5E5E5E] hidden sm:block z-20">
+                                {screenCount} {screenCount === 1 ? 'Screen' : 'Screens'} | {uniqueFlows.length} {uniqueFlows.length === 1 ? 'Flow' : 'Flows'}
+                            </div>
+                        </Carousel>
+                    </div>
                 </div>
             </div>
 
             {/* Similar apps - Placed below the main grid so sticky sidebar stops above it */}
             {appData?.similarApps && appData.similarApps.length > 0 && (
-                <div className="w-full max-w-[1400px] px-4 sm:px-8 xl:px-[60px] mt-20 flex flex-col">
+                <div className="w-full max-w-[1920px] mx-auto px-4 xl:px-6 mt-20 flex flex-col">
                     <h2 className="font-['Inter'] font-medium text-[24px] sm:text-[28px] leading-none tracking-[-0.03em] text-[#E5E7EB] m-0">
                         Similar apps
                     </h2>
 
                     <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8 w-full">
                         {appData.similarApps.map((similarApp) => (
-                            <div 
+                            <div
                                 key={similarApp.id}
                                 className="flex flex-col gap-4 cursor-pointer group"
                                 onClick={() => navigate(`/app/${similarApp.slug}`)}
@@ -427,15 +464,17 @@ export function AppPage() {
                                     <img
                                         src={similarApp.screens?.[0]?.imageUrl || similarApp.appThumbnail || '/default-screenshot.png'}
                                         alt={`${similarApp.name} screenshot`}
+                                        loading="lazy"
                                         className="w-[45%] h-auto object-cover object-top rounded-t-[12px] shadow-lg transition-all duration-300"
                                     />
                                     <div className="absolute bottom-0 left-0 right-0 h-[100px] bg-gradient-to-t from-[#161616] to-transparent z-10 pointer-events-none"></div>
                                 </div>
                                 <div className="flex gap-3 px-1">
-                                    <img 
-                                        src={similarApp.appLogo || '/default-logo.png'} 
-                                        alt={`${similarApp.name} Logo`} 
-                                        className="w-10 h-10 rounded-lg bg-[#333333] object-contain p-1" 
+                                    <img
+                                        src={similarApp.appLogo || '/default-logo.png'}
+                                        alt={`${similarApp.name} Logo`}
+                                        loading="lazy"
+                                        className="w-10 h-10 rounded-lg bg-[#333333] object-contain p-1"
                                     />
                                     <div className="flex flex-col">
                                         <div className="flex items-center gap-1.5">
