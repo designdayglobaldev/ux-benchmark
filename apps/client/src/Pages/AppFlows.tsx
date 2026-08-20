@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import RevolutLogo from "@/assets/Revolut_logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InteractiveFlowModal } from "@/components/InteractiveFlowModal";
+import { useSEO } from "@/hooks/useSEO";
 
 interface Flow {
     id: string;
@@ -36,6 +37,12 @@ export function AppFlows() {
     const { data: allApps } = useApps();
     const [activeFlowId, setActiveFlowId] = useState<string | null>(null);
     const [isInteractiveModalOpen, setIsInteractiveModalOpen] = useState(false);
+
+    useSEO({
+        title: appData ? `${appData.name} Flows` : 'Loading Flows...',
+        description: appData?.description || 'Explore the various flows and interactions of this application.',
+        image: appData?.appThumbnail || appData?.appLogo
+    });
 
     // Calculate previous and next apps for navigation
     let prevAppSlug: string | null = null;

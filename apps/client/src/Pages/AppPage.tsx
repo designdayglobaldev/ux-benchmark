@@ -6,6 +6,7 @@ import { Cards } from "../components/Cards";
 
 import { useParams, useNavigate } from "react-router-dom"
 import { useAppDetails } from "@/hooks/useAppDetails";
+import { useSEO } from "@/hooks/useSEO";
 import { useState, useEffect } from "react";
 import Autoplay from "embla-carousel-autoplay";
 import {
@@ -50,6 +51,12 @@ export function AppPage() {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [slug]);
+
+    useSEO({
+        title: appData ? `${appData.name} UX Analysis` : 'Loading App...',
+        description: appData?.description || 'Deep dive into the UX analysis of this application.',
+        image: appData?.appThumbnail || appData?.appLogo
+    });
 
     useEffect(() => {
         if (!api) return

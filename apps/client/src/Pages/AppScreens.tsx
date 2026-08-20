@@ -6,6 +6,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useMemo } from "react";
 import { useAppDetails } from "@/hooks/useAppDetails";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useSEO } from "@/hooks/useSEO";
 
 export function AppScreens() {
     const navigate = useNavigate();
@@ -43,6 +44,12 @@ export function AppScreens() {
     }
 
     const activeScreen = screens[activeIndex];
+
+    useSEO({
+        title: activeScreen ? `${activeScreen.name} | ${appData?.name || 'App'}` : (appData ? `${appData.name} Screens` : 'Loading Screen...'),
+        description: activeScreen?.keyHighlights || appData?.description || 'Explore the screens and UX patterns of this application.',
+        image: activeScreen?.imageUrl || appData?.appThumbnail || appData?.appLogo
+    });
 
     if (isLoading) {
         return (

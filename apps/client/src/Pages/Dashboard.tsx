@@ -10,6 +10,7 @@ import { useApps } from "@/hooks/useApps";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useEffect } from "react";
+import { useSEO } from "@/hooks/useSEO";
 
 import { useNavigate } from 'react-router-dom'
 
@@ -21,6 +22,11 @@ export function Dashboard() {
     // Build query string for the active category
     const queryString = activeCategorySlug !== 'latest' ? `category=${activeCategorySlug}` : '';
     const { data: apps, isLoading, error } = useApps(queryString);
+
+    useSEO({
+        title: "Home",
+        description: "BenchmarX - Explore UX analyses of top applications."
+    });
 
     useEffect(() => {
         const fetchCategories = async () => {
