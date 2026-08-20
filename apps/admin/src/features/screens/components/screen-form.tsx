@@ -66,6 +66,33 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
   })
 
   const screenName = form.watch('name')
+  const appId = form.watch('appId')
+  const flowId = form.watch('flowId')
+  const screenNo = form.watch('screenNo')
+
+  useEffect(() => {
+    if (!isEditing && appId && flowId) {
+      fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens?appId=${appId}`)
+        .then(res => res.json())
+        .then(data => {
+          const screensInFlow = data.filter((s: any) => s.flowId === flowId)
+          form.setValue('screenNo', String(screensInFlow.length + 1), { shouldValidate: true })
+        })
+        .catch(console.error)
+    }
+  }, [appId, flowId, isEditing, form.setValue])
+
+  useEffect(() => {
+    if (!isEditing) {
+      const appName = apps.find(a => a.id === appId)?.name || ''
+      const flowName = flows.find(f => f.id === flowId)?.name || ''
+      const parts = [appName, flowName, screenNo].filter(Boolean)
+      
+      if (parts.length > 0) {
+        form.setValue('name', parts.join(' '), { shouldValidate: true })
+      }
+    }
+  }, [appId, flowId, screenNo, apps, flows, form.setValue, isEditing])
 
   useEffect(() => {
     if (!isEditing && screenName) {
@@ -208,8 +235,7 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
       
       const data = await res.json();
       
-      // Auto-fill fields
-      if (data.name && !form.getValues('name')) form.setValue('name', data.name, { shouldValidate: true });
+      // Auto-fill fields (omitting name so it follows our specific pattern)
       if (data.uxAnalysis) form.setValue('uxAnalysis', data.uxAnalysis);
       if (data.tonalityAndContent) form.setValue('tonalityAndContent', data.tonalityAndContent);
       if (data.keyHighlights) form.setValue('keyHighlights', data.keyHighlights);

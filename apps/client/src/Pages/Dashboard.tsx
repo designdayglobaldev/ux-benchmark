@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowUpRight, Plus } from "lucide-react";
 import revolutImg from "@/assets/Revolut.png";
 import revolutLogo from "@/assets/Revolut_logo.png";
+import canvasImg from "@/assets/Canvas.jpg";
 // @ts-ignore
 import { SubmitModule } from "../components/Submit_module";
 import { useApps } from "@/hooks/useApps";
@@ -38,36 +39,52 @@ export function Dashboard() {
     }, []);
 
     return (
-        <main className="flex-1 w-full bg-black flex flex-col items-center pt-8 sm:pt-[50px] px-4 sm:px-6 pb-20 sm:pb-32">
-            {/* Badge */}
-            <div className="mb-6 rounded-full border border-[#333] bg-[#161616] px-3 py-1 text-[10px] font-medium text-[#A1A1A1]">
-                Updated weekly
+        <main className="flex-1 w-full bg-black flex flex-col items-center pb-20 sm:pb-32">
+            {/* Hero Section */}
+            <div 
+                className="w-full flex flex-col items-center pt-8 sm:pt-[50px] px-4 sm:px-6 relative"
+                style={{
+                    backgroundImage: `url(${canvasImg})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                }}
+            >
+                {/* Dark overlay to ensure text remains readable */}
+                <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
+                
+                <div className="relative z-10 flex flex-col items-center w-full">
+                    {/* Badge */}
+                    <div className="mb-6 rounded-full border border-[#333] bg-[#161616] px-3 py-1 text-[10px] font-medium text-[#A1A1A1]">
+                        Updated weekly
+                    </div>
+
+                    {/* Main Heading */}
+                    <h1 className="max-w-[700px] text-[32px] sm:text-[44px] md:text-[48px] font-medium tracking-tight leading-[1.1] mb-10 text-center text-[#EAEAEA]">
+                        Evidence-backed UX<br className="hidden sm:block" /> benchmarking for apps & sites
+                    </h1>
+
+                    {/* Subscribe Input */}
+                    <div className="flex w-full max-w-[420px] items-center bg-[#1A1A1A] rounded-full p-1 border border-[#2A2A2A] mb-4">
+                        <input
+                            type="email"
+                            placeholder="hi@example.com"
+                            className="flex-1 bg-transparent px-4 text-[12px] outline-none placeholder:text-[#666666] text-[#EAEAEA] h-8"
+                        />
+                        <Button type="submit" className="rounded-full px-5 bg-[#2A2A2A] hover:bg-[#333333] text-[#A1A1A1] hover:text-white text-[12px] font-medium h-8 transition-colors">
+                            Subscribe
+                        </Button>
+                    </div>
+
+                    {/* Subtext */}
+                    <p className="text-[11px] text-[#666666] font-medium">
+                        Stay ahead with weekly UX benchmark updates.
+                    </p>
+
+                    {/* Spacer to replace mt-[100px] */}
+                    <div className="h-[50px] sm:h-[100px] w-full"></div>
+                </div>
             </div>
-
-            {/* Main Heading */}
-            <h1 className="max-w-[700px] text-[32px] sm:text-[44px] md:text-[48px] font-medium tracking-tight leading-[1.1] mb-10 text-center text-[#EAEAEA]">
-                Evidence-backed UX<br className="hidden sm:block" /> benchmarking for apps & sites
-            </h1>
-
-            {/* Subscribe Input */}
-            <div className="flex w-full max-w-[420px] items-center bg-[#1A1A1A] rounded-full p-1 border border-[#2A2A2A] mb-4">
-                <input
-                    type="email"
-                    placeholder="hi@example.com"
-                    className="flex-1 bg-transparent px-4 text-[12px] outline-none placeholder:text-[#666666] text-[#EAEAEA] h-8"
-                />
-                <Button type="submit" className="rounded-full px-5 bg-[#2A2A2A] hover:bg-[#333333] text-[#A1A1A1] hover:text-white text-[12px] font-medium h-8 transition-colors">
-                    Subscribe
-                </Button>
-            </div>
-
-            {/* Subtext */}
-            <p className="text-[11px] text-[#666666] font-medium">
-                Stay ahead with weekly UX benchmark updates.
-            </p>
-
-            {/* Spacer to replace mt-[100px] */}
-            <div className="h-[50px] sm:h-[100px] w-full"></div>
 
             {/* Categories Bar */}
             <div className="sticky top-[73px] z-40 w-full bg-black pl-4 sm:pl-[30px] py-4 overflow-x-auto no-scrollbar">
@@ -110,7 +127,11 @@ export function Dashboard() {
                 ) : error ? (
                     <div className="text-center text-red-500 py-20">Error loading apps. Make sure the backend is running.</div>
                 ) : apps?.length === 0 ? (
-                    <div className="text-center text-[#A1A1A1] py-20">No apps found.</div>
+                    <div className="flex flex-col items-center justify-center py-20 opacity-60">
+                        <img src="/code-learner.svg" alt="Updating library" className="w-48 h-48 mb-6" />
+                        <h3 className="text-[#EAEAEA] text-[18px] font-medium mb-2">We're expanding our library!</h3>
+                        <p className="text-[#A1A1A1] text-[14px]">Can't find what you're looking for? Request an app.</p>
+                    </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-6 sm:gap-y-8 w-full">
                         {apps?.map((app) => (
