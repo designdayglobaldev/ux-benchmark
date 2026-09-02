@@ -430,4 +430,327 @@ IMPORTANT: You MUST use the submit_screen_data tool properly. Output a real JSON
   }
 });
 
+router.post('/detect-context', async (req, res) => {
+  try {
+    const { imageBase64 } = req.body;
+    if (!imageBase64) return res.status(400).json({ error: 'Missing imageBase64 in request body' });
+    if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured in the server' });
+
+    const extractImageDetails = (base64Str: string) => {
+      const match = base64Str.match(/^data:(image\/(png|jpeg|jpg|webp|gif));base64,/);
+      if (match) {
+        let mediaType = match[1] as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+        if (mediaType === 'image/jpg' as any) mediaType = 'image/jpeg';
+        return { mediaType, data: base64Str.replace(match[0], '') };
+      }
+      return { mediaType: 'image/jpeg' as const, data: base64Str };
+    };
+
+    const img = extractImageDetails(imageBase64);
+
+    const [categories, flows] = await Promise.all([
+      prisma.category.findMany({ select: { id: true, title: true } }),
+      prisma.flow.findMany({ select: { id: true, name: true } })
+    ]);
+
+    const categoriesList = categories.map(c => `- ${c.title} (ID: ${c.id})`).join('\n');
+    const flowsList = flows.map(f => `- ${f.name} (ID: ${f.id})`).join('\n');
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 1024,
+      system: `You are an elite AI UX analyzer. Analyze the provided screenshot of a mobile/web application screen.
+Your job is to categorize this screen into ONE Category and ONE Flow from our database, and also provide a generic name for the Screen Type (e.g., "Account Switcher", "Login", "Dashboard").
+
+AVAILABLE CATEGORIES:
+${categoriesList}
+
+AVAILABLE FLOWS:
+${flowsList}
+
+IMPORTANT: You MUST use the submit_detected_context tool to output the JSON response. Do not guess IDs that don't exist in the list. Pick the closest matching ones. If absolutely none match, just pick the closest approximation.`,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: img.mediaType, data: img.data }
+            },
+            {
+              type: 'text',
+              text: 'Please analyze this UI screen and submit the detected context using the tool.'
+            }
+          ]
+        }
+      ],
+      tools: [
+        {
+          name: "submit_detected_context",
+          description: "Submit the detected category, flow, and screen type",
+          input_schema: {
+            type: "object",
+            properties: {
+              categoryId: { type: "string", description: "The ID of the best matching category from the available list." },
+              flowId: { type: "string", description: "The ID of the best matching flow from the available list." },
+              screenType: { type: "string", description: "A generic, descriptive name for the type of screen (e.g., 'Login', 'Account Creation', 'Settings Dashboard')." }
+            },
+            required: ["categoryId", "flowId", "screenType"]
+          }
+        }
+      ],
+      tool_choice: { type: "tool", name: "submit_detected_context" }
+    });
+
+    const toolCall = message.content.find((block) => block.type === 'tool_use');
+    if (toolCall && toolCall.type === 'tool_use') {
+      res.json(toolCall.input);
+    } else {
+      throw new Error("Model did not return the expected tool call");
+    }
+  } catch (error: any) {
+    console.error('AI Detect Context Error:', error);
+    res.status(500).json({ error: error?.message || 'An error occurred while detecting context' });
+  }
+});
+
+router.post('/benchmark', async (req, res) => {
+  try {
+    const { imageBase64, categoryId, flowId, screenType } = req.body;
+    if (!imageBase64 || !categoryId || !flowId) {
+      return res.status(400).json({ error: 'Missing imageBase64, categoryId, or flowId' });
+    }
+    // Fetch all screens so the AI can intelligently find the best 5 matches across the entire database, 
+    // rather than being strictly limited to a specific flowId which may have too few apps.
+    const allScreens = await prisma.screen.findMany({
+      include: { app: { select: { name: true } } }
+    });
+
+    let benchmarkScreens: typeof allScreens = [];
+
+    if (allScreens.length > 0) {
+      const screenMetadata = allScreens.map(s => ({
+        id: s.id,
+        appName: s.app?.name || 'Unknown',
+        screenName: s.name,
+        description: s.uxAnalysis ? s.uxAnalysis.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...' : ''
+      }));
+
+      const selectionPrompt = `You are an expert UX researcher. The user has uploaded a screen of type: "${screenType || 'Unknown'}".
+Here is a list of screens available in the database for this flow:
+${JSON.stringify(screenMetadata, null, 2)}
+
+Your task is to select exactly ONE screen per unique app (appName) that is most functionally and visually similar to "${screenType || 'Unknown'}". If there are more than 5 unique apps, pick the 5 best matching screens overall (max 1 per app).
+Output your selection as a JSON array of screen IDs using the tool.`;
+
+      const selectionMessage = await anthropic.messages.create({
+        model: 'claude-sonnet-5',
+        max_tokens: 1024,
+        system: "You are a helpful AI that selects the most relevant screens.",
+        messages: [{ role: 'user', content: selectionPrompt }],
+        tools: [
+          {
+            name: "select_screens",
+            description: "Select the most relevant screen IDs",
+            input_schema: {
+              type: "object",
+              properties: {
+                selectedIds: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "List of selected screen IDs (max 1 per app, max 5 total)"
+                }
+              },
+              required: ["selectedIds"]
+            }
+          }
+        ],
+        tool_choice: { type: "tool", name: "select_screens" }
+      });
+
+      const selectToolCall = selectionMessage.content.find((block) => block.type === 'tool_use');
+      let selectedIds: string[] = [];
+      if (selectToolCall && selectToolCall.type === 'tool_use') {
+        selectedIds = (selectToolCall.input as any).selectedIds || [];
+      }
+      
+      // Fallback if empty or invalid IDs
+      if (selectedIds.length === 0) {
+        selectedIds = allScreens.slice(0, 5).map(s => s.id);
+      }
+
+      benchmarkScreens = allScreens.filter(s => selectedIds.includes(s.id));
+
+      // Ultimate fallback: if we still have 0 screens, just grab 1 per unique app manually
+      if (benchmarkScreens.length === 0 && allScreens.length > 0) {
+        const uniqueApps = new Set();
+        for (const s of allScreens) {
+          if (!uniqueApps.has(s.app?.name)) {
+            uniqueApps.add(s.app?.name);
+            benchmarkScreens.push(s);
+          }
+          if (benchmarkScreens.length >= 5) break;
+        }
+      }
+    }
+    
+    const fetchImageBase64 = async (url: string) => {
+      try {
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const mimeType = response.headers.get('content-type') || 'image/jpeg';
+        return { data: buffer.toString('base64'), mediaType: mimeType };
+      } catch (err) {
+        console.error(`Failed to fetch image ${url}:`, err);
+        return null;
+      }
+    };
+    
+    const benchmarkImages = await Promise.all(benchmarkScreens.map(async (screen) => {
+      const img = await fetchImageBase64(screen.imageUrl);
+      return { ...screen, img };
+    }));
+    
+    const validBenchmarkImages = benchmarkImages.filter((s): s is typeof s & { img: NonNullable<typeof s.img> } => !!s.img);
+    
+    const extractImageDetails = (base64Str: string) => {
+      const match = base64Str.match(/^data:(image\/(png|jpeg|jpg|webp|gif));base64,/);
+      if (match) {
+        let mediaType = match[1] as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+        if (mediaType === 'image/jpg' as any) mediaType = 'image/jpeg';
+        return { mediaType, data: base64Str.replace(match[0], '') };
+      }
+      return { mediaType: 'image/jpeg' as const, data: base64Str };
+    };
+
+    const userImg = extractImageDetails(imageBase64);
+    
+    const imageContents = validBenchmarkImages.map((s, index) => [
+      { type: 'text' as const, text: `Competitor Benchmark Image ${index + 2}: ${s.app?.name || 'Competitor App'} - ${s.name}` },
+      { type: 'image' as const, source: { type: 'base64' as const, media_type: s.img.mediaType as any, data: s.img.data } }
+    ]).flat();
+    
+    const systemPrompt = `You are a Principal UX Researcher analyzing a user's design against top market competitors in the ${screenType || 'given'} screen context.
+You will be provided with:
+1. The User's Design (Image 1)
+2. Up to 5 competitor benchmark designs (Images 2-6)
+
+Your goal is to conduct a highly structured UX audit by outputting the specific requested JSON structure using the tool.
+Keep all text fields concise, actionable, and focused purely on UX/UI design heuristics. Do not write generic fluff.
+The four metrics for commonPatterns are out of 10.`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: 'Image 1: User Design' },
+            { type: 'image', source: { type: 'base64', media_type: userImg.mediaType, data: userImg.data } },
+            ...imageContents,
+            { type: 'text', text: 'Please generate the UX benchmark report JSON via the tool.' }
+          ]
+        }
+      ],
+      tools: [
+        {
+          name: "submit_benchmark_report",
+          description: "Submit the structured benchmark UX report",
+          input_schema: {
+            type: "object",
+            properties: {
+              overallAlignment: { type: "string" },
+              snapshot: {
+                type: "object",
+                properties: {
+                  strongConventions: { type: "array", items: { type: "string" } },
+                  notableDifferences: { type: "array", items: { type: "string" } },
+                  keyOpportunities: { type: "array", items: { type: "string" } }
+                },
+                required: ["strongConventions", "notableDifferences", "keyOpportunities"]
+              },
+              commonPatterns: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    evidence: { type: "string" },
+                    whyItMatters: { type: "string" },
+                    metrics: {
+                      type: "object",
+                      properties: {
+                        marketStandardParity: { type: "integer" },
+                        provenPatternAdherence: { type: "integer" },
+                        informationDensityMatch: { type: "integer" },
+                        competitiveEdge: { type: "integer" }
+                      },
+                      required: ["marketStandardParity", "provenPatternAdherence", "informationDensityMatch", "competitiveEdge"]
+                    }
+                  },
+                  required: ["title", "evidence", "whyItMatters", "metrics"]
+                }
+              },
+              designDifferences: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    yourDesign: { type: "string" },
+                    benchmark: { type: "string" },
+                    difference: { type: "string" },
+                    potentialImpact: { type: "string" }
+                  },
+                  required: ["title", "yourDesign", "benchmark", "difference", "potentialImpact"]
+                }
+              },
+              opportunities: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    observation: { type: "string" },
+                    recommendation: { type: "string" },
+                    evidence: { type: "string" },
+                    confidence: { type: "string", description: "e.g., 'High', 'Medium'" }
+                  },
+                  required: ["title", "observation", "recommendation", "evidence", "confidence"]
+                }
+              }
+            },
+            required: ["overallAlignment", "snapshot", "commonPatterns", "designDifferences", "opportunities"]
+          }
+        }
+      ],
+      tool_choice: { type: "tool", name: "submit_benchmark_report" }
+    });
+    
+    const toolCall = message.content.find((block) => block.type === 'tool_use');
+    if (toolCall && toolCall.type === 'tool_use') {
+      res.json({
+        report: toolCall.input,
+        benchmarkScreens: validBenchmarkImages.map(s => ({
+          id: s.id,
+          name: s.name,
+          app: s.app,
+          imageUrl: s.imageUrl,
+          uxAnalysis: s.uxAnalysis,
+          keyHighlights: s.keyHighlights,
+          tonalityAndContent: s.tonalityAndContent
+        }))
+      });
+    } else {
+      throw new Error("Model did not return the expected tool call");
+    }
+  } catch (error: any) {
+    console.error('AI Benchmark Error:', error);
+    res.status(500).json({ error: error?.message || 'An error occurred while generating benchmark' });
+  }
+});
+
 export default router;
