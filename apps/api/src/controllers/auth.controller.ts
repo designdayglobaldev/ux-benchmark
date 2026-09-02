@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { prisma } from '../db/prisma';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
-const resend = new Resend(process.env.RESEND_API_KEY || process.env.RESEND_API);
+const resendKey = process.env.RESEND_API_KEY || process.env.RESEND_API;
+const resend = resendKey ? new Resend(resendKey) : null;
 
 const supabase = createClient(
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co',
@@ -73,7 +74,10 @@ export const approveUser = async (req: Request, res: Response) => {
 
     // Send email via Resend
     try {
-      const { data, error: resendError } = await resend.emails.send({
+      if (!resend) {
+        console.warn("Skipping email send: RESEND_API_KEY is not configured.");
+      } else {
+        const { data, error: resendError } = await resend.emails.send({
         from: 'Acme <onboarding@resend.dev>', // Update this for production
         to: email,
         subject: 'Welcome to BenchmarX Beta!',
@@ -90,8 +94,9 @@ export const approveUser = async (req: Request, res: Response) => {
       
       if (resendError) {
         console.warn('Email sending failed (Resend API):', resendError.message || resendError);
-      } else {
-        console.log('Email sent successfully:', data);
+        } else {
+          console.log('Email sent successfully:', data);
+        }
       }
     } catch (emailErr) {
       console.error('Email sending exception:', emailErr);
