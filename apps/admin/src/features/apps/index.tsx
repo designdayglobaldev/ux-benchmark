@@ -180,6 +180,9 @@ export function Apps() {
             </Select>
           </div>
         </div>
+        <div className="text-sm text-muted-foreground mb-4">
+          Showing <span className="font-medium text-foreground">{filteredApps.length}</span> of <span className="font-medium text-foreground">{apps.length}</span> apps
+        </div>
         <Separator className='shadow-sm' />
 
         {isLoading ? (
