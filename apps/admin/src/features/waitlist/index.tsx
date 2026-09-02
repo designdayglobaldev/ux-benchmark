@@ -136,7 +136,7 @@ export function Waitlist() {
                             disabled={entry.status !== 'PENDING' || processingId !== null}
                             onClick={() => handleApprove(entry.email)}
                           >
-                            {processingId?.email === entry.email && processingId.action === 'approve' ? 'Approving...' : 'Approve'}
+                            {processingId?.email === entry.email && processingId?.action === 'approve' ? 'Approving...' : 'Approve'}
                           </Button>
                           <Button 
                             variant="outline" 
@@ -145,7 +145,7 @@ export function Waitlist() {
                             disabled={entry.status !== 'PENDING' || processingId !== null}
                             onClick={() => handleReject(entry.email)}
                           >
-                            {processingId?.email === entry.email && processingId.action === 'reject' ? 'Rejecting...' : 'Reject'}
+                            {processingId?.email === entry.email && processingId?.action === 'reject' ? 'Rejecting...' : 'Reject'}
                           </Button>
                         </div>
                       </TableCell>
