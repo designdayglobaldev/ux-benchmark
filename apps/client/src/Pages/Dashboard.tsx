@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowUpRight, Plus } from "lucide-react";
 import revolutImg from "@/assets/Revolut.png";
 import revolutLogo from "@/assets/Revolut_logo.png";
-import canvasImg from "@/assets/Canvas.jpg";
+import canvasImg from "@/assets/Canvas.png";
 // @ts-ignore
 import { SubmitModule } from "../components/Submit_module";
 import { useApps } from "@/hooks/useApps";
@@ -11,11 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useEffect } from "react";
 import { useSEO } from "@/hooks/useSEO";
-
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthModal } from "@/components/AuthModal";
 
 export function Dashboard() {
     const navigate = useNavigate();
+    const { user, isLoading: isAuthLoading } = useAuth();
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [activeCategorySlug, setActiveCategorySlug] = useState("latest");
     const [categories, setCategories] = useState<{slug: string, name: string}[]>([]);
     
@@ -48,7 +51,7 @@ export function Dashboard() {
         <main className="flex-1 w-full bg-black flex flex-col items-center pb-20 sm:pb-32">
             {/* Hero Section */}
             <div 
-                className="w-full flex flex-col items-center pt-8 sm:pt-[50px] px-4 sm:px-6 relative"
+                className="w-full flex flex-col items-center pt-6 sm:pt-8 px-4 sm:px-6 relative"
                 style={{
                     backgroundImage: `url(${canvasImg})`,
                     backgroundSize: 'cover',
@@ -66,29 +69,12 @@ export function Dashboard() {
                     </div>
 
                     {/* Main Heading */}
-                    <h1 className="max-w-[700px] text-[32px] sm:text-[44px] md:text-[48px] font-medium tracking-tight leading-[1.1] mb-10 text-center text-[#EAEAEA]">
+                    <h1 className="max-w-[700px] text-[32px] sm:text-[44px] md:text-[48px] font-medium tracking-tight leading-[1.1] text-center text-[#EAEAEA]">
                         Evidence-backed UX<br className="hidden sm:block" /> benchmarking for apps & sites
                     </h1>
 
-                    {/* Subscribe Input */}
-                    <div className="flex w-full max-w-[420px] items-center bg-[#1A1A1A] rounded-full p-1 border border-[#2A2A2A] mb-4">
-                        <input
-                            type="email"
-                            placeholder="hi@example.com"
-                            className="flex-1 bg-transparent px-4 text-[12px] outline-none placeholder:text-[#666666] text-[#EAEAEA] h-8"
-                        />
-                        <Button type="submit" className="rounded-full px-5 bg-[#2A2A2A] hover:bg-[#333333] text-[#A1A1A1] hover:text-white text-[12px] font-medium h-8 transition-colors">
-                            Subscribe
-                        </Button>
-                    </div>
-
-                    {/* Subtext */}
-                    <p className="text-[11px] text-[#666666] font-medium">
-                        Stay ahead with weekly UX benchmark updates.
-                    </p>
-
                     {/* Spacer to replace mt-[100px] */}
-                    <div className="h-[50px] sm:h-[100px] w-full"></div>
+                    <div className="h-8 sm:h-12 w-full"></div>
                 </div>
             </div>
 
@@ -139,13 +125,16 @@ export function Dashboard() {
                         <p className="text-[#A1A1A1] text-[14px]">Can't find what you're looking for? Request an app.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-6 sm:gap-y-8 w-full">
-                        {apps?.map((app) => (
-                            <div key={app.id} className="flex flex-col gap-4">
-                                <div 
-                                    className="bg-[#161616] hover:bg-[#0E0E0E] transition-colors duration-300 rounded-[20px] border border-[#222222] aspect-[4/4.7] w-full relative overflow-hidden group cursor-pointer"
-                                    onClick={() => navigate(`/app/${app.slug}`)}
-                                >
+                    <div className="relative">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-6 sm:gap-y-8 w-full">
+                            {(user || isLoading ? apps : apps?.slice(0, 8))?.map((app, index) => {
+                                const isBlurred = !user && !isLoading && index >= 4;
+                                return (
+                                <div key={app.id} className={`flex flex-col gap-4 ${isBlurred ? 'pointer-events-none select-none' : ''}`}>
+                                    <div 
+                                        className="bg-[#161616] hover:bg-[#0E0E0E] transition-colors duration-300 rounded-[20px] border border-[#222222] aspect-[4/4.7] w-full relative overflow-hidden group cursor-pointer"
+                                        onClick={() => !isBlurred && navigate(`/app/${app.slug}`)}
+                                    >
                                     {app.isStaffPick && (
                                         <div className="absolute top-[16px] left-[20px] flex items-center gap-2 z-10">
                                             <Sparkles className="w-4 h-4 text-[#FF5500] fill-[#FF5500]" />
@@ -183,11 +172,58 @@ export function Dashboard() {
                                     />
                                     <div className="flex flex-col">
                                         <span className="text-[#EAEAEA] text-[15px] font-medium">{app.name}</span>
-                                        <span className="text-[#888888] text-[13px]">{app.tags?.[0] || "Category"}</span>
+                                        <span className="text-[#888888] text-[13px]">{app.subcategory?.title || app.category?.title || app.tags?.[0] || "Category"}</span>
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
+                        </div>
+                        
+                        {/* Overlay for Unauthenticated Users */}
+                        {!user && !isAuthLoading && apps && apps.length > 4 && (
+                            <div className="absolute top-[20%] left-0 right-0 bottom-[-120px] z-30 flex flex-col items-center justify-end pb-[160px] sm:pb-[180px]">
+                                {/* Progressive Blur & Gradient Background */}
+                                <div 
+                                    className="absolute inset-0 backdrop-blur-[12px] bg-gradient-to-b from-transparent via-[#060606]/60 to-[#060606]"
+                                    style={{ 
+                                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 20%, black 80%)',
+                                        maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 20%, black 80%)' 
+                                    }}
+                                ></div>
+                                
+                                {/* Content */}
+                                <div className="relative z-10 flex flex-col items-center">
+                                    <h2 className="text-[24px] font-semibold text-white mb-2 tracking-[-0.06em]">Unlock the full BenchmarX library</h2>
+                                    <p className="text-[#CFCFCF] text-[16px] font-normal mb-6 text-center tracking-[-0.06em]">Log in to unlock the full library of real screens and UX reasoning.</p>
+                                    <Button 
+                                        onClick={() => navigate('/register')}
+                                        className="bg-white text-black hover:bg-gray-200 rounded-full px-6 h-9 font-medium text-[14px]"
+                                    >
+                                        Join Free
+                                    </Button>
+                                    <div className="flex items-center gap-2.5 mt-6">
+                                        <div className="flex -space-x-1.5">
+                                            {[
+                                                "https://i.pravatar.cc/100?img=68",
+                                                "https://i.pravatar.cc/100?img=47",
+                                                "https://i.pravatar.cc/100?img=44",
+                                                "https://i.pravatar.cc/100?img=33"
+                                            ].map((url, i) => (
+                                                <img 
+                                                    key={i} 
+                                                    src={url} 
+                                                    alt="Designer avatar" 
+                                                    className="w-5 h-5 rounded-full border border-[#060606] object-cover" 
+                                                />
+                                            ))}
+                                        </div>
+                                        <span className="text-[14px] font-normal text-[#CFCFCF] tracking-[-0.06em]">Supporting over 1M designers worldwide</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
                     </div>
                 )}
             </div>

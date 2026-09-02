@@ -29,8 +29,38 @@ model Staff {
   updatedAt   DateTime @updatedAt
 }
 
+enum WaitlistStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Waitlist {
+  id        String         @id @default(uuid())
+  name      String
+  email     String         @unique
+  phone     String?
+  status    WaitlistStatus @default(PENDING)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
 model Category {
+  id            String        @id @default(uuid())
+  title         String
+  slug          String        @unique
+  description   String?
+  status        Status        @default(DRAFT)
+  apps          App[]
+  subcategories Subcategory[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Subcategory {
   id          String   @id @default(uuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
   title       String
   slug        String   @unique
   description String?
@@ -41,9 +71,11 @@ model Category {
 }
 
 model App {
-  id           String   @id @default(uuid())
-  categoryId   String
-  category     Category @relation(fields: [categoryId], references: [id])
+  id             String       @id @default(uuid())
+  categoryId     String
+  category       Category     @relation(fields: [categoryId], references: [id])
+  subcategoryId  String?
+  subcategory    Subcategory? @relation(fields: [subcategoryId], references: [id])
   name         String
   slug         String   @unique
   appLogo      String

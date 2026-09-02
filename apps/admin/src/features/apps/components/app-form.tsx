@@ -45,6 +45,7 @@ export function AppForm() {
       isStaffPick: false,
       platform: [],
       market: [],
+      tags: [],
       palette: [],
       lookAndFeelTags: [],
       easeOfUseTags: [],
@@ -109,11 +110,13 @@ export function AppForm() {
             slug: data.slug || '',
             description: data.description || '',
             categoryId: data.categoryId || '',
+            subcategoryId: data.subcategoryId || '',
             sourceUrl: data.sourceUrl || '',
             status: data.status || 'DRAFT',
             isStaffPick: data.isStaffPick || false,
             platform: data.platform || [],
             market: data.market || [],
+            tags: data.tags || [],
             palette: data.palette || [],
             targetAudience: data.targetAudience || '',
             appLogo: data.appLogo || '',
@@ -360,6 +363,21 @@ export function AppForm() {
                   <ErrorMessage name='categoryId' />
                 </div>
                 <div className='grid gap-3'>
+                  <Label htmlFor='subcategory'>Subcategory <span className='text-muted-foreground text-xs font-normal'>(Optional)</span></Label>
+                  <select 
+                    {...register('subcategoryId')} 
+                    id='subcategory' 
+                    className='flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50'
+                    disabled={!watch('categoryId') || !categories.find((c: any) => c.id === watch('categoryId'))?.subcategories?.length}
+                  >
+                    <option value=''>Select Subcategory...</option>
+                    {categories.find((c: any) => c.id === watch('categoryId'))?.subcategories?.map((subcat: any) => (
+                      <option key={subcat.id} value={subcat.id}>{subcat.title}</option>
+                    ))}
+                  </select>
+                  <ErrorMessage name='subcategoryId' />
+                </div>
+                <div className='grid gap-3'>
                   <Label htmlFor='sourceUrl'>Source URL</Label>
                   <Input id='sourceUrl' placeholder='e.g. /products/revolut' {...register('sourceUrl')} />
                   <ErrorMessage name='sourceUrl' />
@@ -410,6 +428,17 @@ export function AppForm() {
                     )}
                   />
                 </div>
+              </div>
+
+              <div className='grid gap-3'>
+                <Label>Tags</Label>
+                <Controller
+                  control={control}
+                  name='tags'
+                  render={({ field }) => (
+                    <TagInput tags={field.value || []} onChange={field.onChange} placeholder='e.g. Finance, Management...' />
+                  )}
+                />
               </div>
 
               <div className='grid grid-cols-2 gap-6'>

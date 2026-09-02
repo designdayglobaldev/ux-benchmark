@@ -47,6 +47,8 @@ import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedStaffIndexRouteImport } from './routes/_authenticated/staff/index'
 import { Route as AuthenticatedStaffNewRouteImport } from './routes/_authenticated/staff/new'
+import { Route as AuthenticatedSubcategoriesIndexRouteImport } from './routes/_authenticated/subcategories/index'
+import { Route as AuthenticatedSubcategoriesNewRouteImport } from './routes/_authenticated/subcategories/new'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedUiElementsIndexRouteImport } from './routes/_authenticated/ui-elements/index'
 import { Route as AuthenticatedUiElementsNewRouteImport } from './routes/_authenticated/ui-elements/new'
@@ -63,6 +65,8 @@ import { Route as AuthenticatedFlowsFlowIdEditRouteImport } from './routes/_auth
 import { Route as AuthenticatedPatternsPatternIdIndexRouteImport } from './routes/_authenticated/patterns/$patternId/index'
 import { Route as AuthenticatedPatternsPatternIdEditRouteImport } from './routes/_authenticated/patterns/$patternId/edit'
 import { Route as AuthenticatedScreensScreenIdEditRouteImport } from './routes/_authenticated/screens/$screenId_.edit'
+import { Route as AuthenticatedSubcategoriesSubcategoryIdIndexRouteImport } from './routes/_authenticated/subcategories/$subcategoryId/index'
+import { Route as AuthenticatedSubcategoriesSubcategoryIdEditRouteImport } from './routes/_authenticated/subcategories/$subcategoryId/edit'
 import { Route as AuthenticatedUiElementsElementIdIndexRouteImport } from './routes/_authenticated/ui-elements/$elementId/index'
 import { Route as AuthenticatedUiElementsElementIdEditRouteImport } from './routes/_authenticated/ui-elements/$elementId/edit'
 import { Route as AuthenticatedAppsAppIdFlowsIndexRouteImport } from './routes/_authenticated/apps/$appId/flows/index'
@@ -270,6 +274,18 @@ const AuthenticatedStaffNewRoute = AuthenticatedStaffNewRouteImport.update({
   path: '/staff/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSubcategoriesIndexRoute =
+  AuthenticatedSubcategoriesIndexRouteImport.update({
+    id: '/subcategories/',
+    path: '/subcategories/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSubcategoriesNewRoute =
+  AuthenticatedSubcategoriesNewRouteImport.update({
+    id: '/subcategories/new',
+    path: '/subcategories/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
   id: '/tasks/',
   path: '/tasks/',
@@ -362,6 +378,18 @@ const AuthenticatedScreensScreenIdEditRoute =
     path: '/screens/$screenId/edit',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedSubcategoriesSubcategoryIdIndexRoute =
+  AuthenticatedSubcategoriesSubcategoryIdIndexRouteImport.update({
+    id: '/subcategories/$subcategoryId/',
+    path: '/subcategories/$subcategoryId/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSubcategoriesSubcategoryIdEditRoute =
+  AuthenticatedSubcategoriesSubcategoryIdEditRouteImport.update({
+    id: '/subcategories/$subcategoryId/edit',
+    path: '/subcategories/$subcategoryId/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedUiElementsElementIdIndexRoute =
   AuthenticatedUiElementsElementIdIndexRouteImport.update({
     id: '/ui-elements/$elementId/',
@@ -420,6 +448,7 @@ export interface FileRoutesByFullPath {
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/staff/new': typeof AuthenticatedStaffNewRoute
+  '/subcategories/new': typeof AuthenticatedSubcategoriesNewRoute
   '/ui-elements/new': typeof AuthenticatedUiElementsNewRoute
   '/clerk/sign-in': typeof ClerkauthSignInRoute
   '/clerk/sign-up': typeof ClerkauthSignUpRoute
@@ -433,6 +462,7 @@ export interface FileRoutesByFullPath {
   '/screens/': typeof AuthenticatedScreensIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/staff/': typeof AuthenticatedStaffIndexRoute
+  '/subcategories/': typeof AuthenticatedSubcategoriesIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/ui-elements/': typeof AuthenticatedUiElementsIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
@@ -441,11 +471,13 @@ export interface FileRoutesByFullPath {
   '/flows/$flowId/edit': typeof AuthenticatedFlowsFlowIdEditRoute
   '/patterns/$patternId/edit': typeof AuthenticatedPatternsPatternIdEditRoute
   '/screens/$screenId/edit': typeof AuthenticatedScreensScreenIdEditRoute
+  '/subcategories/$subcategoryId/edit': typeof AuthenticatedSubcategoriesSubcategoryIdEditRoute
   '/ui-elements/$elementId/edit': typeof AuthenticatedUiElementsElementIdEditRoute
   '/apps/$appId/': typeof AuthenticatedAppsAppIdIndexRoute
   '/categories/$categoryId/': typeof AuthenticatedCategoriesCategoryIdIndexRoute
   '/flows/$flowId/': typeof AuthenticatedFlowsFlowIdIndexRoute
   '/patterns/$patternId/': typeof AuthenticatedPatternsPatternIdIndexRoute
+  '/subcategories/$subcategoryId/': typeof AuthenticatedSubcategoriesSubcategoryIdIndexRoute
   '/ui-elements/$elementId/': typeof AuthenticatedUiElementsElementIdIndexRoute
   '/apps/$appId/flows/$flowId': typeof AuthenticatedAppsAppIdFlowsFlowIdRoute
   '/apps/$appId/flows/': typeof AuthenticatedAppsAppIdFlowsIndexRoute
@@ -476,6 +508,7 @@ export interface FileRoutesByTo {
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/staff/new': typeof AuthenticatedStaffNewRoute
+  '/subcategories/new': typeof AuthenticatedSubcategoriesNewRoute
   '/ui-elements/new': typeof AuthenticatedUiElementsNewRoute
   '/clerk/sign-in': typeof ClerkauthSignInRoute
   '/clerk/sign-up': typeof ClerkauthSignUpRoute
@@ -489,6 +522,7 @@ export interface FileRoutesByTo {
   '/screens': typeof AuthenticatedScreensIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/staff': typeof AuthenticatedStaffIndexRoute
+  '/subcategories': typeof AuthenticatedSubcategoriesIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/ui-elements': typeof AuthenticatedUiElementsIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
@@ -497,11 +531,13 @@ export interface FileRoutesByTo {
   '/flows/$flowId/edit': typeof AuthenticatedFlowsFlowIdEditRoute
   '/patterns/$patternId/edit': typeof AuthenticatedPatternsPatternIdEditRoute
   '/screens/$screenId/edit': typeof AuthenticatedScreensScreenIdEditRoute
+  '/subcategories/$subcategoryId/edit': typeof AuthenticatedSubcategoriesSubcategoryIdEditRoute
   '/ui-elements/$elementId/edit': typeof AuthenticatedUiElementsElementIdEditRoute
   '/apps/$appId': typeof AuthenticatedAppsAppIdIndexRoute
   '/categories/$categoryId': typeof AuthenticatedCategoriesCategoryIdIndexRoute
   '/flows/$flowId': typeof AuthenticatedFlowsFlowIdIndexRoute
   '/patterns/$patternId': typeof AuthenticatedPatternsPatternIdIndexRoute
+  '/subcategories/$subcategoryId': typeof AuthenticatedSubcategoriesSubcategoryIdIndexRoute
   '/ui-elements/$elementId': typeof AuthenticatedUiElementsElementIdIndexRoute
   '/apps/$appId/flows/$flowId': typeof AuthenticatedAppsAppIdFlowsFlowIdRoute
   '/apps/$appId/flows': typeof AuthenticatedAppsAppIdFlowsIndexRoute
@@ -538,6 +574,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/_authenticated/staff/new': typeof AuthenticatedStaffNewRoute
+  '/_authenticated/subcategories/new': typeof AuthenticatedSubcategoriesNewRoute
   '/_authenticated/ui-elements/new': typeof AuthenticatedUiElementsNewRoute
   '/clerk/(auth)/sign-in': typeof ClerkauthSignInRoute
   '/clerk/(auth)/sign-up': typeof ClerkauthSignUpRoute
@@ -551,6 +588,7 @@ export interface FileRoutesById {
   '/_authenticated/screens/': typeof AuthenticatedScreensIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/staff/': typeof AuthenticatedStaffIndexRoute
+  '/_authenticated/subcategories/': typeof AuthenticatedSubcategoriesIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/ui-elements/': typeof AuthenticatedUiElementsIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
@@ -559,11 +597,13 @@ export interface FileRoutesById {
   '/_authenticated/flows/$flowId/edit': typeof AuthenticatedFlowsFlowIdEditRoute
   '/_authenticated/patterns/$patternId/edit': typeof AuthenticatedPatternsPatternIdEditRoute
   '/_authenticated/screens/$screenId_/edit': typeof AuthenticatedScreensScreenIdEditRoute
+  '/_authenticated/subcategories/$subcategoryId/edit': typeof AuthenticatedSubcategoriesSubcategoryIdEditRoute
   '/_authenticated/ui-elements/$elementId/edit': typeof AuthenticatedUiElementsElementIdEditRoute
   '/_authenticated/apps/$appId/': typeof AuthenticatedAppsAppIdIndexRoute
   '/_authenticated/categories/$categoryId/': typeof AuthenticatedCategoriesCategoryIdIndexRoute
   '/_authenticated/flows/$flowId/': typeof AuthenticatedFlowsFlowIdIndexRoute
   '/_authenticated/patterns/$patternId/': typeof AuthenticatedPatternsPatternIdIndexRoute
+  '/_authenticated/subcategories/$subcategoryId/': typeof AuthenticatedSubcategoriesSubcategoryIdIndexRoute
   '/_authenticated/ui-elements/$elementId/': typeof AuthenticatedUiElementsElementIdIndexRoute
   '/_authenticated/apps/$appId/flows/$flowId': typeof AuthenticatedAppsAppIdFlowsFlowIdRoute
   '/_authenticated/apps/$appId/flows/': typeof AuthenticatedAppsAppIdFlowsIndexRoute
@@ -598,6 +638,7 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/staff/new'
+    | '/subcategories/new'
     | '/ui-elements/new'
     | '/clerk/sign-in'
     | '/clerk/sign-up'
@@ -611,6 +652,7 @@ export interface FileRouteTypes {
     | '/screens/'
     | '/settings/'
     | '/staff/'
+    | '/subcategories/'
     | '/tasks/'
     | '/ui-elements/'
     | '/users/'
@@ -619,11 +661,13 @@ export interface FileRouteTypes {
     | '/flows/$flowId/edit'
     | '/patterns/$patternId/edit'
     | '/screens/$screenId/edit'
+    | '/subcategories/$subcategoryId/edit'
     | '/ui-elements/$elementId/edit'
     | '/apps/$appId/'
     | '/categories/$categoryId/'
     | '/flows/$flowId/'
     | '/patterns/$patternId/'
+    | '/subcategories/$subcategoryId/'
     | '/ui-elements/$elementId/'
     | '/apps/$appId/flows/$flowId'
     | '/apps/$appId/flows/'
@@ -654,6 +698,7 @@ export interface FileRouteTypes {
     | '/settings/display'
     | '/settings/notifications'
     | '/staff/new'
+    | '/subcategories/new'
     | '/ui-elements/new'
     | '/clerk/sign-in'
     | '/clerk/sign-up'
@@ -667,6 +712,7 @@ export interface FileRouteTypes {
     | '/screens'
     | '/settings'
     | '/staff'
+    | '/subcategories'
     | '/tasks'
     | '/ui-elements'
     | '/users'
@@ -675,11 +721,13 @@ export interface FileRouteTypes {
     | '/flows/$flowId/edit'
     | '/patterns/$patternId/edit'
     | '/screens/$screenId/edit'
+    | '/subcategories/$subcategoryId/edit'
     | '/ui-elements/$elementId/edit'
     | '/apps/$appId'
     | '/categories/$categoryId'
     | '/flows/$flowId'
     | '/patterns/$patternId'
+    | '/subcategories/$subcategoryId'
     | '/ui-elements/$elementId'
     | '/apps/$appId/flows/$flowId'
     | '/apps/$appId/flows'
@@ -715,6 +763,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
     | '/_authenticated/staff/new'
+    | '/_authenticated/subcategories/new'
     | '/_authenticated/ui-elements/new'
     | '/clerk/(auth)/sign-in'
     | '/clerk/(auth)/sign-up'
@@ -728,6 +777,7 @@ export interface FileRouteTypes {
     | '/_authenticated/screens/'
     | '/_authenticated/settings/'
     | '/_authenticated/staff/'
+    | '/_authenticated/subcategories/'
     | '/_authenticated/tasks/'
     | '/_authenticated/ui-elements/'
     | '/_authenticated/users/'
@@ -736,11 +786,13 @@ export interface FileRouteTypes {
     | '/_authenticated/flows/$flowId/edit'
     | '/_authenticated/patterns/$patternId/edit'
     | '/_authenticated/screens/$screenId_/edit'
+    | '/_authenticated/subcategories/$subcategoryId/edit'
     | '/_authenticated/ui-elements/$elementId/edit'
     | '/_authenticated/apps/$appId/'
     | '/_authenticated/categories/$categoryId/'
     | '/_authenticated/flows/$flowId/'
     | '/_authenticated/patterns/$patternId/'
+    | '/_authenticated/subcategories/$subcategoryId/'
     | '/_authenticated/ui-elements/$elementId/'
     | '/_authenticated/apps/$appId/flows/$flowId'
     | '/_authenticated/apps/$appId/flows/'
@@ -1030,6 +1082,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/subcategories/': {
+      id: '/_authenticated/subcategories/'
+      path: '/subcategories'
+      fullPath: '/subcategories/'
+      preLoaderRoute: typeof AuthenticatedSubcategoriesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/subcategories/new': {
+      id: '/_authenticated/subcategories/new'
+      path: '/subcategories/new'
+      fullPath: '/subcategories/new'
+      preLoaderRoute: typeof AuthenticatedSubcategoriesNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tasks/': {
       id: '/_authenticated/tasks/'
       path: '/tasks'
@@ -1142,6 +1208,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedScreensScreenIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/subcategories/$subcategoryId/': {
+      id: '/_authenticated/subcategories/$subcategoryId/'
+      path: '/subcategories/$subcategoryId'
+      fullPath: '/subcategories/$subcategoryId/'
+      preLoaderRoute: typeof AuthenticatedSubcategoriesSubcategoryIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/subcategories/$subcategoryId/edit': {
+      id: '/_authenticated/subcategories/$subcategoryId/edit'
+      path: '/subcategories/$subcategoryId/edit'
+      fullPath: '/subcategories/$subcategoryId/edit'
+      preLoaderRoute: typeof AuthenticatedSubcategoriesSubcategoryIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ui-elements/$elementId/': {
       id: '/_authenticated/ui-elements/$elementId/'
       path: '/ui-elements/$elementId'
@@ -1240,6 +1320,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedScreensScreenIdRoute: typeof AuthenticatedScreensScreenIdRoute
   AuthenticatedScreensNewRoute: typeof AuthenticatedScreensNewRoute
   AuthenticatedStaffNewRoute: typeof AuthenticatedStaffNewRoute
+  AuthenticatedSubcategoriesNewRoute: typeof AuthenticatedSubcategoriesNewRoute
   AuthenticatedUiElementsNewRoute: typeof AuthenticatedUiElementsNewRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedCategoriesIndexRoute: typeof AuthenticatedCategoriesIndexRoute
@@ -1249,6 +1330,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPatternsIndexRoute: typeof AuthenticatedPatternsIndexRoute
   AuthenticatedScreensIndexRoute: typeof AuthenticatedScreensIndexRoute
   AuthenticatedStaffIndexRoute: typeof AuthenticatedStaffIndexRoute
+  AuthenticatedSubcategoriesIndexRoute: typeof AuthenticatedSubcategoriesIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedUiElementsIndexRoute: typeof AuthenticatedUiElementsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
@@ -1256,10 +1338,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFlowsFlowIdEditRoute: typeof AuthenticatedFlowsFlowIdEditRoute
   AuthenticatedPatternsPatternIdEditRoute: typeof AuthenticatedPatternsPatternIdEditRoute
   AuthenticatedScreensScreenIdEditRoute: typeof AuthenticatedScreensScreenIdEditRoute
+  AuthenticatedSubcategoriesSubcategoryIdEditRoute: typeof AuthenticatedSubcategoriesSubcategoryIdEditRoute
   AuthenticatedUiElementsElementIdEditRoute: typeof AuthenticatedUiElementsElementIdEditRoute
   AuthenticatedCategoriesCategoryIdIndexRoute: typeof AuthenticatedCategoriesCategoryIdIndexRoute
   AuthenticatedFlowsFlowIdIndexRoute: typeof AuthenticatedFlowsFlowIdIndexRoute
   AuthenticatedPatternsPatternIdIndexRoute: typeof AuthenticatedPatternsPatternIdIndexRoute
+  AuthenticatedSubcategoriesSubcategoryIdIndexRoute: typeof AuthenticatedSubcategoriesSubcategoryIdIndexRoute
   AuthenticatedUiElementsElementIdIndexRoute: typeof AuthenticatedUiElementsElementIdIndexRoute
 }
 
@@ -1275,6 +1359,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedScreensScreenIdRoute: AuthenticatedScreensScreenIdRoute,
   AuthenticatedScreensNewRoute: AuthenticatedScreensNewRoute,
   AuthenticatedStaffNewRoute: AuthenticatedStaffNewRoute,
+  AuthenticatedSubcategoriesNewRoute: AuthenticatedSubcategoriesNewRoute,
   AuthenticatedUiElementsNewRoute: AuthenticatedUiElementsNewRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedCategoriesIndexRoute: AuthenticatedCategoriesIndexRoute,
@@ -1284,6 +1369,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPatternsIndexRoute: AuthenticatedPatternsIndexRoute,
   AuthenticatedScreensIndexRoute: AuthenticatedScreensIndexRoute,
   AuthenticatedStaffIndexRoute: AuthenticatedStaffIndexRoute,
+  AuthenticatedSubcategoriesIndexRoute: AuthenticatedSubcategoriesIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedUiElementsIndexRoute: AuthenticatedUiElementsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
@@ -1293,6 +1379,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPatternsPatternIdEditRoute:
     AuthenticatedPatternsPatternIdEditRoute,
   AuthenticatedScreensScreenIdEditRoute: AuthenticatedScreensScreenIdEditRoute,
+  AuthenticatedSubcategoriesSubcategoryIdEditRoute:
+    AuthenticatedSubcategoriesSubcategoryIdEditRoute,
   AuthenticatedUiElementsElementIdEditRoute:
     AuthenticatedUiElementsElementIdEditRoute,
   AuthenticatedCategoriesCategoryIdIndexRoute:
@@ -1300,6 +1388,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFlowsFlowIdIndexRoute: AuthenticatedFlowsFlowIdIndexRoute,
   AuthenticatedPatternsPatternIdIndexRoute:
     AuthenticatedPatternsPatternIdIndexRoute,
+  AuthenticatedSubcategoriesSubcategoryIdIndexRoute:
+    AuthenticatedSubcategoriesSubcategoryIdIndexRoute,
   AuthenticatedUiElementsElementIdIndexRoute:
     AuthenticatedUiElementsElementIdIndexRoute,
 }

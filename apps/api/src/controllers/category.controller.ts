@@ -5,6 +5,9 @@ export const getAllCategories = async (req: Request, res: Response) => {
   try {
     const categories = await prisma.category.findMany({
       orderBy: { title: 'asc' },
+      include: {
+        subcategories: true
+      }
     });
     res.json(categories);
   } catch (error) {
@@ -19,6 +22,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
     const category = await prisma.category.findUnique({
       where: { id },
       include: {
+        subcategories: true,
         apps: {
           include: {
             screens: {

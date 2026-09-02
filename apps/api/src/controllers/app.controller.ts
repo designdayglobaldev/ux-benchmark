@@ -3,11 +3,12 @@ import { prisma } from '../db/prisma';
 
 export const getAllApps = async (req: Request, res: Response) => {
   try {
-    const { status, category, platform, flows, uiElements, patterns } = req.query;
+    const { status, category, subcategory, platform, flows, uiElements, patterns } = req.query;
     const where: any = {};
     
     if (status) where.status = String(status);
     if (category) where.category = { slug: String(category) };
+    if (subcategory) where.subcategory = { slug: String(subcategory) };
     if (platform) where.platform = { hasSome: String(platform).split(',') };
 
     const AND: any[] = [];
@@ -34,7 +35,7 @@ export const getAllApps = async (req: Request, res: Response) => {
     const apps = await prisma.app.findMany({
       where,
       orderBy: { name: 'asc' },
-      include: { category: true }
+      include: { category: true, subcategory: true }
     });
     res.json(apps);
   } catch (error) {
@@ -57,6 +58,7 @@ export const getAppById = async (req: Request, res: Response) => {
       },
       include: { 
         category: true,
+        subcategory: true,
         appFlows: true, 
         screens: {
           where: status ? { status: String(status) as any } : undefined,
@@ -87,6 +89,7 @@ export const getAppById = async (req: Request, res: Response) => {
         },
         include: {
           category: true,
+          subcategory: true,
           screens: {
             where: status ? { status: String(status) as any } : undefined,
             orderBy: { screenNo: 'asc' },
@@ -113,6 +116,16 @@ export const createApp = async (req: Request, res: Response) => {
       delete data.categoryId;
     }
     
+    if (data.subcategoryId) {
+      data.subcategory = { connect: { id: data.subcategoryId } };
+      delete data.subcategoryId;
+    } else if (data.subcategoryId === null || data.subcategoryId === '') {
+      data.subcategory = { disconnect: true };
+      delete data.subcategoryId;
+    } else {
+      delete data.subcategoryId; // handle undefined
+    }
+    
     const app = await prisma.app.create({
       data,
     });
@@ -132,6 +145,16 @@ export const updateApp = async (req: Request, res: Response) => {
     if (data.categoryId) {
       data.category = { connect: { id: data.categoryId } };
       delete data.categoryId;
+    }
+    
+    if (data.subcategoryId) {
+      data.subcategory = { connect: { id: data.subcategoryId } };
+      delete data.subcategoryId;
+    } else if (data.subcategoryId === null || data.subcategoryId === '') {
+      data.subcategory = { disconnect: true };
+      delete data.subcategoryId;
+    } else {
+      delete data.subcategoryId; // handle undefined
     }
     
     const app = await prisma.app.update({

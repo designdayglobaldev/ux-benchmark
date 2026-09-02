@@ -16,6 +16,7 @@ import {
   AudioWaveform,
   Command,
   GalleryVerticalEnd,
+  Users,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -77,6 +78,11 @@ export const sidebarData: SidebarData = {
           icon: FolderTree,
         },
         {
+          title: 'Subcategories',
+          url: '/subcategories',
+          icon: FolderTree,
+        },
+        {
           title: 'UI Elements',
           url: '/ui-elements',
           icon: Component,
@@ -91,6 +97,11 @@ export const sidebarData: SidebarData = {
     {
       title: 'Other',
       items: [
+        {
+          title: 'Users',
+          url: '/users',
+          icon: Users,
+        },
         {
           title: 'Settings',
           icon: Settings,

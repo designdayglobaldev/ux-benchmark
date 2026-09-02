@@ -82,6 +82,7 @@ export function Browse() {
   const { data: apps, isLoading, error } = useApps(queryString);
   
   const [categories, setCategories] = useState<any[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
   const [flows, setFlows] = useState<any[]>([]);
   const [uiElements, setUiElements] = useState<any[]>([]);
   const [patterns, setPatterns] = useState<any[]>([]);
@@ -90,13 +91,15 @@ export function Browse() {
     const fetchFilters = async () => {
       try {
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-        const [catRes, flowsRes, uiRes, patRes] = await Promise.all([
+        const [catRes, subcatRes, flowsRes, uiRes, patRes] = await Promise.all([
           fetch(`${apiUrl}/api/v1/categories`),
+          fetch(`${apiUrl}/api/v1/subcategories`),
           fetch(`${apiUrl}/api/v1/flows`),
           fetch(`${apiUrl}/api/v1/ui-elements`),
           fetch(`${apiUrl}/api/v1/patterns`)
         ]);
         setCategories(await catRes.json());
+        setSubcategories(await subcatRes.json());
         setFlows(await flowsRes.json());
         setUiElements(await uiRes.json());
         setPatterns(await patRes.json());
@@ -142,6 +145,12 @@ export function Browse() {
             options={categories} 
             selectedSlugs={getArrayParam('category')} 
             onChange={(slugs) => updateParams('category', slugs)}
+          />
+          <FilterDropdown 
+            title="Subcategories" 
+            options={subcategories} 
+            selectedSlugs={getArrayParam('subcategory')} 
+            onChange={(slugs) => updateParams('subcategory', slugs)}
           />
           <FilterDropdown 
             title="Flows" 
@@ -236,7 +245,7 @@ export function Browse() {
                             />
                             <div className="flex flex-col">
                                 <span className="text-[#EAEAEA] text-[15px] font-medium">{app.name}</span>
-                                <span className="text-[#888888] text-[13px]">{app.tags?.[0] || "Category"}</span>
+                                <span className="text-[#888888] text-[13px]">{app.subcategory?.title || app.category?.title || app.tags?.[0] || "Category"}</span>
                             </div>
                         </div>
                     </div>

@@ -4,6 +4,7 @@ export const appSchema = z.object({
   name: z.string().min(1, 'App name is required'),
   slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
   categoryId: z.string().min(1, 'Category is required'),
+  subcategoryId: z.string().optional().or(z.literal('')),
   sourceUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   description: z.string().optional(),
   status: z.enum(['DRAFT', 'LIVE']).default('DRAFT'),
@@ -13,6 +14,7 @@ export const appSchema = z.object({
   market: z.array(z.string()).optional(),
   targetAudience: z.string().optional(),
   palette: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
 
   appLogo: z.union([z.instanceof(File), z.string()]).optional().refine((val) => val !== undefined && val !== '', 'Logo is required'),
   appThumbnail: z.union([z.instanceof(File), z.string()]).optional().refine((val) => val !== undefined && val !== '', 'Thumbnail is required'),
