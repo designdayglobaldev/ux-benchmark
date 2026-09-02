@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, X, Upload, ChevronsUpDown, Check, ArrowRight, Share2, Copy, Download, Maximize, Minimize } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -83,7 +81,6 @@ export function Benchmark() {
   // Taxonomy Data States
   const [categories, setCategories] = useState<{id: string, title: string}[]>([]);
   const [flows, setFlows] = useState<{id: string, title: string}[]>([]);
-  const [patterns, setPatterns] = useState<{id: string, title: string}[]>([]);
 
   // Selected Taxonomy
   const [selectedCategory, setSelectedCategory] = useState<string>('');

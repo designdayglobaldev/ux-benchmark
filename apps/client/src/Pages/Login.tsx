@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "../lib/supabase";
 
 import { z } from "zod";
@@ -29,7 +27,7 @@ export function Login() {
     
     try {
       loginSchema.parse({ email, password });
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof z.ZodError) {
         setError(err.errors[0].message);
       } else {

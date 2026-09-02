@@ -30,7 +30,7 @@ export function Register() {
 
     try {
       registerSchema.parse({ name, email, phone });
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof z.ZodError) {
         setError(err.errors[0].message);
       } else {
