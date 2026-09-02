@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowUpRight, Plus } from "lucide-react";
+import { Sparkles, ArrowUpRight, Plus, ListFilter, Check } from "lucide-react";
 import revolutImg from "@/assets/Revolut.png";
 import revolutLogo from "@/assets/Revolut_logo.png";
 import canvasImg from "@/assets/Canvas.png";
@@ -9,21 +9,41 @@ import { SubmitModule } from "../components/Submit_module";
 import { useApps } from "@/hooks/useApps";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/ui/optimized-image";
-import { useEffect } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "@/components/AuthModal";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 export function Dashboard() {
     const navigate = useNavigate();
     const { user, isLoading: isAuthLoading } = useAuth();
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [activeCategorySlug, setActiveCategorySlug] = useState("latest");
-    const [categories, setCategories] = useState<{slug: string, name: string}[]>([]);
     
-    // Build query string for the active category
-    const queryString = activeCategorySlug !== 'latest' ? `category=${activeCategorySlug}` : '';
+    // Filter States
+    const [activeTab, setActiveTab] = useState<string>('latest');
+    const [activeCategory, setActiveCategory] = useState<string>('all');
+    const [activeSubcategory, setActiveSubcategory] = useState<string>('all');
+    const [categories, setCategories] = useState<any[]>([]);
+    const [subcategories, setSubcategories] = useState<any[]>([]);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+    // Build query string
+    const queryParts = [];
+    if (activeCategory !== 'all') {
+        const cat = categories.find(c => c.id === activeCategory);
+        if (cat) queryParts.push(`category=${cat.slug}`);
+    }
+    if (activeSubcategory !== 'all') {
+        const subcat = subcategories.find(sc => sc.id === activeSubcategory);
+        if (subcat) queryParts.push(`subcategory=${subcat.slug}`);
+    }
+    if (activeTab === 'motion') queryParts.push('tag=motion');
+    else if (activeTab === 'bonus') queryParts.push('tag=bonus');
+    const queryString = queryParts.join('&');
+
     const { data: apps, isLoading, error } = useApps(queryString);
 
     useSEO({
@@ -32,19 +52,20 @@ export function Dashboard() {
     });
 
     useEffect(() => {
-        const fetchCategories = async () => {
+        const fetchFilters = async () => {
             try {
                 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-                const catRes = await fetch(`${apiUrl}/api/v1/categories`);
-                const data = await catRes.json();
-                setCategories([{ slug: 'latest', name: 'Latest' }, ...data]);
+                const [catRes, subcatRes] = await Promise.all([
+                    fetch(`${apiUrl}/api/v1/categories`),
+                    fetch(`${apiUrl}/api/v1/subcategories`)
+                ]);
+                setCategories(await catRes.json());
+                setSubcategories(await subcatRes.json());
             } catch (e) {
-                console.error("Failed to fetch categories", e);
-                // Fallback
-                setCategories([{ slug: 'latest', name: 'Latest' }]);
+                console.error("Failed to fetch filters", e);
             }
         };
-        fetchCategories();
+        fetchFilters();
     }, []);
 
     return (
@@ -78,25 +99,102 @@ export function Dashboard() {
                 </div>
             </div>
 
-            {/* Categories Bar */}
-            <div className="sticky top-[73px] z-40 w-full bg-black pl-4 sm:pl-[30px] py-4 overflow-x-auto no-scrollbar">
-                <div className="flex items-center text-[14px] font-normal whitespace-nowrap">
-                    {categories.map((category: any) => {
-                        const displayName = category.name || category.title;
-                        return (
-                            <button
-                                key={category.slug}
-                                onClick={() => setActiveCategorySlug(category.slug)}
-                                className={`transition-colors ${activeCategorySlug === category.slug
-                                        ? "text-white bg-[#1A1A1A] px-3 py-2 rounded-full"
-                                        : "text-[#A1A1A1] hover:text-white px-3 py-2 rounded-full"
-                                    }`}
+
+
+            {/* Filter Bar */}
+            <div className="sticky top-[73px] z-40 w-full bg-black px-4 sm:px-[30px] pt-4 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                
+                <div className="flex items-center gap-8 overflow-x-auto no-scrollbar whitespace-nowrap">
+                    {/* Sort Tabs */}
+                    <div className="flex items-center gap-6 text-base font-medium">
+                        {['latest', 'motion', 'bonus'].map((tab) => (
+                            <button 
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={cn("transition-colors capitalize pb-1 border-b-2", activeTab === tab ? "text-[#EAEAEA] border-[#EAEAEA]" : "text-[#A1A1A1] border-transparent hover:text-[#EAEAEA]")}
                             >
-                                {displayName}
+                                {tab}
                             </button>
-                        );
-                    })}
+                        ))}
+                    </div>
                 </div>
+
+                {/* Filter Dropdown */}
+                <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                    <PopoverTrigger asChild>
+                        <button className="flex items-center gap-2 text-[#EAEAEA] hover:opacity-80 transition-opacity text-base font-medium ml-auto sm:ml-0">
+                            <ListFilter className="w-5 h-5" />
+                            Category {(activeCategory !== 'all' || activeSubcategory !== 'all') && <span className="w-2 h-2 rounded-full bg-blue-500"></span>}
+                        </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-0 bg-[#1A1A1A] border-[#333] text-[#EAEAEA]" align="end">
+                        <Command className="bg-transparent">
+                            <CommandInput placeholder="Search categories..." className="text-[#EAEAEA]" />
+                            <CommandList>
+                                <CommandEmpty>No category found.</CommandEmpty>
+                                <CommandGroup heading="Categories">
+                                    <CommandItem
+                                        value="all-categories"
+                                        onSelect={() => {
+                                            setActiveCategory('all');
+                                            setActiveSubcategory('all');
+                                            setIsFilterOpen(false);
+                                        }}
+                                        className="text-[#EAEAEA] aria-selected:bg-[#333]"
+                                    >
+                                        <Check className={cn("mr-2 h-4 w-4", activeCategory === 'all' ? "opacity-100" : "opacity-0")} />
+                                        All Categories
+                                    </CommandItem>
+                                    {categories.map((c) => (
+                                        <CommandItem
+                                            key={c.id}
+                                            value={c.title}
+                                            onSelect={() => {
+                                                setActiveCategory(c.id);
+                                                setActiveSubcategory('all'); // Reset sub on cat change
+                                                setIsFilterOpen(false);
+                                            }}
+                                            className="text-[#EAEAEA] aria-selected:bg-[#333]"
+                                        >
+                                            <Check className={cn("mr-2 h-4 w-4", activeCategory === c.id ? "opacity-100" : "opacity-0")} />
+                                            {c.title}
+                                        </CommandItem>
+                                    ))}
+                                </CommandGroup>
+                                
+                                {activeCategory !== 'all' && subcategories.filter(sc => sc.categoryId === activeCategory).length > 0 && (
+                                    <CommandGroup heading="Subcategories">
+                                        <CommandItem
+                                            value="all-subcategories"
+                                            onSelect={() => {
+                                                setActiveSubcategory('all');
+                                                setIsFilterOpen(false);
+                                            }}
+                                            className="text-[#EAEAEA] aria-selected:bg-[#333]"
+                                        >
+                                            <Check className={cn("mr-2 h-4 w-4", activeSubcategory === 'all' ? "opacity-100" : "opacity-0")} />
+                                            All Subcategories
+                                        </CommandItem>
+                                        {subcategories.filter(sc => sc.categoryId === activeCategory).map((sc) => (
+                                            <CommandItem
+                                                key={sc.id}
+                                                value={sc.title}
+                                                onSelect={() => {
+                                                    setActiveSubcategory(sc.id);
+                                                    setIsFilterOpen(false);
+                                                }}
+                                                className="text-[#EAEAEA] aria-selected:bg-[#333]"
+                                            >
+                                                <Check className={cn("mr-2 h-4 w-4", activeSubcategory === sc.id ? "opacity-100" : "opacity-0")} />
+                                                {sc.title}
+                                            </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                )}
+                            </CommandList>
+                        </Command>
+                    </PopoverContent>
+                </Popover>
             </div>
 
             {/* Grid of Boxes */}
