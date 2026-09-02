@@ -28,7 +28,7 @@ export function Login() {
     try {
       loginSchema.parse({ email, password });
     } catch (err: any) {
-      if (err instanceof z.ZodError) {
+      if (err && err.errors && err.errors.length > 0) {
         setError(err.errors[0].message);
       } else {
         setError("Invalid input");

@@ -152,23 +152,19 @@ export function Benchmark() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catsRes, flowsRes, patternsRes] = await Promise.all([
+        const [catsRes, flowsRes] = await Promise.all([
           fetch('http://localhost:4000/api/v1/categories'),
-          fetch('http://localhost:4000/api/v1/flows'),
-          fetch('http://localhost:4000/api/v1/patterns')
+          fetch('http://localhost:4000/api/v1/flows')
         ]);
         
         const catsData = await catsRes.json();
         const flowsData = await flowsRes.json();
-        const patternsData = await patternsRes.json();
 
         const catArray = Array.isArray(catsData) ? catsData : catsData.data || [];
         const flowArray = Array.isArray(flowsData) ? flowsData : flowsData.data || [];
-        const patArray = Array.isArray(patternsData) ? patternsData : patternsData.data || [];
 
         setCategories(catArray.map((c: any) => ({ id: c.id, title: c.title || c.name })));
         setFlows(flowArray.map((f: any) => ({ id: f.id, title: f.name || f.title })));
-        setPatterns(patArray.map((p: any) => ({ id: p.id, title: p.title || p.name })));
 
       } catch (err) {
         console.error("Error fetching taxonomy data:", err);

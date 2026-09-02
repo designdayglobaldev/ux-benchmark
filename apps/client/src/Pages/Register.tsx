@@ -31,7 +31,7 @@ export function Register() {
     try {
       registerSchema.parse({ name, email, phone });
     } catch (err: any) {
-      if (err instanceof z.ZodError) {
+      if (err && err.errors && err.errors.length > 0) {
         setError(err.errors[0].message);
       } else {
         setError("Invalid input");
