@@ -19,12 +19,14 @@
     "html-to-docx": "^1.8.0",
     "meilisearch": "^0.60.0",
     "pg": "^8.22.0",
-    "resend": "^6.22.1"
+    "resend": "^6.22.1",
+    "ws": "^8.21.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/pg": "^8.20.0",
+    "@types/ws": "^8.18.1",
     "prisma": "^7.9.0",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.23.1",

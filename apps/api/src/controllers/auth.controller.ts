@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 import { prisma } from '../db/prisma';
 import { createClient } from '@supabase/supabase-js';
+import WebSocket from 'ws';
+
+// Polyfill for Supabase realtime in older Node versions
+(global as any).WebSocket = WebSocket;
+
 import { Resend } from 'resend';
 const resendKey = process.env.RESEND_API_KEY || process.env.RESEND_API;
 const resend = resendKey ? new Resend(resendKey) : null;
