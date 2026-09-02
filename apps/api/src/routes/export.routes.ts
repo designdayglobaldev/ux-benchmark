@@ -167,6 +167,7 @@ router.post('/docx', async (req: Request, res: Response): Promise<any> => {
                 width: 150,
                 height: 325, 
               },
+              type: screen.imageUrl.toLowerCase().match(/\.jpe?g$/) ? "jpg" : "png",
             });
           }
         } catch (e) {
@@ -183,7 +184,7 @@ router.post('/docx', async (req: Request, res: Response): Promise<any> => {
             right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
           },
           children: [
-            new Paragraph({ text: appName, alignment: AlignmentType.CENTER, bold: true, spacing: { after: 100 } }),
+            new Paragraph({ children: [new TextRun({ text: appName, bold: true })], alignment: AlignmentType.CENTER, spacing: { after: 100 } }),
             new Paragraph({
               alignment: AlignmentType.CENTER,
               children: imgRun ? [imgRun] : [new TextRun("Image not available")],
