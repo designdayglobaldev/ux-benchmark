@@ -9,6 +9,8 @@ export interface AppType {
   appThumbnail: string;
   isStaffPick: boolean;
   tags: string[];
+  category?: { title: string; slug: string };
+  subcategory?: { title: string; slug: string };
 }
 
 const fetchApps = async (queryString: string = ''): Promise<AppType[]> => {
