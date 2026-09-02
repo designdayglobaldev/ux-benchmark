@@ -5,6 +5,7 @@ import { Plus, AppWindow, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -32,21 +33,37 @@ export function Apps() {
   const [searchTerm, setSearchTerm] = useState(filter)
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [apps, setApps] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
+  const [subcategories, setSubcategories] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [platformFilter, setPlatformFilter] = useState<string>('all')
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
+  const [subcategoryFilter, setSubcategoryFilter] = useState<string>('all')
 
   useEffect(() => {
-    const fetchApps = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/apps')
-        const data = await res.json()
-        setApps(data)
+        const [appsRes, catsRes, subCatsRes] = await Promise.all([
+          fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/apps'),
+          fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/categories'),
+          fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/subcategories')
+        ])
+        const [appsData, catsData, subCatsData] = await Promise.all([
+          appsRes.json(),
+          catsRes.json(),
+          subCatsRes.json()
+        ])
+        setApps(appsData)
+        setCategories(catsData)
+        setSubcategories(subCatsData)
       } catch (error) {
-        console.error('Failed to fetch apps:', error)
+        console.error('Failed to fetch data:', error)
       } finally {
         setIsLoading(false)
       }
     }
-    fetchApps()
+    fetchData()
   }, [])
 
   const handleDeleteApp = async (appId: string) => {
@@ -62,9 +79,15 @@ export function Apps() {
     }
   }
 
-  const filteredApps = apps.filter((app) =>
-    app.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-  )
+  const filteredApps = apps.filter((app) => {
+    const matchesSearch = app.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+    const matchesStatus = statusFilter === 'all' || app.status === statusFilter
+    const matchesPlatform = platformFilter === 'all' || (app.platform && app.platform.includes(platformFilter))
+    const matchesCategory = categoryFilter === 'all' || app.categoryId === categoryFilter
+    const matchesSubcategory = subcategoryFilter === 'all' || app.subcategoryId === subcategoryFilter
+    
+    return matchesSearch && matchesStatus && matchesPlatform && matchesCategory && matchesSubcategory
+  })
 
   useEffect(() => {
     if (typeof navigate === 'function') {
@@ -101,13 +124,60 @@ export function Apps() {
         </div>
 
         <div className='my-4 flex items-end justify-between sm:my-0 sm:items-center'>
-          <div className='flex flex-col gap-4 sm:my-4 sm:flex-row'>
+          <div className='flex flex-wrap gap-4 sm:my-4 flex-1 items-center'>
             <Input
               placeholder='Search apps...'
               className='h-9 w-40 lg:w-62.5'
               value={searchTerm}
               onChange={handleSearch}
             />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-9 w-[130px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="LIVE">Live</SelectItem>
+                <SelectItem value="DRAFT">Draft</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={platformFilter} onValueChange={setPlatformFilter}>
+              <SelectTrigger className="h-9 w-[130px]">
+                <SelectValue placeholder="Platform" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Platforms</SelectItem>
+                <SelectItem value="ios">iOS</SelectItem>
+                <SelectItem value="android">Android</SelectItem>
+                <SelectItem value="webpage">Web Page</SelectItem>
+                <SelectItem value="webapp">Web App</SelectItem>
+                <SelectItem value="crossplatform">Cross Platform</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="h-9 w-[150px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={subcategoryFilter} onValueChange={setSubcategoryFilter}>
+              <SelectTrigger className="h-9 w-[160px]">
+                <SelectValue placeholder="Subcategory" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Subcategories</SelectItem>
+                {subcategories
+                  .filter((sc) => categoryFilter === 'all' || sc.categoryId === categoryFilter)
+                  .map((sc) => (
+                    <SelectItem key={sc.id} value={sc.id}>{sc.title}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <Separator className='shadow-sm' />
