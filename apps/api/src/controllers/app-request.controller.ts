@@ -21,11 +21,12 @@ export const createAppRequest = async (req: Request, res: Response) => {
     });
 
     res.status(201).json(appRequest);
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: error.errors });
+      return res.status(400).json({ error: (error as any).errors });
     }
     console.error('Error creating app request:', error);
+
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -36,7 +37,7 @@ export const getAppRequests = async (req: Request, res: Response) => {
       orderBy: { createdAt: 'desc' },
     });
     res.json(appRequests);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching app requests:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -53,7 +54,7 @@ export const updateAppRequest = async (req: Request, res: Response) => {
     });
 
     res.json(appRequest);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating app request:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -66,7 +67,7 @@ export const deleteAppRequest = async (req: Request, res: Response) => {
       where: { id },
     });
     res.status(204).send();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting app request:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
