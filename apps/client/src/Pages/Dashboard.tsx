@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowUpRight, Plus, ListFilter, Check } from "lucide-react";
+import { Sparkles, ArrowUpRight, ListFilter, Check } from "lucide-react";
 import revolutImg from "@/assets/Revolut.png";
 import revolutLogo from "@/assets/Revolut_logo.png";
 import canvasImg from "@/assets/Canvas.png";
