@@ -331,18 +331,12 @@ export function Dashboard() {
 
             {/* Floating Action Pill */}
             <div className="fixed bottom-8 sm:bottom-10 left-1/2 -translate-x-1/2 z-50">
-                <div className="flex items-center p-1.5 rounded-full border border-[#333333] bg-[#1A1A1A] shadow-2xl shadow-black/50">
-                    <SubmitModule>
-                        <Button variant="ghost" className="rounded-full text-[#A1A1A1] hover:text-white hover:bg-[#2A2A2A] h-9 px-4 font-normal text-[14px]">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Submit
-                        </Button>
-                    </SubmitModule>
-                    <Button className="rounded-full bg-white text-black hover:bg-gray-200 h-9 px-5 font-medium text-[14px]">
-                        <ArrowUpRight className="mr-1.5 h-4 w-4" />
-                        Get My Report
+                <SubmitModule>
+                    <Button className="rounded-full bg-white text-black hover:bg-gray-200 h-12 px-6 font-medium text-base shadow-[0_8px_30px_rgb(0,0,0,0.5)] border border-[#333]">
+                        <ArrowUpRight className="mr-2 h-5 w-5" />
+                        Request App
                     </Button>
-                </div>
+                </SubmitModule>
             </div>
         </main>
     );

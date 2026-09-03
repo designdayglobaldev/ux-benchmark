@@ -195,3 +195,20 @@ model Pattern {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+enum RequestStatus {
+  PENDING
+  REVIEWED
+  COMPLETED
+  REJECTED
+}
+
+model AppRequest {
+  id          String        @id @default(uuid())
+  email       String
+  fullName    String
+  productLink String
+  status      RequestStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}

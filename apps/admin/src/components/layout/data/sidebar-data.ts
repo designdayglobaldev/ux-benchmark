@@ -17,6 +17,7 @@ import {
   Command,
   GalleryVerticalEnd,
   Users,
+  MessageSquare,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -97,6 +98,11 @@ export const sidebarData: SidebarData = {
     {
       title: 'Other',
       items: [
+        {
+          title: 'App Requests',
+          url: '/app-requests',
+          icon: MessageSquare,
+        },
         {
           title: 'Users',
           url: '/users',
