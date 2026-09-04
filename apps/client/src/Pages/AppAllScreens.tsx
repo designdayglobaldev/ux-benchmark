@@ -1,18 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useAppDetails, type ScreenType } from "@/hooks/useAppDetails";
+import { useAppDetails } from "@/hooks/useAppDetails";
 import { useApps } from "@/hooks/useApps";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import RevolutLogo from "@/assets/Revolut_logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InteractiveFlowModal } from "@/components/InteractiveFlowModal";
 import { useSEO } from "@/hooks/useSEO";
-
-interface Flow {
-    id: string;
-    name: string;
-    screens: ScreenType[];
-}
 
 function ImageWithSkeleton({ src, alt, className, loading = "lazy" }: { src: string, alt: string, className?: string, loading?: "eager" | "lazy" }) {
     const [isLoaded, setIsLoaded] = useState(false);
@@ -24,14 +18,14 @@ function ImageWithSkeleton({ src, alt, className, loading = "lazy" }: { src: str
                 src={src} 
                 alt={alt}
                 loading={loading}
-                className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
                 onLoad={() => setIsLoaded(true)}
+                className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
             />
         </>
     );
 }
 
-export function AppFlows() {
+export function AppAllScreens() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     const { data: appData, isLoading } = useAppDetails(slug || '');
@@ -43,8 +37,8 @@ export function AppFlows() {
     const [isInteractiveModalOpen, setIsInteractiveModalOpen] = useState(false);
 
     useSEO({
-        title: appData ? `${appData.name} Flows` : 'Loading Flows...',
-        description: appData?.description || 'Explore the various flows and interactions of this application.',
+        title: appData ? `${appData.name} All Screens` : 'Loading Screens...',
+        description: appData?.description || 'Explore all screens of this application.',
         image: appData?.appThumbnail || appData?.appLogo
     });
 
@@ -59,48 +53,38 @@ export function AppFlows() {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        setActiveFlowId(null);
     }, [slug]);
 
-    // Group screens into flows
-    const flows: Flow[] = [];
-    if (appData?.screens) {
-        const flowMap = new Map<string, Flow>();
+    const flows = useMemo(() => {
+        if (!appData?.screens) return [];
+        
+        const flowMap = new Map();
         appData.screens.forEach(screen => {
-            if (screen.flow) {
-                if (!flowMap.has(screen.flow.id)) {
-                    flowMap.set(screen.flow.id, {
-                        id: screen.flow.id,
-                        name: screen.flow.name,
-                        screens: []
-                    });
-                }
-                flowMap.get(screen.flow.id)!.screens.push(screen);
+            if (!screen.flow) return;
+            if (!flowMap.has(screen.flow.id)) {
+                flowMap.set(screen.flow.id, {
+                    id: screen.flow.id,
+                    name: screen.flow.name,
+                    screens: []
+                });
             }
+            flowMap.get(screen.flow.id).screens.push(screen);
         });
-        flows.push(...Array.from(flowMap.values()));
 
-        if (appData.appFlows) {
-            flows.sort((a, b) => {
-                const seqA = appData.appFlows?.find((af: any) => af.flowId === a.id)?.sequence ?? 999999;
-                const seqB = appData.appFlows?.find((af: any) => af.flowId === b.id)?.sequence ?? 999999;
-                return seqA - seqB;
-            });
-        }
-    }
+        const flowsList = Array.from(flowMap.values());
+        
+        flowsList.sort((a, b) => {
+            const indexA = appData.appFlows?.find(f => f.flowId === a.id)?.sequence ?? 999;
+            const indexB = appData.appFlows?.find(f => f.flowId === b.id)?.sequence ?? 999;
+            return indexA - indexB;
+        });
 
-    // Sort flows by screenNo inside each flow
-    flows.forEach(flow => {
-        flow.screens.sort((a: any, b: any) => (a.screenNo || 0) - (b.screenNo || 0));
-    });
+        flowsList.forEach(flow => {
+            flow.screens.sort((a: any, b: any) => (a.screenNo || 0) - (b.screenNo || 0));
+        });
 
-    useEffect(() => {
-        if (flows.length > 0 && !activeFlowId) {
-            setActiveFlowId(flows[0].id);
-        }
-    }, [flows, activeFlowId]);
-
-    const activeFlow = flows.find(f => f.id === activeFlowId);
+        return flowsList;
+    }, [appData]);
 
     if (isLoading) {
         return (
@@ -110,13 +94,11 @@ export function AppFlows() {
                     <Skeleton className="h-20 w-20 rounded-2xl mb-6" />
                     <Skeleton className="h-10 w-96 mb-4" />
                     <Skeleton className="h-6 w-1/2 mb-12" />
-                    <div className="flex gap-8">
-                        <Skeleton className="w-[280px] h-[600px] rounded-xl" />
-                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <Skeleton className="h-[500px] rounded-xl" />
-                            <Skeleton className="h-[500px] rounded-xl" />
-                            <Skeleton className="h-[500px] rounded-xl" />
-                        </div>
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <Skeleton className="h-[500px] rounded-xl" />
+                        <Skeleton className="h-[500px] rounded-xl" />
+                        <Skeleton className="h-[500px] rounded-xl" />
+                        <Skeleton className="h-[500px] rounded-xl" />
                     </div>
                 </div>
             </main>
@@ -136,24 +118,26 @@ export function AppFlows() {
                         <span>{'>'}</span>
                         <span className="cursor-pointer hover:text-white transition-colors" onClick={() => navigate(`/app/${slug}`)}>{appData?.name || 'App'}</span>
                         <span>{'>'}</span>
-                        <span className="text-white font-medium">Flows</span>
+                        <span className="cursor-pointer hover:text-white transition-colors" onClick={() => navigate(`/app/${slug}/flows`)}>Flows</span>
+                        <span>{'>'}</span>
+                        <span className="text-white font-medium">All Screens</span>
                     </div>
 
                     <div className="flex items-center gap-3">
                         <button 
                             disabled={!prevAppSlug}
-                            onClick={() => prevAppSlug && navigate(`/app/${prevAppSlug}/flows`)}
+                            onClick={() => prevAppSlug && navigate(`/app/${prevAppSlug}/all-screens`)}
                             className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-[#323232] bg-transparent text-[13px] font-['Inter'] transition-colors ${prevAppSlug ? 'text-[#878787] hover:text-white hover:border-[#5E5E5E]' : 'text-[#444] opacity-50 cursor-not-allowed'}`}
                         >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                            Prev
+                            Prev App
                         </button>
                         <button 
                             disabled={!nextAppSlug}
-                            onClick={() => nextAppSlug && navigate(`/app/${nextAppSlug}/flows`)}
+                            onClick={() => nextAppSlug && navigate(`/app/${nextAppSlug}/all-screens`)}
                             className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-[#323232] bg-transparent text-[13px] font-['Inter'] transition-colors ${nextAppSlug ? 'text-[#878787] hover:text-white hover:border-[#5E5E5E]' : 'text-[#444] opacity-50 cursor-not-allowed'}`}
                         >
-                            Next
+                            Next App
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                         </button>
                     </div>
@@ -178,97 +162,32 @@ export function AppFlows() {
                     </div>
                 </div>
 
-                {/* Metadata Row */}
-                <div className="grid grid-cols-2 md:flex md:flex-row md:items-center md:justify-between w-full gap-y-6 mb-16 border-t border-b border-[#2B2B29] py-6">
-                    <div className="flex flex-col gap-[10px]">
-                        <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Category</span>
-                        <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.category?.title || appData?.tags?.[0] || 'Finance'}</span>
-                    </div>
-
-                    <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
-
-                    <div className="flex flex-col gap-[10px]">
-                        <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Platform</span>
-                        <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.platform && appData.platform.length > 0) ? appData.platform.join(' · ') : 'iOS · Android'}</span>
-                    </div>
-
-                    <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
-
-                    <div className="flex flex-col gap-[10px]">
-                        <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Market</span>
-                        <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.market && appData.market.length > 0) ? appData.market.join(' · ') : 'Worldwide'}</span>
-                    </div>
-
-                    <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
-
-                    <div className="flex flex-col gap-[10px]">
-                        <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Target User</span>
-                        <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.targetAudience || 'Busy urban, on the go'}</span>
-                    </div>
-                </div>
+                <div className="w-full h-[1px] bg-[#2B2B29] mb-16"></div>
 
                 {/* Main Content Area */}
-                <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 w-full lg:items-start">
-                    
-                    {/* Left Sidebar */}
-                    <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4 lg:sticky lg:top-8">
-                        <div className="bg-[#1C1C1C] rounded-xl p-2 flex flex-col min-h-[400px]">
-                            {flows.map(flow => (
-                                <button
-                                    key={flow.id}
-                                    onClick={() => setActiveFlowId(flow.id)}
-                                    className={`w-full text-left px-4 py-3 rounded-lg font-['Inter'] text-[14px] transition-colors ${
-                                        activeFlowId === flow.id 
-                                            ? 'bg-[#323232] text-white font-medium' 
-                                            : 'text-[#878787] hover:bg-[#2B2B29] hover:text-white'
-                                    }`}
-                                >
-                                    {flow.name}
-                                </button>
-                            ))}
-                            {flows.length === 0 && (
-                                <div className="text-[#5E5E5E] text-sm p-4 text-center">No flows found for this app.</div>
-                            )}
-                            
-                            <div className="mt-auto pt-4 pb-2 px-2 flex flex-col gap-2">
-                                <button 
-                                    onClick={() => navigate(`/app/${slug}/screens`)}
-                                    className="w-full bg-[#0099FF] text-white rounded-full py-3 font-medium text-[14px] hover:bg-[#0088EE] transition-colors"
-                                >
-                                    Start Exploring
-                                </button>
-                                <button 
-                                    onClick={() => navigate(`/app/${slug}/all-screens`)}
-                                    className="w-full bg-transparent border border-[#323232] text-white rounded-full py-3 font-medium text-[14px] hover:bg-[#2B2B29] transition-colors"
-                                >
-                                    View All Screens
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Content */}
-                    <div className="flex-1 flex flex-col min-w-0">
-                        {activeFlow && (
-                            <>
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="font-['Inter'] font-bold text-[24px] text-white">
-                                        {activeFlow.name}
+                <div className="flex flex-col gap-24 w-full">
+                    {flows.length === 0 ? (
+                        <div className="text-[#5E5E5E] text-lg text-center py-12">No screens found for this app.</div>
+                    ) : (
+                        flows.map((flow: any) => (
+                            <div key={flow.id} className="flex flex-col">
+                                <div className="flex items-center justify-between mb-8">
+                                    <h2 className="font-['Inter'] font-bold text-[28px] text-white">
+                                        {flow.name}
                                     </h2>
                                     <button 
-                                        onClick={() => setIsInteractiveModalOpen(true)}
+                                        onClick={() => {
+                                            setActiveFlowId(flow.id);
+                                            setIsInteractiveModalOpen(true);
+                                        }}
                                         className="flex items-center gap-2 bg-[#2B2B29] hover:bg-[#323232] text-white text-[13px] px-4 py-2 rounded-full transition-colors"
                                     >
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                                         interactive flow
                                     </button>
                                 </div>
-                                <p className="font-['Inter'] text-[14px] text-[#878787] mb-12 max-w-[800px] leading-relaxed">
-                                    Screens for the {activeFlow.name} flow. Use the interactive flow button to view them in the inspector.
-                                </p>
-
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-                                    {activeFlow.screens.map((screen) => (
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-x-6 gap-y-12">
+                                    {flow.screens.map((screen: any) => (
                                         <div key={screen.id} className="flex flex-col relative group">
                                             <div className="w-full aspect-[230/500] relative overflow-hidden rounded-[24px]">
                                                 <ImageWithSkeleton 
@@ -304,17 +223,16 @@ export function AppFlows() {
                                         </div>
                                     ))}
                                 </div>
-                            </>
-                        )}
-                    </div>
-
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 
             <InteractiveFlowModal 
                 isOpen={isInteractiveModalOpen}
                 onClose={() => setIsInteractiveModalOpen(false)}
-                flow={activeFlow}
+                flow={flows.find((f: any) => f.id === activeFlowId)}
             />
         </main>
     );

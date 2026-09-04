@@ -469,8 +469,8 @@ export function AppPage() {
                             >
                                 <div className="aspect-square w-full rounded-[16px] bg-[#161616] border border-[#222222] hover:bg-[#1A1A1A] transition-colors duration-300 relative overflow-hidden flex justify-center pt-[46px] group-hover:pt-[41px]">
                                     <img
-                                        src={similarApp.screens?.[0]?.imageUrl || similarApp.appThumbnail || '/default-screenshot.png'}
-                                        alt={`${similarApp.name} screenshot`}
+                                        src={similarApp.appThumbnail || similarApp.screens?.[0]?.imageUrl || '/default-screenshot.png'}
+                                        alt={`${similarApp.name} thumbnail`}
                                         loading="lazy"
                                         className="w-[45%] h-auto object-cover object-top rounded-t-[12px] shadow-lg transition-all duration-300"
                                     />

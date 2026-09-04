@@ -5,6 +5,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { ThinkingOrb } from 'thinking-orbs';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 // Reusable Combobox for Taxonomy
 function TaxonomyCombobox({ 
@@ -70,6 +72,8 @@ function TaxonomyCombobox({
 }
 
 export function Benchmark() {
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const navigate = useNavigate();
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(true);
@@ -80,12 +84,13 @@ export function Benchmark() {
 
   // Taxonomy Data States
   const [categories, setCategories] = useState<{id: string, title: string}[]>([]);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
   const [flows, setFlows] = useState<{id: string, title: string}[]>([]);
 
   // Selected Taxonomy
   const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
   const [selectedFlow, setSelectedFlow] = useState<string>('');
-  const [detectedScreenType, setDetectedScreenType] = useState<string>('Account Creation');
 
   // Benchmark Results Data
   const [benchmarkData, setBenchmarkData] = useState<any>(null);
@@ -152,19 +157,23 @@ export function Benchmark() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catsRes, flowsRes] = await Promise.all([
+        const [catsRes, flowsRes, subcatsRes] = await Promise.all([
           fetch('http://localhost:4000/api/v1/categories'),
-          fetch('http://localhost:4000/api/v1/flows')
+          fetch('http://localhost:4000/api/v1/flows'),
+          fetch('http://localhost:4000/api/v1/subcategories')
         ]);
         
         const catsData = await catsRes.json();
         const flowsData = await flowsRes.json();
+        const subcatsData = await subcatsRes.json();
 
         const catArray = Array.isArray(catsData) ? catsData : catsData.data || [];
         const flowArray = Array.isArray(flowsData) ? flowsData : flowsData.data || [];
+        const subcatArray = Array.isArray(subcatsData) ? subcatsData : subcatsData.data || [];
 
         setCategories(catArray.map((c: any) => ({ id: c.id, title: c.title || c.name })));
         setFlows(flowArray.map((f: any) => ({ id: f.id, title: f.name || f.title })));
+        setSubcategories(subcatArray);
 
       } catch (err) {
         console.error("Error fetching taxonomy data:", err);
@@ -208,7 +217,7 @@ export function Benchmark() {
     reader.onload = (e) => {
       if (e.target?.result) {
         setUploadedImage(e.target.result as string);
-        setAppState('idle'); // reset state if a new image is uploaded
+        setAppState('detected'); // go straight to manual entry!
       }
     };
     reader.readAsDataURL(file);
@@ -227,7 +236,6 @@ export function Benchmark() {
       
       if (data.categoryId) setSelectedCategory(data.categoryId);
       if (data.flowId) setSelectedFlow(data.flowId);
-      if (data.screenType) setDetectedScreenType(data.screenType);
       
       setAppState('detected');
     } catch (error) {
@@ -250,11 +258,16 @@ export function Benchmark() {
         body: JSON.stringify({ 
           imageBase64: uploadedImage,
           categoryId: selectedCategory,
+          subcategoryId: selectedSubcategory,
           flowId: selectedFlow,
-          screenType: detectedScreenType
         })
       });
       const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate report');
+      }
+      
       if (data.report) {
         setBenchmarkData(data.report);
         // Fallback mock screens if DB is empty for UI testing
@@ -274,8 +287,9 @@ export function Benchmark() {
       } else {
         throw new Error('Failed to generate report');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      alert(error.message || 'An error occurred during benchmarking.');
       setAppState('detected');
     }
   };
@@ -360,8 +374,8 @@ export function Benchmark() {
                 <span className="text-[#ccc]">{flows.find(f => f.id === selectedFlow)?.title || 'Onboarding'}</span>
               </div>
               <div className="flex gap-2 text-[14px]">
-                <span className="text-[#888]">AI Detected Screen Type :</span>
-                <span className="text-[#4E6BFF] font-medium">{detectedScreenType}</span>
+                <span className="text-[#888]">Subcategory :</span>
+                <span className="text-[#ccc]">{subcategories.find(s => s.id === selectedSubcategory)?.title || ''}</span>
               </div>
               <div className="flex gap-2 text-[14px]">
                 <span className="text-[#888]">Benchmark group:</span>
@@ -426,44 +440,72 @@ export function Benchmark() {
               </div>
             </div>
 
-            {/* 2. Common Benchmark Patterns */}
-            <h2 className="text-[16px] font-semibold text-white mb-6">2. Common Benchmark Patterns</h2>
-            <div className="space-y-10 mb-14">
-              {benchmarkData.commonPatterns?.map((pattern: any, i: number) => (
-                <div key={i} className="flex flex-col gap-4 border-t border-[#2a2a2a] pt-6">
-                  <div>
-                    <h3 className="text-white text-[15px] font-medium mb-1">{pattern.title}</h3>
-                  </div>
-                  
-                  <div>
-                    <p className="text-[#666] text-[12px] mb-1">Evidence</p>
-                    <p className="text-[#ccc] text-[13px]">{pattern.evidence}</p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-[#666] text-[12px] mb-1">Why it matters</p>
-                    <p className="text-[#ccc] text-[13px]">{pattern.whyItMatters}</p>
-                  </div>
-
-                  {pattern.metrics && (
-                    <div className="flex flex-col gap-4 mt-2">
+              {/* 2. Common Benchmark Patterns */}
+              <h2 className="text-[16px] font-semibold text-white mb-6">2. Common Benchmark Patterns</h2>
+              <div className="space-y-10 mb-14">
+                {benchmarkData.commonPatterns?.map((pattern: any, i: number) => (
+                  <div key={i} className="flex flex-col gap-4 border-t border-[#2a2a2a] pt-6">
+                    <div>
+                      <h3 className="text-white text-[15px] font-medium mb-1">{pattern.title}</h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-6">
                       <div>
-                        <p className="text-[#666] text-[12px] mb-1">Market Standard Parity ({pattern.metrics.marketStandardParity}/10)</p>
+                        <p className="text-[#666] text-[12px] mb-1">Benchmark Evidence</p>
+                        <p className="text-[#ccc] text-[13px]">{pattern.evidence}</p>
                       </div>
                       <div>
-                        <p className="text-[#666] text-[12px] mb-1">Proven Pattern Adherence ({pattern.metrics.provenPatternAdherence}/10)</p>
-                      </div>
-                      <div>
-                        <p className="text-[#666] text-[12px] mb-1">Information Density Match ({pattern.metrics.informationDensityMatch}/10)</p>
-                      </div>
-                      <div>
-                        <p className="text-[#666] text-[12px] mb-1">Competitive Edge ({pattern.metrics.competitiveEdge}/10)</p>
+                        <p className="text-[#666] text-[12px] mb-1">Confidence</p>
+                        <p className="text-[#ccc] text-[13px]">{pattern.confidence}</p>
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    
+                    <div>
+                      <p className="text-[#666] text-[12px] mb-1">Why it matters</p>
+                      <p className="text-[#ccc] text-[13px]">{pattern.whyItMatters}</p>
+                    </div>
+
+                    {pattern.exceptions && (
+                      <div>
+                        <p className="text-[#666] text-[12px] mb-1">Exceptions</p>
+                        <p className="text-[#ccc] text-[13px]">{pattern.exceptions}</p>
+                      </div>
+                    )}
+
+                    {pattern.benchmarkExamples && pattern.benchmarkExamples.length > 0 && (
+                      <div>
+                        <p className="text-[#666] text-[12px] mb-1">Benchmark examples</p>
+                        <ul className="list-disc list-inside text-[#ccc] text-[13px] space-y-1">
+                          {pattern.benchmarkExamples.map((ex: string, idx: number) => (
+                            <li key={idx}>{ex}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+  
+                    {pattern.metrics && (
+                      <div className="flex flex-col gap-4 mt-2">
+                        <div>
+                          <p className="text-[#666] text-[12px] mb-1">Market Standard Parity ({pattern.metrics.marketStandardParity?.score ?? pattern.metrics.marketStandardParity}/10)</p>
+                          {pattern.metrics.marketStandardParity?.reasoning && <p className="text-[#999] text-[12px]">{pattern.metrics.marketStandardParity.reasoning}</p>}
+                        </div>
+                        <div>
+                          <p className="text-[#666] text-[12px] mb-1">Proven Pattern Adherence ({pattern.metrics.provenPatternAdherence?.score ?? pattern.metrics.provenPatternAdherence}/10)</p>
+                          {pattern.metrics.provenPatternAdherence?.reasoning && <p className="text-[#999] text-[12px]">{pattern.metrics.provenPatternAdherence.reasoning}</p>}
+                        </div>
+                        <div>
+                          <p className="text-[#666] text-[12px] mb-1">Information Density Match ({pattern.metrics.informationDensityMatch?.score ?? pattern.metrics.informationDensityMatch}/10)</p>
+                          {pattern.metrics.informationDensityMatch?.reasoning && <p className="text-[#999] text-[12px]">{pattern.metrics.informationDensityMatch.reasoning}</p>}
+                        </div>
+                        <div>
+                          <p className="text-[#666] text-[12px] mb-1">Competitive Edge ({pattern.metrics.competitiveEdge?.score ?? pattern.metrics.competitiveEdge}/10)</p>
+                          {pattern.metrics.competitiveEdge?.reasoning && <p className="text-[#999] text-[12px]">{pattern.metrics.competitiveEdge.reasoning}</p>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
 
             {/* 3. Where Your Design Differs */}
             <h2 className="text-[16px] font-semibold text-white mb-6">3. Where Your Design Differs</h2>
@@ -495,35 +537,54 @@ export function Benchmark() {
               ))}
             </div>
 
-            {/* 4. Key Opportunities */}
-            <h2 className="text-[16px] font-semibold text-white mb-6">4. Key Opportunities</h2>
-            <div className="space-y-10 pb-10 border-t border-[#2a2a2a] pt-6">
-              {benchmarkData.opportunities?.map((opp: any, i: number) => (
-                <div key={i} className="flex flex-col gap-4 mt-6 first:mt-0">
-                  <h3 className="text-white text-[15px] font-medium">{opp.title}</h3>
-                  
-                  <div>
-                    <p className="text-[#666] text-[12px] mb-1">Observation</p>
-                    <p className="text-[#ccc] text-[13px]">{opp.observation}</p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-[#666] text-[12px] mb-1">Recommendation</p>
-                    <p className="text-[#ccc] text-[13px]">{opp.recommendation}</p>
-                  </div>
+              {/* 4. Key Opportunities */}
+              <h2 className="text-[16px] font-semibold text-white mb-6">4. Key Opportunities</h2>
+              <div className="space-y-10 pb-10 border-t border-[#2a2a2a] pt-6">
+                {benchmarkData.opportunities?.map((opp: any, i: number) => (
+                  <div key={i} className="flex flex-col gap-4 mt-6 first:mt-0">
+                    <h3 className="text-white text-[15px] font-medium">{opp.title}</h3>
+                    
+                    <div>
+                      <p className="text-[#666] text-[12px] mb-1">Observation</p>
+                      <p className="text-[#ccc] text-[13px]">{opp.observation}</p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-[#666] text-[12px] mb-1">Recommendation</p>
+                      <p className="text-[#ccc] text-[13px]">{opp.recommendation}</p>
+                    </div>
+  
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-[#666] text-[12px] mb-1">Benchmark Evidence</p>
+                        <p className="text-[#ccc] text-[13px]">{opp.evidence}</p>
+                      </div>
+                      <div>
+                        <p className="text-[#666] text-[12px] mb-1">Confidence</p>
+                        <p className="text-[#ccc] text-[13px]">{opp.confidence}</p>
+                      </div>
+                    </div>
 
-                  <div>
-                    <p className="text-[#666] text-[12px] mb-1">Evidence</p>
-                    <p className="text-[#ccc] text-[13px]">{opp.evidence}</p>
-                  </div>
+                    {opp.exceptions && (
+                      <div>
+                        <p className="text-[#666] text-[12px] mb-1">Exceptions</p>
+                        <p className="text-[#ccc] text-[13px]">{opp.exceptions}</p>
+                      </div>
+                    )}
 
-                  <div>
-                    <p className="text-[#666] text-[12px] mb-1">Confidence</p>
-                    <p className="text-[#ccc] text-[13px]">{opp.confidence}</p>
+                    {opp.benchmarkExamples && opp.benchmarkExamples.length > 0 && (
+                      <div>
+                        <p className="text-[#666] text-[12px] mb-1">Benchmark examples</p>
+                        <ul className="list-disc list-inside text-[#ccc] text-[13px] space-y-1">
+                          {opp.benchmarkExamples.map((ex: string, idx: number) => (
+                            <li key={idx}>{ex}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
             </div> {/* Close max-w inner container if fullscreen */}
           </div>
@@ -573,7 +634,7 @@ export function Benchmark() {
         onDrop={handleDrop}
         onClick={() => appState === 'idle' && !uploadedImage && fileInputRef.current?.click()}
       >
-        <div className={`w-full h-full rounded-[24px] overflow-hidden ${uploadedImage ? 'bg-transparent' : 'bg-[#141414]'} flex flex-col items-center justify-center ${(appState === 'idle' && !uploadedImage) ? 'cursor-pointer hover:bg-[#1a1a1a] transition-colors' : ''}`}>
+        <div className={`w-full h-full rounded-[24px] overflow-hidden ${uploadedImage ? 'bg-transparent' : 'bg-[#141414]'} flex flex-col items-center justify-center ${(appState === 'idle' && !uploadedImage) ? 'cursor-pointer hover:bg-[#1a1a1a] transition-colors' : ''} ${!user && !isAuthLoading ? 'blur-[8px] pointer-events-none select-none opacity-40' : ''}`}>
           {uploadedImage ? (
             <>
               <img src={uploadedImage} alt="Uploaded Screen" className={`w-full h-full object-cover transition-opacity duration-500 ${appState !== 'idle' ? 'opacity-30 grayscale' : 'opacity-100'}`} />
@@ -607,10 +668,31 @@ export function Benchmark() {
             <X size={16} />
           </button>
         )}
+
+        {/* Overlay for Unauthenticated Users (Inside the phone screen) */}
+        {!user && !isAuthLoading && appState === 'idle' && (
+            <div className="absolute inset-1 rounded-[24px] z-30 flex flex-col items-center justify-center p-4">
+                <div className="relative z-10 flex flex-col items-center bg-black/60 w-full py-6 px-4 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl">
+                    <h2 className="text-[18px] font-semibold text-white mb-2 tracking-[-0.04em] text-center leading-tight">Unlock AI Benchmarking</h2>
+                    <p className="text-[#CFCFCF] text-[13px] font-normal mb-5 text-center tracking-[-0.02em] leading-relaxed">
+                        Log in to benchmark screens against market leaders.
+                    </p>
+                    <Button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate('/register');
+                        }}
+                        className="bg-white text-black hover:bg-gray-200 rounded-full w-full h-9 font-medium text-[13px]"
+                    >
+                        Join Free
+                    </Button>
+                </div>
+            </div>
+        )}
       </div>
 
       {/* Dynamic Action Area */}
-      {appState === 'idle' && (
+      {appState === 'idle' && user && (
         <div className="mt-[48px]">
           <Button 
             disabled={!uploadedImage}
@@ -625,8 +707,7 @@ export function Benchmark() {
       {appState === 'detected' && (
         <div className="mt-8 flex flex-col items-center bg-[#1a1a1a] p-6 rounded-2xl border border-[#333] shadow-2xl animate-in slide-in-from-bottom-4 fade-in">
           <div className="flex items-center gap-2 mb-6">
-            <div className="w-2 h-2 rounded-full bg-[#4ee6b6] animate-pulse" />
-            <h3 className="text-white font-medium text-[16px]">Context Detected</h3>
+            <h3 className="text-white font-medium text-[16px]">Select Context</h3>
           </div>
           
           <div className="flex items-center gap-4 mb-8">
@@ -635,8 +716,21 @@ export function Benchmark() {
               <TaxonomyCombobox 
                 options={categories} 
                 value={selectedCategory} 
-                onChange={setSelectedCategory} 
+                onChange={(val) => {
+                  setSelectedCategory(val);
+                  setSelectedSubcategory('');
+                }} 
                 placeholder="Select Category..." 
+              />
+            </div>
+            <ArrowRight className="text-[#444] mt-5" size={18} />
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[#777] text-[12px] font-medium uppercase tracking-wider ml-1">Subcategory</span>
+              <TaxonomyCombobox 
+                options={subcategories.filter(s => s.categoryId === selectedCategory).map(s => ({id: s.id, title: s.title}))} 
+                value={selectedSubcategory} 
+                onChange={setSelectedSubcategory} 
+                placeholder="Select Subcategory..." 
               />
             </div>
             <ArrowRight className="text-[#444] mt-5" size={18} />
@@ -652,11 +746,12 @@ export function Benchmark() {
           </div>
 
           <p className="text-[#888] text-[13px] mb-6 text-center max-w-sm">
-            Please verify the context above. We will fetch top market leaders in this specific category to run the benchmark.
+            Please fill in the context above. We will fetch top market leaders matching this context to run the benchmark.
           </p>
 
           <Button 
-            className="bg-[#4E6BFF] text-white hover:bg-[#3d5be6] rounded-full px-10 h-11 text-[14px] font-semibold shadow-lg shadow-[#4E6BFF]/20"
+            disabled={!selectedCategory || !selectedSubcategory || !selectedFlow}
+            className="bg-[#4E6BFF] text-white hover:bg-[#3d5be6] rounded-full px-10 h-11 text-[14px] font-semibold shadow-lg shadow-[#4E6BFF]/20 disabled:opacity-50"
             onClick={handleViewResults}
           >
             Confirm & View Results

@@ -27,7 +27,7 @@ export const getAllFlows = async (req: Request, res: Response) => {
       include: {
         screens: {
           include: {
-            app: { select: { name: true } }
+            app: { select: { name: true, appLogo: true, slug: true } }
           }
         },
         appFlows: actualAppId ? {

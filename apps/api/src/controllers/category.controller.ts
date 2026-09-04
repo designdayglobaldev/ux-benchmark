@@ -6,7 +6,14 @@ export const getAllCategories = async (req: Request, res: Response) => {
     const categories = await prisma.category.findMany({
       orderBy: { title: 'asc' },
       include: {
-        subcategories: true
+        subcategories: true,
+        _count: {
+          select: {
+            apps: {
+              where: { status: 'LIVE' }
+            }
+          }
+        }
       }
     });
     res.json(categories);

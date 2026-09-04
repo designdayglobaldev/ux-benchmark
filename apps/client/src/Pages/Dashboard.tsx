@@ -154,10 +154,17 @@ export function Dashboard() {
                                                 setActiveSubcategory('all'); // Reset sub on cat change
                                                 setIsFilterOpen(false);
                                             }}
-                                            className="text-[#EAEAEA] aria-selected:bg-[#333]"
+                                            className="text-[#EAEAEA] aria-selected:bg-[#333] flex items-center justify-between"
                                         >
-                                            <Check className={cn("mr-2 h-4 w-4", activeCategory === c.id ? "opacity-100" : "opacity-0")} />
-                                            {c.title}
+                                            <div className="flex items-center">
+                                                <Check className={cn("mr-2 h-4 w-4", activeCategory === c.id ? "opacity-100" : "opacity-0")} />
+                                                {c.title}
+                                            </div>
+                                            {c._count?.apps === 0 && (
+                                                <span className="ml-2 text-[10px] font-medium bg-[#333] text-[#A1A1A1] px-2 py-0.5 rounded-full whitespace-nowrap">
+                                                    Coming soon
+                                                </span>
+                                            )}
                                         </CommandItem>
                                     ))}
                                 </CommandGroup>

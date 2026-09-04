@@ -2,11 +2,12 @@ import { Bell, LogOut } from "lucide-react";
 import { SearchModal } from "@/components/SearchModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export function Navbar() {
   const { user, signOut, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[#222222] bg-black text-white">
@@ -31,14 +32,23 @@ export function Navbar() {
 
         {/* Center: Nav Links */}
         <div className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-8">
-          <a href="/benchmark" className="text-black bg-white px-5 py-1.5 rounded-full text-[14px] font-medium transition-colors">
-            Benchmark
-          </a>
-          <a href="/browse" className="text-[#A1A1A1] hover:text-white text-[14px] font-medium transition-colors">
+          <a 
+            href="/" 
+            className={location.pathname === '/' ? "text-black bg-white px-5 py-1.5 rounded-full text-[14px] font-medium transition-colors" : "text-[#A1A1A1] hover:text-white text-[14px] font-medium transition-colors"}
+          >
             Library
           </a>
-          <a href="/flows" className="text-[#A1A1A1] hover:text-white text-[14px] font-medium transition-colors">
+          <a 
+            href="/flows" 
+            className={location.pathname === '/flows' ? "text-black bg-white px-5 py-1.5 rounded-full text-[14px] font-medium transition-colors" : "text-[#A1A1A1] hover:text-white text-[14px] font-medium transition-colors"}
+          >
             Flows
+          </a>
+          <a 
+            href="/benchmark" 
+            className={location.pathname === '/benchmark' ? "text-black bg-white px-5 py-1.5 rounded-full text-[14px] font-medium transition-colors" : "text-[#A1A1A1] hover:text-white text-[14px] font-medium transition-colors"}
+          >
+            Benchmark
           </a>
         </div>
 

@@ -495,9 +495,14 @@ export function SearchModal() {
                       <button 
                         key={category.id} 
                         onClick={() => { setOpen(false); navigate(`/browse?category=${category.slug}`); }}
-                        className="px-3 py-1.5 rounded-full bg-transparent hover:bg-[#222222] border border-[#333333] text-[13px] text-[#EAEAEA] transition-colors"
+                        className="px-3 py-1.5 rounded-full bg-transparent hover:bg-[#222222] border border-[#333333] text-[13px] text-[#EAEAEA] transition-colors flex items-center gap-2"
                       >
                         {category.title}
+                        {category._count?.apps === 0 && (
+                          <span className="text-[10px] font-medium bg-[#333] text-[#A1A1A1] px-2 py-0.5 rounded-full whitespace-nowrap">
+                            Coming soon
+                          </span>
+                        )}
                       </button>
                     ))}
                   </div>

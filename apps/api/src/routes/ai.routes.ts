@@ -516,83 +516,161 @@ IMPORTANT: You MUST use the submit_detected_context tool to output the JSON resp
 
 router.post('/benchmark', async (req, res) => {
   try {
-    const { imageBase64, categoryId, flowId, screenType } = req.body;
-    if (!imageBase64 || !categoryId || !flowId) {
-      return res.status(400).json({ error: 'Missing imageBase64, categoryId, or flowId' });
+    const { imageBase64, categoryId, subcategoryId, flowId, screenType } = req.body;
+    if (!imageBase64 || !categoryId || !subcategoryId || !flowId) {
+      return res.status(400).json({ error: 'Missing imageBase64, categoryId, subcategoryId, or flowId' });
     }
-    // Fetch all screens so the AI can intelligently find the best 5 matches across the entire database, 
-    // rather than being strictly limited to a specific flowId which may have too few apps.
-    const allScreens = await prisma.screen.findMany({
+
+    const extractImageDetails = (base64Str: string) => {
+      const match = base64Str.match(/^data:(image\/(png|jpeg|jpg|webp|gif));base64,/);
+      if (match) {
+        let mediaType = match[1] as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+        if (mediaType === 'image/jpg' as any) mediaType = 'image/jpeg';
+        return { mediaType, data: base64Str.replace(match[0], '') };
+      }
+      return { mediaType: 'image/jpeg' as const, data: base64Str };
+    };
+
+    const userImg = extractImageDetails(imageBase64);
+
+    // AI Step 1: Fetch apps in the category/subcategory and ask AI to pick the most similar ones
+    const availableApps = await prisma.app.findMany({
+      where: { categoryId, subcategoryId },
+      select: { id: true, name: true, description: true, tags: true }
+    });
+
+    if (availableApps.length === 0) {
+      return res.status(400).json({ error: 'No apps found in this category and subcategory.' });
+    }
+
+    const appSelectionPrompt = `You are an expert UX researcher. The user has uploaded a UI screen.
+Here is a list of available apps in this specific category:
+${JSON.stringify(availableApps, null, 2)}
+
+Your task is to analyze the uploaded screen to determine what type of app it is. Then, based on the descriptions and tags of the available apps, pick up to 5 apps that are the MOST structurally and functionally similar to the uploaded screen.
+Output your selection as a JSON array of app IDs using the tool.`;
+
+    const appSelectionMessage = await anthropic.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 1024,
+      system: "You are a helpful AI that selects the most relevant apps.",
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: userImg.mediaType, data: userImg.data } },
+            { type: 'text', text: appSelectionPrompt }
+          ]
+        }
+      ],
+      tools: [
+        {
+          name: "select_apps",
+          description: "Select the most relevant app IDs",
+          input_schema: {
+            type: "object",
+            properties: {
+              selectedAppIds: {
+                type: "array",
+                items: { type: "string" },
+                description: "List of selected app IDs (max 5)"
+              }
+            },
+            required: ["selectedAppIds"]
+          }
+        }
+      ],
+      tool_choice: { type: "tool", name: "select_apps" }
+    });
+
+    const appSelectToolCall = appSelectionMessage.content.find((block) => block.type === 'tool_use');
+    let selectedAppIds: string[] = [];
+    if (appSelectToolCall && appSelectToolCall.type === 'tool_use') {
+      selectedAppIds = (appSelectToolCall.input as any).selectedAppIds || [];
+    }
+
+    if (selectedAppIds.length === 0) {
+      selectedAppIds = availableApps.slice(0, 5).map(a => a.id);
+    }
+
+    // Step 2: Fetch all screens for those specific apps and the chosen flow
+    const candidateScreens = await prisma.screen.findMany({
+      where: {
+        appId: { in: selectedAppIds },
+        flowId: flowId
+      },
       include: { app: { select: { name: true } } }
     });
 
-    let benchmarkScreens: typeof allScreens = [];
+    if (candidateScreens.length === 0) {
+      return res.status(400).json({ error: 'No screens found for this flow in similar apps.' });
+    }
 
-    if (allScreens.length > 0) {
-      const screenMetadata = allScreens.map(s => ({
-        id: s.id,
-        appName: s.app?.name || 'Unknown',
-        screenName: s.name,
-        description: s.uxAnalysis ? s.uxAnalysis.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...' : ''
-      }));
+    const screenMetadata = candidateScreens.map(s => ({
+      id: s.id,
+      appName: s.app?.name || 'Unknown',
+      screenName: s.name,
+      description: s.uxAnalysis ? s.uxAnalysis.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...' : ''
+    }));
 
-      const selectionPrompt = `You are an expert UX researcher. The user has uploaded a screen of type: "${screenType || 'Unknown'}".
-Here is a list of screens available in the database for this flow:
+    const screenSelectionPrompt = `You are an expert UX researcher. The user has uploaded a screen of type: "${screenType || 'Unknown'}".
+Here is a list of candidate screens available from the selected competitor apps:
 ${JSON.stringify(screenMetadata, null, 2)}
 
-Your task is to select exactly ONE screen per unique app (appName) that is most functionally and visually similar to "${screenType || 'Unknown'}". If there are more than 5 unique apps, pick the 5 best matching screens overall (max 1 per app).
+Your task is to select exactly ONE screen per unique app (appName) that is most functionally and visually similar to the uploaded screen (i.e. pick the "real" main screen, and avoid meaningless sub-menus or loading states).
 Output your selection as a JSON array of screen IDs using the tool.`;
 
-      const selectionMessage = await anthropic.messages.create({
-        model: 'claude-sonnet-5',
-        max_tokens: 1024,
-        system: "You are a helpful AI that selects the most relevant screens.",
-        messages: [{ role: 'user', content: selectionPrompt }],
-        tools: [
-          {
-            name: "select_screens",
-            description: "Select the most relevant screen IDs",
-            input_schema: {
-              type: "object",
-              properties: {
-                selectedIds: {
-                  type: "array",
-                  items: { type: "string" },
-                  description: "List of selected screen IDs (max 1 per app, max 5 total)"
-                }
-              },
-              required: ["selectedIds"]
-            }
+    const screenSelectionMessage = await anthropic.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 1024,
+      system: "You are a helpful AI that selects the most relevant screens.",
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: userImg.mediaType, data: userImg.data } },
+            { type: 'text', text: screenSelectionPrompt }
+          ]
+        }
+      ],
+      tools: [
+        {
+          name: "select_screens",
+          description: "Select the most relevant screen IDs",
+          input_schema: {
+            type: "object",
+            properties: {
+              selectedIds: {
+                type: "array",
+                items: { type: "string" },
+                description: "List of selected screen IDs (exactly 1 per app)"
+              }
+            },
+            required: ["selectedIds"]
           }
-        ],
-        tool_choice: { type: "tool", name: "select_screens" }
-      });
+        }
+      ],
+      tool_choice: { type: "tool", name: "select_screens" }
+    });
 
-      const selectToolCall = selectionMessage.content.find((block) => block.type === 'tool_use');
-      let selectedIds: string[] = [];
-      if (selectToolCall && selectToolCall.type === 'tool_use') {
-        selectedIds = (selectToolCall.input as any).selectedIds || [];
-      }
-      
-      // Fallback if empty or invalid IDs
-      if (selectedIds.length === 0) {
-        selectedIds = allScreens.slice(0, 5).map(s => s.id);
-      }
+    const selectToolCall = screenSelectionMessage.content.find((block) => block.type === 'tool_use');
+    let finalScreenIds: string[] = [];
+    if (selectToolCall && selectToolCall.type === 'tool_use') {
+      finalScreenIds = (selectToolCall.input as any).selectedIds || [];
+    }
 
-      benchmarkScreens = allScreens.filter(s => selectedIds.includes(s.id));
-
-      // Ultimate fallback: if we still have 0 screens, just grab 1 per unique app manually
-      if (benchmarkScreens.length === 0 && allScreens.length > 0) {
-        const uniqueApps = new Set();
-        for (const s of allScreens) {
-          if (!uniqueApps.has(s.app?.name)) {
-            uniqueApps.add(s.app?.name);
-            benchmarkScreens.push(s);
-          }
-          if (benchmarkScreens.length >= 5) break;
+    if (finalScreenIds.length === 0) {
+      // Fallback: pick the first screen for each app manually
+      const uniqueApps = new Set();
+      for (const s of candidateScreens) {
+        if (!uniqueApps.has(s.app?.name)) {
+          uniqueApps.add(s.app?.name);
+          finalScreenIds.push(s.id);
         }
       }
     }
+
+    const benchmarkScreens = candidateScreens.filter(s => finalScreenIds.includes(s.id));
     
     const fetchImageBase64 = async (url: string) => {
       try {
@@ -614,35 +692,35 @@ Output your selection as a JSON array of screen IDs using the tool.`;
     
     const validBenchmarkImages = benchmarkImages.filter((s): s is typeof s & { img: NonNullable<typeof s.img> } => !!s.img);
     
-    const extractImageDetails = (base64Str: string) => {
-      const match = base64Str.match(/^data:(image\/(png|jpeg|jpg|webp|gif));base64,/);
-      if (match) {
-        let mediaType = match[1] as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
-        if (mediaType === 'image/jpg' as any) mediaType = 'image/jpeg';
-        return { mediaType, data: base64Str.replace(match[0], '') };
-      }
-      return { mediaType: 'image/jpeg' as const, data: base64Str };
-    };
-
-    const userImg = extractImageDetails(imageBase64);
-    
     const imageContents = validBenchmarkImages.map((s, index) => [
       { type: 'text' as const, text: `Competitor Benchmark Image ${index + 2}: ${s.app?.name || 'Competitor App'} - ${s.name}` },
       { type: 'image' as const, source: { type: 'base64' as const, media_type: s.img.mediaType as any, data: s.img.data } }
     ]).flat();
     
     const systemPrompt = `You are a Principal UX Researcher analyzing a user's design against top market competitors in the ${screenType || 'given'} screen context.
-You will be provided with:
-1. The User's Design (Image 1)
-2. Up to 5 competitor benchmark designs (Images 2-6)
-
-Your goal is to conduct a highly structured UX audit by outputting the specific requested JSON structure using the tool.
-Keep all text fields concise, actionable, and focused purely on UX/UI design heuristics. Do not write generic fluff.
-The four metrics for commonPatterns are out of 10.`;
-
+  You will be provided with:
+  1. The User's Design (Image 1)
+  2. Up to 5 competitor benchmark designs (Images 2-6)
+  
+  Your goal is to conduct a highly structured UX audit by outputting the specific requested JSON structure using the tool.
+  Keep all text fields concise, actionable, and focused purely on UX/UI design heuristics. Do not write generic fluff.
+   CRITICAL INSTRUCTION FOR EVIDENCE & CONFIDENCE:
+  When providing 'evidence', you MUST count the exact number of benchmark screens that exhibit this pattern (e.g. '4/5 benchmark apps use a floating action button'). Do NOT invent numbers outside the provided benchmarks.
+  When calculating 'confidence', base it mathematically on the consistency across the provided benchmark screens. For example:
+  - High — [Percentage]% (80-100% adherence among benchmarks + strong UX principle)
+  - Medium — [Percentage]% (50-80% adherence)
+  - Low — [Percentage]% (Under 50% adherence or conflicting patterns)
+  
+  CRITICAL INSTRUCTION FOR METRICS:
+  The four metrics for commonPatterns are out of 10. For each metric, you MUST provide the integer score AND a 'reasoning' string explaining exactly why you gave that score.
+  
+  CRITICAL INSTRUCTION FOR OPPORTUNITIES AND PATTERNS:
+  You MUST fully populate the 'opportunities' array with at least 3 detailed, actionable items. Do NOT return an empty array.
+  You MUST fully populate the 'commonPatterns' array with at least 3 patterns.`;
+ 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: systemPrompt,
       messages: [
         {
@@ -678,20 +756,23 @@ The four metrics for commonPatterns are out of 10.`;
                   type: "object",
                   properties: {
                     title: { type: "string" },
-                    evidence: { type: "string" },
-                    whyItMatters: { type: "string" },
+                    evidence: { type: "string", description: "e.g. 4/5 relevant products use red. Calculate exactly." },
+                    confidence: { type: "string", description: "e.g. High — 80%" },
+                    whyItMatters: { type: "string", description: "Why this pattern works." },
+                    exceptions: { type: "string", description: "When this pattern breaks or is not used." },
+                    benchmarkExamples: { type: "array", items: { type: "string" }, description: "List of app names from the benchmarks that use this." },
                     metrics: {
                       type: "object",
                       properties: {
-                        marketStandardParity: { type: "integer" },
-                        provenPatternAdherence: { type: "integer" },
-                        informationDensityMatch: { type: "integer" },
-                        competitiveEdge: { type: "integer" }
+                        marketStandardParity: { type: "object", properties: { score: { type: "integer" }, reasoning: { type: "string" } }, required: ["score", "reasoning"] },
+                        provenPatternAdherence: { type: "object", properties: { score: { type: "integer" }, reasoning: { type: "string" } }, required: ["score", "reasoning"] },
+                        informationDensityMatch: { type: "object", properties: { score: { type: "integer" }, reasoning: { type: "string" } }, required: ["score", "reasoning"] },
+                        competitiveEdge: { type: "object", properties: { score: { type: "integer" }, reasoning: { type: "string" } }, required: ["score", "reasoning"] }
                       },
                       required: ["marketStandardParity", "provenPatternAdherence", "informationDensityMatch", "competitiveEdge"]
                     }
                   },
-                  required: ["title", "evidence", "whyItMatters", "metrics"]
+                  required: ["title", "evidence", "confidence", "whyItMatters", "exceptions", "benchmarkExamples", "metrics"]
                 }
               },
               designDifferences: {
@@ -716,10 +797,12 @@ The four metrics for commonPatterns are out of 10.`;
                     title: { type: "string" },
                     observation: { type: "string" },
                     recommendation: { type: "string" },
-                    evidence: { type: "string" },
-                    confidence: { type: "string", description: "e.g., 'High', 'Medium'" }
+                    evidence: { type: "string", description: "e.g. 4/5 relevant products use red. Calculate exactly." },
+                    confidence: { type: "string", description: "e.g. High — 80%" },
+                    exceptions: { type: "string", description: "When this pattern breaks or is not used." },
+                    benchmarkExamples: { type: "array", items: { type: "string" }, description: "List of app names from the benchmarks that use this." }
                   },
-                  required: ["title", "observation", "recommendation", "evidence", "confidence"]
+                  required: ["title", "observation", "recommendation", "evidence", "confidence", "exceptions", "benchmarkExamples"]
                 }
               }
             },
@@ -728,9 +811,16 @@ The four metrics for commonPatterns are out of 10.`;
         }
       ],
       tool_choice: { type: "tool", name: "submit_benchmark_report" }
+    }, {
+      headers: { 'anthropic-beta': 'max-tokens-3-5-sonnet-2024-07-15' }
     });
     
     const toolCall = message.content.find((block) => block.type === 'tool_use');
+    
+    if (message.stop_reason === "max_tokens") {
+      console.warn("WARNING: Claude reached max_tokens. Output might be truncated.");
+    }
+
     if (toolCall && toolCall.type === 'tool_use') {
       res.json({
         report: toolCall.input,
