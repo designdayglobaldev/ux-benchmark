@@ -83,7 +83,7 @@ export const approveUser = async (req: Request, res: Response) => {
         console.warn("Skipping email send: RESEND_API_KEY is not configured.");
       } else {
         const { data, error: resendError } = await resend.emails.send({
-        from: 'Acme <onboarding@resend.dev>', // Update this for production
+        from: 'BenchmarX <hello@baselyn.co>',
         to: email,
         subject: 'Welcome to BenchmarX Beta!',
         html: `
