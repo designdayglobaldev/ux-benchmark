@@ -3,20 +3,57 @@ import { prisma } from '../db/prisma';
 
 export const getAllScreens = async (req: Request, res: Response) => {
   try {
-    const { appId } = req.query;
-    const whereClause = appId ? { appId: String(appId) } : {};
+    const { appId, page, limit, search } = req.query;
+    const whereClause: any = appId ? { appId: String(appId) } : {};
 
-    const screens = await prisma.screen.findMany({
-      where: whereClause,
-      include: {
-        app: { select: { name: true, slug: true } },
-        flow: { select: { name: true, slug: true } },
-        uiElements: { select: { id: true, title: true } },
-        patterns: { select: { id: true, title: true } },
-      },
-      orderBy: { createdAt: 'desc' },
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: String(search), mode: 'insensitive' } },
+        { app: { name: { contains: String(search), mode: 'insensitive' } } }
+      ];
+    }
+
+    // Default pagination to page 1, 50 items per page if requested
+    const pageNum = page ? parseInt(String(page), 10) : 1;
+    const limitNum = limit ? parseInt(String(limit), 10) : 50;
+    const skip = (pageNum - 1) * limitNum;
+
+    const [screens, total] = await Promise.all([
+      prisma.screen.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          imageUrl: true,
+          screenNo: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          appId: true,
+          flowId: true,
+          app: { select: { name: true, slug: true, appLogo: true } },
+          flow: { select: { name: true, slug: true } },
+          uiElements: { select: { id: true, title: true } },
+          patterns: { select: { id: true, title: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limitNum,
+        skip,
+      }),
+      prisma.screen.count({ where: whereClause })
+    ]);
+
+    // Update consumers to expect { data, meta }
+    res.json({
+      data: screens,
+      meta: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum)
+      }
     });
-    res.json(screens);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch screens' });

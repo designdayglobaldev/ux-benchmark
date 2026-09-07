@@ -3,6 +3,16 @@ import { prisma } from '../db/prisma';
 
 export const getAllUiElements = async (req: Request, res: Response) => {
   try {
+    const { lite } = req.query;
+    
+    if (lite === 'true') {
+      const uiElements = await prisma.uiElement.findMany({
+        orderBy: { title: 'asc' },
+        select: { id: true, title: true }
+      });
+      return res.json(uiElements);
+    }
+
     const uiElements = await prisma.uiElement.findMany({
       orderBy: { title: 'asc' },
     });

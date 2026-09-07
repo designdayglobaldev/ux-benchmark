@@ -35,13 +35,20 @@ export function Screens() {
   const [screens, setScreens] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalItems, setTotalItems] = useState(0)
+  const itemsPerPage = 50
 
-  const fetchScreens = () => {
-    fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/screens')
+  const fetchScreens = (page: number, search: string) => {
+    setIsLoading(true)
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens?page=${page}&limit=${itemsPerPage}&search=${encodeURIComponent(search)}`)
       .then(res => res.json())
-      .then(data => {
+      .then(payload => {
+        const data = payload.data || payload
+        const meta = payload.meta || { totalPages: Math.ceil(data.length / itemsPerPage), total: data.length }
         setScreens(data)
+        setTotalPages(meta.totalPages)
+        setTotalItems(meta.total)
         setIsLoading(false)
       })
       .catch(err => {
@@ -51,8 +58,8 @@ export function Screens() {
   }
 
   useEffect(() => {
-    fetchScreens()
-  }, [])
+    fetchScreens(currentPage, debouncedSearchTerm)
+  }, [currentPage, debouncedSearchTerm])
 
   const handleDeleteScreen = async (screenId: string) => {
     try {
@@ -67,16 +74,8 @@ export function Screens() {
     }
   }
 
-  const filteredScreens = screens.filter((screen) =>
-    screen.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) || 
-    screen.app?.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-  )
-
-  const paginatedScreens = filteredScreens.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
-  const totalPages = Math.ceil(filteredScreens.length / itemsPerPage)
+  const filteredScreens = screens // Data is already filtered and paginated by the server
+  const paginatedScreens = screens // Data is already paginated
 
   useEffect(() => {
     if (typeof navigate === 'function') {
@@ -250,7 +249,7 @@ export function Screens() {
             {totalPages > 0 && (
               <div className='flex items-center justify-between px-2 py-4'>
                 <div className='text-sm text-muted-foreground'>
-                  Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredScreens.length)} of {filteredScreens.length} entries
+                  Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems} entries
                 </div>
                 <div className='flex items-center space-x-2'>
                   <Button 

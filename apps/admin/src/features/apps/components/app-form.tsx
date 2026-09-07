@@ -61,7 +61,7 @@ export function AppForm() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/categories')
+        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/categories?lite=true')
         const data = await res.json()
         setCategories(data)
       } catch (err) {

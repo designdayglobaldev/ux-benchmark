@@ -27,9 +27,10 @@ function AppScreens() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens?appId=${appId}`)
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens?appId=${appId}&limit=1000`)
       .then(res => res.json())
-      .then(data => {
+      .then(payload => {
+        const data = payload.data || payload;
         setScreens(data)
         setIsLoading(false)
       })

@@ -3,7 +3,7 @@ import { prisma } from '../db/prisma';
 
 export const getAllFlows = async (req: Request, res: Response) => {
   try {
-    const { appId } = req.query;
+    const { appId, lite } = req.query;
     
     let actualAppId: string | undefined;
     
@@ -22,17 +22,41 @@ export const getAllFlows = async (req: Request, res: Response) => {
 
     const whereClause = actualAppId ? { screens: { some: { appId: actualAppId } } } : {};
 
+    // Lite mode for dropdowns (id, name only)
+    if (lite === 'true') {
+      const flows = await prisma.flow.findMany({
+        where: whereClause,
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+      });
+      return res.json(flows);
+    }
+
     const flows = await prisma.flow.findMany({
       where: whereClause,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        appFlows: actualAppId ? {
+          where: { appId: actualAppId }
+        } : false,
         screens: {
-          include: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            imageUrl: true,
+            screenNo: true,
+            appId: true,
+            status: true,
             app: { select: { name: true, appLogo: true, slug: true } }
           }
         },
-        appFlows: actualAppId ? {
-          where: { appId: actualAppId }
-        } : false
       },
       orderBy: !actualAppId ? { createdAt: 'desc' } : undefined,
     });
@@ -59,11 +83,25 @@ export const getFlowById = async (req: Request, res: Response) => {
     
     const flow = await prisma.flow.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
         screens: {
           where: appId ? { appId: String(appId) } : undefined,
-          include: {
-            app: { select: { name: true } }
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            imageUrl: true,
+            screenNo: true,
+            appId: true,
+            status: true,
+            app: { select: { name: true, slug: true } }
           }
         },
       }

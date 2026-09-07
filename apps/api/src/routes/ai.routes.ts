@@ -721,6 +721,7 @@ Output your selection as a JSON array of screen IDs using the tool.`;
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
       max_tokens: 8192,
+      temperature: 0,
       system: systemPrompt,
       messages: [
         {

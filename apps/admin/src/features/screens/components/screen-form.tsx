@@ -72,9 +72,10 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
 
   useEffect(() => {
     if (!isEditing && appId && flowId) {
-      fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens?appId=${appId}`)
+      fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/screens?appId=${appId}&limit=1000`)
         .then(res => res.json())
-        .then(data => {
+        .then(payload => {
+          const data = payload.data || payload;
           const screensInFlow = data.filter((s: any) => s.flowId === flowId)
           form.setValue('screenNo', String(screensInFlow.length + 1), { shouldValidate: true })
         })
@@ -116,10 +117,10 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
   useEffect(() => {
     // Fetch options
     Promise.all([
-      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/apps').then(r => r.json()),
-      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/flows').then(r => r.json()),
-      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/ui-elements').then(r => r.json()),
-      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/patterns').then(r => r.json())
+      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/apps?lite=true').then(r => r.json()),
+      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/flows?lite=true').then(r => r.json()),
+      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/ui-elements?lite=true').then(r => r.json()),
+      fetch((import.meta.env.VITE_API_URL || '') + '/api/v1/patterns?lite=true').then(r => r.json())
     ]).then(([appsData, flowsData, uiElemsData, patternsData]) => {
       setApps(appsData)
       setFlows(flowsData)

@@ -8,6 +8,24 @@ import { ThinkingOrb } from 'thinking-orbs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+const getConfidencePill = (conf: string) => {
+  if (!conf) return null;
+  const isHigh = conf.toLowerCase().includes('high');
+  const isMed = conf.toLowerCase().includes('medium');
+  const isLow = conf.toLowerCase().includes('low');
+  let bg = 'bg-[#333]';
+  let text = 'text-[#ccc]';
+  if (isHigh) { bg = 'bg-green-500/20'; text = 'text-green-400'; }
+  else if (isMed) { bg = 'bg-yellow-500/20'; text = 'text-yellow-400'; }
+  else if (isLow) { bg = 'bg-red-500/20'; text = 'text-red-400'; }
+  
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[13px] font-medium ${bg} ${text}`}>
+      {conf}
+    </span>
+  );
+};
+
 // Reusable Combobox for Taxonomy
 function TaxonomyCombobox({ 
   options, 
@@ -456,7 +474,7 @@ export function Benchmark() {
                       </div>
                       <div>
                         <p className="text-[#666] text-[12px] mb-1">Confidence</p>
-                        <p className="text-[#ccc] text-[13px]">{pattern.confidence}</p>
+                        <div>{getConfidencePill(pattern.confidence)}</div>
                       </div>
                     </div>
                     
@@ -561,7 +579,7 @@ export function Benchmark() {
                       </div>
                       <div>
                         <p className="text-[#666] text-[12px] mb-1">Confidence</p>
-                        <p className="text-[#ccc] text-[13px]">{opp.confidence}</p>
+                        <div>{getConfidencePill(opp.confidence)}</div>
                       </div>
                     </div>
 

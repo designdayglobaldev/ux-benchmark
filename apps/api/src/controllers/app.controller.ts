@@ -3,7 +3,7 @@ import { prisma } from '../db/prisma';
 
 export const getAllApps = async (req: Request, res: Response) => {
   try {
-    const { status, category, subcategory, platform, flows, uiElements, patterns } = req.query;
+    const { status, category, subcategory, platform, flows, uiElements, patterns, lite } = req.query;
     const where: any = {};
     
     if (status) where.status = String(status);
@@ -32,10 +32,34 @@ export const getAllApps = async (req: Request, res: Response) => {
       where.AND = AND;
     }
 
+    if (lite === 'true') {
+      const apps = await prisma.app.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true, slug: true, appThumbnail: true, categoryId: true, subcategoryId: true }
+      });
+      return res.json(apps);
+    }
+
     const apps = await prisma.app.findMany({
       where,
       orderBy: { name: 'asc' },
-      include: { category: true, subcategory: true }
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        status: true,
+        platform: true,
+        categoryId: true,
+        subcategoryId: true,
+        appLogo: true,
+        appThumbnail: true,
+        isStaffPick: true,
+        tags: true,
+        category: { select: { title: true, slug: true } },
+        subcategory: { select: { title: true, slug: true } }
+      }
     });
     res.json(apps);
   } catch (error) {
@@ -87,13 +111,19 @@ export const getAppById = async (req: Request, res: Response) => {
           id: { not: app.id },
           ...(status && { status: String(status) as any })
         },
-        include: {
-          category: true,
-          subcategory: true,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          appLogo: true,
+          appThumbnail: true,
+          description: true,
+          category: { select: { title: true } },
           screens: {
             where: status ? { status: String(status) as any } : undefined,
             orderBy: { screenNo: 'asc' },
-            take: 1
+            take: 1,
+            select: { imageUrl: true }
           }
         },
         take: 3 // Show up to 3 similar apps

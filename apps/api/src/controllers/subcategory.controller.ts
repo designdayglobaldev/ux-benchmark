@@ -3,6 +3,16 @@ import { prisma } from '../db/prisma';
 
 export const getAllSubcategories = async (req: Request, res: Response) => {
   try {
+    const { lite } = req.query;
+
+    if (lite === 'true') {
+      const subcategories = await prisma.subcategory.findMany({
+        orderBy: { title: 'asc' },
+        select: { id: true, title: true }
+      });
+      return res.json(subcategories);
+    }
+
     const subcategories = await prisma.subcategory.findMany({
       orderBy: { title: 'asc' },
       include: {
@@ -21,10 +31,26 @@ export const getSubcategoryById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const subcategory = await prisma.subcategory.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        categoryId: true,
         category: true,
         apps: {
-          include: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            appLogo: true,
+            appThumbnail: true,
+            categoryId: true,
+            subcategoryId: true,
+            status: true,
             screens: {
               select: { id: true }
             }

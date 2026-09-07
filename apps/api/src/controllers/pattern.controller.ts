@@ -3,6 +3,16 @@ import { prisma } from '../db/prisma';
 
 export const getAllPatterns = async (req: Request, res: Response) => {
   try {
+    const { lite } = req.query;
+
+    if (lite === 'true') {
+      const patterns = await prisma.pattern.findMany({
+        orderBy: { title: 'asc' },
+        select: { id: true, title: true }
+      });
+      return res.json(patterns);
+    }
+
     const patterns = await prisma.pattern.findMany({
       orderBy: { title: 'asc' },
     });
