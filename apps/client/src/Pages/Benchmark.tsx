@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { ThinkingOrb } from 'thinking-orbs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 
 const getConfidencePill = (conf: string) => {
   if (!conf) return null;
@@ -375,7 +376,7 @@ export function Benchmark() {
                   <div key={idx} className="flex flex-col gap-3 shrink-0">
                       <span className="text-[#888] text-[13px] font-medium tracking-wide px-1">{app.name}</span>
                       <div className={`h-[400px] aspect-[230/500] rounded-[16px] overflow-hidden border border-[#333] shadow-lg relative bg-black flex items-center justify-center group`}>
-                        <img src={app.imageUrl} className={`w-full h-full object-cover grayscale ${app.opacity || 'opacity-50'} group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300`} alt={app.name} />
+                        <OptimizedImage src={app.imageUrl} className={`w-full h-full object-cover grayscale ${app.opacity || 'opacity-50'} group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300`} alt={app.name} optimizationWidth={400} priority={idx < 2} />
                       </div>
                   </div>
                 ))}

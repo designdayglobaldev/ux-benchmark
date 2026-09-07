@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { AppOverviewSkeleton } from '@/components/ui/app-overview-skeleton'
+import { OptimizedImage } from '@/components/ui/optimized-image'
 
 export function AppOverview() {
   const params = useParams({ strict: false }) as any
@@ -86,7 +87,7 @@ export function AppOverview() {
       <div className='flex gap-6 items-start'>
         <div className='w-24 h-24 rounded-2xl bg-muted flex items-center justify-center flex-shrink-0 border shadow-sm overflow-hidden'>
           {app.appLogo ? (
-            <img src={app.appLogo} alt={app.name} className='w-full h-full object-cover' />
+            <OptimizedImage src={app.appLogo} alt={app.name} optimizationWidth={200} priority={true} className='w-full h-full object-cover' />
           ) : (
             <span className='text-3xl font-bold text-muted-foreground'>{app.name?.charAt(0)}</span>
           )}

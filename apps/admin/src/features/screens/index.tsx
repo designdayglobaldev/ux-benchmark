@@ -24,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { TableSkeleton } from '@/components/ui/table-skeleton'
+import { OptimizedImage } from '@/components/ui/optimized-image'
 
 const route = getRouteApi('/_authenticated/screens/')
 
@@ -175,10 +176,12 @@ export function Screens() {
                       <TableCell>
                         <div className='h-16 w-12 bg-muted rounded overflow-hidden'>
                           {screen.imageUrl ? (
-                            <img 
+                            <OptimizedImage 
                               src={screen.imageUrl} 
                               alt={screen.name} 
                               className='w-full h-full object-contain bg-white' 
+                              optimizationWidth={100}
+                              priority={false}
                             />
                           ) : (
                             <div className='w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-[10px]'>No Img</div>

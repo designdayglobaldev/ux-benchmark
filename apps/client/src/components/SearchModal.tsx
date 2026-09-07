@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Search, Scan, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 const placeholders = [
   "Search for apps..",
@@ -230,7 +231,7 @@ export function SearchModal() {
                          >
                              <div className="w-10 h-10 rounded-[8px] bg-[#10B981] flex items-center justify-center shrink-0 overflow-hidden">
                                  {searchResults[0].imageUrl ? (
-                                     <img src={searchResults[0].imageUrl} alt={searchResults[0].title} className="w-full h-full object-cover" />
+                                     <OptimizedImage src={searchResults[0].imageUrl} alt={searchResults[0].title} className="w-full h-full object-cover" optimizationWidth={100} />
                                  ) : (
                                      <span className="text-black font-bold text-lg">{searchResults[0].iconChar || searchResults[0].title?.charAt(0) || '?'}</span>
                                  )}
@@ -305,7 +306,7 @@ export function SearchModal() {
                                      >
                                          <div className="w-10 h-10 rounded-[8px] bg-[#333333] border border-[#444444] flex items-center justify-center shrink-0 overflow-hidden">
                                              {hit.imageUrl ? (
-                                                 <img src={hit.imageUrl} alt={hit.title} className="w-full h-full object-cover" />
+                                                 <OptimizedImage src={hit.imageUrl} alt={hit.title} className="w-full h-full object-cover" optimizationWidth={100} />
                                              ) : (
                                                  <span className="text-white font-bold text-lg">{hit.iconChar || hit.title?.charAt(0) || '?'}</span>
                                              )}
@@ -382,7 +383,7 @@ export function SearchModal() {
                           {search.type === 'app' ? (
                             <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${search.bg || 'bg-[#333333]'} ${search.fg || 'text-white'}`}>
                               {search.imageUrl ? (
-                                <img src={search.imageUrl} alt={search.title} className="w-full h-full object-cover rounded-full" />
+                                <OptimizedImage src={search.imageUrl} alt={search.title} className="w-full h-full object-cover rounded-full" optimizationWidth={100} />
                               ) : (
                                 search.iconChar !== undefined ? search.iconChar : search.title.charAt(0)
                               )}

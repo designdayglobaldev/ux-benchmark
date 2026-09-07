@@ -3,6 +3,7 @@ import RevolutScreenshot from "@/assets/Revolut.png";
 import { Smallbox } from "../components/Smallbox";
 import { Paragraph } from "../components/Paragraph";
 import { Cards } from "../components/Cards";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 
 import { useParams, useNavigate } from "react-router-dom"
 import { useAppDetails } from "@/hooks/useAppDetails";
@@ -24,19 +25,15 @@ import {
 } from "@/components/ui/tooltip";
 
 function ImageWithSkeleton({ src, alt, className, loading }: { src: string, alt: string, className?: string, loading?: "eager" | "lazy" }) {
-    const [isLoaded, setIsLoaded] = useState(false);
-
     return (
-        <div className={`relative ${className}`}>
-            {!isLoaded && <Skeleton className="absolute inset-0 rounded-[8px]" />}
-            <img 
-                src={src} 
-                alt={alt}
-                loading={loading}
-                className={`w-full h-full object-cover rounded-[8px] ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
-                onLoad={() => setIsLoaded(true)}
-            />
-        </div>
+        <OptimizedImage 
+            src={src} 
+            alt={alt}
+            priority={loading === "eager"}
+            optimizationWidth={400}
+            containerClassName={className}
+            className="w-full h-full object-cover rounded-[8px]"
+        />
     );
 }
 
@@ -183,10 +180,12 @@ export function AppPage() {
 
                         {/* App Logo & Title */}
                         <div className="mt-[60px] flex flex-col">
-                            <img
+                            <OptimizedImage
                                 src={appData?.appLogo || RevolutLogo}
                                 alt={`${appData?.name || 'App'} Logo`}
-                                className="w-[80px] h-[80px] rounded-[20px]"
+                                optimizationWidth={200}
+                                containerClassName="w-[80px] h-[80px]"
+                                className="w-full h-full object-cover rounded-[20px]"
                             />
                             <h1 className="mt-[40px] font-['Inter'] font-medium text-[32px] sm:text-[40px] leading-none tracking-[-0.03em] text-[#E5E7EB] m-0">
                                 {appData?.name || 'App Name'}
@@ -468,19 +467,22 @@ export function AppPage() {
                                 onClick={() => navigate(`/app/${similarApp.slug}`)}
                             >
                                 <div className="aspect-square w-full rounded-[16px] bg-[#161616] border border-[#222222] hover:bg-[#1A1A1A] transition-colors duration-300 relative overflow-hidden flex justify-center pt-[46px] group-hover:pt-[41px]">
-                                    <img
+                                    <OptimizedImage
                                         src={similarApp.appThumbnail || similarApp.screens?.[0]?.imageUrl || '/default-screenshot.png'}
                                         alt={`${similarApp.name} thumbnail`}
-                                        loading="lazy"
+                                        optimizationWidth={400}
+                                        priority={false}
                                         className="w-[45%] h-auto object-cover object-top rounded-t-[12px] shadow-lg transition-all duration-300"
                                     />
                                     <div className="absolute bottom-0 left-0 right-0 h-[100px] bg-gradient-to-t from-[#161616] to-transparent z-10 pointer-events-none"></div>
                                 </div>
                                 <div className="flex gap-3 px-1">
-                                    <img
+                                    <OptimizedImage
                                         src={similarApp.appLogo || '/default-logo.png'}
                                         alt={`${similarApp.name} Logo`}
-                                        loading="lazy"
+                                        optimizationWidth={100}
+                                        priority={false}
+                                        containerClassName="w-10 h-10 rounded-lg shrink-0"
                                         className="w-10 h-10 rounded-lg bg-[#333333] object-contain p-1"
                                     />
                                     <div className="flex flex-col">

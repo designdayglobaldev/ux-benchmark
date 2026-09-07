@@ -24,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { AppCardSkeleton } from '@/components/ui/app-card-skeleton'
+import { OptimizedImage } from '@/components/ui/optimized-image'
 
 const route = getRouteApi('/_authenticated/apps/')
 
@@ -228,9 +229,11 @@ export function Apps() {
                 {/* Content layer - pointer-events-none lets clicks pass through to the background link */}
                 <div className='pointer-events-none relative z-10 flex-1'>
                   <div className='mb-4 flex items-center gap-4'>
-                    <img
+                    <OptimizedImage
                       src={app.appLogo}
                       alt={app.name}
+                      optimizationWidth={100}
+                      priority={false}
                       className='h-12 w-12 rounded-xl object-cover bg-muted group-hover:scale-105 transition-transform'
                     />
                     <div>

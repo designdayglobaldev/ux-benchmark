@@ -15,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { ScreenDetailSkeleton } from '@/components/ui/screen-detail-skeleton'
+import { OptimizedImage } from '@/components/ui/optimized-image'
 
 export function ScreenDetail() {
   const routeApi = getRouteApi('/_authenticated/screens/$screenId')
@@ -175,9 +176,11 @@ export function ScreenDetail() {
         <div className='flex-1 flex items-center justify-center p-8'>
           <div className='relative w-full max-w-[340px] aspect-[9/19] rounded-[40px] border-[4px] border-black overflow-hidden shadow-2xl bg-white flex items-center justify-center'>
             {screen.imageUrl ? (
-              <img 
+              <OptimizedImage 
                 src={screen.imageUrl} 
                 alt={screen.name}
+                optimizationWidth={600}
+                priority={true}
                 className='w-full h-full object-cover' 
               />
             ) : (
@@ -201,7 +204,7 @@ export function ScreenDetail() {
           <div>
             <div className='text-[11px] font-medium text-muted-foreground mb-2 flex items-center gap-1'>
               {screen.app?.appLogo ? (
-                 <img src={screen.app.appLogo} alt={screen.app.name} className="w-4 h-4 rounded-full" />
+                 <OptimizedImage src={screen.app.appLogo} alt={screen.app.name} optimizationWidth={100} priority={true} containerClassName="w-4 h-4 shrink-0" className="w-4 h-4 rounded-full object-cover" />
               ) : null}
               {screen.app?.name || 'Unassigned App'}
             </div>

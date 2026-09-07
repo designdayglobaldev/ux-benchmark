@@ -16,6 +16,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { ScreenCardSkeleton } from '@/components/ui/screen-card-skeleton'
+import { OptimizedImage } from '@/components/ui/optimized-image'
 
 export const Route = createFileRoute('/_authenticated/apps/$appId/screens/')({
   component: AppScreens,
@@ -91,10 +92,12 @@ function AppScreens() {
             <Card key={screen.id} className="group overflow-hidden border shadow-sm hover:shadow-md hover:border-primary/50 transition-all cursor-pointer flex flex-col">
               <div className="relative w-full aspect-[3/4] bg-muted/20 border-b flex items-center justify-center overflow-hidden">
                 {screen.imageUrl ? (
-                  <img 
+                  <OptimizedImage 
                     src={screen.imageUrl} 
                     alt={screen.name} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    optimizationWidth={300}
+                    priority={false}
                   />
                 ) : (
                   <span className="text-muted-foreground text-xs">No Image</span>

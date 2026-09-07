@@ -5,23 +5,20 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect, useMemo } from "react";
 import RevolutLogo from "@/assets/Revolut_logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import { InteractiveFlowModal } from "@/components/InteractiveFlowModal";
 import { useSEO } from "@/hooks/useSEO";
 
 function ImageWithSkeleton({ src, alt, className, loading = "lazy" }: { src: string, alt: string, className?: string, loading?: "eager" | "lazy" }) {
-    const [isLoaded, setIsLoaded] = useState(false);
-
     return (
-        <>
-            {!isLoaded && <Skeleton className={`absolute inset-0 ${className}`} />}
-            <img 
-                src={src} 
-                alt={alt}
-                loading={loading}
-                onLoad={() => setIsLoaded(true)}
-                className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
-            />
-        </>
+        <OptimizedImage
+            src={src}
+            alt={alt}
+            className={className}
+            priority={loading === "eager"}
+            optimizationWidth={400}
+            quality={80}
+        />
     );
 }
 

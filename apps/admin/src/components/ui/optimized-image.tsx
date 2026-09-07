@@ -52,7 +52,7 @@ export const OptimizedImage = ({
   const content = (
     <>
       {!isLoaded && (
-        <Skeleton className={`absolute bg-[#2A2A2A] z-0 ${className.replace('relative', '').replace('z-10', '')}`} />
+        <Skeleton className={`absolute bg-muted z-0 ${className.replace('relative', '').replace('z-10', '')}`} />
       )}
       <img
         src={optimizedSrc}

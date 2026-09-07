@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, DragEvent, ClipboardEvent, ChangeEvent } from 'react'
 import { ImagePlus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { OptimizedImage } from '@/components/ui/optimized-image'
 
 interface ImageDropzoneProps {
   label: string
@@ -91,9 +92,11 @@ export function ImageDropzone({ label, value, onImageSelect }: ImageDropzoneProp
         
         {previewUrl ? (
           <div className='relative w-full h-full flex items-center justify-center group'>
-            <img 
+            <OptimizedImage 
               src={previewUrl} 
               alt='Preview' 
+              optimizationWidth={400}
+              priority={false}
               className='max-h-[150px] w-auto rounded-md object-contain' 
             />
             <Button
