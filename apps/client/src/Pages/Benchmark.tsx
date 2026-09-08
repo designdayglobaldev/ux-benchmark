@@ -149,7 +149,7 @@ export function Benchmark() {
   const handleExportDocx = async () => {
     try {
       setIsExporting(true);
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+      const apiUrl = api.defaults.baseURL;
       const response = await fetch(`${apiUrl}/export/docx`, {
         method: 'POST',
         headers: {
@@ -184,7 +184,7 @@ export function Benchmark() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+        const apiUrl = api.defaults.baseURL;
         const [catsRes, flowsRes, subcatsRes] = await Promise.all([
           fetch(`${apiUrl}/categories`),
           fetch(`${apiUrl}/flows`),
@@ -255,7 +255,7 @@ export function Benchmark() {
     setAppState('analyzing');
     
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+      const apiUrl = api.defaults.baseURL;
       const response = await fetch(`${apiUrl}/ai/detect-context`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -281,7 +281,7 @@ export function Benchmark() {
   const handleViewResults = async () => {
     setAppState('analyzing');
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+      const apiUrl = api.defaults.baseURL;
       const response = await fetch(`${apiUrl}/ai/benchmark`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
