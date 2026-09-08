@@ -721,7 +721,6 @@ Output your selection as a JSON array of screen IDs using the tool.`;
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
       max_tokens: 8192,
-      temperature: 0,
       system: systemPrompt,
       messages: [
         {
@@ -841,6 +840,50 @@ Output your selection as a JSON array of screen IDs using the tool.`;
   } catch (error: any) {
     console.error('AI Benchmark Error:', error);
     res.status(500).json({ error: error?.message || 'An error occurred while generating benchmark' });
+  }
+});
+
+router.post('/benchmark-chat', async (req, res) => {
+  try {
+    const { message, chatHistory, benchmarkData } = req.body;
+
+    if (!message || !benchmarkData) {
+      return res.status(400).json({ error: 'Missing message or benchmarkData' });
+    }
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured in the server' });
+    }
+
+    const messages = (chatHistory || []).map((msg: any) => ({
+      role: msg.role === 'user' ? 'user' : 'assistant',
+      content: msg.content
+    }));
+
+    messages.push({
+      role: 'user',
+      content: message
+    });
+
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20240620",
+      max_tokens: 1024,
+      system: `You are an expert UX/UI designer and AI assistant. The user is asking a follow-up question about a Benchmark UX Analysis report that was just generated for them. 
+
+Here is the context of the generated Benchmark Report:
+${JSON.stringify(benchmarkData, null, 2)}
+
+Answer the user's question clearly, concisely, and professionally based on the provided report context. If they ask about something not in the report, use your general expert knowledge.`,
+      messages: messages,
+    });
+
+    res.json({
+      role: 'assistant',
+      content: response.content[0].type === 'text' ? response.content[0].text : 'Could not generate text.'
+    });
+  } catch (error: any) {
+    console.error('AI Benchmark Chat Error:', error);
+    res.status(500).json({ error: error?.message || 'An error occurred while chatting' });
   }
 });
 

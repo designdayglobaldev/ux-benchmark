@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, X, Upload, ChevronsUpDown, Check, ArrowRight, Share2, Copy, Download, Maximize, Minimize } from 'lucide-react';
+import { Play, X, Upload, ChevronsUpDown, Check, ArrowRight, Share2, Copy, Download, Maximize, Minimize, ChevronLeft, ChevronRight, MessageSquare, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -8,6 +8,7 @@ import { ThinkingOrb } from 'thinking-orbs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { OptimizedImage } from '@/components/ui/optimized-image';
+import api from '@/utils/api';
 
 const getConfidencePill = (conf: string) => {
   if (!conf) return null;
@@ -111,9 +112,16 @@ export function Benchmark() {
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
   const [selectedFlow, setSelectedFlow] = useState<string>('');
 
-  // Benchmark Results Data
   const [benchmarkData, setBenchmarkData] = useState<any>(null);
   const [benchmarkScreens, setBenchmarkScreens] = useState<any[]>([]);
+  const [activeScreenIndex, setActiveScreenIndex] = useState(0);
+
+  // Chat State
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState<any[]>([{ role: 'assistant', content: 'Hi! I analyzed your screen. What questions do you have about the Benchmark report?' }]);
+  const [chatInput, setChatInput] = useState('');
+  const [isChatting, setIsChatting] = useState(false);
+  const chatMessagesEndRef = useRef<HTMLDivElement>(null);
 
   // Loading animation state
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
@@ -142,7 +150,8 @@ export function Benchmark() {
   const handleExportDocx = async () => {
     try {
       setIsExporting(true);
-      const response = await fetch('http://localhost:4000/api/v1/export/docx', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+      const response = await fetch(`${apiUrl}/export/docx`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,10 +185,11 @@ export function Benchmark() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
         const [catsRes, flowsRes, subcatsRes] = await Promise.all([
-          fetch('http://localhost:4000/api/v1/categories'),
-          fetch('http://localhost:4000/api/v1/flows'),
-          fetch('http://localhost:4000/api/v1/subcategories')
+          fetch(`${apiUrl}/categories`),
+          fetch(`${apiUrl}/flows`),
+          fetch(`${apiUrl}/subcategories`)
         ]);
         
         const catsData = await catsRes.json();
@@ -222,7 +232,7 @@ export function Benchmark() {
 
   const handlePaste = (e: React.ClipboardEvent) => {
     const items = e.clipboardData.items;
-    for (const item of items) {
+    for (const item of Array.from(items)) {
       if (item.type.startsWith('image/')) {
         const file = item.getAsFile();
         if (file) handleFile(file);
@@ -246,7 +256,8 @@ export function Benchmark() {
     setAppState('analyzing');
     
     try {
-      const response = await fetch('http://localhost:4000/api/v1/ai/detect-context', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+      const response = await fetch(`${apiUrl}/ai/detect-context`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageBase64: uploadedImage })
@@ -271,7 +282,8 @@ export function Benchmark() {
   const handleViewResults = async () => {
     setAppState('analyzing');
     try {
-      const response = await fetch('http://localhost:4000/api/v1/ai/benchmark', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+      const response = await fetch(`${apiUrl}/ai/benchmark`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -313,74 +325,153 @@ export function Benchmark() {
     }
   };
 
+  const handleChatSubmit = async () => {
+    if (!chatInput.trim() || isChatting) return;
+
+    const newMessage = { role: 'user', content: chatInput };
+    setChatMessages(prev => [...prev, newMessage]);
+    setChatInput('');
+    setIsChatting(true);
+
+    try {
+      const response = await api.post('/ai/benchmark-chat', {
+        message: newMessage.content,
+        chatHistory: chatMessages,
+        benchmarkData: benchmarkData
+      });
+
+      setChatMessages(prev => [...prev, response.data]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      setChatMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error processing your request.' }]);
+    } finally {
+      setIsChatting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (chatMessagesEndRef.current) {
+      chatMessagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chatMessages, chatOpen]);
+
   if (appState === 'results' && benchmarkData) {
+    const allScreens = [
+      { name: 'Your Design', imageUrl: uploadedImage! },
+      ...benchmarkScreens
+    ];
+
     return (
-      <div className="flex flex-col flex-1 bg-[#262626] min-h-[calc(100vh-72px)] p-12 overflow-y-auto">
-        <div className="max-w-[1400px] mx-auto w-full">
+      <div className="flex flex-col flex-1 bg-[#121212] min-h-[calc(100vh-72px)] overflow-hidden">
+        <div className="flex-1 w-full flex">
           
           <div 
             ref={resultsContainerRef}
-            className={`mx-auto bg-[#141414] shadow-2xl transition-all duration-300 ${
+            className={`w-full mx-auto bg-[#141414] transition-all duration-300 ${
             isResultsFullscreen 
-              ? 'fixed inset-0 z-[200] p-12 overflow-y-auto w-full max-w-none rounded-none border-none' 
-              : 'w-full rounded-[24px] border border-[#2a2a2a] p-10'
+              ? 'fixed inset-0 z-[200] max-w-none' 
+              : 'max-w-[1600px] border-x border-[#2a2a2a]'
           }`}>
-            <div className={isResultsFullscreen ? 'max-w-[1200px] mx-auto' : ''}>
+            <div className={`grid grid-cols-[340px_1fr] h-full min-h-screen ${isResultsFullscreen ? '' : ''}`}>
               
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-[#2a2a2a] pb-6 mb-8">
-                <h1 className="text-[20px] font-semibold text-white tracking-wide">Benchmark Results</h1>
-                <div className="flex items-center gap-5 text-[#888]">
+              {/* Left Sidebar (Sticky) */}
+              <div className="bg-transparent p-8 flex flex-col items-center h-full max-h-screen overflow-y-auto sticky top-0 custom-scrollbar">
+                <div className="w-[260px] relative mb-6 flex-1 flex flex-col justify-center">
+                  
+                  {/* Carousel Header */}
+                  <div className="flex items-center justify-between mb-4 px-2">
+                     <button 
+                       onClick={() => setActiveScreenIndex(prev => Math.max(0, prev - 1))}
+                       disabled={activeScreenIndex === 0}
+                       className="p-1.5 text-[#666] hover:text-white disabled:opacity-30 disabled:pointer-events-none rounded-full hover:bg-white/5 transition-colors"
+                     >
+                       <ChevronLeft size={16} />
+                     </button>
+                     <span className="text-[#888] text-[12px] font-medium tracking-wide truncate px-2 text-center flex-1 uppercase">
+                       {allScreens[activeScreenIndex]?.name}
+                     </span>
+                     <button 
+                       onClick={() => setActiveScreenIndex(prev => Math.min(allScreens.length - 1, prev + 1))}
+                       disabled={activeScreenIndex === allScreens.length - 1}
+                       className="p-1.5 text-[#666] hover:text-white disabled:opacity-30 disabled:pointer-events-none rounded-full hover:bg-white/5 transition-colors"
+                     >
+                       <ChevronRight size={16} />
+                     </button>
+                  </div>
+                  
+                  {/* Image Container with Tight Dashed Border */}
+                  <div className="w-full aspect-[230/500] rounded-[32px] border-[2px] border-dashed border-[#555] p-[6px] flex items-center justify-center">
+                    <div className="w-full h-full rounded-[26px] overflow-hidden bg-black shadow-2xl relative">
+                       <OptimizedImage 
+                         src={allScreens[activeScreenIndex]?.imageUrl} 
+                         alt={allScreens[activeScreenIndex]?.name} 
+                         className="w-full h-full object-cover" 
+                         optimizationWidth={400} 
+                         priority={true} 
+                       />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-[260px] mt-4 mb-4">
                   <Button 
-                    className="bg-[#222] text-[#ccc] hover:bg-[#333] hover:text-white rounded-full px-5 h-9 text-[12px] font-medium mr-4 border border-[#333]"
+                    className="bg-white text-black hover:bg-gray-200 rounded-full px-6 h-12 text-[14px] font-semibold shadow-[0_8px_30px_rgba(255,255,255,0.1)] w-full transition-transform hover:scale-[1.02]"
                     onClick={() => {
                       setAppState('idle');
                       setUploadedImage(null);
                       setIsResultsFullscreen(false);
+                      setActiveScreenIndex(0);
                     }}
                   >
                     Try another Screen
                   </Button>
-                  <button 
-                    onClick={() => setIsResultsFullscreen(!isResultsFullscreen)}
-                    className="hover:text-white transition-colors" 
-                    title={isResultsFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-                  >
-                    {isResultsFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
-                  </button>
-                  <button className="hover:text-white transition-colors" title="Share"><Share2 size={18} /></button>
-                  <button className="hover:text-white transition-colors" title="Copy"><Copy size={18} /></button>
-                  <button 
-                    className={`hover:text-white transition-colors ${isExporting ? 'opacity-50 animate-pulse' : ''}`} 
-                    title="Download DOCX" 
-                    onClick={handleExportDocx}
-                    disabled={isExporting}
-                  >
-                    <Download size={18} />
-                  </button>
                 </div>
               </div>
 
-              {/* Slider Section */}
-              <div className="w-full pb-10 mb-10 border-b border-[#2a2a2a] overflow-x-auto custom-scrollbar flex gap-6">
-                {/* Your Design */}
-                <div className="flex flex-col gap-3 shrink-0">
-                  <span className="text-[#0099FF] text-[13px] font-semibold tracking-wide uppercase px-1">Your Design</span>
-                  <div className="h-[400px] aspect-[230/500] rounded-[16px] overflow-hidden border-2 border-[#0099FF] shadow-lg relative">
-                      <img src={uploadedImage!} alt="Your Design" className="w-full h-full object-cover" />
+              {/* Right Content */}
+              <div className="flex flex-col h-full max-h-screen overflow-hidden bg-transparent relative">
+                
+                <div className="flex-1 overflow-y-auto p-8 pb-32 custom-scrollbar">
+                  
+                  <div className="bg-[#1c1c1c] border border-[#2a2a2a] rounded-[24px] p-10 max-w-[1000px] w-full">
+                    
+                    {/* Header */}
+                    <div className="flex items-center justify-between pb-6 mb-8">
+                      <h1 className="text-[20px] font-semibold text-white tracking-wide">Benchmark Results</h1>
+                  <div className="flex items-center gap-5 text-[#888]">
+                    <button 
+                      onClick={() => setIsResultsFullscreen(!isResultsFullscreen)}
+                      className="hover:text-white transition-colors" 
+                      title={isResultsFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                    >
+                      {isResultsFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+                    </button>
+                    <button className="hover:text-white transition-colors" title="Share"><Share2 size={18} /></button>
+                    <button className="hover:text-white transition-colors" title="Copy"><Copy size={18} /></button>
+                    <button 
+                      className={`hover:text-white transition-colors ${isExporting ? 'opacity-50 animate-pulse' : ''}`} 
+                      title="Download DOCX" 
+                      onClick={handleExportDocx}
+                      disabled={isExporting}
+                    >
+                      <Download size={18} />
+                    </button>
                   </div>
                 </div>
 
-                {/* Benchmarks (Dynamic) */}
-                {benchmarkScreens.map((app, idx) => (
-                  <div key={idx} className="flex flex-col gap-3 shrink-0">
-                      <span className="text-[#888] text-[13px] font-medium tracking-wide px-1">{app.name}</span>
-                      <div className={`h-[400px] aspect-[230/500] rounded-[16px] overflow-hidden border border-[#333] shadow-lg relative bg-black flex items-center justify-center group`}>
-                        <OptimizedImage src={app.imageUrl} className={`w-full h-full object-cover grayscale ${app.opacity || 'opacity-50'} group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300`} alt={app.name} optimizationWidth={400} priority={idx < 2} />
+                {/* Slider Section for Benchmark Screens */}
+                {benchmarkScreens.length > 0 && (
+                  <div className="w-full pb-8 mb-8 border-b border-[#2a2a2a] overflow-x-auto custom-scrollbar flex gap-6">
+                    {benchmarkScreens.map((app, idx) => (
+                      <div key={idx} className="flex flex-col gap-3 shrink-0">
+                          <span className="text-[#888] text-[13px] font-medium tracking-wide px-1">{app.name}</span>
+                          <div className={`h-[400px] aspect-[230/500] rounded-[16px] overflow-hidden border border-[#333] shadow-lg relative bg-black flex items-center justify-center group`}>
+                            <OptimizedImage src={app.imageUrl} className={`w-full h-full object-cover grayscale ${app.opacity || 'opacity-50'} group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300`} alt={app.name} optimizationWidth={400} priority={idx < 2} />
+                          </div>
                       </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                )}
 
             {/* Metadata */}
             <div className="flex flex-col gap-3.5 mb-10">
@@ -425,7 +516,7 @@ export function Benchmark() {
               <div className="bg-[#1c1c1c] rounded-xl p-6">
                 <h3 className="text-[#888] text-[13px] font-medium mb-4">Strong Conventions :</h3>
                 <ul className="space-y-4">
-                  {benchmarkData.snapshot?.strongConventions?.map((item: string, i: number) => (
+                  {(Array.isArray(benchmarkData.snapshot?.strongConventions) ? benchmarkData.snapshot.strongConventions : []).map((item: string, i: number) => (
                     <li key={i} className="flex gap-2.5 text-[13px] text-[#ccc] leading-snug">
                       <span className="text-[#666] mt-0.5">•</span>
                       {item}
@@ -437,7 +528,7 @@ export function Benchmark() {
               <div className="bg-[#1c1c1c] rounded-xl p-6">
                 <h3 className="text-[#888] text-[13px] font-medium mb-4">Notable Differences :</h3>
                 <ul className="space-y-4">
-                  {benchmarkData.snapshot?.notableDifferences?.map((item: string, i: number) => (
+                  {(Array.isArray(benchmarkData.snapshot?.notableDifferences) ? benchmarkData.snapshot.notableDifferences : []).map((item: string, i: number) => (
                     <li key={i} className="flex gap-2.5 text-[13px] text-[#ccc] leading-snug">
                       <span className="text-[#666] mt-0.5">•</span>
                       {item}
@@ -449,7 +540,7 @@ export function Benchmark() {
               <div className="bg-[#1c1c1c] rounded-xl p-6">
                 <h3 className="text-[#888] text-[13px] font-medium mb-4">Key Opportunities</h3>
                 <ul className="space-y-4">
-                  {benchmarkData.snapshot?.keyOpportunities?.map((item: string, i: number) => (
+                  {(Array.isArray(benchmarkData.snapshot?.keyOpportunities) ? benchmarkData.snapshot.keyOpportunities : []).map((item: string, i: number) => (
                     <li key={i} className="flex gap-2.5 text-[13px] text-[#ccc] leading-snug">
                       <span className="text-[#666] mt-0.5">•</span>
                       {item}
@@ -462,7 +553,7 @@ export function Benchmark() {
               {/* 2. Common Benchmark Patterns */}
               <h2 className="text-[16px] font-semibold text-white mb-6">2. Common Benchmark Patterns</h2>
               <div className="space-y-10 mb-14">
-                {benchmarkData.commonPatterns?.map((pattern: any, i: number) => (
+                {(Array.isArray(benchmarkData.commonPatterns) ? benchmarkData.commonPatterns : []).map((pattern: any, i: number) => (
                   <div key={i} className="flex flex-col gap-4 border-t border-[#2a2a2a] pt-6">
                     <div>
                       <h3 className="text-white text-[15px] font-medium mb-1">{pattern.title}</h3>
@@ -529,7 +620,7 @@ export function Benchmark() {
             {/* 3. Where Your Design Differs */}
             <h2 className="text-[16px] font-semibold text-white mb-6">3. Where Your Design Differs</h2>
             <div className="space-y-10 mb-14">
-              {benchmarkData.designDifferences?.map((diff: any, i: number) => (
+              {(Array.isArray(benchmarkData.designDifferences) ? benchmarkData.designDifferences : []).map((diff: any, i: number) => (
                 <div key={i} className="flex flex-col gap-4 border-t border-[#2a2a2a] pt-6">
                   <h3 className="text-white text-[15px] font-medium">{diff.title}</h3>
                   
@@ -559,7 +650,7 @@ export function Benchmark() {
               {/* 4. Key Opportunities */}
               <h2 className="text-[16px] font-semibold text-white mb-6">4. Key Opportunities</h2>
               <div className="space-y-10 pb-10 border-t border-[#2a2a2a] pt-6">
-                {benchmarkData.opportunities?.map((opp: any, i: number) => (
+                {(Array.isArray(benchmarkData.opportunities) ? benchmarkData.opportunities : []).map((opp: any, i: number) => (
                   <div key={i} className="flex flex-col gap-4 mt-6 first:mt-0">
                     <h3 className="text-white text-[15px] font-medium">{opp.title}</h3>
                     
@@ -605,7 +696,75 @@ export function Benchmark() {
                 ))}
               </div>
 
-            </div> {/* Close max-w inner container if fullscreen */}
+              </div> {/* Close Card */}
+              </div> {/* Close scrollable report */}
+
+              {/* Floating Chatbar - Fixed to Viewport */}
+              <div className="fixed bottom-10 left-[calc(50vw+170px)] -translate-x-1/2 z-[300] w-[600px] flex flex-col items-center pointer-events-none">
+                <div className="relative w-full flex flex-col items-center pointer-events-auto">
+                  
+                  {/* Chat History Popup */}
+                  {chatMessages.length > 1 && (
+                    <div className="w-full mb-4 bg-[#1a1a1a]/95 backdrop-blur-2xl border border-white/10 rounded-[24px] shadow-[0_16px_40px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 max-h-[400px]">
+                      <div className="flex items-center justify-between p-4 border-b border-white/5 bg-white/5">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare size={16} className="text-[#0099FF]" />
+                          <span className="font-semibold text-white/90 text-[14px]">Q&A History</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 custom-scrollbar bg-transparent">
+                        {chatMessages.map((msg, i) => {
+                          if (i === 0) return null; // Skip initial greeting
+                          return (
+                            <div key={i} className={`flex flex-col max-w-[85%] ${msg.role === 'user' ? 'self-end' : 'self-start'}`}>
+                              <div className={`p-3 rounded-[16px] text-[13px] leading-relaxed shadow-sm ${msg.role === 'user' ? 'bg-[#0099FF] text-white rounded-br-none' : 'bg-[#222]/80 text-[#ccc] border border-white/10 rounded-bl-none'}`}>
+                                {msg.content}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {isChatting && (
+                          <div className="flex flex-col max-w-[85%] self-start">
+                            <div className="p-3 rounded-[16px] bg-[#222]/80 border border-white/10 rounded-bl-none flex items-center gap-2 shadow-sm">
+                              <Loader2 size={14} className="animate-spin text-[#888]" />
+                              <span className="text-[#888] text-[13px]">Thinking...</span>
+                            </div>
+                          </div>
+                        )}
+                        <div ref={chatMessagesEndRef} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Floating Input Bar */}
+                  <div className="w-full bg-[#1e1e1e]/80 backdrop-blur-2xl border border-white/10 rounded-full p-2 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+                    <form onSubmit={(e) => { e.preventDefault(); handleChatSubmit(); }} className="flex gap-2 relative">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#888]">
+                        <MessageSquare size={18} />
+                      </div>
+                      <input
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Ask a follow-up question about this UX report..."
+                        className="flex-1 bg-transparent border-none rounded-full pl-12 pr-16 py-2.5 text-[14px] text-white focus:outline-none focus:ring-0 transition-all placeholder-[#666]"
+                        disabled={isChatting}
+                      />
+                      <button
+                        type="submit"
+                        disabled={!chatInput.trim() || isChatting}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#0099FF] flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#0088EE] transition-colors shadow-lg shadow-[#0099FF]/20"
+                      >
+                        <Send size={15} className="ml-[-2px]" />
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+            </div> {/* Close Right Content */}
+            </div> {/* Close Grid */}
           </div>
         </div>
       </div>
