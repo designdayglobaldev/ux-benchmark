@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-let base = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+let base = import.meta.env.PROD 
+  ? '/api/v1' 
+  : (import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1');
 if (!base.endsWith('/api/v1')) {
   base = base.replace(/\/+$/, '') + '/api/v1';
 }

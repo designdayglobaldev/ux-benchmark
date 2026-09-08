@@ -48,7 +48,7 @@ export function Dashboard() {
 
     useSEO({
         title: "Home",
-        description: "BenchmarX - Explore UX analyses of top applications."
+        description: "Baselyn - Explore UX analyses of top applications."
     });
 
     useEffect(() => {
@@ -299,7 +299,7 @@ export function Dashboard() {
                                 
                                 {/* Content */}
                                 <div className="relative z-10 flex flex-col items-center">
-                                    <h2 className="text-[24px] font-semibold text-white mb-2 tracking-[-0.06em]">Unlock the full BenchmarX library</h2>
+                                    <h2 className="text-[24px] font-semibold text-white mb-2 tracking-[-0.06em]">Unlock the full Baselyn library</h2>
                                     <p className="text-[#CFCFCF] text-[16px] font-normal mb-6 text-center tracking-[-0.06em]">Log in to unlock the full library of real screens and UX reasoning.</p>
                                     <Button 
                                         onClick={() => navigate('/register')}
