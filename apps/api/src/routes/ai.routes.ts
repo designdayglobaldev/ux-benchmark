@@ -855,10 +855,15 @@ router.post('/benchmark-chat', async (req, res) => {
       return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured in the server' });
     }
 
-    const messages = (chatHistory || []).map((msg: any) => ({
+    let messages = (chatHistory || []).map((msg: any) => ({
       role: msg.role === 'user' ? 'user' : 'assistant',
       content: msg.content
     }));
+
+    // Anthropic requires the first message to be from a user
+    while (messages.length > 0 && messages[0].role === 'assistant') {
+      messages.shift();
+    }
 
     messages.push({
       role: 'user',
@@ -866,7 +871,7 @@ router.post('/benchmark-chat', async (req, res) => {
     });
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20240620",
+      model: "claude-sonnet-5",
       max_tokens: 1024,
       system: `You are an expert UX/UI designer and AI assistant. The user is asking a follow-up question about a Benchmark UX Analysis report that was just generated for them. 
 
@@ -877,9 +882,19 @@ Answer the user's question clearly, concisely, and professionally based on the p
       messages: messages,
     });
 
+    console.log('Anthropic Chat Response:', JSON.stringify(response, null, 2));
+
+    let textContent = 'Could not generate text.';
+    if (response && response.content) {
+      const textBlock = response.content.find((block: any) => block.type === 'text');
+      if (textBlock && 'text' in textBlock) {
+        textContent = textBlock.text;
+      }
+    }
+
     res.json({
       role: 'assistant',
-      content: response.content[0].type === 'text' ? response.content[0].text : 'Could not generate text.'
+      content: textContent
     });
   } catch (error: any) {
     console.error('AI Benchmark Chat Error:', error);
