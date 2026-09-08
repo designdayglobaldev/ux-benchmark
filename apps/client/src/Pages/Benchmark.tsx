@@ -117,7 +117,6 @@ export function Benchmark() {
   const [activeScreenIndex, setActiveScreenIndex] = useState(0);
 
   // Chat State
-  const [chatOpen, setChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[]>([{ role: 'assistant', content: 'Hi! I analyzed your screen. What questions do you have about the Benchmark report?' }]);
   const [chatInput, setChatInput] = useState('');
   const [isChatting, setIsChatting] = useState(false);
@@ -353,7 +352,7 @@ export function Benchmark() {
     if (chatMessagesEndRef.current) {
       chatMessagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [chatMessages, chatOpen]);
+  }, [chatMessages]);
 
   if (appState === 'results' && benchmarkData) {
     const allScreens = [
