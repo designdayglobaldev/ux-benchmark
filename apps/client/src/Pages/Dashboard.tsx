@@ -223,11 +223,21 @@ export function Dashboard() {
                     </div>
                 ) : error ? (
                     <div className="text-center text-red-500 py-20">Error loading apps. Make sure the backend is running.</div>
-                ) : apps?.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 opacity-60">
+                ) : (apps?.length === 0 || activeTab === 'motion' || activeTab === 'bonus') ? (
+                    <div className="flex flex-col items-center justify-center py-20 opacity-60 text-center px-4">
                         <img src="/code-learner.svg" alt="Updating library" className="w-48 h-48 mb-6" />
-                        <h3 className="text-[#EAEAEA] text-[18px] font-medium mb-2">We're expanding our library!</h3>
-                        <p className="text-[#A1A1A1] text-[14px]">Can't find what you're looking for? Request an app.</p>
+                        <h3 className="text-[#EAEAEA] text-[18px] font-medium mb-2 max-w-[600px]">
+                            {activeTab === 'motion' 
+                                ? "We are expanding our motion library"
+                                : activeTab === 'bonus'
+                                ? "A special library of curated apps that is not easily accessible"
+                                : "We're expanding our library!"}
+                        </h3>
+                        <p className="text-[#A1A1A1] text-[14px] max-w-[500px]">
+                            {activeTab === 'bonus' 
+                                ? "For example special banking apps/cyber security apps etc that do not allow public access"
+                                : "Can't find what you're looking for? Request an app."}
+                        </p>
                     </div>
                 ) : (
                     <div className="relative">
