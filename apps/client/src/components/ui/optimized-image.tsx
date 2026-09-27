@@ -16,23 +16,7 @@ interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
  * to fetch a highly optimized WebP version.
  */
 export const getSupabaseOptimizedUrl = (url: string, width?: number, quality = 80) => {
-  if (!url) return url;
-  
-  // Only intercept valid Supabase storage URLs
-  if (url.includes('/storage/v1/object/public/')) {
-    const optimizedUrl = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
-    
-    const params = new URLSearchParams();
-    if (width) params.append('width', width.toString());
-    params.append('quality', quality.toString());
-    // Force resize=contain to prevent Supabase from square-cropping the image
-    params.append('resize', 'contain');
-    // Force format=webp to ensure massive egress reduction
-    params.append('format', 'webp');
-    
-    return `${optimizedUrl}?${params.toString()}`;
-  }
-  
+  if (width || quality) return url;
   return url;
 };
 

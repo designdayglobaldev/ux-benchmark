@@ -1,4 +1,5 @@
 import { getRouteApi } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -9,13 +10,24 @@ import { UsersDialogs } from './components/users-dialogs'
 import { UsersPrimaryButtons } from './components/users-primary-buttons'
 import { UsersProvider } from './components/users-provider'
 import { UsersTable } from './components/users-table'
-import { users } from './data/users'
 
-const route = getRouteApi('/_authenticated/users/')
+const route = getRouteApi('/_authenticated/client-users/')
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/v1`
 
 export function Users() {
   const search = route.useSearch()
   const navigate = route.useNavigate()
+  const [users, setUsers] = useState<any[]>([])
+
+  useEffect(() => {
+    fetch(`${API_URL}/users`)
+      .then(res => res.json())
+      .then(data => {
+        // Map data to match table schema if necessary, or just pass it
+        setUsers(data)
+      })
+      .catch(console.error)
+  }, [])
 
   return (
     <UsersProvider>
@@ -29,9 +41,9 @@ export function Users() {
       <Main className='flex flex-1 flex-col gap-4 sm:gap-6'>
         <div className='flex flex-wrap items-end justify-between gap-2'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>User List</h2>
+            <h2 className='text-2xl font-bold tracking-tight'>Client Users</h2>
             <p className='text-muted-foreground'>
-              Manage your users and their roles here.
+              Manage your client AI Quota tiers here.
             </p>
           </div>
           <UsersPrimaryButtons />

@@ -41,7 +41,7 @@ router.post('/inspect', async (req, res) => {
               type: 'image',
               source: {
                 type: 'base64',
-                media_type: 'image/jpeg', // We will force jpeg in canvas extraction
+                media_type: mediaType as 'image/jpeg' | 'image/png' | 'image/webp', // We will force jpeg in canvas extraction
                 data: base64Data,
               },
             },
@@ -92,7 +92,7 @@ router.post('/insights', async (req, res) => {
               type: 'image',
               source: {
                 type: 'base64',
-                media_type: 'image/jpeg',
+                media_type: mediaType as 'image/jpeg' | 'image/png' | 'image/webp',
                 data: base64Data,
               },
             },
@@ -899,6 +899,78 @@ Answer the user's question clearly, concisely, and professionally based on the p
   } catch (error: any) {
     console.error('AI Benchmark Chat Error:', error);
     res.status(500).json({ error: error?.message || 'An error occurred while chatting' });
+  }
+});
+
+router.post('/improve-design', async (req, res) => {
+  try {
+    const { imageBase64, benchmarkResult } = req.body;
+
+    if (!imageBase64 || !benchmarkResult) {
+      return res.status(400).json({ error: 'Missing imageBase64 or benchmarkResult in request body' });
+    }
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured in the server' });
+    }
+
+    let mediaType = 'image/jpeg';
+    const match = imageBase64.match(/^data:image\/(png|jpeg|jpg|webp);base64,/);
+    if (match && match[1]) {
+      mediaType = `image/${match[1] === 'jpg' ? 'jpeg' : match[1]}`;
+    }
+    const base64Data = imageBase64.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, '');
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 4096,
+      system: `You are an expert UX/UI designer and frontend developer. Based on the attached UI screenshot and the following benchmark feedback, generate a fully functional React component using Tailwind CSS that implements the improved design fixing the UX issues.
+
+CRITICAL INSTRUCTIONS:
+- Return ONLY the raw React code.
+- Do not use markdown code blocks like \`\`\`tsx or \`\`\`. Start directly with the import statements and end with the export statement.
+- Use Tailwind CSS classes for all styling.
+- Use lucide-react for icons.
+- Ensure the component is complete, self-contained, and interactive (e.g., hover states, active states).
+- Use default HTML elements, not external UI libraries (unless it's just lucide-react for icons).
+- Assume it will be rendered within a standard full-width container.
+
+Benchmark Feedback:
+${JSON.stringify(benchmarkResult, null, 2)}
+`,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: {
+                type: 'base64',
+                media_type: mediaType as 'image/jpeg' | 'image/png' | 'image/webp',
+                data: base64Data,
+              },
+            },
+            {
+              type: 'text',
+              text: 'Please generate the improved React component code now. Remember, output ONLY valid TSX code, no markdown blocks.',
+            }
+          ],
+        },
+      ],
+    });
+
+    const aiResponse = message.content
+      .filter((block) => block.type === 'text')
+      .map((block: any) => block.text)
+      .join('\n');
+
+    // Sometimes Claude adds markdown blocks despite instructions, so strip them just in case
+    const cleanedResponse = aiResponse.replace(/^```tsx?\n/, '').replace(/^```\n/, '').replace(/```$/, '').trim();
+
+    res.json({ code: cleanedResponse });
+  } catch (error: any) {
+    console.error('AI Improve Design Error:', error);
+    res.status(500).json({ error: error?.message || 'An error occurred during AI design improvement' });
   }
 });
 

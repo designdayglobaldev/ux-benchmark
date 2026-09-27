@@ -14,6 +14,9 @@ import searchRoutes from './routes/search.routes';
 import authRoutes from './routes/auth.routes';
 import exportRoutes from './routes/export.routes';
 import appRequestRoutes from './routes/app-request.routes';
+import configRoutes from './routes/config.routes';
+import usersRoutes from './routes/users.routes';
+import quotaRoutes from './routes/quota.routes';
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Increased limit for base64 images
@@ -36,6 +39,9 @@ app.use('/api/v1/search', searchRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/export', exportRoutes);
 app.use('/api/v1/app-requests', appRequestRoutes);
+app.use('/api/v1/config', configRoutes);
+app.use('/api/v1/users', usersRoutes);
+app.use('/api/v1/quota', quotaRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

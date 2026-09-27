@@ -35,6 +35,11 @@ const sidebarNavItems = [
     href: '/settings/display',
     icon: <Monitor size={18} />,
   },
+  {
+    title: 'AI Quotas',
+    href: '/settings/tiers',
+    icon: <Wrench size={18} />,
+  },
 ]
 
 export function Settings() {

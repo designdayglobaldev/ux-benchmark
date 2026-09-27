@@ -40,6 +40,19 @@ export function Navbar() {
           >
             Benchmark
           </a>
+          <a 
+            href="#" 
+            className="relative text-[#A1A1A1] hover:text-white text-[14px] font-medium transition-colors"
+          >
+            Design Agent
+            <span className="absolute -top-[8px] -right-[32px] bg-gradient-to-r from-[#FF3366] to-[#9933FF] text-white px-1.5 py-[2px] rounded-full text-[8px] font-bold tracking-wider uppercase shadow-lg shadow-purple-500/20 border border-white/10 leading-none flex items-center justify-center">SOON</span>
+          </a>
+          <a 
+            href="/pricing" 
+            className={location.pathname === '/pricing' ? "text-black bg-white px-5 py-1.5 rounded-full text-[14px] font-medium transition-colors" : "text-[#A1A1A1] hover:text-white text-[14px] font-medium transition-colors"}
+          >
+            Pricing
+          </a>
         </div>
 
         {/* Right side: Search and User Actions */}

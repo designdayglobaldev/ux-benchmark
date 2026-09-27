@@ -14,12 +14,16 @@ import { AuthProvider } from "./contexts/AuthContext"
 import { Login } from "./Pages/Login"
 import { Register } from "./Pages/Register"
 import { AppProtectedRoute } from "./components/Layout/AppProtectedRoute"
+import { Pricing } from "./Pages/Pricing"
+import { UpgradeProvider } from "./contexts/UpgradeContext"
+import { UpgradeModal } from "./components/Pricing/UpgradeModal"
 
 function MainLayout() {
   return (
     <div className="min-h-screen bg-black text-white relative font-sans flex flex-col">
       <Navbar />
       <Outlet />
+      <UpgradeModal />
     </div>
   );
 }
@@ -37,15 +41,17 @@ function App() {
 
   return (
     <AuthProvider>
-      <InspectContext.Provider value={{ isInspectMode, setIsInspectMode }}>
-        <BrowserRouter>
-          <Routes>
+      <UpgradeProvider>
+        <InspectContext.Provider value={{ isInspectMode, setIsInspectMode }}>
+          <BrowserRouter>
+            <Routes>
             {/* Routes with Navbar */}
             <Route element={<MainLayout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/benchmark" element={<Benchmark />} />
               <Route path="/flows" element={<Flows />} />
               <Route path="/browse" element={<Browse />} />
+              <Route path="/pricing" element={<Pricing />} />
               <Route path="/app/:slug" element={<AppProtectedRoute><AppPage /></AppProtectedRoute>} />
               <Route path="/app/:slug/flows" element={<AppProtectedRoute><AppFlows /></AppProtectedRoute>} />
               <Route path="/app/:slug/screens" element={<AppProtectedRoute><AppScreens /></AppProtectedRoute>} />
@@ -58,9 +64,10 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
             </Route>
-          </Routes>
-        </BrowserRouter>
-      </InspectContext.Provider>
+            </Routes>
+          </BrowserRouter>
+        </InspectContext.Provider>
+      </UpgradeProvider>
     </AuthProvider>
   )
 }

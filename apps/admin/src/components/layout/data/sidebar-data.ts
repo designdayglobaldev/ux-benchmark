@@ -109,6 +109,12 @@ export const sidebarData: SidebarData = {
           icon: Users,
         },
         {
+          title: 'Client Users',
+          url: '/client-users',
+          icon: Users,
+          // HMR trigger
+        },
+        {
           title: 'Settings',
           icon: Settings,
           items: [

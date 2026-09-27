@@ -32,6 +32,7 @@ import { Route as AuthenticatedAppsNewRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCategoriesIndexRouteImport } from './routes/_authenticated/categories/index'
 import { Route as AuthenticatedCategoriesNewRouteImport } from './routes/_authenticated/categories/new'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
+import { Route as AuthenticatedClientUsersIndexRouteImport } from './routes/_authenticated/client-users/index'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedFlowsIndexRouteImport } from './routes/_authenticated/flows/index'
 import { Route as AuthenticatedFlowsNewRouteImport } from './routes/_authenticated/flows/new'
@@ -46,6 +47,7 @@ import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
+import { Route as AuthenticatedSettingsTiersRouteImport } from './routes/_authenticated/settings/tiers'
 import { Route as AuthenticatedStaffIndexRouteImport } from './routes/_authenticated/staff/index'
 import { Route as AuthenticatedStaffNewRouteImport } from './routes/_authenticated/staff/new'
 import { Route as AuthenticatedSubcategoriesIndexRouteImport } from './routes/_authenticated/subcategories/index'
@@ -190,6 +192,12 @@ const AuthenticatedChatsIndexRoute = AuthenticatedChatsIndexRouteImport.update({
   path: '/chats/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedClientUsersIndexRoute =
+  AuthenticatedClientUsersIndexRouteImport.update({
+    id: '/client-users/',
+    path: '/client-users/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
@@ -269,6 +277,12 @@ const AuthenticatedSettingsNotificationsRoute =
   AuthenticatedSettingsNotificationsRouteImport.update({
     id: '/notifications',
     path: '/notifications',
+    getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedSettingsTiersRoute =
+  AuthenticatedSettingsTiersRouteImport.update({
+    id: '/tiers',
+    path: '/tiers',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
 const AuthenticatedStaffIndexRoute = AuthenticatedStaffIndexRouteImport.update({
@@ -454,6 +468,7 @@ export interface FileRoutesByFullPath {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/settings/tiers': typeof AuthenticatedSettingsTiersRoute
   '/staff/new': typeof AuthenticatedStaffNewRoute
   '/subcategories/new': typeof AuthenticatedSubcategoriesNewRoute
   '/ui-elements/new': typeof AuthenticatedUiElementsNewRoute
@@ -464,6 +479,7 @@ export interface FileRoutesByFullPath {
   '/apps/': typeof AuthenticatedAppsIndexRoute
   '/categories/': typeof AuthenticatedCategoriesIndexRoute
   '/chats/': typeof AuthenticatedChatsIndexRoute
+  '/client-users/': typeof AuthenticatedClientUsersIndexRoute
   '/flows/': typeof AuthenticatedFlowsIndexRoute
   '/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/patterns/': typeof AuthenticatedPatternsIndexRoute
@@ -515,6 +531,7 @@ export interface FileRoutesByTo {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/settings/tiers': typeof AuthenticatedSettingsTiersRoute
   '/staff/new': typeof AuthenticatedStaffNewRoute
   '/subcategories/new': typeof AuthenticatedSubcategoriesNewRoute
   '/ui-elements/new': typeof AuthenticatedUiElementsNewRoute
@@ -525,6 +542,7 @@ export interface FileRoutesByTo {
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/categories': typeof AuthenticatedCategoriesIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
+  '/client-users': typeof AuthenticatedClientUsersIndexRoute
   '/flows': typeof AuthenticatedFlowsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/patterns': typeof AuthenticatedPatternsIndexRoute
@@ -582,6 +600,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/_authenticated/settings/tiers': typeof AuthenticatedSettingsTiersRoute
   '/_authenticated/staff/new': typeof AuthenticatedStaffNewRoute
   '/_authenticated/subcategories/new': typeof AuthenticatedSubcategoriesNewRoute
   '/_authenticated/ui-elements/new': typeof AuthenticatedUiElementsNewRoute
@@ -592,6 +611,7 @@ export interface FileRoutesById {
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/categories/': typeof AuthenticatedCategoriesIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
+  '/_authenticated/client-users/': typeof AuthenticatedClientUsersIndexRoute
   '/_authenticated/flows/': typeof AuthenticatedFlowsIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/_authenticated/patterns/': typeof AuthenticatedPatternsIndexRoute
@@ -647,6 +667,7 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/settings/tiers'
     | '/staff/new'
     | '/subcategories/new'
     | '/ui-elements/new'
@@ -657,6 +678,7 @@ export interface FileRouteTypes {
     | '/apps/'
     | '/categories/'
     | '/chats/'
+    | '/client-users/'
     | '/flows/'
     | '/help-center/'
     | '/patterns/'
@@ -708,6 +730,7 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/settings/tiers'
     | '/staff/new'
     | '/subcategories/new'
     | '/ui-elements/new'
@@ -718,6 +741,7 @@ export interface FileRouteTypes {
     | '/apps'
     | '/categories'
     | '/chats'
+    | '/client-users'
     | '/flows'
     | '/help-center'
     | '/patterns'
@@ -774,6 +798,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
+    | '/_authenticated/settings/tiers'
     | '/_authenticated/staff/new'
     | '/_authenticated/subcategories/new'
     | '/_authenticated/ui-elements/new'
@@ -784,6 +809,7 @@ export interface FileRouteTypes {
     | '/_authenticated/apps/'
     | '/_authenticated/categories/'
     | '/_authenticated/chats/'
+    | '/_authenticated/client-users/'
     | '/_authenticated/flows/'
     | '/_authenticated/help-center/'
     | '/_authenticated/patterns/'
@@ -990,6 +1016,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/client-users/': {
+      id: '/_authenticated/client-users/'
+      path: '/client-users'
+      fullPath: '/client-users/'
+      preLoaderRoute: typeof AuthenticatedClientUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
       path: '/errors/$error'
@@ -1086,6 +1119,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/settings/notifications'
       preLoaderRoute: typeof AuthenticatedSettingsNotificationsRouteImport
+      parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/settings/tiers': {
+      id: '/_authenticated/settings/tiers'
+      path: '/tiers'
+      fullPath: '/settings/tiers'
+      preLoaderRoute: typeof AuthenticatedSettingsTiersRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
     '/_authenticated/staff/': {
@@ -1285,6 +1325,7 @@ interface AuthenticatedSettingsRouteRouteChildren {
   AuthenticatedSettingsAppearanceRoute: typeof AuthenticatedSettingsAppearanceRoute
   AuthenticatedSettingsDisplayRoute: typeof AuthenticatedSettingsDisplayRoute
   AuthenticatedSettingsNotificationsRoute: typeof AuthenticatedSettingsNotificationsRoute
+  AuthenticatedSettingsTiersRoute: typeof AuthenticatedSettingsTiersRoute
   AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
 }
 
@@ -1295,6 +1336,7 @@ const AuthenticatedSettingsRouteRouteChildren: AuthenticatedSettingsRouteRouteCh
     AuthenticatedSettingsDisplayRoute: AuthenticatedSettingsDisplayRoute,
     AuthenticatedSettingsNotificationsRoute:
       AuthenticatedSettingsNotificationsRoute,
+    AuthenticatedSettingsTiersRoute: AuthenticatedSettingsTiersRoute,
     AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
   }
 
@@ -1346,6 +1388,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedCategoriesIndexRoute: typeof AuthenticatedCategoriesIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
+  AuthenticatedClientUsersIndexRoute: typeof AuthenticatedClientUsersIndexRoute
   AuthenticatedFlowsIndexRoute: typeof AuthenticatedFlowsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
   AuthenticatedPatternsIndexRoute: typeof AuthenticatedPatternsIndexRoute
@@ -1386,6 +1429,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedCategoriesIndexRoute: AuthenticatedCategoriesIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
+  AuthenticatedClientUsersIndexRoute: AuthenticatedClientUsersIndexRoute,
   AuthenticatedFlowsIndexRoute: AuthenticatedFlowsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
   AuthenticatedPatternsIndexRoute: AuthenticatedPatternsIndexRoute,
