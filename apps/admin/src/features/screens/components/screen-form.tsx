@@ -187,7 +187,15 @@ export function ScreenForm({ screenId, initialAppId }: { screenId?: string; init
         body: JSON.stringify(payload)
       })
 
-      if (!res.ok) throw new Error('Failed to save screen')
+      if (!res.ok) {
+        let errMessage = 'Failed to save screen';
+        try {
+          const errData = await res.json();
+          errMessage = errData.error || errMessage;
+        } catch (e) {}
+        throw new Error(errMessage);
+      }
+      
       toast.dismiss()
       toast.success(screenId ? 'Screen updated successfully' : 'Screen saved successfully')
       navigate({ to: '/screens' })
