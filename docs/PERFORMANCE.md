@@ -111,3 +111,26 @@ We measured the impact of these changes on the most image-heavy components (Dash
 - **Total Payload (Images):** On an 11-image page load, total image resources plummeted from **~4.8 MB** (unoptimized PNGs) to just **~82.2 KB** (WebP).
 - **Average Image Size:** Dropped from **~450 KB - 1.4 MB** to **~15 KB - 60 KB** (an 80-90% reduction per image).
 - **Zero Cost:** By permanently squashing the source files in the bucket and compressing on the client-side, we entirely bypassed the need for paid 3rd-party Image CDNs or Supabase Image Transformation quotas.
+
+## Phase 4: Caching Strategy (Why No Redis)
+
+### The Decision
+During our performance scaling, we evaluated whether to implement a server-side caching layer like **Redis** to offload database queries. We deliberately chose **NOT** to implement Redis. 
+
+### Why We Bypassed Server-Side Caching
+Introducing a Redis cache introduces significant architectural complexity (cache invalidation pipelines, memory management, and synchronization across the Admin and Client apps). We achieved a high-performance, low-latency application without it by optimizing the architecture closer to the user.
+
+Our current "caching" architecture relies on two powerful layers:
+
+#### 1. Aggressive Client-Side Caching (React Query)
+Instead of caching data on the backend server, we cache it directly in the user's browser using `@tanstack/react-query`.
+- **Global `staleTime`:** Set to 5 minutes (`5 * 60 * 1000`). Once a user fetches a list of apps or screens, the frontend stores it in memory. If they navigate away and return within 5 minutes, the browser instantly loads the data from memory without making a single HTTP request to the API.
+- **Tab Focus Syncing Disabled:** We disabled `refetchOnWindowFocus: false` to prevent massive cascading network requests every time a user switches between browser tabs (a common workflow when comparing UI designs).
+
+#### 2. Lean Database Queries
+Server-side caching is usually required when database queries are slow or heavy. We eliminated the "heavy" aspect.
+- By enforcing strict Prisma `select` statements and `lite=true` flags, our API responses shrunk from multi-megabyte JSON payloads to a few kilobytes. 
+- PostgreSQL handles simple, indexed lookups of tiny payloads with sub-millisecond response times. It does not need a Redis buffer to serve these lean queries efficiently.
+
+### When to Re-evaluate
+We will only reconsider adding Redis if the application experiences a massive spike in concurrent users (e.g., thousands of simultaneous active connections) that causes the Supabase PostgreSQL CPU utilization to consistently exceed 80-90%. Until then, the React Query + Prisma Select architecture is significantly cheaper, simpler, and equally fast for the end user.
