@@ -149,11 +149,8 @@ export const createApp = async (req: Request, res: Response) => {
     if (data.subcategoryId) {
       data.subcategory = { connect: { id: data.subcategoryId } };
       delete data.subcategoryId;
-    } else if (data.subcategoryId === null || data.subcategoryId === '') {
-      data.subcategory = { disconnect: true };
-      delete data.subcategoryId;
     } else {
-      delete data.subcategoryId; // handle undefined
+      delete data.subcategoryId; // handle null, empty string, or undefined by simply not connecting
     }
     
     const app = await prisma.app.create({
