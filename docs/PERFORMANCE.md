@@ -126,18 +126,20 @@ Our current approach relies on two layers:
 We cache data directly in the user's browser using `@tanstack/react-query`. 
 *Note: This is not a replacement for server-side caching—every new visitor still hits the API and database. However, it significantly cuts down repeat requests from a single user.*
 - **Global `staleTime`:** Set to 5 minutes (`5 * 60 * 1000`). If a user navigates away and returns within 5 minutes, the browser instantly loads the data from memory.
-- **The Staleness Tradeoff:** Because of the 5-minute cache, a screen an admin just uploaded might take up to 5 minutes to appear for a user who already loaded the list. This tradeoff is acceptable for our current UX. *(Note: The Admin app invalidates its own queries immediately after an upload using `queryClient.invalidateQueries`, ensuring admins never see stale data).*
-- **Tab Focus Syncing Disabled:** We disabled `refetchOnWindowFocus: false` to prevent massive cascading network requests every time a user switches between browser tabs (a common workflow when comparing UI designs).
+- **The Staleness Tradeoff:** Because of the 5-minute cache, a screen an admin just uploaded might take up to 5 minutes to appear for a user who already loaded the list. This tradeoff is acceptable for our current UX. *(Note: The Admin panel doesn't use React Query and fetches fresh data on every page load, so admins never see stale data themselves).*
+- **Tab Focus Syncing Disabled:** We set `refetchOnWindowFocus: false` to prevent massive cascading network requests every time a user switches between browser tabs (a common workflow when comparing UI designs).
 
 #### 2. Lean Database Queries
 - By enforcing strict Prisma `select` statements and `lite=true` flags, our API responses shrunk from multi-megabyte JSON payloads to a few kilobytes. 
-- A simple, indexed query of a tiny payload executes fast enough without a shared cache that the user experience feels instantaneous.
+- A simple, indexed query of a tiny payload executes fast enough without a shared cache that we haven't needed one.
 
 ### The Intermediate Step (HTTP Caching)
-If we need a shared cache before investing in Redis, our natural next step is **HTTP Caching** (e.g., `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`) on our read-only API list endpoints. Served through a CDN or edge network, this provides a shared cache with zero infrastructure overhead and no complex invalidation pipelines.
+If we need a shared cache before investing in Redis, our natural next step is **HTTP Caching** (e.g., `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`) on our read-only API list endpoints. Served through a CDN or edge network, this provides a shared cache with minimal infrastructure overhead and no complex invalidation pipelines. 
+*Note: HTTP caching with `s-maxage` only works for public data that is the same for everyone. Endpoints that vary by user or authentication status would need to be excluded or use `private`.*
 
 ### When to Re-evaluate
 We will reconsider server-side caching (Redis or Edge caching) if we observe any of the following triggers:
 - **Connection Pool Exhaustion:** Database connection errors or maxed-out pool limits (ensuring Supabase's connection pooler is properly configured).
-- **Latency Spikes:** p95 API latency consistently rises above 300ms.
+- **Latency Spikes:** p95 API latency consistently rises above 300ms (Current baseline: ~100-150ms).
 - **Expensive Queries:** The database slow query log shows repeated, expensive queries that cannot be optimized with indexes.
+- **Sustained High CPU:** Database CPU utilization consistently exceeds 80-90% during spikes in concurrent users.
