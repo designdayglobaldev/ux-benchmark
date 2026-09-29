@@ -27,6 +27,8 @@ router.post('/inspect', async (req, res) => {
     }
 
     // Ensure the image string doesn't contain the data URI prefix if it's there
+    const match = imageBase64.match(/^data:(image\/(png|jpeg|jpg|webp));base64,/);
+    const mediaType = match ? (match[1] === 'image/jpg' ? 'image/jpeg' : match[1]) : 'image/jpeg';
     const base64Data = imageBase64.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, '');
 
     const message = await anthropic.messages.create({
@@ -78,6 +80,8 @@ router.post('/insights', async (req, res) => {
       return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured in the server' });
     }
 
+    const match = imageBase64.match(/^data:(image\/(png|jpeg|jpg|webp));base64,/);
+    const mediaType = match ? (match[1] === 'image/jpg' ? 'image/jpeg' : match[1]) : 'image/jpeg';
     const base64Data = imageBase64.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, '');
 
     const message = await anthropic.messages.create({
