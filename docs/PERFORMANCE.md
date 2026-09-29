@@ -87,27 +87,27 @@ Because the Client application shares the same REST API and global React Query c
 
 ### The Problem
 After optimizing API payloads, network analysis revealed that the application was still transferring up to **95.4 MB of data** on image-heavy pages (like the Dashboard, Browse, or Admin grids).
-The root cause was rendering raw, high-resolution PNGs (often 1-2 MB each) directly inside tiny 200px thumbnail grids. Although the HTTP cache prevented infinite loops on re-renders, the initial download of 100+ raw PNGs instantly exhausted bandwidth limits.
+The root cause was rendering raw, high-resolution PNGs (often 1-2 MB each) directly inside grids.
 
-### The Solutions
+### The Initial Attempt: Supabase Transformations
+We initially utilized Supabase's built-in Image Transformation endpoint (`/render/image/public/`) to resize and convert images to WebP on the fly. 
+**However, this hit a critical bottleneck:** Supabase limits free projects to only 100 origin images for transformations. Once the limit was hit, all transformations were blocked and the site crashed on local environments while trying to download the massive original files.
 
-#### 1. Supabase Image Transformations (WebP)
-We utilized Supabase's built-in Image Transformation endpoint (`/render/image/public/`) instead of the standard storage endpoint (`/object/public/`).
-By appending `?width=400&quality=80&resize=contain&format=webp` to the URLs, we forced the CDN to perform server-side resizing and convert the images to the highly-efficient WebP format.
+### The Permanent Solutions
 
-#### 2. Reusable `OptimizedImage` Component
-We upgraded the `OptimizedImage` helper component to intercept standard Supabase URLs and automatically apply the transformation parameters based on the component's rendered size.
-- **Context-Aware Sizing:** Small thumbnails request `width=100`, while larger cards request `width=400` or `width=600`.
-- **Original Quality Preserved:** Full-screen views and inspectors bypass the component, ensuring original pixel-perfect quality is always available.
-- **Layout Safety:** We fixed a layout bug by ensuring `OptimizedImage` correctly wraps its `<img>` and `<Skeleton>` tags inside a `<div>` when a `containerClassName` is provided. This ensures that sizing and clipping (like `rounded-[20px]`) function correctly without stretching the image.
+#### 1. Client-Side Image Compression (Admin Panel)
+To prevent new massive images from ever entering the database, we implemented native HTML5 `<canvas>` compression inside `apps/admin/src/lib/supabase.ts`.
+- **How it works:** When an admin selects an image to upload, the browser draws the image to an invisible canvas, resizes it to a maximum width of **800px**, and exports it as a **WebP at 80% quality**.
+- **Safeguard:** It checks if the new WebP file is mathematically smaller than the original upload. If it is, only the tiny WebP is sent to the Supabase bucket.
 
-#### 3. Targeted Lazy Loading
-We implemented the `loading="lazy"` attribute by default for all images below the fold, preventing the browser from requesting hundreds of images simultaneously.
-A `priority` prop was added to eagerly load only the first few images visible "above the fold" using `fetchpriority="high"`.
+#### 2. Historical Data Migration Script
+To fix the 2,300+ massive PNG files already sitting in the database, we wrote a one-time Node.js migration script (`apps/api/src/scripts/migrate-images.ts`) using the `sharp` library.
+- It crawled the database for any `.png` or `.jpg` screens.
+- It downloaded, compressed, and converted them to WebP (saving 80-90% file size per image).
+- It re-uploaded the `.webp` files alongside the originals in the bucket, and safely updated the database URLs.
 
 ### The Results
 We measured the impact of these changes on the most image-heavy components (Dashboard, AppAllScreens, Benchmark, and Admin grids) using DevTools Network tabs:
 - **Total Payload (Images):** On an 11-image page load, total image resources plummeted from **~4.8 MB** (unoptimized PNGs) to just **~82.2 KB** (WebP).
-- **Average Image Size:** Dropped from **~450 KB - 1.4 MB** to **~2 KB - 15 KB** (a >98% reduction per image).
-- **Number of Requests:** Initial page loads now only trigger requests for the visible fold, successfully deferring off-screen content.
-- **Visual Integrity:** All layouts, aspect ratios, and rounded corners (thanks to the `className` wrapper fix) were perfectly preserved without distortion.
+- **Average Image Size:** Dropped from **~450 KB - 1.4 MB** to **~15 KB - 60 KB** (an 80-90% reduction per image).
+- **Zero Cost:** By permanently squashing the source files in the bucket and compressing on the client-side, we entirely bypassed the need for paid 3rd-party Image CDNs or Supabase Image Transformation quotas.
