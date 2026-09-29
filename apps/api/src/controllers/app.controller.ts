@@ -161,9 +161,9 @@ export const createApp = async (req: Request, res: Response) => {
     });
     
     res.status(201).json(app);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to create app' });
+    res.status(500).json({ error: error.message || 'Failed to create app' });
   }
 };
 
@@ -193,9 +193,9 @@ export const updateApp = async (req: Request, res: Response) => {
     });
     
     res.json(app);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to update app' });
+    res.status(500).json({ error: error.message || 'Failed to update app' });
   }
 };
 
