@@ -94,7 +94,7 @@ export function AppPage() {
     if (isLoading) {
         return (
             <main className="flex-1 w-full bg-black relative pb-32 flex flex-col items-center">
-                <div className="flex flex-col xl:flex-row justify-between items-center xl:items-stretch pt-6 px-4 xl:px-6 gap-8 xl:gap-4 w-full max-w-[1920px] mx-auto">
+                <div className="flex flex-col xl:flex-row xl:justify-center items-center xl:items-stretch pt-6 px-4 xl:px-6 gap-8 xl:gap-8 w-full max-w-[1920px] mx-auto">
                     {/* Left Content Column Skeleton */}
                     <div className="w-full xl:max-w-[1100px] flex flex-col gap-12">
                     <div className="rounded-[12px] border border-[#2B2B29] bg-[#111111] w-full p-6 sm:p-8 flex flex-col">
@@ -147,7 +147,7 @@ export function AppPage() {
 
     return (
         <main className="flex-1 w-full bg-black relative pb-32 flex flex-col items-center">
-            <div className="flex flex-col xl:flex-row justify-between items-center xl:items-stretch pt-6 px-4 xl:px-6 gap-8 xl:gap-4 w-full max-w-[1920px] mx-auto">
+            <div className="flex flex-col xl:flex-row xl:justify-center items-center xl:items-stretch pt-6 px-4 xl:px-6 gap-8 xl:gap-8 w-full max-w-[1920px] mx-auto">
                 {/* Left Content Column */}
                 <div className="w-full xl:max-w-[1100px] flex flex-col">
 

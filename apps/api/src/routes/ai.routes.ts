@@ -927,17 +927,17 @@ router.post('/improve-design', async (req, res) => {
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
-      max_tokens: 4096,
-      system: `You are an expert UX/UI designer and frontend developer. Based on the attached UI screenshot and the following benchmark feedback, generate a fully functional React component using Tailwind CSS that implements the improved design fixing the UX issues.
+      max_tokens: 8192,
+      system: `You are an expert UX/UI designer and frontend developer. Based on the attached UI screenshot and the following benchmark feedback, generate a fully functional HTML page using Tailwind CSS that implements the improved design fixing the UX issues.
 
 CRITICAL INSTRUCTIONS:
-- Return ONLY the raw React code.
-- Do not use markdown code blocks like \`\`\`tsx or \`\`\`. Start directly with the import statements and end with the export statement.
-- Use Tailwind CSS classes for all styling.
-- Use lucide-react for icons.
-- Ensure the component is complete, self-contained, and interactive (e.g., hover states, active states).
-- Use default HTML elements, not external UI libraries (unless it's just lucide-react for icons).
-- Assume it will be rendered within a standard full-width container.
+- Return ONLY the raw HTML code. Do NOT wrap it in markdown blocks.
+- Start directly with <!DOCTYPE html> and end with </html>.
+- Include the Tailwind CSS CDN script: <script src="https://cdn.tailwindcss.com"></script> in the <head>.
+- Use default HTML elements and inline SVGs for icons.
+- Ensure the design is complete, self-contained, and looks beautiful.
+- AESTHETICS ARE CRITICAL: Use modern, premium design trends (e.g. glassmorphism, subtle soft drop shadows, sleek gradients, Apple-like rounded corners, perfect padding/margins, and high-contrast readable typography). Make it look like a state-of-the-art Dribbble mockup or an iOS 18 app. Do NOT output a basic, flat, generic UI.
+- VERY IMPORTANT: Be extremely concise to prevent truncation. Use placeholder text (Lorem ipsum) if it saves space. Do NOT let the output cut off.
 
 Benchmark Feedback:
 ${JSON.stringify(benchmarkResult, null, 2)}
@@ -956,11 +956,15 @@ ${JSON.stringify(benchmarkResult, null, 2)}
             },
             {
               type: 'text',
-              text: 'Please generate the improved React component code now. Remember, output ONLY valid TSX code, no markdown blocks.',
+              text: 'Please generate the improved HTML code now. Remember, output ONLY valid HTML code, no markdown blocks.',
             }
           ],
         },
       ],
+    }, {
+      headers: {
+        "anthropic-beta": "max-tokens-3-5-sonnet-2024-07-15"
+      }
     });
 
     const aiResponse = message.content
@@ -968,8 +972,12 @@ ${JSON.stringify(benchmarkResult, null, 2)}
       .map((block: any) => block.text)
       .join('\n');
 
-    // Sometimes Claude adds markdown blocks despite instructions, so strip them just in case
-    const cleanedResponse = aiResponse.replace(/^```tsx?\n/, '').replace(/^```\n/, '').replace(/```$/, '').trim();
+    let cleanedResponse = aiResponse;
+    const htmlBlockMatch = aiResponse.match(/```(?:html)?\n([\s\S]*?)```/);
+    if (htmlBlockMatch) {
+      cleanedResponse = htmlBlockMatch[1];
+    }
+    cleanedResponse = cleanedResponse.trim();
 
     res.json({ code: cleanedResponse });
   } catch (error: any) {

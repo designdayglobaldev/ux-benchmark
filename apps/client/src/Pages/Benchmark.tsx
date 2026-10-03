@@ -146,16 +146,18 @@ export function Benchmark() {
   ];
 
   // Improved Design States
-  const [improvedDesignCode, setImprovedDesignCode] = useState<string | null>(() => sessionStorage.getItem('benchmark_improvedDesignCode') || null);
+  const [improvedDesignCode, setImprovedDesignCode] = useState<string | null>(() => sessionStorage.getItem('benchmark_improvedDesignHTML') || null);
   const [isGeneratingDesign, setIsGeneratingDesign] = useState<boolean>(false);
   const generationAttemptedRef = useRef<string | null>(null);
 
   useEffect(() => {
     const generateImprovedDesign = async () => {
-      if (appState === 'results' && benchmarkData && uploadedImage && !improvedDesignCode && !isGeneratingDesign) {
+      if (appState === 'results' && benchmarkData && uploadedImage && !isGeneratingDesign) {
         if (generationAttemptedRef.current === uploadedImage) return;
         
         generationAttemptedRef.current = uploadedImage;
+        setImprovedDesignCode(null);
+        sessionStorage.removeItem('benchmark_improvedDesignHTML');
         setIsGeneratingDesign(true);
         try {
           const apiUrl = api.defaults.baseURL;
@@ -170,7 +172,7 @@ export function Benchmark() {
           const data = await res.json();
           if (data.code) {
             setImprovedDesignCode(data.code);
-            sessionStorage.setItem('benchmark_improvedDesignCode', data.code);
+            sessionStorage.setItem('benchmark_improvedDesignHTML', data.code);
           }
         } catch (err) {
           console.error("Error generating improved design:", err);
@@ -776,38 +778,21 @@ export function Benchmark() {
                       <div className="flex flex-col items-center justify-center p-12 bg-[#1a1a1a] rounded-2xl border border-[#333]">
                         <Loader2 className="w-8 h-8 text-[#4E6BFF] animate-spin mb-4" />
                         <p className="text-white text-[15px] font-medium">✨ AI is crafting an improved interactive design based on these findings...</p>
-                        <p className="text-[#888] text-[13px] mt-2">Generating live React + Tailwind code</p>
+                        <p className="text-[#888] text-[13px] mt-2">Generating live HTML + Tailwind code</p>
                       </div>
                     ) : (
                       <div className="rounded-2xl overflow-hidden border border-[#333]">
                         <Sandpack 
-                          template="react-ts"
+                          template="static"
                           theme="dark"
                           files={{
-                            "/App.tsx": improvedDesignCode || "",
-                            "/public/index.html": `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
-</html>`
+                            "/index.html": improvedDesignCode || "",
+                            "/styles.css": ""
                           }}
                           options={{
                             showNavigator: true,
                             showLineNumbers: true,
                             editorHeight: "600px",
-                            externalResources: ["https://cdn.tailwindcss.com"]
-                          }}
-                          customSetup={{
-                            dependencies: {
-                              "lucide-react": "latest"
-                            }
                           }}
                         />
                       </div>
