@@ -46,6 +46,7 @@ export const getAllFlows = async (req: Request, res: Response) => {
           where: { appId: actualAppId }
         } : false,
         screens: {
+          orderBy: { screenNo: 'asc' },
           select: {
             id: true,
             name: true,
@@ -93,6 +94,7 @@ export const getFlowById = async (req: Request, res: Response) => {
         updatedAt: true,
         screens: {
           where: appId ? { appId: String(appId) } : undefined,
+          orderBy: { screenNo: 'asc' },
           select: {
             id: true,
             name: true,
