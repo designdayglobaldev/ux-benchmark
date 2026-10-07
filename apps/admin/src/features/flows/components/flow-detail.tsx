@@ -1,7 +1,8 @@
 import { useDebounce } from '@/hooks/use-debounce';
 import { useState, useEffect } from 'react'
 import { getRouteApi, Link } from '@tanstack/react-router'
-import { ArrowLeft, Edit } from 'lucide-react'
+import { ArrowLeft, Edit, CheckCircle, Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -19,20 +20,42 @@ export function FlowDetail() {
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
   const [flow, setFlow] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isPublishing, setIsPublishing] = useState(false)
+
+  const fetchFlow = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}`)
+      if (!res.ok) throw new Error('Failed to fetch flow')
+      const data = await res.json()
+      setFlow(data)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleBulkPublish = async () => {
+    setIsPublishing(true)
+    toast.loading("Publishing all draft screens...")
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}/publish-screens`, {
+        method: 'PUT',
+      })
+      if (!res.ok) throw new Error('Failed to publish screens')
+      const data = await res.json()
+      toast.dismiss()
+      toast.success(data.message || `Successfully published screens!`)
+      fetchFlow() // refresh data
+    } catch (error: any) {
+      toast.dismiss()
+      toast.error(error.message || 'Failed to publish screens')
+    } finally {
+      setIsPublishing(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchFlow = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}`)
-        if (!res.ok) throw new Error('Failed to fetch flow')
-        const data = await res.json()
-        setFlow(data)
-      } catch (error) {
-        console.error(error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
     if (flowId) fetchFlow()
   }, [flowId])
 
@@ -93,6 +116,10 @@ export function FlowDetail() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+          <Button onClick={handleBulkPublish} disabled={isPublishing} variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
+            {isPublishing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
+            Publish All DRAFT Screens
+          </Button>
         </div>
         <Separator className='shadow-sm' />
 

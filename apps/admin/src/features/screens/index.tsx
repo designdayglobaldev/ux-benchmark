@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { TableSkeleton } from '@/components/ui/table-skeleton'
 import { OptimizedImage } from '@/components/ui/optimized-image'
+import { ImportMobbinModal } from './components/import-mobbin-modal'
 
 const route = getRouteApi('/_authenticated/screens/')
 
@@ -38,6 +39,7 @@ export function Screens() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [totalItems, setTotalItems] = useState(0)
+  const [isMobbinConnected, setIsMobbinConnected] = useState(false)
   const itemsPerPage = 50
 
   const fetchScreens = (page: number, search: string) => {
@@ -61,6 +63,14 @@ export function Screens() {
   useEffect(() => {
     fetchScreens(currentPage, debouncedSearchTerm)
   }, [currentPage, debouncedSearchTerm])
+
+  useEffect(() => {
+    // Check Mobbin connection status
+    fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/mobbin/status`)
+      .then(res => res.json())
+      .then(data => setIsMobbinConnected(data.isConnected))
+      .catch(console.error)
+  }, [])
 
   const handleDeleteScreen = async (screenId: string) => {
     try {
@@ -106,11 +116,27 @@ export function Screens() {
               Manage individual UI screenshots and their dynamic analysis blocks.
             </p>
           </div>
-          <Button asChild>
-            <Link to='/screens/new'>
-              <Plus className='mr-2 h-4 w-4' /> Upload Screen
-            </Link>
-          </Button>
+          <div className='flex items-center gap-2'>
+            {isMobbinConnected ? (
+              <Button variant="outline" disabled className="bg-green-50 text-green-700 border-green-200 cursor-default">
+                <img src="https://mobbin.com/favicon.ico" className="w-4 h-4 mr-2" alt="Mobbin" />
+                Mobbin Connected
+              </Button>
+            ) : (
+              <Button variant="outline" asChild>
+                <a href={`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/v1/mobbin/auth`}>
+                  <img src="https://mobbin.com/favicon.ico" className="w-4 h-4 mr-2" alt="Mobbin" />
+                  Connect Mobbin
+                </a>
+              </Button>
+            )}
+            <ImportMobbinModal isConnected={isMobbinConnected} onImportSuccess={() => fetchScreens(currentPage, debouncedSearchTerm)} />
+            <Button asChild>
+              <Link to='/screens/new'>
+                <Plus className='mr-2 h-4 w-4' /> Upload Screen
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <div className='my-4 flex items-end justify-between sm:my-0 sm:items-center'>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, ArrowRight, Settings2, Trash2, GripVertical } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Settings2, Trash2, GripVertical, CheckCircle, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import {
@@ -34,15 +34,15 @@ function AppFlowDetail() {
   const [flow, setFlow] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isManageSequenceOpen, setIsManageSequenceOpen] = useState(false)
+  const [isPublishing, setIsPublishing] = useState(false)
 
-  useEffect(() => {
+  const fetchFlowData = () => {
     fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}?appId=${appId}`)
       .then(res => res.json())
       .then(data => {
         // Sort screens by screenNo if available, otherwise by createdAt
         if (data && data.screens) {
           data.screens.sort((a: any, b: any) => (a.screenNo || 0) - (b.screenNo || 0))
-
         }
         setFlow(data)
         setIsLoading(false)
@@ -51,7 +51,31 @@ function AppFlowDetail() {
         console.error(err)
         setIsLoading(false)
       })
+  }
+
+  useEffect(() => {
+    fetchFlowData()
   }, [flowId])
+
+  const handleBulkPublish = async () => {
+    setIsPublishing(true)
+    toast.loading("Publishing all draft screens...")
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}/publish-screens`, {
+        method: 'PUT',
+      })
+      if (!res.ok) throw new Error('Failed to publish screens')
+      const data = await res.json()
+      toast.dismiss()
+      toast.success(data.message || `Successfully published screens!`)
+      fetchFlowData() // refresh data
+    } catch (error: any) {
+      toast.dismiss()
+      toast.error(error.message || 'Failed to publish screens')
+    } finally {
+      setIsPublishing(false)
+    }
+  }
 
   const handleDeleteFlow = async () => {
     try {
@@ -113,6 +137,10 @@ function AppFlowDetail() {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-3 mt-0.5">
+          <Button onClick={handleBulkPublish} disabled={isPublishing} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
+            {isPublishing ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <CheckCircle className="mr-2 w-4 h-4" />} 
+            Publish All DRAFT
+          </Button>
           <Button variant="secondary" onClick={() => setIsManageSequenceOpen(true)}>
             <Settings2 className="mr-2 w-4 h-4" /> Manage Sequence
           </Button>
