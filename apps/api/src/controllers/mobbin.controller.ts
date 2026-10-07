@@ -388,9 +388,10 @@ APP CONTEXT (Use this to deeply contextualize your analysis):
         // 2. Process image with Sharp (crop watermark + resize + compress to webp)
         const metadata = await sharp(buffer).metadata();
         
-        // The Mobbin watermark is usually a fixed percentage of the screen height (approx 5-6%)
-        // By cropping exactly 6% off the bottom, we guarantee it gets removed on any resolution.
-        const cropHeight = Math.floor((metadata.height || 0) * 0.94);
+        // The Mobbin watermark height scales proportionally with the image width (approx 5.6-5.8% of width)
+        // By cropping based on width, we guarantee it gets removed exactly regardless of if the image is tall or short.
+        const watermarkHeight = Math.floor((metadata.width || 0) * 0.058);
+        const cropHeight = Math.max(1, (metadata.height || 0) - watermarkHeight);
         
         const processedBuffer = await sharp(buffer)
           .extract({ 

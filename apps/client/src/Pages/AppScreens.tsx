@@ -23,7 +23,12 @@ export function AppScreens() {
                 return seqA - seqB;
             }
             
-            // Fallback to screenNo if in the same flow or both unsequenced
+            // If they are in different flows but have the same sequence (e.g. unsequenced), group by flowId first
+            if (a.flowId !== b.flowId) {
+                return (a.flowId || '').localeCompare(b.flowId || '');
+            }
+            
+            // Finally, sort by screenNo within the same flow
             return (a.screenNo || 0) - (b.screenNo || 0);
         });
     }, [appData?.screens, appData?.appFlows]);
