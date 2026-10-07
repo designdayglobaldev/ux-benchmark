@@ -172,6 +172,9 @@ model Screen {
   status      Status      @default(DRAFT)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
+  boardScreens BoardScreen[]
+  chatMessages ChatMessage[]
 }
 
 model UiElement {
@@ -232,6 +235,11 @@ model ClientUser {
   usages    AiUsage[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  workspacesOwned      Workspace[]
+  workspaceMemberships WorkspaceMember[]
+  boardScreensAdded    BoardScreen[]
+  chatMessages         ChatMessage[]
 }
 
 model AiUsage {
@@ -245,4 +253,71 @@ model AiUsage {
   updatedAt   DateTime   @updatedAt
 
   @@unique([userId, month, year])
+}
+
+model Workspace {
+  id        String   @id @default(uuid())
+  name      String
+  ownerId   String
+  owner     ClientUser @relation(fields: [ownerId], references: [id])
+  members   WorkspaceMember[]
+  boards    Board[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WorkspaceMember {
+  id          String   @id @default(uuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        ClientUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        String   @default("MEMBER") // e.g., OWNER, ADMIN, MEMBER
+  createdAt   DateTime @default(now())
+
+  @@unique([workspaceId, userId])
+}
+
+model Board {
+  id          String   @id @default(uuid())
+  name        String
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  screens     BoardScreen[]
+  messages    ChatMessage[]
+  canvasState Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BoardScreen {
+  id        String   @id @default(uuid())
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  screenId  String
+  screen    Screen   @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  addedById String
+  addedBy   ClientUser @relation(fields: [addedById], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([boardId, screenId])
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid())
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  userId    String
+  user      ClientUser @relation(fields: [userId], references: [id])
+  content   String
+  
+  // Optional reference to a specific screen if the comment is pinned to it
+  screenId  String?
+  screen    Screen?  @relation(fields: [screenId], references: [id], onDelete: SetNull)
+  
+  // Optional coordinates if it's a pin on the image itself
+  x         Float?
+  y         Float?
+  
+  createdAt DateTime @default(now())
 }

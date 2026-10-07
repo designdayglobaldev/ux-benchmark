@@ -161,6 +161,27 @@ export const deleteFlow = async (req: Request, res: Response) => {
   }
 };
 
+export const publishFlowScreens = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    const result = await prisma.screen.updateMany({
+      where: { 
+        flowId: id,
+        status: 'DRAFT'
+      },
+      data: { 
+        status: 'LIVE' 
+      },
+    });
+    
+    res.json({ message: 'Successfully published screens', count: result.count });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to bulk publish screens' });
+  }
+};
+
 export const reorderScreens = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
