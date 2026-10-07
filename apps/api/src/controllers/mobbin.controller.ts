@@ -19,21 +19,30 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 
-// File-based store to survive nodemon/hot-reloads
-const TOKENS_FILE = path.join(process.cwd(), 'mobbin-tokens.json');
-
-function readStore() {
+async function readStore() {
   try {
-    if (fs.existsSync(TOKENS_FILE)) {
-      return JSON.parse(fs.readFileSync(TOKENS_FILE, 'utf-8'));
+    const integration = await prisma.integration.findUnique({ where: { provider: 'MOBBIN' } });
+    if (integration && integration.config) {
+      return integration.config as any;
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error("Failed to read Mobbin store from DB", e);
+  }
   return { mobbinClientConfig: {}, mobbinTokens: {} };
 }
 
-function writeStore(data: any) {
-  const store = readStore();
-  fs.writeFileSync(TOKENS_FILE, JSON.stringify({ ...store, ...data }, null, 2));
+async function writeStore(data: any) {
+  try {
+    const store = await readStore();
+    const merged = { ...store, ...data };
+    await prisma.integration.upsert({
+      where: { provider: 'MOBBIN' },
+      update: { config: merged },
+      create: { provider: 'MOBBIN', config: merged }
+    });
+  } catch (e) {
+    console.error("Failed to write Mobbin store to DB", e);
+  }
 }
 
 async function refreshMobbinToken(store: any): Promise<any> {
@@ -66,7 +75,7 @@ async function refreshMobbinToken(store: any): Promise<any> {
     refreshToken: tokenData.refresh_token || store.mobbinTokens.refreshToken
   };
   
-  writeStore({ mobbinTokens: newTokens });
+  await writeStore({ mobbinTokens: newTokens });
   return newTokens;
 }
 
@@ -84,7 +93,7 @@ export const initiateMobbinAuth = async (req: Request, res: Response) => {
     const authMeta = await authMetaRes.json();
 
     // 3. Dynamic Client Registration (if we haven't registered yet)
-    let store = readStore();
+    let store = await readStore();
     if (!store.mobbinClientConfig?.clientId) {
       const redirectUri = `${process.env.VITE_API_URL || 'http://localhost:4000'}/api/v1/mobbin/callback`;
       
@@ -101,7 +110,7 @@ export const initiateMobbinAuth = async (req: Request, res: Response) => {
       if (!dcrRes.ok) throw new Error("Failed to register dynamic client");
       const clientData = await dcrRes.json();
       store.mobbinClientConfig = { clientId: clientData.client_id };
-      writeStore({ mobbinClientConfig: store.mobbinClientConfig });
+      await writeStore({ mobbinClientConfig: store.mobbinClientConfig });
     }
 
     // 4. Generate PKCE & State
@@ -150,7 +159,7 @@ export const mobbinCallback = async (req: Request, res: Response) => {
     const authMeta = await authMetaRes.json();
 
     const redirectUri = `${process.env.VITE_API_URL || 'http://localhost:4000'}/api/v1/mobbin/callback`;
-    const store = readStore();
+    const store = await readStore();
     
     // Exchange code for token
     const tokenRes = await fetch(authMeta.token_endpoint, {
@@ -172,8 +181,8 @@ export const mobbinCallback = async (req: Request, res: Response) => {
 
     const tokenData = await tokenRes.json();
     
-    // Save token to file
-    writeStore({
+    // Save token to DB
+    await writeStore({
       mobbinTokens: {
         accessToken: tokenData.access_token,
         refreshToken: tokenData.refresh_token
@@ -194,7 +203,7 @@ export const mobbinCallback = async (req: Request, res: Response) => {
 
 // Example endpoint to use the MCP client
 export const searchMobbinScreens = async (req: Request, res: Response) => {
-  const store = readStore();
+  const store = await readStore();
   
   // Check if we have an access token
   if (!store.mobbinTokens?.accessToken) {
@@ -535,6 +544,6 @@ IMPORTANT: You MUST use the submit_screen_data tool properly. Output a real JSON
 };
 
 export const getMobbinStatus = async (req: Request, res: Response) => {
-  const store = readStore();
+  const store = await readStore();
   res.json({ isConnected: !!store.mobbinTokens?.accessToken });
 };
