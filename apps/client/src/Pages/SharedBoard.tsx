@@ -21,7 +21,6 @@ export function SharedBoard() {
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [showMentions, setShowMentions] = useState(false);
   const [mentionFilter, setMentionFilter] = useState("");
-  const [mentionIndex, setMentionIndex] = useState(-1);
   const [replyingTo, setReplyingTo] = useState<any>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
