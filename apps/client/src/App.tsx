@@ -9,6 +9,8 @@ import { AppPage } from "./Pages/AppPage"
 import { AppFlows } from "./Pages/AppFlows"
 import { AppScreens } from "./Pages/AppScreens"
 import { AppAllScreens } from "./Pages/AppAllScreens"
+import { Workspaces } from "./Pages/Workspaces"
+import { SharedBoard } from "./Pages/SharedBoard"
 import { InspectContext } from "./contexts/InspectContext"
 import { AuthProvider } from "./contexts/AuthContext"
 import { Login } from "./Pages/Login"
@@ -57,6 +59,8 @@ function App() {
               <Route path="/app/:slug/screens" element={<AppProtectedRoute><AppScreens /></AppProtectedRoute>} />
               <Route path="/app/:slug/all-screens" element={<AppProtectedRoute><AppAllScreens /></AppProtectedRoute>} />
               <Route path="/app/:slug/screens/:screenSlug" element={<AppProtectedRoute><AppScreens /></AppProtectedRoute>} />
+              <Route path="/workspaces" element={<AppProtectedRoute><Workspaces /></AppProtectedRoute>} />
+              <Route path="/boards/:boardId" element={<AppProtectedRoute><SharedBoard /></AppProtectedRoute>} />
             </Route>
 
             {/* Routes without Navbar */}
