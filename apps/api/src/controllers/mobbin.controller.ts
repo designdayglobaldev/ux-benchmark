@@ -210,6 +210,22 @@ export const searchMobbinScreens = async (req: Request, res: Response) => {
     return res.status(401).json({ error: "Not authenticated with Mobbin. Please connect first." });
   }
 
+  // Pre-flight check: Ping Claude to ensure tokens/credits are active
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      await anthropic.messages.create({
+        model: "claude-3-haiku-20240307",
+        max_tokens: 1,
+        messages: [{ role: "user", content: "ping" }]
+      });
+    } catch (error: any) {
+      const msg = error?.message?.toLowerCase() || '';
+      if (error.status === 429 || error.status === 402 || msg.includes('credit') || msg.includes('balance') || msg.includes('billing') || msg.includes('quota') || msg.includes('fund')) {
+        return res.status(402).json({ error: "Claude AI credits expired! Please recharge your Anthropic account before uploading." });
+      }
+    }
+  }
+
   // Implement the @modelcontextprotocol/sdk here using the Bearer token
   const transport = new StreamableHTTPClientTransport(new URL("https://api.mobbin.com/mcp"), {
     requestInit: { headers: { Authorization: `Bearer ${store.mobbinTokens.accessToken}` } }
@@ -339,6 +355,9 @@ export const searchMobbinScreens = async (req: Request, res: Response) => {
 
     const uiElementsList = uiElements.map(e => `- ${e.title} (ID: ${e.id})`).join('\n');
     const patternsList = patterns.map(p => `- ${p.title} (ID: ${p.id})`).join('\n');
+    
+    const validUiElementIds = new Set(uiElements.map(e => e.id));
+    const validPatternIds = new Set(patterns.map(p => p.id));
     let appContext = '';
     if (appContextData) {
       appContext = `
@@ -507,8 +526,8 @@ IMPORTANT: You MUST use the submit_screen_data tool properly. Output a real JSON
                   evidenceWhoWhy: parsed.evidenceWhoWhy || '',
                   whereToUse: parsed.whereToUse || '',
                   whereNotToUse: parsed.whereNotToUse || '',
-                  uiElements: Array.isArray(parsed.uiElementIds) ? { connect: parsed.uiElementIds.map((id: string) => ({ id })) } : undefined,
-                  patterns: Array.isArray(parsed.patternIds) ? { connect: parsed.patternIds.map((id: string) => ({ id })) } : undefined
+                  uiElements: Array.isArray(parsed.uiElementIds) ? { connect: parsed.uiElementIds.filter((id: string) => validUiElementIds.has(id)).map((id: string) => ({ id })) } : undefined,
+                  patterns: Array.isArray(parsed.patternIds) ? { connect: parsed.patternIds.filter((id: string) => validPatternIds.has(id)).map((id: string) => ({ id })) } : undefined
                 }
               });
               console.log(`Successfully updated screen ${job.screenId} with AI analysis.`);

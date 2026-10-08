@@ -5,11 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { DownloadCloud, Loader2 } from 'lucide-react';
+import { DownloadCloud, Loader2, AlertTriangle } from 'lucide-react';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction } from '@/components/ui/alert-dialog';
 
 export function ImportMobbinModal({ isConnected, onImportSuccess }: { isConnected: boolean, onImportSuccess: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showTokenError, setShowTokenError] = useState(false);
   const [query, setQuery] = useState('');
   const [platform, setPlatform] = useState('web');
   const [searchType, setSearchType] = useState('flow');
@@ -61,7 +63,12 @@ export function ImportMobbinModal({ isConnected, onImportSuccess }: { isConnecte
       onImportSuccess();
     } catch (error: any) {
       toast.dismiss();
-      toast.error(error.message || 'Import failed');
+      if (error.message && error.message.includes("Claude AI credits expired")) {
+        setIsOpen(false);
+        setShowTokenError(true);
+      } else {
+        toast.error(error.message || 'Import failed');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -70,6 +77,7 @@ export function ImportMobbinModal({ isConnected, onImportSuccess }: { isConnecte
   if (!isConnected) return null;
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button className="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white">
@@ -144,5 +152,25 @@ export function ImportMobbinModal({ isConnected, onImportSuccess }: { isConnecte
         </div>
       </DialogContent>
     </Dialog>
+
+      <AlertDialog open={showTokenError} onOpenChange={setShowTokenError}>
+        <AlertDialogContent className="border-red-500 bg-red-50">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center text-red-700">
+              <AlertTriangle className="w-5 h-5 mr-2" />
+              Claude AI Credits Expired!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-red-900 mt-2 font-medium text-md">
+              Your Anthropic API key has run out of credits or has expired. Please log into your Anthropic console and recharge your balance before uploading more screens.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white" onClick={() => setShowTokenError(false)}>
+              I Understand
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

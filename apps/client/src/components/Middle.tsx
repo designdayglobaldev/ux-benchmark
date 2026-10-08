@@ -11,6 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { HotspotMode } from './HotspotMode';
 import { CompareMode } from './CompareMode';
+import { SaveToBoardButton } from './SaveToBoardButton';
 
 interface InsightData {
     title: string;
@@ -287,6 +288,7 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
                                 <Skeleton className="absolute inset-0 w-[243.71px] h-[544px] rounded-[16px] z-10" />
                             )}
                             <img
+                                key={activeScreen?.id || activeScreen?.imageUrl || 'default'}
                                 ref={imgRef}
                                 crossOrigin="anonymous"
                                 src={activeScreen?.imageUrl || RevolutScreenshot}
@@ -437,6 +439,7 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
                                 <img src="/compare.svg" alt="Compare" className="w-4 h-4" />
                                 Compare screens
                             </button>
+                            {activeScreen && <SaveToBoardButton screenId={activeScreen.id} />}
                         </div>
                     )}
 
