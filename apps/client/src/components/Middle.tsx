@@ -111,6 +111,20 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
         setIsImageLoaded(false);
         setInsightsData([]);
         setIsSummaryVisible(false);
+
+        const checkImage = () => {
+            if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+                setIsImageLoaded(true);
+            }
+        };
+        
+        checkImage();
+        const timeout = setTimeout(checkImage, 50);
+        const timeout2 = setTimeout(checkImage, 200);
+        return () => {
+            clearTimeout(timeout);
+            clearTimeout(timeout2);
+        };
     }, [activeScreen?.imageUrl]);
 
     useEffect(() => {
