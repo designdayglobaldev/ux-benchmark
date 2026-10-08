@@ -378,7 +378,7 @@ APP CONTEXT (Use this to deeply contextualize your analysis):
         const buffer = Buffer.from(arrayBuffer);
         
         const metadata = await sharp(buffer).metadata();
-        const watermarkHeight = Math.floor((metadata.width || 0) * 0.06);
+        const watermarkHeight = Math.floor((metadata.width || 0) * 0.075);
         const cropHeight = Math.max(1, (metadata.height || 0) - watermarkHeight);
         
         processedBuffer = await sharp(buffer)
