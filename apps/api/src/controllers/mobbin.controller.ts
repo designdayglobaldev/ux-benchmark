@@ -352,31 +352,23 @@ APP CONTEXT (Use this to deeply contextualize your analysis):
 `;
     }
 
-    const importedScreens = [];
+    
+    const backgroundJobs: { screenId: string; base64Image: string; mScreen: any }[] = [];
 
-    // Process screens sequentially
-    for (const [index, mScreen] of mobbinScreens.entries()) {
-      if (!mScreen.image_url) continue;
+    // 1. Parallelize Image Download + DB Creation (Fast Phase)
+    const screenPromises = mobbinScreens.map(async (mScreen: any, index: number) => {
+      if (!mScreen.image_url) return null;
 
       let finalImageUrl = mScreen.image_url;
-      let uxAnalysis = mScreen.description || '';
-      let tonalityAndContent = '';
-      let keyHighlights = '';
-      let evidenceWhoWhy = '';
-      let whereToUse = '';
-      let whereNotToUse = '';
-      let uiElementIds: string[] = [];
-      let patternIds: string[] = [];
       const screenNo = startingScreenNo + index + 1;
-      
       const appNameStr = appContextData?.name || 'App';
       const flowNameStr = flowContextData?.name || 'Flow';
       const screenName = `${appNameStr} - ${flowNameStr} - Screen ${screenNo}`;
 
-      // 1. Download image
+      let processedBuffer: Buffer | null = null;
+
       try {
         const imgRes = await fetch(mScreen.image_url);
-        
         let contentType = imgRes.headers.get('content-type') || 'image/jpeg';
         if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(contentType)) {
           contentType = 'image/jpeg';
@@ -385,26 +377,16 @@ APP CONTEXT (Use this to deeply contextualize your analysis):
         const arrayBuffer = await imgRes.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
         
-        // 2. Process image with Sharp (crop watermark + resize + compress to webp)
         const metadata = await sharp(buffer).metadata();
-        
-        // The Mobbin watermark height scales proportionally with the image width (approx 5.6-5.8% of width)
-        // By cropping based on width, we guarantee it gets removed exactly regardless of if the image is tall or short.
         const watermarkHeight = Math.floor((metadata.width || 0) * 0.058);
         const cropHeight = Math.max(1, (metadata.height || 0) - watermarkHeight);
         
-        const processedBuffer = await sharp(buffer)
-          .extract({ 
-            left: 0, 
-            top: 0, 
-            width: metadata.width || 0, 
-            height: cropHeight 
-          })
-          .resize({ width: 600 }) // Shrink width to 600px to save thousands of AI tokens per screen
+        processedBuffer = await sharp(buffer)
+          .extract({ left: 0, top: 0, width: metadata.width || 0, height: cropHeight })
+          .resize({ width: 600 })
           .webp({ quality: 80 })
           .toBuffer();
         
-        // 3. Upload to Supabase
         const fileName = `screens/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
         const { data, error } = await supabase.storage.from('apps').upload(fileName, processedBuffer, {
           contentType: 'image/webp'
@@ -413,12 +395,56 @@ APP CONTEXT (Use this to deeply contextualize your analysis):
         if (!error && data) {
           finalImageUrl = `${process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL}/storage/v1/object/public/apps/${data.path}`;
         }
-        
-        // Analyze with Claude Vision if API key is provided
-        if (process.env.ANTHROPIC_API_KEY) {
+      } catch (e) {
+        console.error("Failed to download/upload image", e);
+      }
+
+      // Save to DB initially (without Claude analysis)
+      const baseSlug = screenName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
+
+      const newScreen = await prisma.screen.create({
+        data: {
+          appId,
+          flowId,
+          name: screenName,
+          slug,
+          screenNo,
+          imageUrl: finalImageUrl,
+          status: 'DRAFT',
+          uxAnalysis: mScreen.description || '',
+          tonalityAndContent: '',
+          keyHighlights: '',
+          evidenceWhoWhy: '',
+          whereToUse: '',
+          whereNotToUse: ''
+        }
+      });
+
+      if (processedBuffer && process.env.ANTHROPIC_API_KEY) {
+        backgroundJobs.push({
+          screenId: newScreen.id,
+          base64Image: processedBuffer.toString('base64'),
+          mScreen
+        });
+      }
+
+      return newScreen;
+    });
+
+    const importedScreens = (await Promise.all(screenPromises)).filter(Boolean);
+
+    // Respond immediately to prevent frontend timeout!
+    res.json({ message: "Import successful", count: importedScreens.length, screens: importedScreens });
+
+    // 2. Background Claude processing (Slow Phase)
+    if (backgroundJobs.length > 0) {
+      setTimeout(async () => {
+        console.log(`Starting background AI processing for ${backgroundJobs.length} screens...`);
+        for (let i = 0; i < backgroundJobs.length; i++) {
+          const job = backgroundJobs[i];
           try {
-            console.log(`Analyzing screen ${index + 1} with Claude...`);
-            const base64Image = processedBuffer.toString('base64');
+            console.log(`Analyzing screen ${i + 1}/${backgroundJobs.length} with Claude...`);
             const message = await anthropic.messages.create({
               model: "claude-sonnet-5",
               max_tokens: 4096,
@@ -440,18 +466,8 @@ IMPORTANT: You MUST use the submit_screen_data tool properly. Output a real JSON
                 {
                   role: "user",
                   content: [
-                    {
-                      type: "image",
-                      source: {
-                        type: "base64",
-                        media_type: "image/webp",
-                        data: base64Image,
-                      }
-                    },
-                    {
-                      type: "text",
-                      text: "Please analyze this UI screen and generate the structured screen data, including assigning relevant uiElementIds and patternIds."
-                    }
+                    { type: "image", source: { type: "base64", media_type: "image/webp", data: job.base64Image } },
+                    { type: "text", text: "Please analyze this UI screen and generate the structured screen data, including assigning relevant uiElementIds and patternIds." }
                   ]
                 }
               ],
@@ -468,16 +484,8 @@ IMPORTANT: You MUST use the submit_screen_data tool properly. Output a real JSON
                       evidenceWhoWhy: { type: "string", description: "Analysis of the target demographic this screen serves and the psychological triggers it relies on. Format as HTML." },
                       whereToUse: { type: "string", description: "Recommendations on when a designer should steal or adapt this pattern. Format as HTML." },
                       whereNotToUse: { type: "string", description: "Warnings on when this pattern would fail or be inappropriate. Format as HTML." },
-                      uiElementIds: { 
-                        type: "array", 
-                        items: { type: "string" }, 
-                        description: "Array of UI Element IDs present on this screen, selected ONLY from the provided list." 
-                      },
-                      patternIds: { 
-                        type: "array", 
-                        items: { type: "string" }, 
-                        description: "Array of UX Pattern IDs present on this screen, selected ONLY from the provided list." 
-                      }
+                      uiElementIds: { type: "array", items: { type: "string" } },
+                      patternIds: { type: "array", items: { type: "string" } }
                     },
                     required: ["uxAnalysis", "tonalityAndContent", "keyHighlights", "evidenceWhoWhy", "whereToUse", "whereNotToUse", "uiElementIds", "patternIds"]
                   }
@@ -486,58 +494,32 @@ IMPORTANT: You MUST use the submit_screen_data tool properly. Output a real JSON
               tool_choice: { type: "tool", name: "submit_screen_data" }
             });
 
-            const toolCall = message.content.find((block) => block.type === 'tool_use');
+            const toolCall = message.content.find((block: any) => block.type === 'tool_use');
             if (toolCall && toolCall.type === 'tool_use') {
               const parsed = toolCall.input as any;
-              uxAnalysis = parsed.uxAnalysis || uxAnalysis;
-              tonalityAndContent = parsed.tonalityAndContent || tonalityAndContent;
-              keyHighlights = parsed.keyHighlights || keyHighlights;
-              evidenceWhoWhy = parsed.evidenceWhoWhy || evidenceWhoWhy;
-              whereToUse = parsed.whereToUse || whereToUse;
-              whereNotToUse = parsed.whereNotToUse || whereNotToUse;
-              if (Array.isArray(parsed.uiElementIds)) uiElementIds = parsed.uiElementIds;
-              if (Array.isArray(parsed.patternIds)) patternIds = parsed.patternIds;
+              
+              await prisma.screen.update({
+                where: { id: job.screenId },
+                data: {
+                  uxAnalysis: parsed.uxAnalysis || job.mScreen.description || '',
+                  tonalityAndContent: parsed.tonalityAndContent || '',
+                  keyHighlights: parsed.keyHighlights || '',
+                  evidenceWhoWhy: parsed.evidenceWhoWhy || '',
+                  whereToUse: parsed.whereToUse || '',
+                  whereNotToUse: parsed.whereNotToUse || '',
+                  uiElements: Array.isArray(parsed.uiElementIds) ? { connect: parsed.uiElementIds.map((id: string) => ({ id })) } : undefined,
+                  patterns: Array.isArray(parsed.patternIds) ? { connect: parsed.patternIds.map((id: string) => ({ id })) } : undefined
+                }
+              });
+              console.log(`Successfully updated screen ${job.screenId} with AI analysis.`);
             }
-
           } catch (e) {
-            console.error("Claude analysis failed:", e);
+            console.error(`Claude analysis failed for screen ${job.screenId}:`, e);
           }
         }
-      } catch (e) {
-        console.error("Failed to download/upload image", e);
-      }
-
-      // 3. Save to DB
-      const baseSlug = screenName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
-
-      const newScreen = await prisma.screen.create({
-        data: {
-          appId,
-          flowId,
-          name: screenName,
-          slug,
-          screenNo,
-          imageUrl: finalImageUrl,
-          status: 'DRAFT',
-          uxAnalysis,
-          tonalityAndContent,
-          keyHighlights,
-          evidenceWhoWhy,
-          whereToUse,
-          whereNotToUse,
-          uiElements: {
-            connect: uiElementIds.map(id => ({ id }))
-          },
-          patterns: {
-            connect: patternIds.map(id => ({ id }))
-          }
-        }
-      });
-      importedScreens.push(newScreen);
+      }, 0);
     }
 
-    res.json({ message: "Import successful", count: importedScreens.length, screens: importedScreens });
   } catch (error: any) {
     console.error("MCP Tool Error:", error);
     res.status(500).json({ error: error.message });
