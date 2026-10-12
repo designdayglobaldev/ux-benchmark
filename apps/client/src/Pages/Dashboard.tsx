@@ -4,7 +4,6 @@ import { Sparkles, ArrowUpRight, ListFilter, Check } from "lucide-react";
 import revolutImg from "@/assets/Revolut.png";
 import revolutLogo from "@/assets/Revolut_logo.png";
 import canvasImg from "@/assets/Canvas.png";
-// @ts-ignore
 import { SubmitModule } from "../components/Submit_module";
 import { useApps } from "@/hooks/useApps";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -102,7 +101,7 @@ export function Dashboard() {
 
 
             {/* Filter Bar */}
-            <div className="sticky top-[73px] z-40 w-full bg-black px-4 sm:px-[30px] pt-4 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="sticky top-[64px] z-40 w-full bg-black px-4 sm:px-[30px] pt-4 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 
                 <div className="flex items-center gap-8 overflow-x-auto no-scrollbar whitespace-nowrap">
                     {/* Sort Tabs */}

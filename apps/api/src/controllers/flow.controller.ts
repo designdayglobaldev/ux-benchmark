@@ -55,7 +55,15 @@ export const getAllFlows = async (req: Request, res: Response) => {
             screenNo: true,
             appId: true,
             status: true,
-            app: { select: { name: true, appLogo: true, slug: true } }
+            app: {
+              select: {
+                id: true,
+                name: true,
+                appLogo: true,
+                slug: true,
+                category: { select: { title: true, slug: true } }
+              }
+            }
           }
         },
       },
@@ -82,8 +90,10 @@ export const getFlowById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { appId } = req.query;
     
-    const flow = await prisma.flow.findUnique({
-      where: { id },
+    const flow = await prisma.flow.findFirst({
+      where: {
+        OR: [{ id }, { slug: id }]
+      },
       select: {
         id: true,
         name: true,
@@ -103,7 +113,15 @@ export const getFlowById = async (req: Request, res: Response) => {
             screenNo: true,
             appId: true,
             status: true,
-            app: { select: { name: true, slug: true } }
+            app: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                appLogo: true,
+                category: { select: { title: true, slug: true } }
+              }
+            }
           }
         },
       }

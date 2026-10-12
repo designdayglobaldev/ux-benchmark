@@ -5,6 +5,7 @@ import { Dashboard } from "./Pages/Dashboard"
 import { Browse } from "./Pages/Browse"
 import { Benchmark } from "./Pages/Benchmark"
 import { Flows } from "./Pages/Flows"
+import { FlowDetail } from "./Pages/FlowDetail"
 import { AppPage } from "./Pages/AppPage"
 import { AppFlows } from "./Pages/AppFlows"
 import { AppScreens } from "./Pages/AppScreens"
@@ -52,6 +53,7 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/benchmark" element={<Benchmark />} />
               <Route path="/flows" element={<Flows />} />
+              <Route path="/flows/:slug" element={<FlowDetail />} />
               <Route path="/browse" element={<Browse />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/app/:slug" element={<AppProtectedRoute><AppPage /></AppProtectedRoute>} />
@@ -60,6 +62,7 @@ function App() {
               <Route path="/app/:slug/all-screens" element={<AppProtectedRoute><AppAllScreens /></AppProtectedRoute>} />
               <Route path="/app/:slug/screens/:screenSlug" element={<AppProtectedRoute><AppScreens /></AppProtectedRoute>} />
               <Route path="/workspaces" element={<AppProtectedRoute><Workspaces /></AppProtectedRoute>} />
+              <Route path="/collections" element={<AppProtectedRoute><Workspaces /></AppProtectedRoute>} />
               <Route path="/boards/:boardId" element={<AppProtectedRoute><SharedBoard /></AppProtectedRoute>} />
             </Route>
 

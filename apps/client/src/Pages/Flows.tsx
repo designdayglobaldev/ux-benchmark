@@ -93,8 +93,10 @@ export function Flows() {
                                 <div key={flow.id} className={`flex flex-col gap-4 group ${isBlurred ? 'pointer-events-none select-none' : ''}`}>
                                     <div 
                                         onClick={() => {
-                                            if (!isBlurred && appList.length > 0) {
-                                                navigate(`/app/${appList[0].slug}/flows`);
+                                            if (!isBlurred) {
+                                                navigate(`/flows/${flow.slug || flow.id}`);
+                                            } else {
+                                                navigate('/register');
                                             }
                                         }}
                                         className="bg-[#161616] border border-[#222222] rounded-[24px] p-6 aspect-[4/3] w-full relative overflow-hidden flex items-center justify-center cursor-pointer transition-colors hover:bg-[#1E1E1E]"

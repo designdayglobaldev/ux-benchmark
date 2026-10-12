@@ -37,7 +37,20 @@ export const getWorkspaces = async (req: Request, res: Response) => {
         }
       },
       include: {
-        boards: true
+        boards: {
+          include: {
+            screens: {
+              include: {
+                screen: true
+              }
+            }
+          }
+        },
+        members: {
+          include: {
+            user: true
+          }
+        }
       }
     });
     res.json(workspaces);

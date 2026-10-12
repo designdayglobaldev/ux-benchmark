@@ -11,7 +11,19 @@ const placeholders = [
   "Search for UI elements.."
 ];
 
-export function SearchModal() {
+interface SearchModalProps {
+  placeholder?: string;
+  className?: string;
+  inputClassName?: string;
+  showScanIcon?: boolean;
+}
+
+export function SearchModal({
+  placeholder,
+  className,
+  inputClassName,
+  showScanIcon = false,
+}: SearchModalProps = {}) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -177,14 +189,16 @@ export function SearchModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="relative w-full cursor-pointer" onClick={() => setOpen(true)}>
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-[#A1A1A1]" />
+        <div className={`relative w-full cursor-pointer ${className || ""}`} onClick={() => setOpen(true)}>
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-[17px] w-[17px] text-[#777777]" />
           <div 
-            className="flex items-center w-full h-[44px] bg-[#1A1A1A] rounded-[22px] pl-[42px] pr-[42px] text-[15px] text-[#888888] hover:bg-[#222222] transition-colors border border-transparent hover:border-[#333333]"
+            className={inputClassName || "flex items-center w-full h-[40px] bg-[#161616]/90 rounded-full pl-[40px] pr-4 text-[14px] text-[#777777] hover:bg-[#202020] transition-colors border border-[#262626] hover:border-[#333333]"}
           >
-            {displayText || " "}
+            {displayText || placeholder || "Search for apps.."}
           </div>
-          <Scan className="absolute right-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-[#A1A1A1] hover:text-white transition-colors" />
+          {showScanIcon && (
+            <Scan className="absolute right-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-[#A1A1A1] hover:text-white transition-colors" />
+          )}
         </div>
       </DialogTrigger>
       <DialogContent className="max-w-[800px] bg-[#161616] border-[#222222] text-white p-0 gap-0 rounded-[16px] overflow-hidden">
