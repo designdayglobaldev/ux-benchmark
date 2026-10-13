@@ -163,18 +163,38 @@ Importing flows and screens uses a **Two-Phase Architecture** to guarantee fast 
   * **Logs** (Dropdown)
     * ↳ **Incomplete Screens** (`/logs`)
 
-### C. Incomplete Screens Page
+### C. Incomplete Screens Page & 504 Timeout Safeguard
 * **File:** `apps/admin/src/features/logs/index.tsx`
 * **Features:**
   * Fetches incomplete screens from `GET /api/v1/screens/unprocessed`.
   * Full numerical pagination (`Previous`, `1`, `2`, `...`, `Next`) with items-per-page summary.
-  * **Individual "Analyze" Button:** Re-runs Claude analysis for a single screen with live loading spinner.
-  * **"Re-analyze Page" Button:** Calls `POST /api/v1/screens/batch-analyze` to process the entire visible page sequentially.
+  * **Individual "Analyze" Button:** Re-runs Claude analysis for a single screen with live loading spinner (`POST /api/v1/screens/:id/analyze`).
+  * **Sequential Client-Side Batch Processing (504 Timeout Prevention):**
+    * Processing 20 screens in a single HTTP request takes ~80–100 seconds (Claude takes ~3–5s per screen), which inevitably triggers Nginx's `504 Gateway Time-out` (60s proxy timeout).
+    * Rather than calling a long-running monolithic batch endpoint, the Admin UI iterates sequentially screen-by-screen calling `/api/v1/screens/:id/analyze`.
+    * Each request takes ~3–4s, staying well within any gateway proxy limits.
+  * **Live Progress Counter:** The batch button dynamically renders `Analyzing 3/20...` as each screen finishes.
+  * **HTML / Non-JSON Error Detection:** Checks `res.headers.get('content-type')?.includes('application/json')` before calling `res.json()`, preventing `SyntaxError: Unexpected token '<'` when servers return HTML error pages (e.g. 504 Gateway Time-out or 502 Bad Gateway).
+  * **Token Exhaustion Loop Interruption:** If any request returns `402` or token exhaustion, the batch loop breaks immediately, sets `setShowTokenError(true)`, and triggers the Anthropic billing dialog.
   * **Billing Alert Modal:** Dedicated red alert modal directing admins to `console.anthropic.com/settings/billing` if credits are still expired.
 
 ---
 
-## 8. End-User Client Cache Fix
+## 8. Flow Detail & Publishing Safeguards
+
+### "Publish All DRAFT" Auto-Disable
+* **Files:**
+  * `apps/admin/src/features/flows/components/flow-detail.tsx`
+  * `apps/admin/src/routes/_authenticated/apps/$appId/flows/$flowId.tsx`
+* **Behavior:**
+  * If a flow has screens and **none** of them are in `DRAFT` status (all are already `PUBLISHED`):
+    * The **"Publish All DRAFT"** button is automatically disabled (`disabled={allPublished}`, `opacity-50 cursor-not-allowed`).
+    * The button label changes dynamically to **"All Screens Published"** with a `Check` icon.
+  * Prevents redundant bulk update API calls and provides clear visual confirmation of publication state.
+
+---
+
+## 9. End-User Client Cache Fix
 
 * **File:** `apps/client/src/components/Middle.tsx`
 * **Problem:** When users click the back arrow, the browser pulls the previous image from memory cache instantaneously, skipping the `onLoad` event and leaving the screen stuck on the skeleton loader.
