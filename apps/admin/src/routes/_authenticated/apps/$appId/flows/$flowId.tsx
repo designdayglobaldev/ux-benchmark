@@ -137,10 +137,21 @@ function AppFlowDetail() {
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-3 mt-0.5">
-          <Button onClick={handleBulkPublish} disabled={isPublishing} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
-            {isPublishing ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <CheckCircle className="mr-2 w-4 h-4" />} 
-            Publish All DRAFT
-          </Button>
+          {(() => {
+            const screensList = flow.screens || [];
+            const hasDraftScreens = screensList.some((s: any) => s.status !== 'LIVE');
+            const canPublish = hasDraftScreens && screensList.length > 0;
+            return (
+              <Button 
+                onClick={handleBulkPublish} 
+                disabled={isPublishing || !canPublish} 
+                className={canPublish ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm" : "opacity-50 cursor-not-allowed"}
+              >
+                {isPublishing ? <Loader2 className="mr-2 w-4 h-4 animate-spin" /> : <CheckCircle className="mr-2 w-4 h-4" />} 
+                {canPublish ? "Publish All DRAFT" : "All Screens Published"}
+              </Button>
+            );
+          })()}
           <Button variant="secondary" onClick={() => setIsManageSequenceOpen(true)}>
             <Settings2 className="mr-2 w-4 h-4" /> Manage Sequence
           </Button>

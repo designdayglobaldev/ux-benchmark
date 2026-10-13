@@ -116,10 +116,21 @@ export function FlowDetail() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button onClick={handleBulkPublish} disabled={isPublishing} variant="default" className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
-            {isPublishing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
-            Publish All DRAFT Screens
-          </Button>
+          {(() => {
+            const hasDraftScreens = screens.some((s: any) => s.status !== 'LIVE');
+            const canPublish = hasDraftScreens && screens.length > 0;
+            return (
+              <Button 
+                onClick={handleBulkPublish} 
+                disabled={isPublishing || !canPublish} 
+                variant="default" 
+                className={canPublish ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm" : "opacity-50 cursor-not-allowed"}
+              >
+                {isPublishing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
+                {canPublish ? "Publish All DRAFT Screens" : "All Screens Published"}
+              </Button>
+            );
+          })()}
         </div>
         <Separator className='shadow-sm' />
 
