@@ -5,6 +5,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { createClient } from '@supabase/supabase-js';
 import { prisma } from '../db/prisma';
 import Anthropic from '@anthropic-ai/sdk';
+import { markScreensProcessing, unmarkScreenProcessing, clearScreensProcessing } from '../services/analysis-queue.service';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || 'dummy_to_prevent_crash',
@@ -324,13 +325,45 @@ export const searchMobbinScreens = async (req: Request, res: Response) => {
       return res.json({ message: "No screens found", count: 0 });
     }
 
-    // Find the max screenNo for this flow
+    // 1. Deduplicate screens within the Mobbin response by image URL
+    const seenUrls = new Set<string>();
+    const uniqueMobbinScreens: any[] = [];
+    for (const s of mobbinScreens) {
+      const url = s.image_url || s.imageUrl || s.url;
+      if (url && !seenUrls.has(url)) {
+        seenUrls.add(url);
+        uniqueMobbinScreens.push({
+          ...s,
+          image_url: url
+        });
+      }
+    }
+
+    // 2. Fetch existing screens in this flow to avoid duplicate uploads
     const existingScreens = await prisma.screen.findMany({
       where: { flowId },
+      select: { imageUrl: true, screenNo: true },
       orderBy: { screenNo: 'desc' },
-      take: 1
     });
-    let startingScreenNo = existingScreens.length > 0 && existingScreens[0].screenNo ? existingScreens[0].screenNo : 0;
+
+    // If importing a flow and the selected flow already has screens, reject the import!
+    if (searchType === "flow" && existingScreens.length > 0) {
+      return res.status(409).json({
+        error: `This flow already has ${existingScreens.length} screens uploaded! Cannot upload the same flow twice. Please select or create a different flow.`
+      });
+    }
+
+    const existingImageUrls = new Set(existingScreens.map(s => s.imageUrl));
+    const startingScreenNo = existingScreens.length > 0 && existingScreens[0].screenNo ? existingScreens[0].screenNo : 0;
+
+    // Filter out screens that are already in this flow
+    const screensToImport = uniqueMobbinScreens.filter(s => !existingImageUrls.has(s.image_url));
+
+    if (screensToImport.length === 0) {
+      return res.status(409).json({ 
+        error: "These screens have already been uploaded to this flow! Duplicate import rejected." 
+      });
+    }
 
     // Fetch context data for AI
     const [uiElements, patterns, appContextData, flowContextData] = await Promise.all([
@@ -371,54 +404,67 @@ APP CONTEXT (Use this to deeply contextualize your analysis):
 `;
     }
 
-    
     const backgroundJobs: { screenId: string; base64Image: string; mScreen: any }[] = [];
 
-    // 1. Parallelize Image Download + DB Creation (Fast Phase)
-    const screenPromises = mobbinScreens.map(async (mScreen: any, index: number) => {
-      if (!mScreen.image_url) return null;
+    // Helper to fetch image with 1 automatic retry
+    const downloadImageWithRetry = async (url: string): Promise<Buffer | null> => {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          const imgRes = await fetch(url);
+          if (!imgRes.ok) throw new Error(`HTTP ${imgRes.status}`);
+          const arrayBuffer = await imgRes.arrayBuffer();
+          return Buffer.from(arrayBuffer);
+        } catch (err) {
+          if (attempt === 2) {
+            console.error(`Failed to download image after 2 attempts: ${url}`, err);
+            return null;
+          }
+          await new Promise(r => setTimeout(r, 500));
+        }
+      }
+      return null;
+    };
 
-      let finalImageUrl = mScreen.image_url;
+    // 1. Process screens (Controlled batching of 3 at a time to prevent socket exhaustion)
+    const importedScreens: any[] = [];
+    
+    for (let index = 0; index < screensToImport.length; index++) {
+      const mScreen = screensToImport[index];
       const screenNo = startingScreenNo + index + 1;
       const appNameStr = appContextData?.name || 'App';
       const flowNameStr = flowContextData?.name || 'Flow';
       const screenName = `${appNameStr} - ${flowNameStr} - Screen ${screenNo}`;
-
+      
+      let finalImageUrl = mScreen.image_url;
       let processedBuffer: Buffer | null = null;
 
       try {
-        const imgRes = await fetch(mScreen.image_url);
-        let contentType = imgRes.headers.get('content-type') || 'image/jpeg';
-        if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(contentType)) {
-          contentType = 'image/jpeg';
-        }
+        const buffer = await downloadImageWithRetry(mScreen.image_url);
+        if (buffer) {
+          const metadata = await sharp(buffer).metadata();
+          const watermarkHeight = Math.floor((metadata.width || 0) * 0.08);
+          const cropHeight = Math.max(1, (metadata.height || 0) - watermarkHeight);
 
-        const arrayBuffer = await imgRes.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-        
-        const metadata = await sharp(buffer).metadata();
-        const watermarkHeight = Math.floor((metadata.width || 0) * 0.08);
-        const cropHeight = Math.max(1, (metadata.height || 0) - watermarkHeight);
-        
-        processedBuffer = await sharp(buffer)
-          .extract({ left: 0, top: 0, width: metadata.width || 0, height: cropHeight })
-          .resize({ width: 600 })
-          .webp({ quality: 80 })
-          .toBuffer();
-        
-        const fileName = `screens/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
-        const { data, error } = await supabase.storage.from('apps').upload(fileName, processedBuffer, {
-          contentType: 'image/webp'
-        });
-        
-        if (!error && data) {
-          finalImageUrl = `${process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL}/storage/v1/object/public/apps/${data.path}`;
+          processedBuffer = await sharp(buffer)
+            .extract({ left: 0, top: 0, width: metadata.width || 0, height: cropHeight })
+            .resize({ width: 600 })
+            .webp({ quality: 80 })
+            .toBuffer();
+
+          const fileName = `screens/${Date.now()}_${Math.random().toString(36).substring(7)}.webp`;
+          const { data, error } = await supabase.storage.from('apps').upload(fileName, processedBuffer, {
+            contentType: 'image/webp'
+          });
+
+          if (!error && data) {
+            finalImageUrl = `${process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL}/storage/v1/object/public/apps/${data.path}`;
+          }
         }
       } catch (e) {
-        console.error("Failed to download/upload image", e);
+        console.error(`Failed processing image for screen ${screenNo}:`, e);
       }
 
-      // Save to DB initially (without Claude analysis)
+      // Save to DB
       const baseSlug = screenName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
       const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
 
@@ -440,6 +486,8 @@ APP CONTEXT (Use this to deeply contextualize your analysis):
         }
       });
 
+      importedScreens.push(newScreen);
+
       if (processedBuffer && process.env.ANTHROPIC_API_KEY) {
         backgroundJobs.push({
           screenId: newScreen.id,
@@ -447,17 +495,16 @@ APP CONTEXT (Use this to deeply contextualize your analysis):
           mScreen
         });
       }
-
-      return newScreen;
-    });
-
-    const importedScreens = (await Promise.all(screenPromises)).filter(Boolean);
+    }
 
     // Respond immediately to prevent frontend timeout!
     res.json({ message: "Import successful", count: importedScreens.length, screens: importedScreens });
 
     // 2. Background Claude processing (Slow Phase)
     if (backgroundJobs.length > 0) {
+      const allJobScreenIds = backgroundJobs.map(j => j.screenId);
+      markScreensProcessing(allJobScreenIds);
+
       setTimeout(async () => {
         console.log(`Starting background AI processing for ${backgroundJobs.length} screens...`);
         for (let i = 0; i < backgroundJobs.length; i++) {
@@ -532,8 +579,18 @@ IMPORTANT: You MUST use the submit_screen_data tool properly. Output a real JSON
               });
               console.log(`Successfully updated screen ${job.screenId} with AI analysis.`);
             }
-          } catch (e) {
+          } catch (e: any) {
             console.error(`Claude analysis failed for screen ${job.screenId}:`, e);
+            const msg = (e?.message || '').toLowerCase();
+            if (e?.status === 429 || e?.status === 402 || msg.includes('credit') || msg.includes('balance') || msg.includes('billing') || msg.includes('quota') || msg.includes('fund')) {
+              console.warn(`[Claude AI] Stopping remaining background jobs (${backgroundJobs.length - (i + 1)} left) due to credit/balance exhaustion.`);
+              // Immediately clear remaining screens from processing tracker so they appear as CUT OFF in Logs
+              const remainingIds = backgroundJobs.slice(i).map(j => j.screenId);
+              clearScreensProcessing(remainingIds);
+              break;
+            }
+          } finally {
+            unmarkScreenProcessing(job.screenId);
           }
         }
       }, 0);

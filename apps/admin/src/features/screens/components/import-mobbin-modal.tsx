@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 export function ImportMobbinModal({ isConnected, onImportSuccess }: { isConnected: boolean, onImportSuccess: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [showTokenError, setShowTokenError] = useState(false);
   const [query, setQuery] = useState('');
   const [platform, setPlatform] = useState('web');
@@ -36,9 +37,11 @@ export function ImportMobbinModal({ isConnected, onImportSuccess }: { isConnecte
   }, [isOpen]);
 
   const handleImport = async () => {
+    if (isSubmittingRef.current || isLoading) return;
     if (!query) return toast.error("Please enter a search query");
     if (!appId || !flowId) return toast.error("Please select an app and flow");
 
+    isSubmittingRef.current = true;
     setIsLoading(true);
     toast.loading("Searching and importing from Mobbin...");
 
@@ -57,7 +60,10 @@ export function ImportMobbinModal({ isConnected, onImportSuccess }: { isConnecte
       const searchData = await searchRes.json();
       
       toast.dismiss();
-      toast.success(`Successfully imported ${searchData.count || 0} screens from Mobbin!`);
+      toast.success(
+        `Imported ${searchData.count || 0} screens! AI is analyzing in background. If credits run out, you can review and re-analyze them anytime in "Logs & Incomplete".`,
+        { duration: 6000 }
+      );
       
       setIsOpen(false);
       onImportSuccess();
@@ -71,6 +77,7 @@ export function ImportMobbinModal({ isConnected, onImportSuccess }: { isConnecte
       }
     } finally {
       setIsLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 

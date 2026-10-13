@@ -37,6 +37,7 @@ import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenti
 import { Route as AuthenticatedFlowsIndexRouteImport } from './routes/_authenticated/flows/index'
 import { Route as AuthenticatedFlowsNewRouteImport } from './routes/_authenticated/flows/new'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
+import { Route as AuthenticatedLogsIndexRouteImport } from './routes/_authenticated/logs/index'
 import { Route as AuthenticatedPatternsIndexRouteImport } from './routes/_authenticated/patterns/index'
 import { Route as AuthenticatedPatternsNewRouteImport } from './routes/_authenticated/patterns/new'
 import { Route as AuthenticatedScreensIndexRouteImport } from './routes/_authenticated/screens/index'
@@ -220,6 +221,11 @@ const AuthenticatedHelpCenterIndexRoute =
     path: '/help-center/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLogsIndexRoute = AuthenticatedLogsIndexRouteImport.update({
+  id: '/logs/',
+  path: '/logs/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPatternsIndexRoute =
   AuthenticatedPatternsIndexRouteImport.update({
     id: '/patterns/',
@@ -482,6 +488,7 @@ export interface FileRoutesByFullPath {
   '/client-users/': typeof AuthenticatedClientUsersIndexRoute
   '/flows/': typeof AuthenticatedFlowsIndexRoute
   '/help-center/': typeof AuthenticatedHelpCenterIndexRoute
+  '/logs/': typeof AuthenticatedLogsIndexRoute
   '/patterns/': typeof AuthenticatedPatternsIndexRoute
   '/screens/': typeof AuthenticatedScreensIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
@@ -545,6 +552,7 @@ export interface FileRoutesByTo {
   '/client-users': typeof AuthenticatedClientUsersIndexRoute
   '/flows': typeof AuthenticatedFlowsIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
+  '/logs': typeof AuthenticatedLogsIndexRoute
   '/patterns': typeof AuthenticatedPatternsIndexRoute
   '/screens': typeof AuthenticatedScreensIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
@@ -614,6 +622,7 @@ export interface FileRoutesById {
   '/_authenticated/client-users/': typeof AuthenticatedClientUsersIndexRoute
   '/_authenticated/flows/': typeof AuthenticatedFlowsIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
+  '/_authenticated/logs/': typeof AuthenticatedLogsIndexRoute
   '/_authenticated/patterns/': typeof AuthenticatedPatternsIndexRoute
   '/_authenticated/screens/': typeof AuthenticatedScreensIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
@@ -681,6 +690,7 @@ export interface FileRouteTypes {
     | '/client-users/'
     | '/flows/'
     | '/help-center/'
+    | '/logs/'
     | '/patterns/'
     | '/screens/'
     | '/settings/'
@@ -744,6 +754,7 @@ export interface FileRouteTypes {
     | '/client-users'
     | '/flows'
     | '/help-center'
+    | '/logs'
     | '/patterns'
     | '/screens'
     | '/settings'
@@ -812,6 +823,7 @@ export interface FileRouteTypes {
     | '/_authenticated/client-users/'
     | '/_authenticated/flows/'
     | '/_authenticated/help-center/'
+    | '/_authenticated/logs/'
     | '/_authenticated/patterns/'
     | '/_authenticated/screens/'
     | '/_authenticated/settings/'
@@ -1049,6 +1061,13 @@ declare module '@tanstack/react-router' {
       path: '/help-center'
       fullPath: '/help-center/'
       preLoaderRoute: typeof AuthenticatedHelpCenterIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/logs/': {
+      id: '/_authenticated/logs/'
+      path: '/logs'
+      fullPath: '/logs/'
+      preLoaderRoute: typeof AuthenticatedLogsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/patterns/': {
@@ -1391,6 +1410,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedClientUsersIndexRoute: typeof AuthenticatedClientUsersIndexRoute
   AuthenticatedFlowsIndexRoute: typeof AuthenticatedFlowsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
+  AuthenticatedLogsIndexRoute: typeof AuthenticatedLogsIndexRoute
   AuthenticatedPatternsIndexRoute: typeof AuthenticatedPatternsIndexRoute
   AuthenticatedScreensIndexRoute: typeof AuthenticatedScreensIndexRoute
   AuthenticatedStaffIndexRoute: typeof AuthenticatedStaffIndexRoute
@@ -1432,6 +1452,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedClientUsersIndexRoute: AuthenticatedClientUsersIndexRoute,
   AuthenticatedFlowsIndexRoute: AuthenticatedFlowsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,
+  AuthenticatedLogsIndexRoute: AuthenticatedLogsIndexRoute,
   AuthenticatedPatternsIndexRoute: AuthenticatedPatternsIndexRoute,
   AuthenticatedScreensIndexRoute: AuthenticatedScreensIndexRoute,
   AuthenticatedStaffIndexRoute: AuthenticatedStaffIndexRoute,

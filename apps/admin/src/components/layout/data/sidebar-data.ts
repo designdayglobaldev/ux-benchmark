@@ -18,6 +18,8 @@ import {
   GalleryVerticalEnd,
   Users,
   MessageSquare,
+  ScrollText,
+  FileWarning,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -149,6 +151,17 @@ export const sidebarData: SidebarData = {
           title: 'Staff Management',
           url: '/staff',
           icon: UserCog,
+        },
+        {
+          title: 'Logs',
+          icon: ScrollText,
+          items: [
+            {
+              title: 'Incomplete Screens',
+              url: '/logs',
+              icon: FileWarning,
+            },
+          ],
         },
         {
           title: 'Help Center',
