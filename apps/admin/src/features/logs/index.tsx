@@ -73,6 +73,8 @@ export function Logs() {
     }
   }
 
+  const [batchProgress, setBatchProgress] = useState<{ current: number; total: number } | null>(null)
+
   const handleAnalyze = async (screenId: string) => {
     try {
       setAnalyzingId(screenId)
@@ -86,15 +88,16 @@ export function Logs() {
         }
       })
 
-      const data = await res.json()
+      const isJson = res.headers.get('content-type')?.includes('application/json')
+      const data = isJson ? await res.json() : null
 
-      if (res.status === 402 || (data.error && data.error.includes('credits expired'))) {
+      if (res.status === 402 || (data?.error && data.error.includes('credits expired'))) {
         setShowTokenError(true)
         return
       }
 
       if (!res.ok) {
-        throw new Error(data.error || 'Analysis failed')
+        throw new Error(data?.error || `Analysis failed (${res.status} ${res.statusText})`)
       }
 
       toast.success('AI Analysis completed successfully!')
@@ -113,40 +116,53 @@ export function Logs() {
 
     try {
       setBatchAnalyzing(true)
-      toast.info(`Starting batch analysis for this page (${screens.length} screens)...`)
+      const total = screens.length
+      setBatchProgress({ current: 0, total })
+      toast.info(`Starting sequential analysis for ${total} screens...`)
 
-      const screenIds = screens.map(s => s.id)
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/v1/screens/batch-analyze`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ screenIds })
-      })
+      let successCount = 0
 
-      const data = await res.json()
+      for (let i = 0; i < screens.length; i++) {
+        const screen = screens[i]
+        setBatchProgress({ current: i + 1, total })
 
-      if (res.status === 402 || (data.error && data.error.includes('credits expired'))) {
-        setShowTokenError(true)
-        return
-      }
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/v1/screens/${screen.id}/analyze`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          })
 
-      if (data.results) {
-        const anyExpired = data.results.some((r: any) => r.error && r.error.includes('credits expired'))
-        if (anyExpired) {
-          setShowTokenError(true)
+          const isJson = res.headers.get('content-type')?.includes('application/json')
+          const data = isJson ? await res.json() : null
+
+          if (res.status === 402 || (data?.error && data.error.includes('credits expired'))) {
+            setShowTokenError(true)
+            toast.error('Claude API credits expired. Stopped re-analysis.')
+            break
+          }
+
+          if (res.ok) {
+            successCount++
+          } else {
+            console.warn(`Screen ${screen.id} analysis failed with status: ${res.status}`)
+          }
+        } catch (itemErr: any) {
+          console.error(`Error analyzing screen ${screen.id}:`, itemErr)
         }
       }
 
-      toast.success(`Completed! Analyzed ${data.successfulCount || 0} screens.`)
+      toast.success(`Completed! Analyzed ${successCount} of ${total} screens.`)
       // Refresh list
       fetchUnprocessedScreens(currentPage)
     } catch (err: any) {
       console.error('Batch error:', err)
-      toast.error(err.message || 'Batch analysis failed')
+      toast.error(err.message || 'Batch analysis encountered an error')
     } finally {
       setBatchAnalyzing(false)
+      setBatchProgress(null)
     }
   }
 
@@ -193,7 +209,9 @@ export function Logs() {
                 className="bg-indigo-600 hover:bg-indigo-700 text-white"
               >
                 <Sparkles className={`w-4 h-4 mr-2 ${batchAnalyzing ? 'animate-spin' : ''}`} />
-                {batchAnalyzing ? 'Analyzing Screens...' : `Re-analyze Page (${screens.length})`}
+                {batchAnalyzing 
+                  ? (batchProgress ? `Analyzing ${batchProgress.current}/${batchProgress.total}...` : 'Analyzing Screens...') 
+                  : `Re-analyze Page (${screens.length})`}
               </Button>
             )}
           </div>
