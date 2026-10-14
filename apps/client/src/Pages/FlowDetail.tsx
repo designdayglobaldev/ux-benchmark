@@ -9,6 +9,7 @@ import { ChevronRight, ChevronDown, ChevronLeft, Lock, Check } from "lucide-reac
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
+import { ScreenActionOverlay } from "@/components/ScreenActionOverlay";
 
 interface Screen {
   id: string;
@@ -609,6 +610,16 @@ function ScreenCard({
           isLocked ? "filter blur-[12px] opacity-75 scale-105" : ""
         }`}
       />
+
+      {/* Top-Right Hover Action Overlay (Bookmark/Collections & Copy) */}
+      {!isLocked && (
+        <ScreenActionOverlay 
+          screenId={screen.id}
+          imageUrl={screen.imageUrl}
+          screenName={screen.name}
+          appName={screen.app?.name}
+        />
+      )}
 
       {/* Locked Overlay with hover reveal:
           "Locked state, “unlock screen” label will only be visible when hovered the initial lock icon" */}

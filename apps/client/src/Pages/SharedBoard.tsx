@@ -11,6 +11,7 @@ import canvasImg from "@/assets/Canvas.png";
 import authImg from "@/assets/auth.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { ScreenActionOverlay } from "@/components/ScreenActionOverlay";
 
 interface ScreenCardItem {
   id: string;
@@ -560,12 +561,20 @@ export function SharedBoard() {
             )}>
               {displayedScreens.map((screen) => (
                 <div key={screen.id} className="flex flex-col group cursor-pointer">
-                  {/* Phone Device Frame - Clean screenshot without ANY overlay */}
+                  {/* Phone Device Frame - Clean screenshot with top-right action overlay on hover */}
                   <div className="relative aspect-[9/19.5] w-full bg-black rounded-[24px] sm:rounded-[28px] border-[3px] border-[#202020] shadow-[0_12px_36px_rgba(0,0,0,0.85)] overflow-hidden group-hover:border-[#383838] transition-all">
                     <img 
                       src={screen.imageUrl} 
                       alt={screen.name} 
                       className="w-full h-full object-cover object-top select-none transition-transform duration-300 group-hover:scale-[1.02]"
+                    />
+
+                    {/* Top-Right Hover Action Overlay (Bookmark/Collections & Copy) */}
+                    <ScreenActionOverlay 
+                      screenId={screen.id}
+                      imageUrl={screen.imageUrl}
+                      screenName={screen.name}
+                      appName={screen.appName}
                     />
                   </div>
 

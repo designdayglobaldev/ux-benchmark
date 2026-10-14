@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { OptimizedImage } from '@/components/ui/optimized-image';
+import { ScreenActionOverlay } from '@/components/ScreenActionOverlay';
 import api from '@/utils/api';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -540,6 +541,13 @@ export function Benchmark() {
                           <span className="text-[#888] text-[13px] font-medium tracking-wide px-1">{app.name}</span>
                           <div className={`h-[400px] aspect-[230/500] rounded-[16px] overflow-hidden border border-[#333] shadow-lg relative bg-black flex items-center justify-center group`}>
                             <OptimizedImage src={app.imageUrl} className={`w-full h-full object-cover grayscale ${app.opacity || 'opacity-50'} group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300`} alt={app.name} optimizationWidth={400} priority={idx < 2} />
+                            
+                            {/* Top-Right Action Overlay (Save to Collection & Copy) */}
+                            <ScreenActionOverlay 
+                              screenId={app.id}
+                              imageUrl={app.imageUrl}
+                              screenName={app.name}
+                            />
                           </div>
                       </div>
                     ))}

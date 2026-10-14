@@ -5,7 +5,6 @@ import {
   LogOut, 
   LogIn, 
   UserPlus, 
-  Layers, 
   Sparkles, 
   FolderKanban,
   Bookmark,
@@ -194,24 +193,12 @@ export function Navbar() {
                   type="button"
                   onClick={() => {
                     setIsProfileOpen(false);
-                    navigate("/workspaces");
-                  }}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#CCCCCC] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
-                >
-                  <Layers className="w-4 h-4 text-[#888888]" />
-                  <span>Workspaces</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    navigate("/workspaces");
+                    navigate("/collections");
                   }}
                   className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#CCCCCC] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
                 >
                   <FolderKanban className="w-4 h-4 text-[#888888]" />
-                  <span>Saved Boards</span>
+                  <span>Collections</span>
                 </button>
 
                 <button

@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import RevolutLogo from "@/assets/Revolut_logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InteractiveFlowModal } from "@/components/InteractiveFlowModal";
+import { ScreenActionOverlay } from "@/components/ScreenActionOverlay";
 import { useSEO } from "@/hooks/useSEO";
 
 interface Flow {
@@ -275,6 +276,14 @@ export function AppFlows() {
                                                     src={screen.imageUrl} 
                                                     alt={screen.name}
                                                     className="w-full h-full object-cover"
+                                                />
+
+                                                {/* Top-Right Hover Action Overlay (Bookmark/Collections & Copy) */}
+                                                <ScreenActionOverlay 
+                                                    screenId={screen.id}
+                                                    imageUrl={screen.imageUrl}
+                                                    screenName={screen.name}
+                                                    appName={appData?.name}
                                                 />
                                                 
                                                 {/* Hover Overlay */}

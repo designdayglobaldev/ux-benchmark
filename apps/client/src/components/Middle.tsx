@@ -11,7 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { HotspotMode } from './HotspotMode';
 import { CompareMode } from './CompareMode';
-import { SaveToBoardButton } from './SaveToBoardButton';
+import { ScreenActionOverlay } from './ScreenActionOverlay';
 
 interface InsightData {
     title: string;
@@ -297,7 +297,7 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
                             </button>
                         )}
 
-                        <div className={`relative w-[243.71px] mx-auto ${isInspectMode ? 'z-50' : ''}`}>
+                        <div className={`relative w-[243.71px] mx-auto group ${isInspectMode ? 'z-50' : ''}`}>
                             {!isImageLoaded && (
                                 <Skeleton className="absolute inset-0 w-[243.71px] h-[544px] rounded-[16px] z-10" />
                             )}
@@ -310,6 +310,16 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
                                 onLoad={() => setIsImageLoaded(true)}
                                 className={`w-[243.71px] h-[544px] rounded-[16px] object-cover mx-auto block transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
                             />
+
+                            {/* Top Right Hover Actions: Bookmark (Collections) & Copy */}
+                            {activeScreen && (
+                                <ScreenActionOverlay 
+                                    screenId={activeScreen.id}
+                                    imageUrl={activeScreen.imageUrl}
+                                    screenName={activeScreen.name}
+                                    appName={appName}
+                                />
+                            )}
                             
                             {/* AI Insights Summary Overlay */}
                             {isSummaryVisible && (
@@ -453,7 +463,6 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
                                 <img src="/compare.svg" alt="Compare" className="w-4 h-4" />
                                 Compare screens
                             </button>
-                            {activeScreen && <SaveToBoardButton screenId={activeScreen.id} />}
                         </div>
                     )}
 

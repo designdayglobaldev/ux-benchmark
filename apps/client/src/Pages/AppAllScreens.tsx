@@ -7,6 +7,7 @@ import RevolutLogo from "@/assets/Revolut_logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { InteractiveFlowModal } from "@/components/InteractiveFlowModal";
+import { ScreenActionOverlay } from "@/components/ScreenActionOverlay";
 import { useSEO } from "@/hooks/useSEO";
 
 function ImageWithSkeleton({ src, alt, className, loading = "lazy" }: { src: string, alt: string, className?: string, loading?: "eager" | "lazy" }) {
@@ -191,6 +192,14 @@ export function AppAllScreens() {
                                                     src={screen.imageUrl} 
                                                     alt={screen.name}
                                                     className="w-full h-full object-cover"
+                                                />
+
+                                                {/* Top-Right Hover Action Overlay (Bookmark/Collections & Copy) */}
+                                                <ScreenActionOverlay 
+                                                    screenId={screen.id}
+                                                    imageUrl={screen.imageUrl}
+                                                    screenName={screen.name}
+                                                    appName={appData?.name}
                                                 />
                                                 
                                                 {/* Hover Overlay */}
