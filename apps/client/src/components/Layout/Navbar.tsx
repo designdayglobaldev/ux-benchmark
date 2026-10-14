@@ -3,8 +3,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { 
   Bell, 
   LogOut, 
-  LogIn, 
-  UserPlus, 
   Sparkles, 
   FolderKanban,
   Bookmark,
@@ -144,119 +142,105 @@ export function Navbar() {
             <Bell className="w-[19px] h-[19px]" />
           </button>
 
-          {/* Upgrade Button */}
-          <button
-            type="button"
-            onClick={openUpgradeModal}
-            className="flex items-center justify-center bg-gradient-to-r from-[#443627] via-[#2d252f] to-[#2b2236] border border-white/10 hover:border-white/20 text-white font-medium text-[13px] px-5 py-1.5 rounded-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-          >
-            Upgrade
-          </button>
-
-          {/* Profile Icon Dropdown */}
-          <Popover open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-            <PopoverTrigger asChild>
+          {/* Guest User: Show Login Button | Authenticated User: Show Upgrade & Profile */}
+          {user ? (
+            <>
+              {/* Upgrade Button */}
               <button
                 type="button"
-                aria-label="User Profile Menu"
-                className="w-[34px] h-[34px] rounded-full bg-[#3d2b1f] border border-[#6b4c37]/50 text-[#d4a373] flex items-center justify-center font-medium text-[14px] hover:opacity-90 transition-opacity cursor-pointer shadow-sm focus:outline-none"
+                onClick={openUpgradeModal}
+                className="flex items-center justify-center bg-gradient-to-r from-[#443627] via-[#2d252f] to-[#2b2236] border border-white/10 hover:border-white/20 text-white font-medium text-[13px] px-5 py-1.5 rounded-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
               >
-                {userInitial}
+                Upgrade
               </button>
-            </PopoverTrigger>
 
-            <PopoverContent
-              align="end"
-              sideOffset={8}
-              className="w-[230px] p-2 bg-[#141414] border border-[#262626] rounded-xl text-white shadow-2xl z-50"
+              {/* Profile Icon Dropdown */}
+              <Popover open={isProfileOpen} onOpenChange={setIsProfileOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="User Profile Menu"
+                    className="w-[34px] h-[34px] rounded-full bg-[#3d2b1f] border border-[#6b4c37]/50 text-[#d4a373] flex items-center justify-center font-medium text-[14px] hover:opacity-90 transition-opacity cursor-pointer shadow-sm focus:outline-none"
+                  >
+                    {userInitial}
+                  </button>
+                </PopoverTrigger>
+
+                <PopoverContent
+                  align="end"
+                  sideOffset={8}
+                  className="w-[230px] p-2 bg-[#141414] border border-[#262626] rounded-xl text-white shadow-2xl z-50"
+                >
+                  {/* User Info Header */}
+                  <div className="px-3 py-2.5 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#3d2b1f] text-[#d4a373] flex items-center justify-center font-medium text-xs border border-[#6b4c37]/50 shrink-0">
+                      {userInitial}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <p className="text-[13px] font-medium text-white truncate">
+                        {user.email}
+                      </p>
+                      <span className="text-[11px] text-[#888888]">
+                        Free Plan
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-[#222222] my-1" />
+
+                  {/* Navigation Items */}
+                  <div className="flex flex-col gap-0.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        navigate("/collections");
+                      }}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#CCCCCC] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
+                    >
+                      <FolderKanban className="w-4 h-4 text-[#888888]" />
+                      <span>Collections</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        openUpgradeModal();
+                      }}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#CCCCCC] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
+                    >
+                      <Sparkles className="w-4 h-4 text-[#d4a373]" />
+                      <span>Upgrade to PRO</span>
+                    </button>
+                  </div>
+
+                  <div className="h-px bg-[#222222] my-1" />
+
+                  {/* Sign out */}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setIsProfileOpen(false);
+                      await signOut();
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#FF5555] hover:bg-[#261515] transition-colors text-left cursor-pointer w-full"
+                  >
+                    <LogOut className="w-4 h-4 text-[#FF5555]" />
+                    <span>Sign out</span>
+                  </button>
+                </PopoverContent>
+              </Popover>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="flex items-center justify-center bg-white text-black hover:bg-[#EBEBEB] font-medium text-[13px] px-5 py-1.5 rounded-full shadow-sm active:scale-95 transition-all cursor-pointer"
             >
-              {/* User Info Header */}
-              <div className="px-3 py-2.5 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#3d2b1f] text-[#d4a373] flex items-center justify-center font-medium text-xs border border-[#6b4c37]/50 shrink-0">
-                  {userInitial}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <p className="text-[13px] font-medium text-white truncate">
-                    {user?.email || "Guest User"}
-                  </p>
-                  <span className="text-[11px] text-[#888888]">
-                    {user ? "Free Plan" : "Not signed in"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="h-px bg-[#222222] my-1" />
-
-              {/* Navigation Items */}
-              <div className="flex flex-col gap-0.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    navigate("/collections");
-                  }}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#CCCCCC] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
-                >
-                  <FolderKanban className="w-4 h-4 text-[#888888]" />
-                  <span>Collections</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    openUpgradeModal();
-                  }}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#CCCCCC] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
-                >
-                  <Sparkles className="w-4 h-4 text-[#d4a373]" />
-                  <span>Upgrade to PRO</span>
-                </button>
-              </div>
-
-              <div className="h-px bg-[#222222] my-1" />
-
-              {/* Auth Action */}
-              {user ? (
-                <button
-                  type="button"
-                  onClick={async () => {
-                    setIsProfileOpen(false);
-                    await signOut();
-                  }}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#FF5555] hover:bg-[#261515] transition-colors text-left cursor-pointer w-full"
-                >
-                  <LogOut className="w-4 h-4 text-[#FF5555]" />
-                  <span>Sign out</span>
-                </button>
-              ) : (
-                <div className="flex flex-col gap-0.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsProfileOpen(false);
-                      navigate("/login");
-                    }}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
-                  >
-                    <LogIn className="w-4 h-4 text-[#888888]" />
-                    <span>Log in</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsProfileOpen(false);
-                      navigate("/register");
-                    }}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#888888] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
-                  >
-                    <UserPlus className="w-4 h-4 text-[#888888]" />
-                    <span>Create account</span>
-                  </button>
-                </div>
-              )}
-            </PopoverContent>
-          </Popover>
+              Login
+            </button>
+          )}
         </div>
       </div>
     </header>

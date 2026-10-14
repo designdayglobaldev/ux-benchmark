@@ -14,15 +14,51 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
 export function Waitlist() {
   const [waitlist, setWaitlist] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [processingId, setProcessingId] = useState<{email: string, action: 'approve' | 'reject'} | null>(null)
+  const [autoApprove, setAutoApprove] = useState<boolean>(false)
+  const [updatingSetting, setUpdatingSetting] = useState(false)
 
   useEffect(() => {
     fetchWaitlist()
+    fetchApprovalSetting()
   }, [])
+
+  const fetchApprovalSetting = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/v1/auth/approval-settings`)
+      if (res.ok) {
+        const data = await res.json()
+        setAutoApprove(Boolean(data.autoApprove))
+      }
+    } catch (err) {
+      console.error('Error fetching approval setting', err)
+    }
+  }
+
+  const handleToggleAutoApprove = async (checked: boolean) => {
+    try {
+      setUpdatingSetting(true)
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/v1/auth/approval-settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ autoApprove: checked })
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setAutoApprove(data.autoApprove)
+      }
+    } catch (err) {
+      console.error('Error toggling auto-approve', err)
+    } finally {
+      setUpdatingSetting(false)
+    }
+  }
 
   const fetchWaitlist = async () => {
     try {
@@ -84,12 +120,29 @@ export function Waitlist() {
       </Header>
 
       <Main>
-        <div className='mb-2 flex items-center justify-between space-y-2'>
+        <div className='mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
           <div>
-            <h2 className='text-2xl font-bold tracking-tight'>Users</h2>
-            <p className='text-muted-foreground'>
-              Manage beta testing requests and user access.
+            <h2 className='text-2xl font-bold tracking-tight'>Users & Beta Waitlist</h2>
+            <p className='text-muted-foreground text-sm'>
+              Manage beta testing requests, user access, and approval mode.
             </p>
+          </div>
+
+          <div className='flex items-center gap-3 bg-muted/40 border rounded-lg px-3 py-2'>
+            <div className='flex flex-col'>
+              <Label htmlFor='auto-approve-toggle' className='text-sm font-medium cursor-pointer'>
+                Auto-Approve Users
+              </Label>
+              <span className='text-xs text-muted-foreground'>
+                {autoApprove ? 'New registrations get instant access' : 'Manual approval required'}
+              </span>
+            </div>
+            <Switch
+              id='auto-approve-toggle'
+              checked={autoApprove}
+              disabled={updatingSetting}
+              onCheckedChange={handleToggleAutoApprove}
+            />
           </div>
         </div>
         <div className='-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0'>

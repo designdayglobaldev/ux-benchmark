@@ -15,6 +15,86 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
 );
 
+// Helper function to approve user and send email
+export const executeUserApproval = async (email: string) => {
+  const waitlist = await prisma.waitlist.findUnique({ where: { email } });
+  if (!waitlist) {
+    throw new Error('Waitlist entry not found');
+  }
+
+  if (waitlist.status === 'APPROVED') {
+    return { alreadyApproved: true };
+  }
+
+  // Generate random password
+  const tempPassword = Math.random().toString(36).slice(-10) + 'A1!';
+
+  // Create user in Supabase Auth
+  const { data: userData, error: authError } = await supabase.auth.admin.createUser({
+    email,
+    password: tempPassword,
+    email_confirm: true,
+  });
+
+  if (authError) {
+    console.error('Supabase auth error:', authError);
+    throw new Error(authError.message || 'Failed to create user in Auth');
+  }
+
+  // Update waitlist status
+  await prisma.waitlist.update({
+    where: { email },
+    data: { status: 'APPROVED' },
+  });
+
+  // Send email via Resend
+  try {
+    if (!resend) {
+      console.warn("Skipping email send: RESEND_API_KEY is not configured.");
+    } else {
+      const { data, error: resendError } = await resend.emails.send({
+        from: 'BenchmarX <hello@baselyn.co>',
+        to: email,
+        subject: 'Welcome to BenchmarX Beta!',
+        html: `
+          <h2>You've been approved!</h2>
+          <p>Hi ${waitlist.name},</p>
+          <p>Your beta access for BenchmarX is now active.</p>
+          <p>Here are your temporary login credentials:</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Password:</strong> ${tempPassword}</p>
+          <p>Please log in and change your password as soon as possible.</p>
+        `,
+      });
+      
+      if (resendError) {
+        console.warn('Email sending failed (Resend API):', resendError.message || resendError);
+      } else {
+        console.log('Email sent successfully:', data);
+      }
+    }
+  } catch (emailErr) {
+    console.error('Email sending exception:', emailErr);
+  }
+
+  return { success: true };
+};
+
+// Check if auto approval is enabled
+export const isAutoApprovalEnabled = async (): Promise<boolean> => {
+  try {
+    const setting = await prisma.integration.findUnique({
+      where: { provider: 'USER_REGISTRATION_SETTINGS' },
+    });
+    if (setting && setting.config && typeof (setting.config as any).autoApprove === 'boolean') {
+      return (setting.config as any).autoApprove;
+    }
+  } catch (err) {
+    console.warn('Error reading USER_REGISTRATION_SETTINGS from DB:', err);
+  }
+  return process.env.AUTO_APPROVE_USERS === 'true';
+};
+
 export const registerWaitlist = async (req: Request, res: Response) => {
   try {
     const { name, email, phone } = req.body;
@@ -32,9 +112,55 @@ export const registerWaitlist = async (req: Request, res: Response) => {
       data: { name, email, phone },
     });
 
+    const autoApprove = await isAutoApprovalEnabled();
+    if (autoApprove) {
+      try {
+        await executeUserApproval(email);
+        const updated = await prisma.waitlist.findUnique({ where: { email } });
+        return res.status(201).json({ ...updated, autoApproved: true });
+      } catch (approveErr: any) {
+        console.error('Auto-approval error:', approveErr);
+        // Even if email/auth creation hits an issue, waitlist record was created
+        return res.status(201).json({ ...waitlist, autoApproved: false, error: approveErr.message });
+      }
+    }
+
     res.status(201).json(waitlist);
   } catch (error) {
     console.error('Error registering waitlist:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const getApprovalSettings = async (req: Request, res: Response) => {
+  try {
+    const autoApprove = await isAutoApprovalEnabled();
+    res.status(200).json({ autoApprove });
+  } catch (error) {
+    console.error('Error fetching approval settings:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const updateApprovalSettings = async (req: Request, res: Response) => {
+  try {
+    const { autoApprove } = req.body;
+    if (typeof autoApprove !== 'boolean') {
+      return res.status(400).json({ message: 'autoApprove must be a boolean' });
+    }
+
+    await prisma.integration.upsert({
+      where: { provider: 'USER_REGISTRATION_SETTINGS' },
+      update: { config: { autoApprove } },
+      create: {
+        provider: 'USER_REGISTRATION_SETTINGS',
+        config: { autoApprove },
+      },
+    });
+
+    res.status(200).json({ autoApprove, message: `Auto approval ${autoApprove ? 'enabled' : 'disabled'}` });
+  } catch (error) {
+    console.error('Error updating approval settings:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -56,61 +182,12 @@ export const approveUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'User already approved' });
     }
 
-    // Generate random password
-    const tempPassword = Math.random().toString(36).slice(-10) + 'A1!';
-
-    // Create user in Supabase Auth
-    const { data: userData, error: authError } = await supabase.auth.admin.createUser({
-      email,
-      password: tempPassword,
-      email_confirm: true,
-    });
-
-    if (authError) {
-      console.error('Supabase auth error:', authError);
-      return res.status(500).json({ message: 'Failed to create user in Auth', error: authError.message });
-    }
-
-    // Update waitlist status
-    await prisma.waitlist.update({
-      where: { email },
-      data: { status: 'APPROVED' },
-    });
-
-    // Send email via Resend
-    try {
-      if (!resend) {
-        console.warn("Skipping email send: RESEND_API_KEY is not configured.");
-      } else {
-        const { data, error: resendError } = await resend.emails.send({
-        from: 'BenchmarX <hello@baselyn.co>',
-        to: email,
-        subject: 'Welcome to BenchmarX Beta!',
-        html: `
-          <h2>You've been approved!</h2>
-          <p>Hi ${waitlist.name},</p>
-          <p>Your beta access for BenchmarX is now active.</p>
-          <p>Here are your temporary login credentials:</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Password:</strong> ${tempPassword}</p>
-          <p>Please log in and change your password as soon as possible.</p>
-        `,
-      });
-      
-      if (resendError) {
-        console.warn('Email sending failed (Resend API):', resendError.message || resendError);
-        } else {
-          console.log('Email sent successfully:', data);
-        }
-      }
-    } catch (emailErr) {
-      console.error('Email sending exception:', emailErr);
-    }
+    await executeUserApproval(email);
 
     res.status(200).json({ message: 'User approved and email sent.' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error approving user:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: error.message || 'Internal server error' });
   }
 };
 

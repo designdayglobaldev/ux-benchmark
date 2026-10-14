@@ -23,6 +23,8 @@ export function Register() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const [registrationData, setRegistrationData] = useState<any>(null);
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -51,11 +53,12 @@ export function Register() {
         body: JSON.stringify({ name, email, phone }),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.message || "Failed to register");
       }
 
+      setRegistrationData(data);
       setSuccess(true);
       setLoading(false);
     } catch (err: any) {
@@ -76,13 +79,25 @@ export function Register() {
           <div className="w-full max-w-xs">
             {success ? (
               <div className="text-center">
-                <h1 className="text-2xl font-bold mb-4">You're on the list!</h1>
+                <h1 className="text-2xl font-bold mb-4">
+                  {registrationData?.autoApproved ? "Access Granted!" : "You're on the list!"}
+                </h1>
                 <p className="text-muted-foreground mb-6">
-                  Thank you for registering for beta testing. We'll send you an email when your account is approved.
+                  {registrationData?.autoApproved
+                    ? "Your account has been automatically approved! We've sent temporary login credentials to your email."
+                    : "Thank you for registering for beta testing. We'll send you an email when your account is approved."}
                 </p>
-                <Button onClick={() => navigate("/")} className="w-full bg-white text-black hover:bg-gray-200">
-                  Return to Home
-                </Button>
+                <div className="flex flex-col gap-2">
+                  {registrationData?.autoApproved ? (
+                    <Button onClick={() => navigate("/login")} className="w-full bg-white text-black hover:bg-gray-200">
+                      Go to Login
+                    </Button>
+                  ) : (
+                    <Button onClick={() => navigate("/")} className="w-full bg-white text-black hover:bg-gray-200">
+                      Return to Home
+                    </Button>
+                  )}
+                </div>
               </div>
             ) : (
               <form className="flex flex-col gap-6" onSubmit={handleRegister}>

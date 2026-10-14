@@ -111,3 +111,40 @@ export const inviteToWorkspace = async (req: Request, res: Response): Promise<an
     res.status(500).json({ error: 'Failed to invite user' });
   }
 };
+
+export const deleteWorkspace = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Delete all board screens for boards in this workspace
+    const boards = await prisma.board.findMany({
+      where: { workspaceId: id },
+      select: { id: true }
+    });
+    const boardIds = boards.map(b => b.id);
+
+    if (boardIds.length > 0) {
+      await prisma.boardScreen.deleteMany({
+        where: { boardId: { in: boardIds } }
+      });
+      await prisma.board.deleteMany({
+        where: { workspaceId: id }
+      });
+    }
+
+    // Delete members
+    await prisma.workspaceMember.deleteMany({
+      where: { workspaceId: id }
+    });
+
+    // Delete the workspace itself
+    await prisma.workspace.delete({
+      where: { id }
+    });
+
+    res.json({ success: true, message: 'Workspace deleted successfully' });
+  } catch (error) {
+    console.error("Failed to delete workspace:", error);
+    res.status(500).json({ error: 'Failed to delete workspace' });
+  }
+};

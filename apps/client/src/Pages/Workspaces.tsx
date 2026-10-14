@@ -6,12 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { AuthModal } from "@/components/AuthModal";
-import { Plus, FolderKanban, Loader2, Lock, MoreVertical, ExternalLink } from "lucide-react";
+import { Plus, FolderKanban, Loader2, Lock, MoreVertical, ExternalLink, Trash2 } from "lucide-react";
 import workspaceEmptyScreen from "@/assets/workspace-empty-scren.png";
-import revolutImg from "@/assets/Revolut.png";
-import canvasImg from "@/assets/Canvas.png";
-import authImg from "@/assets/auth.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +21,7 @@ interface CollectionItem {
   members?: Array<{ id: string; name?: string; initial: string; bg: string }>;
   isCustom?: boolean;
   boardId?: string;
+  workspaceId?: string;
 }
 
 export function Workspaces() {
@@ -38,51 +35,7 @@ export function Workspaces() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState("");
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-
-  // Default mock collections matching the exact Figma design
-  const defaultCollections: CollectionItem[] = [
-    {
-      id: "default-1",
-      name: "Dashboards",
-      itemCount: 43,
-      itemText: "43 items",
-      isLocked: false,
-      previewImage: revolutImg,
-      members: [
-        { id: "m1", initial: "J", bg: "bg-[#e0a96d] text-[#3d2b1f]" },
-        { id: "m2", initial: "A", bg: "bg-[#f4a261] text-[#264653]" },
-        { id: "m3", initial: "S", bg: "bg-[#e76f51] text-white" }
-      ]
-    },
-    {
-      id: "default-2",
-      name: "Account management",
-      itemCount: 12,
-      itemText: "12 items",
-      isLocked: true,
-      previewImage: canvasImg,
-      members: []
-    },
-    {
-      id: "default-3",
-      name: "Profile and Settings",
-      itemCount: 8,
-      itemText: "08 items",
-      isLocked: true,
-      previewImage: authImg,
-      members: []
-    },
-    {
-      id: "default-4",
-      name: "Drafts",
-      itemCount: 0,
-      itemText: "No items",
-      isLocked: false,
-      previewImage: null,
-      members: []
-    }
-  ];
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const fetchWorkspaces = async () => {
     if (!user) return;
@@ -108,70 +61,127 @@ export function Workspaces() {
     setIsCreatingWorkspace(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      await fetch(`${apiUrl}/api/v1/workspaces`, {
+      let primaryWorkspaceId = workspaces[0]?.id;
+
+      // Ensure user has a workspace container
+      if (!primaryWorkspaceId) {
+        const wsRes = await fetch(`${apiUrl}/api/v1/workspaces`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: "Personal Workspace", ownerId: user.id }),
+        });
+        const ws = await wsRes.json();
+        primaryWorkspaceId = ws.id;
+      }
+
+      // Create the collection board
+      await fetch(`${apiUrl}/api/v1/boards`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newWorkspaceName.trim(), ownerId: user.id }),
+        body: JSON.stringify({ name: newWorkspaceName.trim(), workspaceId: primaryWorkspaceId }),
       });
+
       setIsDialogOpen(false);
       setNewWorkspaceName("");
       fetchWorkspaces();
     } catch (error) {
-      console.error("Failed to create workspace", error);
+      console.error("Failed to create collection", error);
     } finally {
       setIsCreatingWorkspace(false);
     }
   };
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDeleteCollection = async (boardId?: string, workspaceId?: string) => {
+    if (!boardId && !workspaceId) return;
+    const targetId = boardId || workspaceId;
+    if (!targetId) return;
+
+    setDeletingId(targetId);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+      if (boardId) {
+        const res = await fetch(`${apiUrl}/api/v1/boards/${boardId}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) {
+          console.error("Failed to delete board:", await res.text());
+        }
+      } else if (workspaceId) {
+        const res = await fetch(`${apiUrl}/api/v1/workspaces/${workspaceId}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) {
+          console.error("Failed to delete workspace:", await res.text());
+        }
+      }
+      await fetchWorkspaces();
+    } catch (err) {
+      console.error("Failed to delete collection:", err);
+    } finally {
+      setDeletingId(null);
+      setOpenMenuId(null);
+    }
+  };
+
   const handleOpenCreate = () => {
     if (!user) {
-      setIsAuthModalOpen(true);
+      navigate("/login");
     } else {
       setIsDialogOpen(true);
     }
   };
 
-  // Convert real database workspaces into collection items
-  const customCollections: CollectionItem[] = (workspaces || []).map((ws) => {
-    let totalScreens = 0;
-    let firstScreenUrl: string | null = null;
-    let firstBoardId: string | undefined = undefined;
+  // Convert real database boards from workspaces into collection items
+  const customCollections: CollectionItem[] = (workspaces || []).flatMap((ws) => {
+    const wsMembers = (ws.members || []).map((m: any, idx: number) => ({
+      id: m.userId || `${idx}`,
+      initial: (m.user?.email || "U")[0].toUpperCase(),
+      bg: "bg-[#d4a373] text-[#3d2b1f]"
+    }));
 
+    // If workspace has boards, each board is a Collection
     if (ws.boards && ws.boards.length > 0) {
-      firstBoardId = ws.boards[0].id;
-      for (const board of ws.boards) {
-        if (board.screens) {
-          totalScreens += board.screens.length;
-          if (!firstScreenUrl && board.screens.length > 0) {
-            firstScreenUrl = board.screens[0].screen?.imageUrl || null;
-          }
-        }
-      }
+      return ws.boards.map((b: any) => {
+        const screensCount = b.screens?.length || 0;
+        const firstScreenUrl = b.screens?.[0]?.screen?.imageUrl || null;
+
+        return {
+          id: b.id,
+          boardId: b.id,
+          workspaceId: ws.id,
+          name: b.name,
+          itemCount: screensCount,
+          itemText: screensCount === 0 ? "No items" : `${screensCount} ${screensCount === 1 ? 'item' : 'items'}`,
+          isLocked: false,
+          previewImage: firstScreenUrl,
+          isCustom: true,
+          members: wsMembers
+        };
+      });
     }
 
-    return {
+    // Fallback if workspace has no boards yet
+    return [{
       id: ws.id,
+      boardId: undefined,
+      workspaceId: ws.id,
       name: ws.name,
-      itemCount: totalScreens,
-      itemText: totalScreens === 0 ? "No items" : `${totalScreens} ${totalScreens === 1 ? 'item' : 'items'}`,
+      itemCount: 0,
+      itemText: "No items",
       isLocked: false,
-      previewImage: firstScreenUrl,
+      previewImage: null,
       isCustom: true,
-      boardId: firstBoardId,
-      members: (ws.members || []).map((m: any, idx: number) => ({
-        id: m.userId || `${idx}`,
-        initial: (m.user?.email || "U")[0].toUpperCase(),
-        bg: "bg-[#d4a373] text-[#3d2b1f]"
-      }))
-    };
+      members: wsMembers
+    }];
   });
 
-  // Display user collections if created, combined with or falling back to the design collections
-  const activeCollections: CollectionItem[] = customCollections.length > 0 
-    ? [...customCollections, ...defaultCollections.slice(customCollections.length < 4 ? customCollections.length : 4)]
-    : defaultCollections;
+  // Display only real user collections
+  const activeCollections: CollectionItem[] = customCollections;
 
   const isSharedEmpty = activeTab === 'shared';
+  const isMyCollectionsEmpty = activeTab === 'my-collections' && activeCollections.length === 0;
 
   return (
     <main className="flex-1 w-full bg-[#0A0A0A] text-white flex flex-col min-h-[calc(100vh-64px)] px-6 sm:px-10 lg:px-16 pt-8 pb-20">
@@ -278,6 +288,30 @@ export function Workspaces() {
               When teammates share collections or boards with you, they will appear right here.
             </p>
           </div>
+        ) : isMyCollectionsEmpty ? (
+          /* Empty State for My Collections */
+          <div className="flex-1 flex flex-col items-center justify-center text-center my-auto py-16 sm:py-24 select-none">
+            <div className="relative mb-6 flex items-center justify-center">
+              <img 
+                src={workspaceEmptyScreen} 
+                alt="No Collections" 
+                className="w-[170px] sm:w-[200px] h-auto object-contain opacity-80 pointer-events-none" 
+              />
+            </div>
+            <h2 className="text-white text-[20px] sm:text-[22px] font-semibold tracking-tight mb-2">
+              No collections yet
+            </h2>
+            <p className="text-[#8E8E8E] text-[13px] sm:text-[14px] max-w-[430px] font-normal leading-relaxed text-center mb-6 px-4">
+              Create your first collection or bookmark screens anywhere across the app to organize inspiration.
+            </p>
+            <Button
+              onClick={handleOpenCreate}
+              className="bg-white hover:bg-neutral-200 text-black text-[13px] font-medium px-4 py-2 h-[38px] rounded-[8px] inline-flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create Collection</span>
+            </Button>
+          </div>
         ) : (
           /* Populated Collections Grid (Exact 4-column design) */
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -303,12 +337,18 @@ export function Workspaces() {
                     )}
 
                     {/* Top Right: 3-Dots Menu */}
-                    <Popover>
+                    <Popover
+                      open={openMenuId === col.id}
+                      onOpenChange={(isOpen) => setOpenMenuId(isOpen ? col.id : null)}
+                    >
                       <PopoverTrigger asChild>
                         <button
                           type="button"
                           aria-label="Collection options"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(openMenuId === col.id ? null : col.id);
+                          }}
                           className="w-7 h-7 rounded-full hover:bg-white/10 flex items-center justify-center text-[#777777] hover:text-white transition-colors cursor-pointer pointer-events-auto focus:outline-none"
                         >
                           <MoreVertical className="w-4 h-4" />
@@ -323,6 +363,7 @@ export function Workspaces() {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
+                            setOpenMenuId(null);
                             if (col.boardId) navigate(`/boards/${col.boardId}`);
                           }}
                           className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[#CCCCCC] hover:text-white hover:bg-[#242424] transition-colors text-left cursor-pointer"
@@ -332,12 +373,38 @@ export function Workspaces() {
                         </button>
                         <button
                           type="button"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(null);
+                          }}
                           className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-[#CCCCCC] hover:text-white hover:bg-[#242424] transition-colors text-left cursor-pointer"
                         >
                           <FolderKanban className="w-3.5 h-3.5" />
                           <span>View Details</span>
                         </button>
+                        {col.isCustom && (
+                          <button
+                            type="button"
+                            disabled={deletingId === (col.boardId || col.workspaceId || col.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCollection(col.boardId, col.workspaceId || col.id);
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors text-left cursor-pointer border-t border-white/5 mt-1 pt-2 disabled:opacity-50"
+                          >
+                            {deletingId === (col.boardId || col.workspaceId || col.id) ? (
+                              <>
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-red-400" />
+                                <span>Deleting...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Delete</span>
+                              </>
+                            )}
+                          </button>
+                        )}
                       </PopoverContent>
                     </Popover>
                   </div>
@@ -461,9 +528,6 @@ export function Workspaces() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Auth Modal for unauthenticated visitors */}
-      <AuthModal isOpen={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} />
     </main>
   );
 }

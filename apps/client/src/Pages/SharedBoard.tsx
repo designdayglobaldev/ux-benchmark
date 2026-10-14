@@ -445,41 +445,63 @@ export function SharedBoard() {
         {/* Top Header Section - Pushes with grid */}
         <div className="w-full px-6 sm:px-10 lg:px-14 pt-8 pb-6 border-b border-[#1A1A1A] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0 transition-all duration-300">
           <div>
-            <h1 className="text-[28px] sm:text-[32px] font-semibold text-white tracking-tight">
-              {board?.name || "Dashboards"}
-            </h1>
-            <p className="text-[#888888] text-[13px] mt-1 font-normal">
-              {totalItemsCount} items
-            </p>
+            {loading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-8 sm:h-9 w-48 bg-[#1A1A1A] rounded-lg" />
+                <Skeleton className="h-3.5 w-20 bg-[#141414] rounded" />
+              </div>
+            ) : (
+              <>
+                <h1 className="text-[28px] sm:text-[32px] font-semibold text-white tracking-tight">
+                  {board?.name || "Dashboards"}
+                </h1>
+                <p className="text-[#888888] text-[13px] mt-1 font-normal">
+                  {totalItemsCount} items
+                </p>
+              </>
+            )}
           </div>
 
           {/* Right Header Controls */}
           <div className="flex items-center gap-3.5 self-start sm:self-auto">
-            {/* Collaborator Avatars */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center -space-x-1.5">
-                {tagPeople.map((p) => (
-                  <div
-                    key={p.id}
-                    className={cn(
-                      "w-7 h-7 rounded-full border-2 border-[#0A0A0A] flex items-center justify-center text-[11px] font-semibold",
-                      p.bg
-                    )}
-                    title={p.name}
-                  >
-                    {p.initial}
-                  </div>
-                ))}
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center -space-x-1.5">
+                  <Skeleton className="w-7 h-7 rounded-full bg-[#1A1A1A] border-2 border-[#0A0A0A]" />
+                  <Skeleton className="w-7 h-7 rounded-full bg-[#222222] border-2 border-[#0A0A0A]" />
+                </div>
+                <Skeleton className="h-3.5 w-24 bg-[#141414] rounded hidden sm:inline-block" />
               </div>
-              <span className="text-[13px] text-[#888888] font-normal hidden sm:inline">
-                {tagPeople.length + 1} Collaborators
-              </span>
-            </div>
+            ) : (
+              /* Collaborator Avatars */
+              <div className="flex items-center gap-2">
+                <div className="flex items-center -space-x-1.5">
+                  {tagPeople.map((p) => (
+                    <div
+                      key={p.id}
+                      className={cn(
+                        "w-7 h-7 rounded-full border-2 border-[#0A0A0A] flex items-center justify-center text-[11px] font-semibold",
+                        p.bg
+                      )}
+                      title={p.name}
+                    >
+                      {p.initial}
+                    </div>
+                  ))}
+                </div>
+                <span className="text-[13px] text-[#888888] font-normal hidden sm:inline">
+                  {tagPeople.length + 1} Collaborators
+                </span>
+              </div>
+            )}
 
             {/* + Invite People Button */}
             <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-white hover:bg-neutral-200 text-black text-[13px] font-medium px-3.5 py-1.5 h-[34px] rounded-[8px] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer">
+                <Button 
+                  disabled={loading}
+                  className="bg-white hover:bg-neutral-200 text-black text-[13px] font-medium px-3.5 py-1.5 h-[34px] rounded-[8px] flex items-center gap-1.5 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Invite People</span>
                 </Button>

@@ -199,31 +199,31 @@ export function AppPage() {
                         <div className="my-[30px] w-full border-t border-[#2B2B29]"></div>
 
                         {/* Metadata Row */}
-                        <div className="grid grid-cols-2 md:flex md:flex-row md:items-center md:justify-between w-full gap-y-6">
-                            <div className="flex flex-col gap-[10px]">
-                                <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Category</span>
-                                <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.category?.title || appData?.tags?.[0] || 'Finance'}</span>
+                        <div className="flex flex-wrap items-start justify-between w-full gap-x-6 gap-y-6">
+                            <div className="flex flex-col gap-[8px] min-w-[110px] shrink-0">
+                                <span className="font-['Inter'] font-medium text-[11px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Category</span>
+                                <span className="font-['Inter'] font-normal text-[13px] leading-snug text-white">{appData?.category?.title || appData?.tags?.[0] || 'Finance'}</span>
                             </div>
 
-                            <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
+                            <div className="hidden lg:block w-[1px] h-[36px] bg-[#2B2B29] self-center"></div>
 
-                            <div className="flex flex-col gap-[10px]">
-                                <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Platform</span>
-                                <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.platform && appData.platform.length > 0) ? appData.platform.join(' · ') : 'iOS · Android'}</span>
+                            <div className="flex flex-col gap-[8px] min-w-[100px] shrink-0">
+                                <span className="font-['Inter'] font-medium text-[11px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Platform</span>
+                                <span className="font-['Inter'] font-normal text-[13px] leading-snug text-white">{(appData?.platform && appData.platform.length > 0) ? appData.platform.join(' · ') : 'iOS · Android'}</span>
                             </div>
 
-                            <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
+                            <div className="hidden lg:block w-[1px] h-[36px] bg-[#2B2B29] self-center"></div>
 
-                            <div className="flex flex-col gap-[10px]">
-                                <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Market</span>
-                                <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.market && appData.market.length > 0) ? appData.market.join(' · ') : 'Worldwide'}</span>
+                            <div className="flex flex-col gap-[8px] min-w-[100px] shrink-0">
+                                <span className="font-['Inter'] font-medium text-[11px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Market</span>
+                                <span className="font-['Inter'] font-normal text-[13px] leading-snug text-white">{(appData?.market && appData.market.length > 0) ? appData.market.join(' · ') : 'Worldwide'}</span>
                             </div>
 
-                            <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
+                            <div className="hidden lg:block w-[1px] h-[36px] bg-[#2B2B29] self-center"></div>
 
-                            <div className="flex flex-col gap-[10px]">
-                                <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Target User</span>
-                                <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.targetAudience || 'Busy urban, on the go'}</span>
+                            <div className="flex flex-col gap-[8px] flex-1 min-w-[200px] max-w-full md:max-w-[420px]">
+                                <span className="font-['Inter'] font-medium text-[11px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Target User</span>
+                                <span className="font-['Inter'] font-normal text-[13px] leading-relaxed text-white break-words">{appData?.targetAudience || 'Busy urban, on the go'}</span>
                             </div>
                         </div>
 

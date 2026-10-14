@@ -84,3 +84,25 @@ export const updateBoardState = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to save board state' });
   }
 };
+
+export const deleteBoard = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    // Delete board screens and chat messages first
+    await prisma.boardScreen.deleteMany({
+      where: { boardId: id }
+    });
+    await prisma.chatMessage.deleteMany({
+      where: { boardId: id }
+    });
+    // Delete the board
+    await prisma.board.deleteMany({
+      where: { id }
+    });
+    res.json({ success: true, message: 'Collection deleted successfully' });
+  } catch (error) {
+    console.error("Failed to delete collection board:", error);
+    res.status(500).json({ error: 'Failed to delete collection' });
+  }
+};
+

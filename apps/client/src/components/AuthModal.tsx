@@ -42,12 +42,16 @@ export function AuthModal({ isOpen, onOpenChange, defaultMode = 'login' }: AuthM
           body: JSON.stringify({ name, email }),
         });
         
+        const data = await res.json();
         if (!res.ok) {
-          const data = await res.json();
           throw new Error(data.message || 'Failed to submit beta request');
         }
 
-        setSuccess('Beta request submitted! We will email you once approved.');
+        if (data.autoApproved) {
+          setSuccess('Account auto-approved! We emailed you temporary credentials.');
+        } else {
+          setSuccess('Beta request submitted! We will email you once approved.');
+        }
         setName('');
         setEmail('');
       }

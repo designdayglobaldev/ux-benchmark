@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAppDetails, type ScreenType } from "@/hooks/useAppDetails";
 import { useApps } from "@/hooks/useApps";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import RevolutLogo from "@/assets/Revolut_logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InteractiveFlowModal } from "@/components/InteractiveFlowModal";
@@ -101,7 +101,75 @@ export function AppFlows() {
         }
     }, [flows, activeFlowId]);
 
-    const activeFlow = flows.find(f => f.id === activeFlowId);
+    const [modalFlow, setModalFlow] = useState<Flow | null>(null);
+    const flowSectionRefs = useRef<Map<string, HTMLElement>>(new Map());
+    const isClickScrollingRef = useRef(false);
+    const sidebarItemRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+
+    // Scroll-spy listener to accurately detect which flow section is in the viewport
+    useEffect(() => {
+        if (flows.length === 0) return;
+
+        const handleScroll = () => {
+            if (isClickScrollingRef.current) return;
+
+            const scrollY = window.scrollY;
+            const threshold = scrollY + 180; // Top offset accounting for navbar & header
+
+            let currentFlowId = flows[0].id;
+
+            // Check if user has scrolled to the very bottom of the page
+            if (window.innerHeight + scrollY >= document.documentElement.scrollHeight - 50) {
+                currentFlowId = flows[flows.length - 1].id;
+            } else {
+                for (const flow of flows) {
+                    const el = flowSectionRefs.current.get(flow.id);
+                    if (el) {
+                        const top = el.offsetTop;
+                        if (threshold >= top) {
+                            currentFlowId = flow.id;
+                        }
+                    }
+                }
+            }
+
+            setActiveFlowId((prev) => {
+                if (prev !== currentFlowId) {
+                    // Auto-scroll the sidebar if active item overflows sidebar container
+                    const btn = sidebarItemRefs.current.get(currentFlowId);
+                    if (btn) {
+                        btn.scrollIntoView({ block: "nearest", behavior: "smooth" });
+                    }
+                    return currentFlowId;
+                }
+                return prev;
+            });
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll(); // Initial check
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, [flows]);
+
+    const handleFlowClick = (flowId: string) => {
+        setActiveFlowId(flowId);
+        const targetEl = flowSectionRefs.current.get(flowId);
+        if (targetEl) {
+            isClickScrollingRef.current = true;
+            const navOffset = 100;
+            const elementPosition = targetEl.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo({
+                top: Math.max(0, elementPosition - navOffset),
+                behavior: "smooth"
+            });
+            setTimeout(() => {
+                isClickScrollingRef.current = false;
+            }, 600);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -144,7 +212,7 @@ export function AppFlows() {
                         <button 
                             disabled={!prevAppSlug}
                             onClick={() => prevAppSlug && navigate(`/app/${prevAppSlug}/flows`)}
-                            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-[#323232] bg-transparent text-[13px] font-['Inter'] transition-colors ${prevAppSlug ? 'text-[#878787] hover:text-white hover:border-[#5E5E5E]' : 'text-[#444] opacity-50 cursor-not-allowed'}`}
+                            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-[#323232] bg-transparent text-[13px] font-['Inter'] transition-colors ${prevAppSlug ? 'text-[#878787] hover:text-white hover:border-[#5E5E5E] cursor-pointer' : 'text-[#444] opacity-50 cursor-not-allowed'}`}
                         >
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                             Prev
@@ -152,10 +220,17 @@ export function AppFlows() {
                         <button 
                             disabled={!nextAppSlug}
                             onClick={() => nextAppSlug && navigate(`/app/${nextAppSlug}/flows`)}
-                            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-[#323232] bg-transparent text-[13px] font-['Inter'] transition-colors ${nextAppSlug ? 'text-[#878787] hover:text-white hover:border-[#5E5E5E]' : 'text-[#444] opacity-50 cursor-not-allowed'}`}
+                            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-[#323232] bg-transparent text-[13px] font-['Inter'] transition-colors ${nextAppSlug ? 'text-[#878787] hover:text-white hover:border-[#5E5E5E] cursor-pointer' : 'text-[#444] opacity-50 cursor-not-allowed'}`}
                         >
                             Next
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                        <button 
+                            onClick={() => navigate(`/app/${slug}/screens`)}
+                            className="flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-[#0099FF] hover:bg-[#0088EE] text-white text-[13px] font-['Inter'] font-medium transition-colors shadow-sm cursor-pointer ml-1"
+                        >
+                            <span>Start Exploring</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                         </button>
                     </div>
                 </div>
@@ -180,98 +255,115 @@ export function AppFlows() {
                 </div>
 
                 {/* Metadata Row */}
-                <div className="grid grid-cols-2 md:flex md:flex-row md:items-center md:justify-between w-full gap-y-6 mb-16 border-t border-b border-[#2B2B29] py-6">
-                    <div className="flex flex-col gap-[10px]">
-                        <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Category</span>
-                        <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.category?.title || appData?.tags?.[0] || 'Finance'}</span>
+                <div className="flex flex-wrap items-start justify-between w-full gap-x-6 gap-y-6 mb-16 border-t border-b border-[#2B2B29] py-6">
+                    <div className="flex flex-col gap-[8px] min-w-[110px] shrink-0">
+                        <span className="font-['Inter'] font-medium text-[11px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Category</span>
+                        <span className="font-['Inter'] font-normal text-[13px] leading-snug text-white">{appData?.category?.title || appData?.tags?.[0] || 'Finance'}</span>
                     </div>
 
-                    <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
+                    <div className="hidden lg:block w-[1px] h-[36px] bg-[#2B2B29] self-center"></div>
 
-                    <div className="flex flex-col gap-[10px]">
-                        <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Platform</span>
-                        <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.platform && appData.platform.length > 0) ? appData.platform.join(' · ') : 'iOS · Android'}</span>
+                    <div className="flex flex-col gap-[8px] min-w-[100px] shrink-0">
+                        <span className="font-['Inter'] font-medium text-[11px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Platform</span>
+                        <span className="font-['Inter'] font-normal text-[13px] leading-snug text-white">{(appData?.platform && appData.platform.length > 0) ? appData.platform.join(' · ') : 'iOS · Android'}</span>
                     </div>
 
-                    <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
+                    <div className="hidden lg:block w-[1px] h-[36px] bg-[#2B2B29] self-center"></div>
 
-                    <div className="flex flex-col gap-[10px]">
-                        <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Market</span>
-                        <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{(appData?.market && appData.market.length > 0) ? appData.market.join(' · ') : 'Worldwide'}</span>
+                    <div className="flex flex-col gap-[8px] min-w-[100px] shrink-0">
+                        <span className="font-['Inter'] font-medium text-[11px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Market</span>
+                        <span className="font-['Inter'] font-normal text-[13px] leading-snug text-white">{(appData?.market && appData.market.length > 0) ? appData.market.join(' · ') : 'Worldwide'}</span>
                     </div>
 
-                    <div className="hidden md:block w-[1px] h-[40px] bg-[#2B2B29]"></div>
+                    <div className="hidden lg:block w-[1px] h-[36px] bg-[#2B2B29] self-center"></div>
 
-                    <div className="flex flex-col gap-[10px]">
-                        <span className="font-['Inter'] font-medium text-[12px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Target User</span>
-                        <span className="font-['Inter'] font-normal text-[13px] leading-none text-white">{appData?.targetAudience || 'Busy urban, on the go'}</span>
+                    <div className="flex flex-col gap-[8px] flex-1 min-w-[200px] max-w-full md:max-w-[420px]">
+                        <span className="font-['Inter'] font-medium text-[11px] leading-none tracking-[0.12em] text-[#5E5E5E] uppercase">Target User</span>
+                        <span className="font-['Inter'] font-normal text-[13px] leading-relaxed text-white break-words">{appData?.targetAudience || 'Busy urban, on the go'}</span>
                     </div>
                 </div>
 
                 {/* Main Content Area */}
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 w-full lg:items-start">
                     
-                    {/* Left Sidebar */}
-                    <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4 lg:sticky lg:top-8">
-                        <div className="bg-[#1C1C1C] rounded-xl p-2 flex flex-col min-h-[400px]">
-                            {flows.map(flow => (
-                                <button
-                                    key={flow.id}
-                                    onClick={() => setActiveFlowId(flow.id)}
-                                    className={`w-full text-left px-4 py-3 rounded-lg font-['Inter'] text-[14px] transition-colors ${
-                                        activeFlowId === flow.id 
-                                            ? 'bg-[#323232] text-white font-medium' 
-                                            : 'text-[#878787] hover:bg-[#2B2B29] hover:text-white'
-                                    }`}
-                                >
-                                    {flow.name}
-                                </button>
-                            ))}
+                    {/* Left Sticky Sidebar with Dynamic Scroll-Spy Highlight */}
+                    <div className="w-full lg:w-[280px] shrink-0 flex flex-col gap-4 lg:sticky lg:top-20 z-20">
+                        <div className="bg-[#1C1C1C] rounded-xl p-2 flex flex-col max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar">
+                            <div className="flex flex-col gap-1">
+                                {flows.map(flow => (
+                                    <button
+                                        key={flow.id}
+                                        ref={(el) => {
+                                            if (el) sidebarItemRefs.current.set(flow.id, el);
+                                            else sidebarItemRefs.current.delete(flow.id);
+                                        }}
+                                        onClick={() => handleFlowClick(flow.id)}
+                                        className={`w-full text-left px-4 py-3 rounded-lg font-['Inter'] text-[14px] transition-colors cursor-pointer ${
+                                            activeFlowId === flow.id 
+                                                ? 'bg-[#323232] text-white font-medium shadow-sm' 
+                                                : 'text-[#878787] hover:bg-[#2B2B29] hover:text-white'
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="truncate">{flow.name}</span>
+                                            <span className="text-[11px] text-[#555] font-normal ml-2">
+                                                {flow.screens.length}
+                                            </span>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+
                             {flows.length === 0 && (
                                 <div className="text-[#5E5E5E] text-sm p-4 text-center">No flows found for this app.</div>
                             )}
-                            
-                            <div className="mt-auto pt-4 pb-2 px-2 flex flex-col gap-2">
-                                <button 
-                                    onClick={() => navigate(`/app/${slug}/screens`)}
-                                    className="w-full bg-[#0099FF] text-white rounded-full py-3 font-medium text-[14px] hover:bg-[#0088EE] transition-colors"
-                                >
-                                    Start Exploring
-                                </button>
-                                <button 
-                                    onClick={() => navigate(`/app/${slug}/all-screens`)}
-                                    className="w-full bg-transparent border border-[#323232] text-white rounded-full py-3 font-medium text-[14px] hover:bg-[#2B2B29] transition-colors"
-                                >
-                                    View All Screens
-                                </button>
-                            </div>
                         </div>
                     </div>
 
-                    {/* Right Content */}
-                    <div className="flex-1 flex flex-col min-w-0">
-                        {activeFlow && (
-                            <>
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="font-['Inter'] font-bold text-[24px] text-white">
-                                        {activeFlow.name}
-                                    </h2>
+                    {/* Right Content: All Flows Sequentially Rendered */}
+                    <div className="flex-1 flex flex-col min-w-0 gap-20">
+                        {flows.map((flow, flowIndex) => (
+                            <section
+                                key={flow.id}
+                                id={`flow-${flow.id}`}
+                                data-flow-id={flow.id}
+                                ref={(el) => {
+                                    if (el) flowSectionRefs.current.set(flow.id, el);
+                                    else flowSectionRefs.current.delete(flow.id);
+                                }}
+                                className="flex flex-col scroll-mt-24"
+                            >
+                                {/* Flow Title & Interactive Flow Action */}
+                                <div className="flex items-center justify-between mb-4 pb-2 border-b border-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[12px] font-mono text-[#555] tracking-wider uppercase">
+                                            {String(flowIndex + 1).padStart(2, '0')}
+                                        </span>
+                                        <h2 className="font-['Inter'] font-bold text-[24px] sm:text-[28px] text-white tracking-tight">
+                                            {flow.name}
+                                        </h2>
+                                    </div>
                                     <button 
-                                        onClick={() => setIsInteractiveModalOpen(true)}
-                                        className="flex items-center gap-2 bg-[#2B2B29] hover:bg-[#323232] text-white text-[13px] px-4 py-2 rounded-full transition-colors"
+                                        onClick={() => {
+                                            setModalFlow(flow);
+                                            setIsInteractiveModalOpen(true);
+                                        }}
+                                        className="flex items-center gap-2 bg-[#2B2B29] hover:bg-[#323232] text-white text-[13px] px-4 py-2 rounded-full transition-colors cursor-pointer"
                                     >
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                                         interactive flow
                                     </button>
                                 </div>
-                                <p className="font-['Inter'] text-[14px] text-[#878787] mb-12 max-w-[800px] leading-relaxed">
-                                    Screens for the {activeFlow.name} flow. Use the interactive flow button to view them in the inspector.
+
+                                <p className="font-['Inter'] text-[14px] text-[#878787] mb-8 max-w-[800px] leading-relaxed">
+                                    Screens for the {flow.name} flow ({flow.screens.length} screens). Use the interactive flow button to view them in the inspector.
                                 </p>
 
+                                {/* Flow Screens Grid */}
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-                                    {activeFlow.screens.map((screen) => (
+                                    {flow.screens.map((screen) => (
                                         <div key={screen.id} className="flex flex-col relative group">
-                                            <div className="w-full aspect-[230/500] relative overflow-hidden rounded-[24px]">
+                                            <div className="w-full aspect-[230/500] relative overflow-hidden rounded-[24px] bg-[#121212] border border-[#222222] group-hover:border-[#383838] transition-all">
                                                 <ImageWithSkeleton 
                                                     src={screen.imageUrl} 
                                                     alt={screen.name}
@@ -302,7 +394,7 @@ export function AppFlows() {
                                                         )}
                                                         <button 
                                                             onClick={() => navigate(`/app/${slug}/screens/${screen.slug}`)}
-                                                            className="mt-2 bg-[#0099FF] text-white text-[12px] font-medium py-2 px-3 rounded-full hover:bg-[#0088EE] transition-colors w-full flex items-center justify-center gap-1.5 whitespace-nowrap"
+                                                            className="mt-2 bg-[#0099FF] text-white text-[12px] font-medium py-2 px-3 rounded-full hover:bg-[#0088EE] transition-colors w-full flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer"
                                                         >
                                                             Inspect Details
                                                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
@@ -313,8 +405,8 @@ export function AppFlows() {
                                         </div>
                                     ))}
                                 </div>
-                            </>
-                        )}
+                            </section>
+                        ))}
                     </div>
 
                 </div>
@@ -322,8 +414,11 @@ export function AppFlows() {
 
             <InteractiveFlowModal 
                 isOpen={isInteractiveModalOpen}
-                onClose={() => setIsInteractiveModalOpen(false)}
-                flow={activeFlow}
+                onClose={() => {
+                    setIsInteractiveModalOpen(false);
+                    setModalFlow(null);
+                }}
+                flow={modalFlow || flows.find(f => f.id === activeFlowId) || flows[0]}
             />
         </main>
     );
