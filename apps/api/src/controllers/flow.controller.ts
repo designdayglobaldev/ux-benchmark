@@ -142,13 +142,38 @@ export const createFlow = async (req: Request, res: Response) => {
   try {
     const { name, slug, description, status } = req.body;
     
+    // Check if flow with same slug already exists
+    const existing = await prisma.flow.findFirst({
+      where: { slug },
+      select: { id: true, name: true, slug: true }
+    });
+
+    if (existing) {
+      return res.status(409).json({
+        error: `Flow "${existing.name}" already exists with slug "${existing.slug}".`,
+        code: 'SLUG_EXISTS',
+        existingFlow: existing
+      });
+    }
+
     const flow = await prisma.flow.create({
       data: { name, slug, description, status },
     });
     
     res.status(201).json(flow);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    if (error.code === 'P2002') {
+      const existing = await prisma.flow.findFirst({
+        where: { slug: req.body.slug },
+        select: { id: true, name: true, slug: true }
+      });
+      return res.status(409).json({
+        error: `Flow already exists with slug "${req.body.slug}".`,
+        code: 'SLUG_EXISTS',
+        existingFlow: existing
+      });
+    }
     res.status(500).json({ error: 'Failed to create flow' });
   }
 };
@@ -157,6 +182,23 @@ export const updateFlow = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, slug, description, status } = req.body;
+
+    // Check if another flow is already using this slug
+    const existing = await prisma.flow.findFirst({
+      where: {
+        slug,
+        id: { not: id }
+      },
+      select: { id: true, name: true, slug: true }
+    });
+
+    if (existing) {
+      return res.status(409).json({
+        error: `Another flow "${existing.name}" is already using slug "${existing.slug}".`,
+        code: 'SLUG_EXISTS',
+        existingFlow: existing
+      });
+    }
     
     const flow = await prisma.flow.update({
       where: { id },
@@ -164,8 +206,14 @@ export const updateFlow = async (req: Request, res: Response) => {
     });
     
     res.json(flow);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    if (error.code === 'P2002') {
+      return res.status(409).json({
+        error: `Another flow is already using slug "${req.body.slug}".`,
+        code: 'SLUG_EXISTS'
+      });
+    }
     res.status(500).json({ error: 'Failed to update flow' });
   }
 };

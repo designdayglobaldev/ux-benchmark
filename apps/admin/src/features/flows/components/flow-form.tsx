@@ -72,8 +72,11 @@ export function FlowForm() {
     }
   }, [flowId, reset])
 
+  const [existingConflict, setExistingConflict] = useState<{ id: string; name: string; slug: string } | null>(null)
+
   const onSubmit = async (data: FlowFormValues) => {
     setIsSubmitting(true)
+    setExistingConflict(null)
     try {
       const url = flowId 
         ? `${import.meta.env.VITE_API_URL || ''}/api/v1/flows/${flowId}` 
@@ -86,13 +89,22 @@ export function FlowForm() {
         body: JSON.stringify(data),
       })
 
-      if (!res.ok) throw new Error('Failed to save flow')
+      const resData = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        if (res.status === 409 && resData?.existingFlow) {
+          setExistingConflict(resData.existingFlow)
+          toast.error(`Flow "${resData.existingFlow.name}" already exists!`)
+          return
+        }
+        throw new Error(resData?.error || 'Failed to save flow')
+      }
       
       toast.success(flowId ? 'Flow updated successfully!' : 'Flow created successfully!')
       navigate({ to: '/flows' })
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
-      toast.error('Failed to save flow. Please try again.')
+      toast.error(error.message || 'Failed to save flow. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -150,6 +162,40 @@ export function FlowForm() {
 
       <Main className='max-w-4xl mx-auto'>
         <div className='grid gap-6'>
+          {existingConflict && (
+            <div className='rounded-lg border border-amber-500/50 bg-amber-500/10 p-4 text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3'>
+              <div className='space-y-1'>
+                <p className='text-sm font-semibold'>Flow already exists!</p>
+                <p className='text-xs opacity-90'>
+                  A flow named <span className='font-bold underline'>{existingConflict.name}</span> with slug <code className='px-1 py-0.5 rounded bg-amber-500/20'>{existingConflict.slug}</code> already exists in your library.
+                </p>
+              </div>
+              <div className='flex items-center gap-2'>
+                <Button
+                  type='button'
+                  size='sm'
+                  variant='outline'
+                  className='border-amber-500/50 hover:bg-amber-500/20'
+                  asChild
+                >
+                  <Link to='/flows/$flowId/edit' params={{ flowId: existingConflict.id }}>
+                    Edit Existing Flow
+                  </Link>
+                </Button>
+                <Button
+                  type='button'
+                  size='sm'
+                  className='bg-amber-600 hover:bg-amber-700 text-white'
+                  asChild
+                >
+                  <Link to='/flows/$flowId' params={{ flowId: existingConflict.id }}>
+                    View Flow
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          )}
+
           <Card>
             <CardHeader>
               <CardTitle>Flow Details</CardTitle>
