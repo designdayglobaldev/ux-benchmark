@@ -52,6 +52,27 @@ export const addScreenToBoard = async (req: Request, res: Response) => {
   try {
     const boardId = req.params.id;
     const { screenId, userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    // Ensure the ClientUser record exists in Prisma DB
+    const existingUser = await prisma.clientUser.findUnique({
+      where: { id: userId }
+    });
+    if (!existingUser) {
+      await prisma.clientUser.upsert({
+        where: { id: userId },
+        update: {},
+        create: {
+          id: userId,
+          email: 'user@example.com',
+          tier: 'FREE'
+        }
+      });
+    }
+
     const boardScreen = await prisma.boardScreen.create({
       data: {
         boardId,
@@ -63,8 +84,9 @@ export const addScreenToBoard = async (req: Request, res: Response) => {
       }
     });
     res.status(201).json(boardScreen);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to add screen to board' });
+  } catch (error: any) {
+    console.error('Failed to add screen to board:', error);
+    res.status(500).json({ error: error?.message || 'Failed to add screen to board' });
   }
 };
 

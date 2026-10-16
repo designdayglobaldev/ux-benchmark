@@ -70,20 +70,28 @@ export function Workspaces() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: "Personal Workspace", ownerId: user.id }),
         });
+        if (!wsRes.ok) {
+          const errText = await wsRes.text();
+          throw new Error(`Failed to initialize workspace: ${errText}`);
+        }
         const ws = await wsRes.json();
         primaryWorkspaceId = ws.id;
       }
 
       // Create the collection board
-      await fetch(`${apiUrl}/api/v1/boards`, {
+      const boardRes = await fetch(`${apiUrl}/api/v1/boards`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newWorkspaceName.trim(), workspaceId: primaryWorkspaceId }),
       });
+      if (!boardRes.ok) {
+        const errText = await boardRes.text();
+        throw new Error(`Failed to create collection board: ${errText}`);
+      }
 
       setIsDialogOpen(false);
       setNewWorkspaceName("");
-      fetchWorkspaces();
+      await fetchWorkspaces();
     } catch (error) {
       console.error("Failed to create collection", error);
     } finally {
@@ -162,19 +170,8 @@ export function Workspaces() {
       });
     }
 
-    // Fallback if workspace has no boards yet
-    return [{
-      id: ws.id,
-      boardId: undefined,
-      workspaceId: ws.id,
-      name: ws.name,
-      itemCount: 0,
-      itemText: "No items",
-      isLocked: false,
-      previewImage: null,
-      isCustom: true,
-      members: wsMembers
-    }];
+    // If workspace has no boards yet, return empty so empty state displays cleanly
+    return [];
   });
 
   // Display only real user collections

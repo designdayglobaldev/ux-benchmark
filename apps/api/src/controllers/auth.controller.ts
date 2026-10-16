@@ -41,6 +41,23 @@ export const executeUserApproval = async (email: string) => {
     throw new Error(authError.message || 'Failed to create user in Auth');
   }
 
+  // Create ClientUser in Prisma DB so user can immediately create workspaces/collections
+  if (userData?.user?.id) {
+    try {
+      await prisma.clientUser.upsert({
+        where: { id: userData.user.id },
+        update: { email },
+        create: {
+          id: userData.user.id,
+          email,
+          tier: 'FREE',
+        },
+      });
+    } catch (dbUserErr) {
+      console.error('Failed to create ClientUser in Prisma:', dbUserErr);
+    }
+  }
+
   // Update waitlist status
   await prisma.waitlist.update({
     where: { email },

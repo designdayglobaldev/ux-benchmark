@@ -31,3 +31,24 @@ If you ever want to change how many apps or flows are available for free (e.g., 
 1. **`Dashboard.tsx`**: Adjust the array slice length and the blur index threshold.
 2. **`Flows.tsx`**: Adjust the array slice length and the blur index threshold.
 3. **`AppProtectedRoute.tsx`**: Change `apps.slice(0, 4)` to the new desired threshold.
+
+---
+
+## 4. User Registration & Auto-Approval System
+Administrators can toggle whether new users get instant access upon registration or require manual approval.
+
+### Configuration & Endpoints:
+- `GET /api/v1/auth/approval-settings`: Returns `{ autoApprove: boolean }`.
+- `POST /api/v1/auth/approval-settings`: Updates the approval mode (persisted in DB).
+- **Admin Toggle**: Controlled via the Switch on the **Admin -> Users & Waitlist** page (`apps/admin/src/features/waitlist/index.tsx`).
+
+### Behavior:
+1. **Auto-Approve Enabled**:
+   - Submitting the registration form immediately creates the user in Supabase Auth, provisions their `ClientUser` record in Prisma, generates temporary credentials, and emails them via Resend.
+   - Client displays **"Access Granted!"** and directs the user to log in.
+2. **Manual Approval Mode**:
+   - The user is placed on the waitlist as `PENDING`.
+   - Client displays confirmation that their request is under review.
+
+For complete details on user provisioning, workspaces, and collections, refer to [`docs/COLLECTIONS_AND_USER_PROVISIONING.md`](file:///c:/projects/ux-libaray/docs/COLLECTIONS_AND_USER_PROVISIONING.md).
+

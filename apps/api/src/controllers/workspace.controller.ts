@@ -4,9 +4,48 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API);
 
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
+);
+
 export const createWorkspace = async (req: Request, res: Response) => {
   try {
     const { name, ownerId } = req.body;
+
+    if (!ownerId) {
+      return res.status(400).json({ error: 'ownerId is required' });
+    }
+
+    // Ensure the ClientUser record exists in Prisma DB (satisfies foreign key constraint)
+    const existingUser = await prisma.clientUser.findUnique({
+      where: { id: ownerId }
+    });
+
+    if (!existingUser) {
+      let email = 'user@example.com';
+      try {
+        const { data: authUser, error: authErr } = await supabase.auth.admin.getUserById(ownerId);
+        if (!authErr && authUser?.user?.email) {
+          email = authUser.user.email;
+        }
+      } catch (err) {
+        console.warn('Could not fetch user details from Supabase Auth:', err);
+      }
+
+      await prisma.clientUser.upsert({
+        where: { id: ownerId },
+        update: {},
+        create: {
+          id: ownerId,
+          email,
+          tier: 'FREE'
+        }
+      });
+    }
+
     const workspace = await prisma.workspace.create({
       data: {
         name,
@@ -20,8 +59,9 @@ export const createWorkspace = async (req: Request, res: Response) => {
       }
     });
     res.status(201).json(workspace);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to create workspace' });
+  } catch (error: any) {
+    console.error('Failed to create workspace:', error);
+    res.status(500).json({ error: error?.message || 'Failed to create workspace' });
   }
 };
 

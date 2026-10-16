@@ -123,6 +123,10 @@ export function ScreenActionOverlay({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: "Personal Workspace", ownerId: user.id }),
         });
+        if (!wsRes.ok) {
+          const errText = await wsRes.text();
+          throw new Error(`Failed to initialize workspace: ${errText}`);
+        }
         const ws = await wsRes.json();
         workspaceId = ws.id;
       }
@@ -132,6 +136,10 @@ export function ScreenActionOverlay({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newCollectionName.trim(), workspaceId }),
       });
+      if (!boardRes.ok) {
+        const errText = await boardRes.text();
+        throw new Error(`Failed to create board: ${errText}`);
+      }
       const newBoard = await boardRes.json();
 
       if (screenId) {
