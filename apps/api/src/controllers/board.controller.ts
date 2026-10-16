@@ -67,7 +67,7 @@ export const addScreenToBoard = async (req: Request, res: Response) => {
         update: {},
         create: {
           id: userId,
-          email: 'user@example.com',
+          email: `user_${userId}@placeholder.local`,
           tier: 'FREE'
         }
       });

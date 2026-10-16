@@ -25,7 +25,7 @@ export const createWorkspace = async (req: Request, res: Response) => {
     });
 
     if (!existingUser) {
-      let email = 'user@example.com';
+      let email: string | undefined;
       try {
         const { data: authUser, error: authErr } = await supabase.auth.admin.getUserById(ownerId);
         if (!authErr && authUser?.user?.email) {
@@ -35,15 +35,36 @@ export const createWorkspace = async (req: Request, res: Response) => {
         console.warn('Could not fetch user details from Supabase Auth:', err);
       }
 
-      await prisma.clientUser.upsert({
-        where: { id: ownerId },
-        update: {},
-        create: {
-          id: ownerId,
-          email,
-          tier: 'FREE'
+      if (email) {
+        const userWithEmail = await prisma.clientUser.findUnique({
+          where: { email }
+        });
+
+        if (userWithEmail) {
+          // If the email was already present under an older ID, update the ID to the current Supabase auth ID
+          await prisma.clientUser.update({
+            where: { email },
+            data: { id: ownerId }
+          });
+        } else {
+          await prisma.clientUser.create({
+            data: {
+              id: ownerId,
+              email,
+              tier: 'FREE'
+            }
+          });
         }
-      });
+      } else {
+        // Fallback unique email if Supabase Auth had no email
+        await prisma.clientUser.create({
+          data: {
+            id: ownerId,
+            email: `user_${ownerId}@placeholder.local`,
+            tier: 'FREE'
+          }
+        });
+      }
     }
 
     const workspace = await prisma.workspace.create({
