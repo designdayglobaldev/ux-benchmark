@@ -1,14 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { io, Socket } from "socket.io-client";
-import { Send, Sparkles, X, MessageSquare, Plus } from "lucide-react";
-import revolutImg from "@/assets/Revolut.png";
-import canvasImg from "@/assets/Canvas.png";
-import authImg from "@/assets/auth.png";
+import { Send, Sparkles, X, MessageSquare, Plus, Bookmark, Compass } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ScreenActionOverlay } from "@/components/ScreenActionOverlay";
@@ -95,17 +92,7 @@ export function SharedBoard() {
       }))
       .filter((m: any) => m.email);
 
-    let targetList = memberItems.filter((m: any) => m.email.toLowerCase() !== user?.email?.toLowerCase());
-
-    // Fallback: Real registered team members from database (excluding logged-in user)
-    if (targetList.length === 0) {
-      targetList = [
-        { id: 'u1', email: 'satyajitpujapanda9@gmail.com' },
-        { id: 'u2', email: 'shyamsundarpujapanda998@gmail.com' },
-        { id: 'u3', email: 'sanand@designday.net' },
-        { id: 'u4', email: 'harshadachapre1@gmail.com' }
-      ].filter((m: any) => m.email.toLowerCase() !== user?.email?.toLowerCase());
-    }
+    const targetList = memberItems.filter((m: any) => m.email.toLowerCase() !== user?.email?.toLowerCase());
 
     return targetList.slice(0, 3).map((m: any, idx: number) => {
       const fullName = formatMemberName(m.email);
@@ -185,44 +172,6 @@ export function SharedBoard() {
     return date.toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  // Sample screens matching real app logos
-  const defaultScreens: ScreenCardItem[] = [
-    {
-      id: "s1",
-      name: "Searching & Finding",
-      appName: "Apple Wallet",
-      imageUrl: revolutImg,
-      appLogo: KNOWN_APP_LOGOS['apple wallet']
-    },
-    {
-      id: "s2",
-      name: "Pre-Onboarding 1",
-      appName: "Cash App",
-      imageUrl: canvasImg,
-      appLogo: KNOWN_APP_LOGOS['cash app']
-    },
-    {
-      id: "s3",
-      name: "Welcome Screen",
-      appName: "Arc Search",
-      imageUrl: authImg,
-      appLogo: KNOWN_APP_LOGOS['arc search']
-    },
-    {
-      id: "s4",
-      name: "Home Dashboard",
-      appName: "Revolut",
-      imageUrl: canvasImg,
-      appLogo: KNOWN_APP_LOGOS['revolut']
-    },
-    {
-      id: "s5",
-      name: "Issue Tracker",
-      appName: "Linear",
-      imageUrl: revolutImg,
-      appLogo: KNOWN_APP_LOGOS['linear']
-    }
-  ];
 
   // Default demo messages with real team members
   const initialDemoMessages = [
@@ -421,7 +370,7 @@ export function SharedBoard() {
     }
   };
 
-  // Build screens list: use real saved screens or fallback to the screenshot screens
+  // Build screens list: use real saved screens or empty array if none saved yet
   const displayedScreens: ScreenCardItem[] = (board?.screens && board.screens.length > 0)
     ? board.screens.map((item: any) => ({
         id: item.id,
@@ -432,7 +381,7 @@ export function SharedBoard() {
           : `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}${item.screen?.imageUrl?.startsWith('/') ? '' : '/'}${item.screen?.imageUrl}`,
         appLogo: resolveAppLogo(item.screen?.app)
       }))
-    : defaultScreens;
+    : [];
 
   const totalItemsCount = displayedScreens.length;
 
@@ -474,25 +423,27 @@ export function SharedBoard() {
               </div>
             ) : (
               /* Collaborator Avatars */
-              <div className="flex items-center gap-2">
-                <div className="flex items-center -space-x-1.5">
-                  {tagPeople.map((p) => (
-                    <div
-                      key={p.id}
-                      className={cn(
-                        "w-7 h-7 rounded-full border-2 border-[#0A0A0A] flex items-center justify-center text-[11px] font-semibold",
-                        p.bg
-                      )}
-                      title={p.name}
-                    >
-                      {p.initial}
-                    </div>
-                  ))}
+              tagPeople.length > 0 ? (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center -space-x-1.5">
+                    {tagPeople.map((p) => (
+                      <div
+                        key={p.id}
+                        className={cn(
+                          "w-7 h-7 rounded-full border-2 border-[#0A0A0A] flex items-center justify-center text-[11px] font-semibold",
+                          p.bg
+                        )}
+                        title={p.name}
+                      >
+                        {p.initial}
+                      </div>
+                    ))}
+                  </div>
+                  <span className="text-[13px] text-[#888888] font-normal hidden sm:inline">
+                    {tagPeople.length + 1} Collaborators
+                  </span>
                 </div>
-                <span className="text-[13px] text-[#888888] font-normal hidden sm:inline">
-                  {tagPeople.length + 1} Collaborators
-                </span>
-              </div>
+              ) : null
             )}
 
             {/* + Invite People Button */}
@@ -573,6 +524,24 @@ export function SharedBoard() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : displayedScreens.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-20 px-4 select-none min-h-[400px]">
+              <div className="w-16 h-16 rounded-2xl bg-[#141414] border border-[#222222] flex items-center justify-center mb-5 text-[#666666] shadow-inner">
+                <Bookmark className="w-7 h-7 text-[#888888]" />
+              </div>
+              <h2 className="text-white text-[20px] font-semibold tracking-tight mb-2">
+                No screens in this collection
+              </h2>
+              <p className="text-[#8E8E8E] text-[14px] max-w-[420px] font-normal leading-relaxed text-center mb-6">
+                Save screens from the App Library or Flows by clicking the bookmark icon on any screen card.
+              </p>
+              <Link to="/">
+                <Button className="bg-white hover:bg-neutral-200 text-black text-[13px] font-medium px-4 py-2 h-[38px] rounded-[8px] flex items-center gap-2 shadow-sm transition-all cursor-pointer">
+                  <Compass className="w-4 h-4" />
+                  <span>Explore Apps</span>
+                </Button>
+              </Link>
             </div>
           ) : (
             <div className={cn(

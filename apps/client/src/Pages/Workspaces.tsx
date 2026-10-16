@@ -142,7 +142,8 @@ export function Workspaces() {
   };
 
   // Convert real database boards from workspaces into collection items
-  const customCollections: CollectionItem[] = (workspaces || []).flatMap((ws) => {
+  const allCollections: (CollectionItem & { isOwner: boolean })[] = (workspaces || []).flatMap((ws) => {
+    const isOwner = ws.ownerId === user?.id;
     const wsMembers = (ws.members || []).map((m: any, idx: number) => ({
       id: m.userId || `${idx}`,
       initial: (m.user?.email || "U")[0].toUpperCase(),
@@ -165,19 +166,21 @@ export function Workspaces() {
           isLocked: false,
           previewImage: firstScreenUrl,
           isCustom: true,
-          members: wsMembers
+          members: wsMembers,
+          isOwner
         };
       });
     }
 
-    // If workspace has no boards yet, return empty so empty state displays cleanly
     return [];
   });
 
-  // Display only real user collections
-  const activeCollections: CollectionItem[] = customCollections;
+  // Display collections based on active tab
+  const activeCollections: CollectionItem[] = allCollections.filter((col) => 
+    activeTab === 'my-collections' ? col.isOwner : !col.isOwner
+  );
 
-  const isSharedEmpty = activeTab === 'shared';
+  const isSharedEmpty = activeTab === 'shared' && activeCollections.length === 0;
   const isMyCollectionsEmpty = activeTab === 'my-collections' && activeCollections.length === 0;
 
   return (
