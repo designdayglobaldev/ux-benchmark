@@ -173,38 +173,6 @@ export function SharedBoard() {
   };
 
 
-  // Default demo messages with real team members
-  const initialDemoMessages = [
-    {
-      id: "d1",
-      content: "Hi",
-      user: { email: user?.email || "You" },
-      time: "9:00 AM",
-      isMe: true
-    },
-    {
-      id: "d2",
-      content: "Hello!",
-      user: { email: "satyajitpujapanda9@gmail.com" },
-      time: "9:00 AM",
-      isMe: false
-    },
-    {
-      id: "d3",
-      content: "what do you think bout the box-box club dashboard",
-      user: { email: user?.email || "You" },
-      time: "9:00 AM",
-      isMe: true
-    },
-    {
-      id: "d4",
-      content: "@ai analyse the box box club dashboard for me.",
-      user: { email: "satyajitpujapanda9@gmail.com" },
-      time: "9:00 AM",
-      isMe: false
-    }
-  ];
-
   const fetchBoard = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
@@ -232,13 +200,9 @@ export function SharedBoard() {
                 time: formattedTime
               };
             });
-          if (savedMessages.length > 0) {
-            setMessages(savedMessages);
-          } else {
-            setMessages(initialDemoMessages);
-          }
+          setMessages(savedMessages);
         } else {
-          setMessages(initialDemoMessages);
+          setMessages([]);
         }
       } else {
         // Fallback demo board
@@ -247,7 +211,6 @@ export function SharedBoard() {
           name: "Dashboards",
           screens: []
         });
-        setMessages(initialDemoMessages);
       }
     } catch {
       setBoard({
@@ -255,7 +218,7 @@ export function SharedBoard() {
         name: "Dashboards",
         screens: []
       });
-      setMessages(initialDemoMessages);
+      setMessages([]);
     } finally {
       setLoading(false);
     }
@@ -483,7 +446,7 @@ export function SharedBoard() {
               </DialogContent>
             </Dialog>
 
-            {/* Comments Sidebar Toggle Button with Red 9+ Badge (Shown when sidebar is closed) */}
+            {/* Comments Sidebar Toggle Button with dynamic Badge (Shown when sidebar is closed) */}
             {!isCommentsOpen && (
               <button
                 type="button"
@@ -492,10 +455,11 @@ export function SharedBoard() {
                 className="w-9 h-9 rounded-full border bg-[#161616] border-[#2A2A2A] text-[#888888] hover:text-white hover:border-[#444] flex items-center justify-center transition-all cursor-pointer relative"
               >
                 <MessageSquare className="w-4 h-4" />
-                {/* 9+ Badge */}
-                <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-bold px-1 min-w-[15px] h-[15px] rounded-full flex items-center justify-center border-2 border-black leading-none">
-                  9+
-                </span>
+                {messages.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-[#E53E3E] text-white text-[9px] font-bold px-1 min-w-[15px] h-[15px] rounded-full flex items-center justify-center border-2 border-black leading-none">
+                    {messages.length > 9 ? "9+" : messages.length}
+                  </span>
+                )}
               </button>
             )}
           </div>
@@ -610,9 +574,11 @@ export function SharedBoard() {
           {/* Sidebar Header */}
           <div className="p-4 border-b border-[#202020] flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-[#E53E3E] text-white text-[10px] font-bold flex items-center justify-center">
-                9+
-              </div>
+              {messages.length > 0 && (
+                <div className="min-w-5 h-5 px-1.5 rounded-full bg-[#E53E3E] text-white text-[10px] font-bold flex items-center justify-center">
+                  {messages.length > 9 ? "9+" : messages.length}
+                </div>
+              )}
               <h3 className="text-white font-medium text-[14px]">
                 Comments
               </h3>
@@ -628,7 +594,18 @@ export function SharedBoard() {
 
           {/* Messages Thread */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {messages.map((msg, idx) => {
+            {messages.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 select-none opacity-80">
+                <div className="w-10 h-10 rounded-full bg-[#1A1A1A] border border-[#2A2A2A] flex items-center justify-center mb-3 text-[#666]">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <p className="text-white text-[13px] font-medium mb-1">No comments yet</p>
+                <p className="text-[#777] text-[12px] max-w-[200px] leading-relaxed">
+                  Start the discussion or type <span className="text-[#a855f7] font-medium">@ai</span> to chat with Copilot.
+                </p>
+              </div>
+            ) : (
+              messages.map((msg, idx) => {
               const isMe = msg.isMe ?? (msg.user?.email === user?.email);
               const isAI = msg.isAI || msg.user?.email === 'Baselyn AI';
               const senderName = isMe ? "You" : (msg.user?.email ? formatMemberName(msg.user.email) : "Teammate");
@@ -696,7 +673,7 @@ export function SharedBoard() {
                   </div>
                 </div>
               );
-            })}
+            }))}
 
             {/* AI Agent Running Indicator */}
             {isAiTyping && (
