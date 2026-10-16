@@ -487,8 +487,17 @@ function AppFlowRow({
     <div className="flex flex-col gap-4 w-full">
       {/* App Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#1C1C1C] border border-[#2A2A2A] overflow-hidden flex items-center justify-center shrink-0">
+        <div 
+          onClick={() => {
+            if (isLocked) {
+              onUnlock();
+            } else {
+              navigate(`/app/${appGroup.slug}`);
+            }
+          }}
+          className="flex items-center gap-3 cursor-pointer group/app"
+        >
+          <div className="w-10 h-10 rounded-xl bg-[#1C1C1C] border border-[#2A2A2A] group-hover/app:border-[#444] overflow-hidden flex items-center justify-center shrink-0 transition-all group-hover/app:scale-[1.02]">
             {appGroup.appLogo ? (
               <OptimizedImage
                 src={appGroup.appLogo}
@@ -503,7 +512,7 @@ function AppFlowRow({
             )}
           </div>
           <div className="flex flex-col">
-            <h3 className="text-white text-[16px] font-semibold leading-tight tracking-tight">
+            <h3 className="text-white text-[16px] font-semibold leading-tight tracking-tight group-hover/app:underline decoration-white/50 underline-offset-4 transition-all">
               {appGroup.name}
             </h3>
             <p className="text-[#888888] text-[13px] mt-0.5">
