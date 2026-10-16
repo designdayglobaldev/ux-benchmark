@@ -280,6 +280,7 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
                         {prevUrl ? (
                             <Link 
                                 to={prevUrl}
+                                replace={true}
                                 className={`absolute top-1/2 -translate-y-1/2 right-full mr-4 xl:mr-[60px] z-20 w-[40px] h-[40px] xl:w-[48px] xl:h-[48px] rounded-full bg-[#27272A] border-none flex items-center justify-center transition-colors shadow-lg cursor-pointer hover:bg-[#3f3f46]`}
                             >
                                 <svg className="pointer-events-none" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -423,6 +424,7 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
                         {nextUrl ? (
                             <Link 
                                 to={nextUrl}
+                                replace={true}
                                 className={`absolute top-1/2 -translate-y-1/2 left-full ml-4 xl:ml-[60px] z-20 w-[40px] h-[40px] xl:w-[48px] xl:h-[48px] rounded-full bg-[#27272A] border-none flex items-center justify-center transition-colors shadow-lg cursor-pointer hover:bg-[#3f3f46]`}
                             >
                                 <svg className="pointer-events-none" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
