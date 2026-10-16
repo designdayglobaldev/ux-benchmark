@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -34,21 +33,16 @@ export const OptimizedImage = ({
   const optimizedSrc = getSupabaseOptimizedUrl(src, optimizationWidth, quality);
 
   const content = (
-    <>
-      {!isLoaded && (
-        <Skeleton className={`absolute bg-[#2A2A2A] z-0 ${className.replace('relative', '').replace('z-10', '')}`} />
-      )}
-      <img
-        src={optimizedSrc}
-        alt={alt}
-        loading={priority ? "eager" : "lazy"} 
-        fetchPriority={priority ? "high" : "auto"}
-        decoding="async"
-        onLoad={() => setIsLoaded(true)}
-        className={`${className} transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} relative z-10`}
-        {...props}
-      />
-    </>
+    <img
+      src={optimizedSrc}
+      alt={alt}
+      loading={priority ? "eager" : "lazy"} 
+      fetchPriority={priority ? "high" : "auto"}
+      decoding="async"
+      onLoad={() => setIsLoaded(true)}
+      className={`${className} transition-opacity duration-300 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+      {...props}
+    />
   );
 
   if (containerClassName) {

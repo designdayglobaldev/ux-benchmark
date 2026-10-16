@@ -57,10 +57,27 @@ export function Flows() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                         {Array.from({ length: 6 }).map((_, i) => (
                             <div key={i} className="flex flex-col gap-4">
-                                <Skeleton className="rounded-[24px] aspect-[4/3] w-full" />
-                                <div className="flex flex-col gap-2 px-1">
-                                    <Skeleton className="h-5 w-40" />
-                                    <Skeleton className="h-4 w-24" />
+                                {/* Flow Card Container Skeleton */}
+                                <div className="bg-[#121212] border border-[#222222] rounded-[24px] p-6 aspect-[4/3] w-full relative overflow-hidden flex items-center justify-center">
+                                    <div className="flex items-center justify-center w-full h-full p-6">
+                                        {/* Left Phone Preview Skeleton */}
+                                        <Skeleton className="w-[32%] aspect-[9/19] rounded-[12px] bg-[#1C1C1C] border border-[#262626] opacity-60 translate-x-[30%] -rotate-6 shrink-0" />
+                                        {/* Center Phone Preview Skeleton */}
+                                        <Skeleton className="w-[38%] aspect-[9/19] rounded-[12px] bg-[#222222] border border-[#303030] shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-10 shrink-0" />
+                                        {/* Right Phone Preview Skeleton */}
+                                        <Skeleton className="w-[32%] aspect-[9/19] rounded-[12px] bg-[#1C1C1C] border border-[#262626] opacity-60 -translate-x-[30%] rotate-6 shrink-0" />
+                                    </div>
+                                </div>
+
+                                {/* Flow Meta Information Skeleton */}
+                                <div className="flex items-start justify-between px-2">
+                                    <div className="flex flex-col gap-2">
+                                        <Skeleton className="h-5 w-36 bg-[#1A1A1A] rounded-md" />
+                                        <Skeleton className="h-3.5 w-24 bg-[#161616] rounded-md" />
+                                    </div>
+                                    <div className="flex -space-x-2">
+                                        <Skeleton className="w-6 h-6 rounded-md bg-[#202020] border border-[#2A2A2A]" />
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -168,10 +185,10 @@ export function Flows() {
                         
                         {/* Overlay for Unauthenticated Users */}
                         {!user && !isAuthLoading && flows.length > 3 && (
-                            <div className="absolute top-[20%] left-0 right-0 bottom-[-120px] z-30 flex flex-col items-center justify-end pb-[160px] sm:pb-[180px]">
+                            <div className="absolute top-[20%] left-0 right-0 bottom-[-120px] z-30 flex flex-col items-center justify-end pb-[160px] sm:pb-[180px] isolate pointer-events-none">
                                 {/* Progressive Blur & Gradient Background */}
                                 <div 
-                                    className="absolute inset-0 backdrop-blur-[12px] bg-gradient-to-b from-transparent via-[#000000]/60 to-[#000000]"
+                                    className="absolute inset-0 bg-gradient-to-b from-transparent via-[#000000]/80 to-[#000000] backdrop-blur-[6px]"
                                     style={{ 
                                         WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 20%, black 80%)',
                                         maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 20%, black 80%)' 
@@ -179,7 +196,7 @@ export function Flows() {
                                 ></div>
                                 
                                 {/* Content */}
-                                <div className="relative z-10 flex flex-col items-center">
+                                <div className="relative z-10 flex flex-col items-center pointer-events-auto">
                                     <h2 className="text-[24px] font-semibold text-white mb-2 tracking-[-0.06em]">Unlock all flows</h2>
                                     <p className="text-[#CFCFCF] text-[16px] font-normal mb-6 text-center tracking-[-0.06em]">Log in to explore how top apps build every feature.</p>
                                     <Button 

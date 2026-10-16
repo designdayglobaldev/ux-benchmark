@@ -194,23 +194,49 @@ export function FlowDetail() {
 
   if (isLoading) {
     return (
-      <main className="flex-1 w-full bg-black flex flex-col items-center pb-20 min-h-screen text-white">
-        <div className="w-full max-w-[1440px] px-4 sm:px-8 xl:px-12 pt-8 sm:pt-12">
-          <Skeleton className="h-4 w-36 mb-6 rounded-md bg-[#1C1C1C]" />
-          <Skeleton className="h-10 w-72 mb-3 rounded-md bg-[#1C1C1C]" />
-          <Skeleton className="h-4 w-96 mb-10 rounded-md bg-[#1C1C1C]" />
-          <div className="flex flex-col gap-12">
-            {[1, 2, 3].map((i) => (
+      <main className="flex-1 w-full bg-black flex flex-col items-center pb-24 sm:pb-32 min-h-screen text-white">
+        <div className="w-full max-w-[1440px] px-4 sm:px-8 xl:px-12 pt-6 sm:pt-10">
+          {/* Breadcrumb Skeleton */}
+          <div className="flex items-center gap-2 mb-6">
+            <Skeleton className="h-4 w-12 bg-[#1C1C1C] rounded" />
+            <span className="text-[#444] text-xs">/</span>
+            <Skeleton className="h-4 w-28 bg-[#1C1C1C] rounded" />
+          </div>
+
+          {/* Header Title Skeleton */}
+          <div className="flex flex-col gap-3 mb-8">
+            <Skeleton className="h-10 w-64 sm:w-80 bg-[#1C1C1C] rounded-lg" />
+            <Skeleton className="h-4 w-full max-w-xl bg-[#161616] rounded" />
+          </div>
+
+          {/* Meta Bar Skeleton */}
+          <div className="flex items-center justify-between pb-6 border-b border-[#222222] mb-10">
+            <Skeleton className="h-4 w-32 bg-[#161616] rounded" />
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-8 w-24 rounded-full bg-[#161616]" />
+              <Skeleton className="h-8 w-32 rounded-full bg-[#161616]" />
+            </div>
+          </div>
+
+          {/* Flow Rows Skeleton */}
+          <div className="flex flex-col gap-12 sm:gap-14">
+            {[1, 2].map((i) => (
               <div key={i} className="flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="w-10 h-10 rounded-xl bg-[#1C1C1C]" />
-                  <Skeleton className="h-5 w-32 bg-[#1C1C1C]" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="w-10 h-10 rounded-xl bg-[#1C1C1C] border border-[#2A2A2A]" />
+                    <div className="flex flex-col gap-1.5">
+                      <Skeleton className="h-4 w-28 bg-[#1C1C1C] rounded" />
+                      <Skeleton className="h-3 w-36 bg-[#161616] rounded" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-8 w-24 rounded-full bg-[#161616] border border-[#222]" />
                 </div>
-                <div className="flex gap-4 overflow-hidden">
+                <div className="flex items-center gap-4 sm:gap-5 overflow-hidden py-1 px-1">
                   {[1, 2, 3, 4, 5].map((j) => (
                     <Skeleton
                       key={j}
-                      className="w-[200px] aspect-[9/19.5] rounded-[18px] bg-[#1C1C1C] shrink-0"
+                      className="shrink-0 w-[170px] sm:w-[190px] md:w-[210px] aspect-[9/19.5] rounded-[18px] bg-[#141414] border border-[#222222]"
                     />
                   ))}
                 </div>
@@ -385,7 +411,7 @@ export function FlowDetail() {
 
             {/* Locked Apps Section (with Paywall Banner Overlay when in free flow) */}
             {lockedApps.length > 0 && (
-              <div className="relative flex flex-col gap-12 sm:gap-14">
+              <div className="relative flex flex-col gap-12 sm:gap-14 isolate">
                 {lockedApps.map((appGroup) => (
                   <AppFlowRow
                     key={appGroup.id}
@@ -395,9 +421,9 @@ export function FlowDetail() {
                   />
                 ))}
 
-                {/* Paywall Overlay Banner (shown over locked apps in free flow as per Image 1) */}
+                {/* Paywall Overlay Banner (shown over locked apps in free flow) */}
                 {isFreeFlow && (
-                  <div className="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-black/60 backdrop-blur-[10px] rounded-2xl">
+                  <div className="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-black/75 rounded-2xl pointer-events-auto">
                     <div className="relative z-10 flex flex-col items-center text-center max-w-md">
                       <h2 className="text-[26px] sm:text-[28px] font-semibold text-white mb-2 tracking-tight">
                         Unlock all flows
@@ -552,7 +578,7 @@ function AppFlowRow({
         <div
           ref={scrollRef}
           onScroll={checkScroll}
-          className="flex items-center gap-4 sm:gap-5 overflow-x-auto no-scrollbar scroll-smooth py-1 px-1"
+          className="flex items-center gap-4 sm:gap-5 overflow-x-auto no-scrollbar scroll-smooth py-1 px-1 isolate [transform:translateZ(0)]"
         >
           {appGroup.screens.map((screen, idx) => (
             <ScreenCard
@@ -609,7 +635,7 @@ function ScreenCard({
           navigate(`/app/${appSlug}/screens/${encodeURIComponent(screen.slug || screen.id)}`);
         }
       }}
-      className={`relative shrink-0 w-[170px] sm:w-[190px] md:w-[210px] aspect-[9/19.5] rounded-[18px] overflow-hidden border border-[#222222] bg-[#121212] select-none transition-transform duration-200 cursor-pointer group ${
+      className={`relative shrink-0 w-[170px] sm:w-[190px] md:w-[210px] aspect-[9/19.5] rounded-[18px] overflow-hidden border border-[#222222] bg-[#121212] select-none transition-transform duration-200 cursor-pointer group isolate [transform:translateZ(0)] ${
         isLocked ? "group/locked" : "hover:-translate-y-1 hover:border-[#383838]"
       }`}
     >
@@ -633,17 +659,16 @@ function ScreenCard({
         />
       )}
 
-      {/* Locked Overlay with hover reveal:
-          "Locked state, “unlock screen” label will only be visible when hovered the initial lock icon" */}
+      {/* Locked Overlay with hover reveal */}
       {isLocked && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/25">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               onUnlock();
             }}
-            className="group/lockBtn relative z-20 flex items-center justify-center rounded-full bg-[#161616]/80 hover:bg-[#1C1C1C]/95 backdrop-blur-md border border-white/20 hover:border-white/40 shadow-[0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(168,85,247,0.2)] transition-all duration-300 h-11 w-11 hover:w-auto px-0 hover:px-4 cursor-pointer"
+            className="group/lockBtn relative z-20 flex items-center justify-center rounded-full bg-[#181818]/95 hover:bg-[#222222] border border-white/20 hover:border-white/40 shadow-[0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(168,85,247,0.2)] transition-all duration-300 h-11 w-11 hover:w-auto px-0 hover:px-4 cursor-pointer"
           >
             <Lock className="w-4 h-4 text-white shrink-0" />
             <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover/lockBtn:max-w-[120px] group-hover/lockBtn:opacity-100 group-hover/lockBtn:ml-2 transition-all duration-300 text-[13px] font-medium text-white">
