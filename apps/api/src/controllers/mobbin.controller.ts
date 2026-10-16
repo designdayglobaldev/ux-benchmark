@@ -339,29 +339,32 @@ export const searchMobbinScreens = async (req: Request, res: Response) => {
       }
     }
 
-    // 2. Fetch existing screens in this flow to avoid duplicate uploads
+    // 2. Fetch existing screens for this flow AND app to avoid duplicate uploads
     const existingScreens = await prisma.screen.findMany({
-      where: { flowId },
+      where: { 
+        flowId,
+        appId 
+      },
       select: { imageUrl: true, screenNo: true },
       orderBy: { screenNo: 'desc' },
     });
 
-    // If importing a flow and the selected flow already has screens, reject the import!
+    // If importing a flow and the selected flow already has screens for this app, reject the import!
     if (searchType === "flow" && existingScreens.length > 0) {
       return res.status(409).json({
-        error: `This flow already has ${existingScreens.length} screens uploaded! Cannot upload the same flow twice. Please select or create a different flow.`
+        error: `This flow already has ${existingScreens.length} screens uploaded for this app! Cannot upload the same flow twice. Please select or create a different flow.`
       });
     }
 
     const existingImageUrls = new Set(existingScreens.map(s => s.imageUrl));
     const startingScreenNo = existingScreens.length > 0 && existingScreens[0].screenNo ? existingScreens[0].screenNo : 0;
 
-    // Filter out screens that are already in this flow
+    // Filter out screens that are already in this flow for this app
     const screensToImport = uniqueMobbinScreens.filter(s => !existingImageUrls.has(s.image_url));
 
     if (screensToImport.length === 0) {
       return res.status(409).json({ 
-        error: "These screens have already been uploaded to this flow! Duplicate import rejected." 
+        error: "These screens have already been uploaded to this flow for this app! Duplicate import rejected." 
       });
     }
 
@@ -495,6 +498,27 @@ APP CONTEXT (Use this to deeply contextualize your analysis):
           mScreen
         });
       }
+    }
+
+    // Ensure AppFlow relationship is registered for this app and flow
+    try {
+      const existingAppFlow = await prisma.appFlow.findUnique({
+        where: {
+          appId_flowId: { appId, flowId }
+        }
+      });
+      if (!existingAppFlow) {
+        const flowCount = await prisma.appFlow.count({ where: { appId } });
+        await prisma.appFlow.create({
+          data: {
+            appId,
+            flowId,
+            sequence: flowCount + 1
+          }
+        });
+      }
+    } catch (afErr) {
+      console.warn("Could not register AppFlow link:", afErr);
     }
 
     // Respond immediately to prevent frontend timeout!
