@@ -551,6 +551,7 @@ function AppFlowRow({
               screen={screen}
               screenIndex={idx}
               appSlug={appGroup.slug}
+              appName={appGroup.name}
               isLocked={isLocked}
               onUnlock={onUnlock}
             />
@@ -577,12 +578,14 @@ function ScreenCard({
   screen,
   screenIndex,
   appSlug,
+  appName,
   isLocked,
   onUnlock,
 }: {
   screen: Screen;
   screenIndex: number;
   appSlug: string;
+  appName?: string;
   isLocked: boolean;
   onUnlock: () => void;
 }) {
@@ -597,8 +600,8 @@ function ScreenCard({
           navigate(`/app/${appSlug}/screens/${encodeURIComponent(screen.slug || screen.id)}`);
         }
       }}
-      className={`relative shrink-0 w-[170px] sm:w-[190px] md:w-[210px] aspect-[9/19.5] rounded-[18px] overflow-hidden border border-[#222222] bg-[#121212] select-none transition-transform duration-200 cursor-pointer ${
-        isLocked ? "group/locked" : "hover:-translate-y-1"
+      className={`relative shrink-0 w-[170px] sm:w-[190px] md:w-[210px] aspect-[9/19.5] rounded-[18px] overflow-hidden border border-[#222222] bg-[#121212] select-none transition-transform duration-200 cursor-pointer group ${
+        isLocked ? "group/locked" : "hover:-translate-y-1 hover:border-[#383838]"
       }`}
     >
       {/* Screen Screenshot */}
@@ -617,7 +620,7 @@ function ScreenCard({
           screenId={screen.id}
           imageUrl={screen.imageUrl}
           screenName={screen.name}
-          appName={screen.app?.name}
+          appName={screen.app?.name || appName}
         />
       )}
 
