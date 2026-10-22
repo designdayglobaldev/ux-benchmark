@@ -64,12 +64,14 @@ export function Register() {
   };
 
   return (
-    <div className="grid min-h-screen w-full lg:grid-cols-2 bg-[#121212] text-white">
-      {/* Left Column: Interactive Carousel */}
-      <AuthCarousel />
+    <div className="flex min-h-screen w-full bg-[#121212] text-white">
+      {/* Left Column: Visual Carousel (44% width) */}
+      <div className="hidden lg:block w-[44%] shrink-0 h-screen sticky top-0">
+        <AuthCarousel />
+      </div>
 
-      {/* Right Column: Clean, High-Fidelity Register Form */}
-      <div className="flex flex-col justify-between p-6 sm:p-12 lg:p-16 min-h-screen w-full">
+      {/* Right Column: Clean, High-Fidelity Register Form (56% width) */}
+      <div className="flex flex-col justify-between p-6 sm:p-12 lg:p-16 min-h-screen flex-1">
         {/* Top Header / Branding */}
         <div className="flex items-center gap-3">
           <Link to="/" className="flex items-center gap-3 group">
