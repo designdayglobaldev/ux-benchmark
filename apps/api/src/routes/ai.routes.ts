@@ -990,7 +990,7 @@ ${JSON.stringify(benchmarkResult, null, 2)}
 // Fetches only categories and flows that have published apps and screens in the database
 router.get('/design-agent/filters', async (req, res) => {
   try {
-    const prisma = req.app.get('prisma') || (await import('../db/prisma')).prisma;
+    const db = req.app.get('prisma') || prisma;
 
     // 1. Fetch categories that actually contain apps that have screens
     const categories = await prisma.category.findMany({
@@ -1061,7 +1061,7 @@ router.post('/design-agent/generate', async (req, res) => {
       return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured' });
     }
 
-    const prisma = req.app.get('prisma') || (await import('../db/prisma')).prisma;
+    const db = req.app.get('prisma') || prisma;
 
     // Step 1: Query relevant UX screens from Database that actually have images
     let referenceScreen: any = null;
