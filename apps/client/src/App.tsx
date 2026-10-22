@@ -17,35 +17,49 @@ import { AuthProvider } from "./contexts/AuthContext"
 import { Login } from "./Pages/Login"
 import { Register } from "./Pages/Register"
 import { AppProtectedRoute } from "./components/Layout/AppProtectedRoute";
+import { lazy, Suspense } from "react";
 import { Pricing } from "./Pages/Pricing";
-import { DesignAgentStudio } from "./Pages/DesignAgentStudio";
 import { UpgradeProvider } from "./contexts/UpgradeContext";
 import { UpgradeModal } from "./components/Pricing/UpgradeModal";
 import { useFeatureFlag } from "./hooks/useFeatureFlag";
 import { Navigate } from "react-router-dom";
 import { FeaturePlaceholder } from "./components/FeaturePlaceholder";
+import { StudioPageSkeleton } from "./components/StudioPageSkeleton";
+
+// Lazy-load protected feature components so their code and subtrees NEVER mount/evaluate when disabled
+const LazyDesignAgentStudio = lazy(() =>
+  import("./Pages/DesignAgentStudio").then((m) => ({ default: m.DesignAgentStudio }))
+);
 
 function FeatureGuard({ 
   flagKey, 
   title, 
+  defaultEnabled = false,
   children 
 }: { 
   flagKey: string; 
   title?: string; 
+  defaultEnabled?: boolean;
   children: React.ReactNode 
 }) {
-  const flag = useFeatureFlag(flagKey);
+  const flag = useFeatureFlag(flagKey, defaultEnabled);
+
+  // If status is not yet confirmed, render clean skeleton — NEVER leak real UI
+  if (!flag.isLoaded) {
+    return <StudioPageSkeleton />;
+  }
 
   // If feature is active, render normal page
   if (flag.enabled) {
     return <>{children}</>;
   }
 
-  // If feature is disabled:
+  // If feature is disabled and configured to hide:
   if (flag.behavior === 'hide') {
     return <Navigate to="/" replace />;
   }
 
+  // Otherwise, render placeholder (Coming Soon or Maintenance)
   return (
     <FeaturePlaceholder
       title={title || 'Feature'}
@@ -88,7 +102,7 @@ function App() {
               <Route 
                 path="/benchmark" 
                 element={
-                  <FeatureGuard flagKey="ai-benchmark" title="AI Benchmark">
+                  <FeatureGuard flagKey="ai-benchmark" title="AI Benchmark" defaultEnabled={true}>
                     <Benchmark />
                   </FeatureGuard>
                 } 
@@ -101,7 +115,9 @@ function App() {
                 path="/design-agent" 
                 element={
                   <FeatureGuard flagKey="design-agent-studio" title="Design Agent Studio">
-                    <DesignAgentStudio />
+                    <Suspense fallback={<StudioPageSkeleton />}>
+                      <LazyDesignAgentStudio />
+                    </Suspense>
                   </FeatureGuard>
                 } 
               />

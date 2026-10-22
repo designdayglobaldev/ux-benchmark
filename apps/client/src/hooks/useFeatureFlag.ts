@@ -5,12 +5,13 @@ export interface FeatureFlagData {
   enabled: boolean;
   behavior: 'hide' | 'maintenance' | 'coming_soon';
   customMessage: string;
+  isLoaded: boolean;
 }
 
-const STORAGE_KEY = 'zibo_feature_flags_cache';
+const STORAGE_KEY = 'zibo_feature_flags_cache_v2';
 
 // Load persisted cache from localStorage so page switches never flash
-const loadCachedFlags = (): Record<string, FeatureFlagData> => {
+const loadCachedFlags = (): Record<string, Omit<FeatureFlagData, 'isLoaded'>> => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
@@ -38,8 +39,8 @@ const loadCachedFlags = (): Record<string, FeatureFlagData> => {
   };
 };
 
-let cachedFlags: Record<string, FeatureFlagData> = loadCachedFlags();
-
+let cachedFlags: Record<string, Omit<FeatureFlagData, 'isLoaded'>> = loadCachedFlags();
+let hasFetchedOnce = false;
 let listeners: Array<() => void> = [];
 
 const notifyListeners = () => {
@@ -59,12 +60,13 @@ export const refreshFeatureFlags = async () => {
     const res = await fetch(`${base}/feature-flags`);
     if (res.ok) {
       const data = await res.json();
+      hasFetchedOnce = true;
       if (Array.isArray(data)) {
         let changed = false;
         data.forEach((f: any) => {
           if (f.key) {
             const existing = cachedFlags[f.key];
-            const updated: FeatureFlagData = {
+            const updated = {
               enabled: typeof f.enabled === 'boolean' ? f.enabled : false,
               behavior: f.behavior || 'coming_soon',
               customMessage: f.customMessage || '',
@@ -86,8 +88,8 @@ export const refreshFeatureFlags = async () => {
           } catch (e) {
             // Ignore storage error
           }
-          notifyListeners();
         }
+        notifyListeners();
       }
     }
   } catch (err) {
@@ -103,8 +105,11 @@ refreshFeatureFlags();
 /**
  * useFeatureFlag Hook
  * 
- * Synchronously uses localStorage & memory cache so switching routes NEVER flashes
- * internal content before the placeholder renders.
+ * Provides:
+ * - enabled: boolean
+ * - behavior: 'hide' | 'maintenance' | 'coming_soon'
+ * - customMessage: string
+ * - isLoaded: boolean (true once cache exists or API returns, so routes can show skeleton instead of real UI)
  */
 export function useFeatureFlag(flagKey: string, defaultEnabled = false): FeatureFlagData {
   const hasPosthogKey = !!import.meta.env.VITE_POSTHOG_KEY;
@@ -116,12 +121,14 @@ export function useFeatureFlag(flagKey: string, defaultEnabled = false): Feature
       return {
         ...cached,
         enabled: typeof posthogVal === 'boolean' ? posthogVal : cached.enabled,
+        isLoaded: true,
       };
     }
     return {
       enabled: typeof posthogVal === 'boolean' ? posthogVal : defaultEnabled,
       behavior: 'coming_soon',
       customMessage: 'This feature is coming soon!',
+      isLoaded: hasFetchedOnce,
     };
   });
 
@@ -133,7 +140,10 @@ export function useFeatureFlag(flagKey: string, defaultEnabled = false): Feature
         setState({
           ...cached,
           enabled: typeof ph === 'boolean' ? ph : cached.enabled,
+          isLoaded: true,
         });
+      } else {
+        setState((prev) => ({ ...prev, isLoaded: hasFetchedOnce }));
       }
     };
 

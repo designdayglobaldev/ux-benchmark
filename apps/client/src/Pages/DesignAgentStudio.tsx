@@ -23,6 +23,9 @@ import {
   MousePointer,
   X
 } from "lucide-react";
+import { useFeatureFlag } from "@/hooks/useFeatureFlag";
+import { FeaturePlaceholder } from "@/components/FeaturePlaceholder";
+import { StudioPageSkeleton } from "@/components/StudioPageSkeleton";
 import api from "../utils/api";
 
 interface ScreenSpec {
@@ -162,6 +165,24 @@ const INITIAL_SCREENS: ScreenSpec[] = [
 ];
 
 export function DesignAgentStudio() {
+  const flag = useFeatureFlag('design-agent-studio', false);
+
+  // If status is not yet loaded, return clean skeleton — NEVER mount studio UI
+  if (!flag.isLoaded) {
+    return <StudioPageSkeleton />;
+  }
+
+  // If feature is disabled, return placeholder immediately
+  if (!flag.enabled) {
+    return (
+      <FeaturePlaceholder
+        title="Design Agent Studio"
+        behavior={flag.behavior}
+        customMessage={flag.customMessage}
+      />
+    );
+  }
+
   const [device, setDevice] = useState<"mobile" | "tablet" | "desktop">("mobile");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedFlow, setSelectedFlow] = useState<string>("all");
