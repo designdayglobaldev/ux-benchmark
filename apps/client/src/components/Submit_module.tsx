@@ -190,7 +190,7 @@ export function SubmitModule({ children }: SubmitModuleProps) {
 
               {/* Bottom Branding */}
               <div className="flex items-center gap-3.5 mt-8 pt-2">
-                <img src={Logo} alt="Baselyn" className="h-[22px] w-auto object-contain" />
+                <img src={Logo} alt="Zibo" className="h-[22px] w-auto object-contain" />
                 <div className="h-5 w-px bg-[#2E2E2E]" />
                 <div className="text-[11px] text-[#666666] leading-tight font-normal">
                   <p>Know what works.</p>

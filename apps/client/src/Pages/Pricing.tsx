@@ -39,7 +39,7 @@ export function Pricing() {
             <span className="text-[23px] text-[#757575] tracking-[-0.05em]">/forever</span>
           </div>
           <p className="text-[#6A6A6A] text-[16px] tracking-[-0.05em] min-h-[48px]">
-            For exploring Baselyn and trying out the core experience.
+            For exploring Zibo and trying out the core experience.
           </p>
 
           <div className="w-full h-px bg-[#282828] my-6" />

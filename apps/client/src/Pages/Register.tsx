@@ -1,12 +1,9 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
-import { z } from "zod";
 import Logo from "@/assets/Logo.png";
-import authImage from "../assets/auth.png";
+import { z } from "zod";
+import { Headphones, HelpCircle, Loader2 } from "lucide-react";
+import { AuthCarousel } from "@/components/AuthCarousel";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -22,7 +19,6 @@ export function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-
   const [registrationData, setRegistrationData] = useState<any>(null);
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -68,108 +64,151 @@ export function Register() {
   };
 
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-center gap-2 md:justify-start">
-          <a href="/" className="flex items-center gap-3">
-            <img src={Logo} alt="Logo" className="h-10 w-auto object-contain" />
-          </a>
+    <div className="grid min-h-screen w-full lg:grid-cols-2 bg-[#121212] text-white">
+      {/* Left Column: Interactive Carousel */}
+      <AuthCarousel />
+
+      {/* Right Column: Clean, High-Fidelity Register Form */}
+      <div className="flex flex-col justify-between p-6 sm:p-12 lg:p-16 min-h-screen w-full">
+        {/* Top Header / Branding */}
+        <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 group">
+            <img src={Logo} alt="Zibo" className="h-[26px] w-auto object-contain" />
+          </Link>
+          <div className="h-4 w-px bg-[#2E2E2E]" />
+          <div className="text-[11px] text-[#71717A] leading-tight font-normal">
+            <p>Know what works.</p>
+            <p>Know why.</p>
+          </div>
         </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            {success ? (
-              <div className="text-center">
-                <h1 className="text-2xl font-bold mb-4">
-                  {registrationData?.autoApproved ? "Access Granted!" : "You're on the list!"}
-                </h1>
-                <p className="text-muted-foreground mb-6">
-                  {registrationData?.autoApproved
-                    ? "Your account has been automatically approved! We've sent temporary login credentials to your email."
-                    : "Thank you for registering for beta testing. We'll send you an email when your account is approved."}
-                </p>
-                <div className="flex flex-col gap-2">
-                  {registrationData?.autoApproved ? (
-                    <Button onClick={() => navigate("/login")} className="w-full bg-white text-black hover:bg-gray-200">
-                      Go to Login
-                    </Button>
-                  ) : (
-                    <Button onClick={() => navigate("/")} className="w-full bg-white text-black hover:bg-gray-200">
-                      Return to Home
-                    </Button>
-                  )}
-                </div>
+
+        {/* Center Register Form */}
+        <div className="w-full max-w-[420px] mx-auto py-12">
+          {success ? (
+            <div className="text-center py-8">
+              <span className="text-[13px] text-[#8E8E93] block mb-2 font-normal tracking-wide">
+                Confirmation
+              </span>
+              <h1 className="text-[34px] sm:text-[38px] font-serif font-normal text-white tracking-tight leading-[1.15] mb-4">
+                {registrationData?.autoApproved ? "Access Granted!" : "You're on the list!"}
+              </h1>
+              <p className="text-[#A1A1AA] text-[15px] leading-relaxed mb-8">
+                {registrationData?.autoApproved
+                  ? "Your account has been automatically approved! We've sent temporary login credentials to your email."
+                  : "Thank you for registering for beta testing. We'll send you an email when your account is approved."}
+              </p>
+              <div className="flex flex-col gap-3">
+                {registrationData?.autoApproved ? (
+                  <button 
+                    onClick={() => navigate("/login")} 
+                    className="w-full h-12 rounded-full bg-white text-black font-semibold text-[15px] hover:bg-[#EBEBEB] active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                  >
+                    Go to Login
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => navigate("/")} 
+                    className="w-full h-12 rounded-full bg-white text-black font-semibold text-[15px] hover:bg-[#EBEBEB] active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer shadow-sm"
+                  >
+                    Return to Home
+                  </button>
+                )}
               </div>
-            ) : (
-              <form className="flex flex-col gap-6" onSubmit={handleRegister}>
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <h1 className="text-2xl font-bold">Register for beta testing</h1>
-                  <p className="text-balance text-sm text-muted-foreground">
-                    Join the waitlist to get early access
-                  </p>
+            </div>
+          ) : (
+            <div>
+              {/* Headline */}
+              <div className="mb-8">
+                <span className="text-[13px] text-[#8E8E93] block mb-1.5 font-normal tracking-wide">
+                  Join the platform
+                </span>
+                <h1 className="text-[34px] sm:text-[38px] font-serif font-normal text-white tracking-tight leading-[1.15]">
+                  Register for Beta Testing.
+                </h1>
+              </div>
+
+              <form onSubmit={handleRegister} className="flex flex-col gap-4">
+                {error && (
+                  <div className="p-3 text-[13px] bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl">
+                    {error}
+                  </div>
+                )}
+
+                {/* Name Input */}
+                <div className="relative">
+                  <input
+                    id="name"
+                    type="text"
+                    placeholder="Full name"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full h-10.5 px-4 rounded-xl bg-[#1C1C1E] border border-white/10 text-white placeholder-[#71717A] text-[14px] focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all [&:-webkit-autofill]:bg-[#1C1C1E] [&:-webkit-autofill]:text-white [&:-webkit-autofill]:[-webkit-text-fill-color:white] [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0px_1000px_#1C1C1E_inset]"
+                  />
                 </div>
-                <div className="grid gap-4">
-                  {error && (
-                    <div className="text-sm font-medium text-red-500 text-center">
-                      {error}
-                    </div>
-                  )}
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input 
-                      id="name" 
-                      type="text" 
-                      placeholder="John Doe" 
-                      required 
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="bg-[#161616] border-[#333] text-white"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input 
-                      id="email" 
-                      type="email" 
-                      placeholder="m@example.com" 
-                      required 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="bg-[#161616] border-[#333] text-white"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input 
-                      id="phone" 
-                      type="tel" 
-                      placeholder="+1 (555) 000-0000" 
-                      required 
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="bg-[#161616] border-[#333] text-white"
-                    />
-                  </div>
-                  <Button type="submit" className="w-full bg-white text-black hover:bg-gray-200 mt-2" disabled={loading}>
-                    {loading ? "Registering..." : "Register"}
-                  </Button>
+
+                {/* Email Input */}
+                <div className="relative">
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder="Enter e-mail"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full h-10.5 px-4 rounded-xl bg-[#1C1C1E] border border-white/10 text-white placeholder-[#71717A] text-[14px] focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all [&:-webkit-autofill]:bg-[#1C1C1E] [&:-webkit-autofill]:text-white [&:-webkit-autofill]:[-webkit-text-fill-color:white] [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0px_1000px_#1C1C1E_inset]"
+                  />
                 </div>
-                <div className="text-center text-sm text-muted-foreground">
+
+                {/* Phone Input */}
+                <div className="relative">
+                  <input
+                    id="phone"
+                    type="tel"
+                    placeholder="Phone number (+1 555 000-0000)"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full h-10.5 px-4 rounded-xl bg-[#1C1C1E] border border-white/10 text-white placeholder-[#71717A] text-[14px] focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all [&:-webkit-autofill]:bg-[#1C1C1E] [&:-webkit-autofill]:text-white [&:-webkit-autofill]:[-webkit-text-fill-color:white] [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0px_1000px_#1C1C1E_inset]"
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-10.5 mt-3 rounded-full bg-white text-black font-semibold text-[14px] hover:bg-[#EBEBEB] active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer shadow-sm disabled:opacity-60"
+                >
+                  {loading ? <Loader2 size={16} className="animate-spin text-black" /> : "Request Beta Access"}
+                </button>
+
+                {/* Login Link */}
+                <div className="text-center text-[13px] text-[#8E8E93] mt-5">
                   Already have an account?{" "}
-                  <Link to="/login" className="underline underline-offset-4 text-white hover:text-gray-300">
+                  <Link to="/login" className="text-white hover:underline underline-offset-4 font-medium">
                     Log in
                   </Link>
                 </div>
               </form>
-            )}
-          </div>
+            </div>
+          )}
         </div>
-      </div>
-      <div className="relative hidden bg-[#0a0a0a] lg:block border-l border-[#222]">
-        <img
-          src={authImage}
-          alt="Authentication"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+
+        {/* Footer Links */}
+        <div className="flex items-center justify-center gap-6 text-[13px] text-[#71717A] pt-4">
+          <button 
+            type="button"
+            onClick={() => window.location.href = "mailto:hello@zibo.co"}
+            className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer"
+          >
+            <Headphones size={15} />
+            <span>Help</span>
+          </button>
+          <Link to="/pricing" className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
+            <HelpCircle size={15} />
+            <span>FAQs</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

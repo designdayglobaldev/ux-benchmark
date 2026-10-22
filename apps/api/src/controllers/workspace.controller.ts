@@ -156,10 +156,10 @@ export const inviteToWorkspace = async (req: Request, res: Response): Promise<an
 
     try {
       await resend.emails.send({
-        from: 'Baselyn <onboarding@resend.dev>', // Use resend test domain or verified domain
+        from: 'Zibo <onboarding@resend.dev>', // Use resend test domain or verified domain
         to: email,
         subject: 'You have been invited to a Workspace!',
-        html: `<p>Hello!</p><p>You have been invited to collaborate on a board in Baselyn.</p><p>Log in to your account to view the workspace.</p>`
+        html: `<p>Hello!</p><p>You have been invited to collaborate on a board in Zibo.</p><p>Log in to your account to view the workspace.</p>`
       });
     } catch (emailError) {
       console.error("Failed to send email via Resend:", emailError);

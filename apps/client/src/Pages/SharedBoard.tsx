@@ -237,7 +237,7 @@ export function SharedBoard() {
 
     socket.on('chat-message', (msg: any) => {
       setMessages(prev => [...prev, msg]);
-      if (msg.user?.email === 'Baselyn AI') {
+      if (msg.user?.email === 'Zibo AI') {
         setIsAiTyping(false);
       }
     });
@@ -607,7 +607,7 @@ export function SharedBoard() {
             ) : (
               messages.map((msg, idx) => {
               const isMe = msg.isMe ?? (msg.user?.email === user?.email);
-              const isAI = msg.isAI || msg.user?.email === 'Baselyn AI';
+              const isAI = msg.isAI || msg.user?.email === 'Zibo AI';
               const senderName = isMe ? "You" : (msg.user?.email ? formatMemberName(msg.user.email) : "Teammate");
               
               const currentDate = getMessageDate(msg);

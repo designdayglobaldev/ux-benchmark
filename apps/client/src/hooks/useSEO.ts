@@ -9,7 +9,7 @@ interface SEOProps {
 export function useSEO({ title, description, image }: SEOProps) {
   useEffect(() => {
     // Update title
-    document.title = `${title} | Baselyn`;
+    document.title = `${title} | Zibo`;
 
     // Update meta description
     if (description) {

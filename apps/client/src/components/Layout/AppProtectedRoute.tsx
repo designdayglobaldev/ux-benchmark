@@ -11,12 +11,19 @@ export function AppProtectedRoute({ children }: { children: React.ReactNode }) {
         return <div className="min-h-screen bg-black" />;
     }
 
-    // If not logged in, restrict access to only the first 4 apps
-    if (!user && apps) {
-        const allowedSlugs = apps.slice(0, 4).map(app => app.slug);
-        if (slug && !allowedSlugs.includes(slug)) {
-            // Redirect to registration page if trying to access a locked app
-            return <Navigate to="/register" replace />;
+    // If not logged in:
+    if (!user) {
+        // If route has an app slug, allow access to first 4 preview apps
+        if (slug) {
+            if (apps) {
+                const allowedSlugs = apps.slice(0, 4).map(app => app.slug);
+                if (!allowedSlugs.includes(slug)) {
+                    return <Navigate to="/register" replace />;
+                }
+            }
+        } else {
+            // For general user-only routes (/workspaces, /collections, /boards/:boardId), require authentication
+            return <Navigate to="/login" replace />;
         }
     }
 

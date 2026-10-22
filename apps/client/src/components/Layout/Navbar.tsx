@@ -91,16 +91,15 @@ export function Navbar() {
             </Link>
 
             {/* Design Agent */}
-            <button
-              type="button"
-              onClick={openUpgradeModal}
+            <Link
+              to="/design-agent"
               className="h-full flex items-center gap-1.5 text-[14px] font-medium text-[#888888] hover:text-[#CCCCCC] transition-colors cursor-pointer"
             >
               <span>Design Agent</span>
               <span className="bg-gradient-to-r from-[#FF3366] to-[#9933FF] text-white px-1.5 py-[2px] rounded-full text-[8px] font-bold tracking-wider uppercase shadow-md shadow-purple-500/25 border border-white/10 leading-none shrink-0 -translate-y-[1px]">
-                SOON
+                STUDIO
               </span>
-            </button>
+            </Link>
           </nav>
         </div>
 
@@ -109,42 +108,42 @@ export function Navbar() {
           <SearchModal />
         </div>
 
-        {/* Right Side: Bookmark, Globe, Bell, Upgrade Button & Profile Dropdown */}
+        {/* Right Side: Authenticated User Actions & Guest Login Button */}
         <div className="flex items-center gap-3.5 shrink-0">
-          {/* Bookmark / Collections */}
-          <button 
-            type="button"
-            onClick={() => navigate("/collections")}
-            aria-label="Collections"
-            className={cn(
-              "text-[#888888] hover:text-white transition-colors p-1.5 rounded-full hover:bg-[#1A1A1A] cursor-pointer",
-              (location.pathname === "/collections" || location.pathname === "/workspaces") && "text-white"
-            )}
-          >
-            <Bookmark className="w-[18px] h-[18px]" />
-          </button>
-
-          {/* Globe */}
-          <button 
-            type="button"
-            aria-label="Language / Global"
-            className="text-[#888888] hover:text-white transition-colors p-1.5 rounded-full hover:bg-[#1A1A1A] cursor-pointer hidden sm:block"
-          >
-            <Globe className="w-[18px] h-[18px]" />
-          </button>
-
-          {/* Notification Bell */}
-          <button 
-            type="button"
-            aria-label="Notifications"
-            className="text-[#888888] hover:text-white transition-colors p-1.5 rounded-full hover:bg-[#1A1A1A] cursor-pointer"
-          >
-            <Bell className="w-[19px] h-[19px]" />
-          </button>
-
-          {/* Guest User: Show Login Button | Authenticated User: Show Upgrade & Profile */}
+          {/* Guest User: Show Login Button | Authenticated User: Show Bookmark, Globe, Bell, Upgrade & Profile */}
           {user ? (
             <>
+              {/* Bookmark / Collections */}
+              <button 
+                type="button"
+                onClick={() => navigate("/collections")}
+                aria-label="Collections"
+                className={cn(
+                  "text-[#888888] hover:text-white transition-colors p-1.5 rounded-full hover:bg-[#1A1A1A] cursor-pointer",
+                  (location.pathname === "/collections" || location.pathname === "/workspaces") && "text-white"
+                )}
+              >
+                <Bookmark className="w-[18px] h-[18px]" />
+              </button>
+
+              {/* Globe */}
+              <button 
+                type="button"
+                aria-label="Language / Global"
+                className="text-[#888888] hover:text-white transition-colors p-1.5 rounded-full hover:bg-[#1A1A1A] cursor-pointer hidden sm:block"
+              >
+                <Globe className="w-[18px] h-[18px]" />
+              </button>
+
+              {/* Notification Bell */}
+              <button 
+                type="button"
+                aria-label="Notifications"
+                className="text-[#888888] hover:text-white transition-colors p-1.5 rounded-full hover:bg-[#1A1A1A] cursor-pointer"
+              >
+                <Bell className="w-[19px] h-[19px]" />
+              </button>
+
               {/* Upgrade Button */}
               <button
                 type="button"

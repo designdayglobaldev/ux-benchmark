@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from '@/assets/Logo.png';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { supabase } from "../lib/supabase";
-
 import { z } from "zod";
-import authImage from "../assets/auth.png";
+import { Eye, EyeOff, Headphones, HelpCircle, Loader2 } from "lucide-react";
+import { AuthCarousel } from "@/components/AuthCarousel";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -18,6 +15,7 @@ export function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,13 +36,13 @@ export function Login() {
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) {
-      setError(error.message);
+    if (signInError) {
+      setError(signInError.message);
       setLoading(false);
     } else {
       navigate("/");
@@ -52,97 +50,121 @@ export function Login() {
   };
 
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-center gap-2 md:justify-start">
-          <a href="/" className="flex items-center gap-3">
-            <img src={Logo} alt="Logo" className="h-10 w-auto object-contain" />
-          </a>
-        </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">
-            <form className="flex flex-col gap-6" onSubmit={handleLogin}>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="text-2xl font-bold">Login to your account</h1>
-                <p className="text-balance text-sm text-muted-foreground">
-                  Enter your email below to login to your account
-                </p>
-              </div>
-              <div className="grid gap-6">
-                {error && (
-                  <div className="text-sm font-medium text-red-500 text-center">
-                    {error}
-                  </div>
-                )}
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="m@example.com" 
-                    required 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-[#161616] border-[#333] text-white"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline text-muted-foreground"
-                    >
-                      Forgot your password?
-                    </a>
-                  </div>
-                  <Input 
-                    id="password" 
-                    type="password" 
-                    required 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="bg-[#161616] border-[#333] text-white"
-                  />
-                </div>
-                <Button type="submit" className="w-full bg-white text-black hover:bg-gray-200" disabled={loading}>
-                  {loading ? "Logging in..." : "Login"}
-                </Button>
-                
-                {/* Hidden for now */}
-                <div className="hidden">
-                  <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-[#333]">
-                    <span className="relative z-10 bg-black px-2 text-muted-foreground">
-                      Or continue with
-                    </span>
-                  </div>
-                  <Button variant="outline" className="w-full bg-[#161616] border-[#333] text-white hover:bg-[#222] mt-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
-                      <path
-                        d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
-                        fill="currentColor"
-                      />
-                    </svg>
-                    Login with GitHub
-                  </Button>
-                </div>
-              </div>
-              <div className="text-center text-sm text-muted-foreground">
-                Don&apos;t have an account?{" "}
-                <Link to="/register" className="underline underline-offset-4 text-white hover:text-gray-300">
-                  Register for beta testing
-                </Link>
-              </div>
-            </form>
+    <div className="grid min-h-screen w-full lg:grid-cols-2 bg-[#121212] text-white">
+      {/* Left Column: Interactive Carousel */}
+      <AuthCarousel />
+
+      {/* Right Column: Clean, High-Fidelity Login Form */}
+      <div className="flex flex-col justify-between p-6 sm:p-12 lg:p-16 min-h-screen w-full">
+        {/* Top Header / Branding */}
+        <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 group">
+            <img src={Logo} alt="Zibo" className="h-[26px] w-auto object-contain" />
+          </Link>
+          <div className="h-4 w-px bg-[#2E2E2E]" />
+          <div className="text-[11px] text-[#71717A] leading-tight font-normal">
+            <p>Know what works.</p>
+            <p>Know why.</p>
           </div>
         </div>
-      </div>
-      <div className="relative hidden bg-[#0a0a0a] lg:block border-l border-[#222]">
-        <img
-          src={authImage}
-          alt="Authentication"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+
+        {/* Center Auth Form */}
+        <div className="w-full max-w-[420px] mx-auto py-12">
+          {/* Headline */}
+          <div className="mb-8">
+            <span className="text-[13px] text-[#8E8E93] block mb-1.5 font-normal tracking-wide">
+              Login to
+            </span>
+            <h1 className="text-[34px] sm:text-[38px] font-serif font-normal text-white tracking-tight leading-[1.15]">
+              Where Great Design Makes Sense.
+            </h1>
+          </div>
+
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            {error && (
+              <div className="p-3 text-[13px] bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl">
+                {error}
+              </div>
+            )}
+
+            {/* Email Input */}
+            <div className="relative">
+              <input
+                id="email"
+                type="email"
+                placeholder="Enter e-mail"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full h-10.5 px-4 rounded-xl bg-[#1C1C1E] border border-white/10 text-white placeholder-[#71717A] text-[14px] focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all [&:-webkit-autofill]:bg-[#1C1C1E] [&:-webkit-autofill]:text-white [&:-webkit-autofill]:[-webkit-text-fill-color:white] [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0px_1000px_#1C1C1E_inset]"
+              />
+            </div>
+
+            {/* Password Input */}
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter Password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-10.5 pl-4 pr-11 rounded-xl bg-[#1C1C1E] border border-white/10 text-white placeholder-[#71717A] text-[14px] focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all [&:-webkit-autofill]:bg-[#1C1C1E] [&:-webkit-autofill]:text-white [&:-webkit-autofill]:[-webkit-text-fill-color:white] [&:-webkit-autofill]:[-webkit-box-shadow:0_0_0px_1000px_#1C1C1E_inset]"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+
+            {/* Forgot Password Row */}
+            <div className="flex justify-end pt-0.5">
+              <span className="text-[12.5px] text-[#8E8E93]">
+                Forgot Password?{" "}
+                <a href="#reset" onClick={(e) => { e.preventDefault(); alert("Please contact support or register your email to reset password."); }} className="text-white hover:underline underline-offset-4 font-medium">
+                  Reset
+                </a>
+              </span>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-10.5 mt-3 rounded-full bg-white text-black font-semibold text-[14px] hover:bg-[#EBEBEB] active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer shadow-sm disabled:opacity-60"
+            >
+              {loading ? <Loader2 size={16} className="animate-spin text-black" /> : "Login"}
+            </button>
+
+            {/* Register Link */}
+            <div className="text-center text-[13px] text-[#8E8E93] mt-5">
+              Don&apos;t have an account?{" "}
+              <Link to="/register" className="text-white hover:underline underline-offset-4 font-medium">
+                Register for Beta Testing
+              </Link>
+            </div>
+          </form>
+        </div>
+
+        {/* Footer Links (Help & FAQs matching reference) */}
+        <div className="flex items-center justify-center gap-6 text-[13px] text-[#71717A] pt-4">
+          <button 
+            type="button"
+            onClick={() => window.location.href = "mailto:hello@zibo.co"}
+            className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer"
+          >
+            <Headphones size={15} />
+            <span>Help</span>
+          </button>
+          <Link to="/pricing" className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
+            <HelpCircle size={15} />
+            <span>FAQs</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

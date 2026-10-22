@@ -102,7 +102,7 @@ export const initiateMobbinAuth = async (req: Request, res: Response) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          client_name: "Baselyn Admin",
+          client_name: "Zibo Admin",
           redirect_uris: [redirectUri],
           token_endpoint_auth_method: "none", // For public clients, or use client_secret_post if supported
         })

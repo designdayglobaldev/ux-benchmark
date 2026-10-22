@@ -18,6 +18,7 @@ import { Login } from "./Pages/Login"
 import { Register } from "./Pages/Register"
 import { AppProtectedRoute } from "./components/Layout/AppProtectedRoute"
 import { Pricing } from "./Pages/Pricing"
+import { DesignAgentStudio } from "./Pages/DesignAgentStudio"
 import { UpgradeProvider } from "./contexts/UpgradeContext"
 import { UpgradeModal } from "./components/Pricing/UpgradeModal"
 
@@ -56,6 +57,7 @@ function App() {
               <Route path="/flows/:slug" element={<FlowDetail />} />
               <Route path="/browse" element={<Browse />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/design-agent" element={<DesignAgentStudio />} />
               <Route path="/app/:slug" element={<AppProtectedRoute><AppPage /></AppProtectedRoute>} />
               <Route path="/app/:slug/flows" element={<AppProtectedRoute><AppFlows /></AppProtectedRoute>} />
               <Route path="/app/:slug/screens" element={<AppProtectedRoute><AppScreens /></AppProtectedRoute>} />

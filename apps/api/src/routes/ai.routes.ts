@@ -986,4 +986,248 @@ ${JSON.stringify(benchmarkResult, null, 2)}
   }
 });
 
+// GET /api/ai/design-agent/filters
+// Fetches only categories and flows that have published apps and screens in the database
+router.get('/design-agent/filters', async (req, res) => {
+  try {
+    const prisma = req.app.get('prisma') || (await import('../db/prisma')).prisma;
+
+    // 1. Fetch categories that actually contain apps that have screens
+    const categories = await prisma.category.findMany({
+      where: {
+        apps: {
+          some: {
+            screens: {
+              some: {}
+            }
+          }
+        }
+      },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        _count: {
+          select: {
+            apps: true
+          }
+        }
+      },
+      orderBy: {
+        title: 'asc'
+      }
+    });
+
+    // 2. Fetch flows that have screens associated with them
+    const flows = await prisma.flow.findMany({
+      where: {
+        screens: {
+          some: {}
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        _count: {
+          select: {
+            screens: true
+          }
+        }
+      },
+      orderBy: {
+        name: 'asc'
+      }
+    });
+
+    res.json({ categories, flows });
+  } catch (error: any) {
+    console.error('Failed to fetch design agent filters:', error);
+    res.status(500).json({ error: error?.message || 'Failed to fetch categories and flows' });
+  }
+});
+
+// POST /api/ai/design-agent/generate
+// Generates high-fidelity, production-ready screen specs grounded in UX benchmark library & Vision
+router.post('/design-agent/generate', async (req, res) => {
+  try {
+    const { prompt, category, flow, device = 'mobile' } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt is required' });
+    }
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured' });
+    }
+
+    const prisma = req.app.get('prisma') || (await import('../db/prisma')).prisma;
+
+    // Step 1: Query relevant UX screens from Database that actually have images
+    let referenceScreen: any = null;
+    let benchmarkContext = '';
+
+    try {
+      const searchWords = prompt.split(/\s+/).filter((w: string) => w.length > 2);
+      
+      // Attempt to find screens matching app name, flow, or keywords
+      const potentialScreens = await prisma.screen.findMany({
+        where: {
+          imageUrl: { not: '' },
+          OR: [
+            ...(category ? [{ app: { category: { slug: category } } }] : []),
+            ...(flow ? [{ flow: { slug: flow } }] : []),
+            ...searchWords.slice(0, 4).map((word: string) => ({
+              OR: [
+                { app: { name: { contains: word, mode: 'insensitive' as const } } },
+                { name: { contains: word, mode: 'insensitive' as const } },
+                { flow: { name: { contains: word, mode: 'insensitive' as const } } }
+              ]
+            }))
+          ]
+        },
+        include: {
+          app: {
+            select: { name: true, category: { select: { title: true } } }
+          },
+          flow: {
+            select: { name: true }
+          }
+        },
+        take: 3
+      });
+
+      if (potentialScreens.length > 0) {
+        referenceScreen = potentialScreens[0];
+        benchmarkContext = `Here are benchmark reference screens from our curated library:
+${potentialScreens.map((s: any) => `- App: ${s.app?.name}, Screen: "${s.name}", Flow: "${s.flow?.name || 'General'}"`).join('\n')}`;
+      }
+    } catch (dbErr) {
+      console.warn('Benchmark RAG fallback:', dbErr);
+    }
+
+    // Step 2: Prompt Claude to synthesize an elite screen spec adhering to modern Auto-Layout
+    const systemPrompt = `You are a Principal Product Designer at Apple / Linear with world-class UX taste.
+Your task is to design a state-of-the-art UI screen based on the user's prompt and our real UX library benchmark.
+
+${benchmarkContext}
+
+CRITICAL RULES:
+1. Output MUST be valid, parseable JSON only. Do NOT wrap in markdown \`\`\`json.
+2. Return an object matching this EXACT schema:
+{
+  "title": "Short descriptive screen title",
+  "subtitle": "Clear UX rationale or purpose",
+  "category": "${category || 'general'}",
+  "badge": "Short badge e.g. STEP 1 or PRO",
+  "flowStep": "Step indicator e.g. Step 1 of 3",
+  "referenceApp": "${referenceScreen?.app?.name || ''}",
+  "referenceScreen": "${referenceScreen?.name || ''}",
+  "layoutType": "pricing-tiers" | "feature-list" | "card-grid",
+  "elements": {
+    "heroTitle": "Punchy, modern headline (max 7 words)",
+    "heroSubtitle": "Clean supporting copy (max 15 words)",
+    "pricingTiers": [
+      {
+        "id": "tier-1",
+        "name": "Standard",
+        "price": "Free",
+        "period": "",
+        "highlight": false,
+        "features": ["Feature 1", "Feature 2"]
+      },
+      {
+        "id": "tier-2",
+        "name": "Metal",
+        "price": "$14.99",
+        "period": "/mo",
+        "badge": "MOST POPULAR",
+        "highlight": true,
+        "features": ["18g Metal card", "Unlimited free withdrawals", "5% Vault interest"]
+      }
+    ],
+    "features": [
+      { "title": "Feature title", "desc": "Brief 1-line description", "icon": "layers", "tag": "optional tag" },
+      { "title": "Feature title", "desc": "Brief 1-line description", "icon": "star", "tag": "optional tag" },
+      { "title": "Feature title", "desc": "Brief 1-line description", "icon": "wand", "tag": "optional tag" }
+    ],
+    "primaryCTA": "Actionable button label",
+    "secondaryCTA": "Optional secondary action",
+    "disclaimer": "Optional subtext disclaimer"
+  },
+  "styleTokens": {
+    "theme": "dark",
+    "accentColor": "#6366F1",
+    "bgGradient": "from-[#0F0F14] via-[#09090C] to-[#040406]",
+    "cardBg": "bg-white/[0.04] border-white/[0.08]",
+    "roundness": "rounded-2xl"
+  }
+}
+
+3. HIGH TASTE REQUIREMENT:
+- If the user prompt asks for tiers / plans / pricing comparison (e.g. Standard vs Metal), set "layoutType": "pricing-tiers" and populate "pricingTiers" with clear contrasting plans!
+- Clean copy, zero boilerplate jargon.
+- Accent colors must be curated hex values (#6366F1, #0075FF, #10B981, #EC4899, #8B5CF6).`;
+
+    // Multimodal Vision: If we have an image URL from our library, send it to Claude!
+    const userContent: any[] = [];
+    
+    if (referenceScreen?.imageUrl && (referenceScreen.imageUrl.startsWith('http://') || referenceScreen.imageUrl.startsWith('https://'))) {
+      userContent.push({
+        type: 'image',
+        source: {
+          type: 'url',
+          url: referenceScreen.imageUrl
+        }
+      });
+      userContent.push({
+        type: 'text',
+        text: `Inspect the visual hierarchy, component layout, and spacing from this benchmark screen (${referenceScreen.app?.name} - ${referenceScreen.name}). Ground your design in its layout mechanics. User Prompt: "${prompt}" for device: ${device}.`
+      });
+    } else {
+      userContent.push({
+        type: 'text',
+        text: `Generate a screen spec for device: ${device}. User Prompt: "${prompt}"`
+      });
+    }
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 2048,
+      system: systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: userContent
+        }
+      ]
+    });
+
+    const aiText = message.content
+      .filter((block) => block.type === 'text')
+      .map((block: any) => block.text)
+      .join('\n');
+
+    let cleanJson = aiText.trim();
+    const jsonMatch = cleanJson.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleanJson = jsonMatch[0];
+    }
+
+    const screenData = JSON.parse(cleanJson);
+    res.json({ 
+      screen: screenData,
+      referenceScreen: referenceScreen ? {
+        id: referenceScreen.id,
+        appName: referenceScreen.app?.name,
+        screenName: referenceScreen.name,
+        imageUrl: referenceScreen.imageUrl
+      } : null
+    });
+  } catch (error: any) {
+    console.error('Design Agent Generator Error:', error);
+    res.status(500).json({ error: error?.message || 'Failed to generate design screen' });
+  }
+});
+
 export default router;

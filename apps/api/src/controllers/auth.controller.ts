@@ -70,13 +70,13 @@ export const executeUserApproval = async (email: string) => {
       console.warn("Skipping email send: RESEND_API_KEY is not configured.");
     } else {
       const { data, error: resendError } = await resend.emails.send({
-        from: 'BenchmarX <hello@baselyn.co>',
+        from: 'Zibo <hello@zibo.co>',
         to: email,
-        subject: 'Welcome to BenchmarX Beta!',
+        subject: 'Welcome to Zibo Beta!',
         html: `
           <h2>You've been approved!</h2>
           <p>Hi ${waitlist.name},</p>
-          <p>Your beta access for BenchmarX is now active.</p>
+          <p>Your beta access for Zibo is now active.</p>
           <p>Here are your temporary login credentials:</p>
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Password:</strong> ${tempPassword}</p>

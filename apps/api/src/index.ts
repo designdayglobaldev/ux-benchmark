@@ -124,7 +124,7 @@ io.on('connection', (socket) => {
         const response = await anthropic.messages.create({
           model: 'claude-sonnet-5',
           max_tokens: 1024,
-          system: `You are Baselyn AI, a helpful, witty, and concise AI assistant built into the Baselyn design platform workspace. You help teams collaborate and answer questions.\n\nContext about the current workspace: ${screenContext}`,
+          system: `You are Zibo AI, a helpful, witty, and concise AI assistant built into the Zibo design platform workspace. You help teams collaborate and answer questions.\n\nContext about the current workspace: ${screenContext}`,
           messages: [
             { role: 'user', content: data.message.content }
           ]
@@ -140,7 +140,7 @@ io.on('connection', (socket) => {
         const aiMessage = {
           id: Date.now().toString(),
           content: aiText,
-          user: { email: "Baselyn AI" },
+          user: { email: "Zibo AI" },
           createdAt: new Date().toISOString()
         };
         

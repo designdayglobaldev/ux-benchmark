@@ -1,7 +1,7 @@
 # Authentication & Feature Locking System
 
 ## Overview
-BenchmarX uses a combination of visual masking and route-level protection to implement a "Freemium" preview model. Unauthenticated users are allowed to explore a limited subset of the platform (the first 4 apps, or the first 6 flows) to understand the value of the product before being prompted to create an account. 
+Zibo uses a combination of visual masking and route-level protection to implement a "Freemium" preview model. Unauthenticated users are allowed to explore a limited subset of the platform (the first 4 apps, or the first 6 flows) to understand the value of the product before being prompted to create an account. 
 
 ## 1. Visual Gating (Frontend UI)
 On index pages like the **Library (Dashboard)** and the **Flows** page, all available items are fetched, but the UI artificially restricts what is fully visible and clickable.
