@@ -16,11 +16,44 @@ import { InspectContext } from "./contexts/InspectContext"
 import { AuthProvider } from "./contexts/AuthContext"
 import { Login } from "./Pages/Login"
 import { Register } from "./Pages/Register"
-import { AppProtectedRoute } from "./components/Layout/AppProtectedRoute"
-import { Pricing } from "./Pages/Pricing"
-import { DesignAgentStudio } from "./Pages/DesignAgentStudio"
-import { UpgradeProvider } from "./contexts/UpgradeContext"
-import { UpgradeModal } from "./components/Pricing/UpgradeModal"
+import { AppProtectedRoute } from "./components/Layout/AppProtectedRoute";
+import { Pricing } from "./Pages/Pricing";
+import { DesignAgentStudio } from "./Pages/DesignAgentStudio";
+import { UpgradeProvider } from "./contexts/UpgradeContext";
+import { UpgradeModal } from "./components/Pricing/UpgradeModal";
+import { useFeatureFlag } from "./hooks/useFeatureFlag";
+import { Navigate } from "react-router-dom";
+import { FeaturePlaceholder } from "./components/FeaturePlaceholder";
+
+function FeatureGuard({ 
+  flagKey, 
+  title, 
+  children 
+}: { 
+  flagKey: string; 
+  title?: string; 
+  children: React.ReactNode 
+}) {
+  const flag = useFeatureFlag(flagKey);
+
+  // If feature is active, render normal page
+  if (flag.enabled) {
+    return <>{children}</>;
+  }
+
+  // If feature is disabled:
+  if (flag.behavior === 'hide') {
+    return <Navigate to="/" replace />;
+  }
+
+  return (
+    <FeaturePlaceholder
+      title={title || 'Feature'}
+      behavior={flag.behavior}
+      customMessage={flag.customMessage}
+    />
+  );
+}
 
 function MainLayout() {
   return (
@@ -52,12 +85,26 @@ function App() {
             {/* Routes with Navbar */}
             <Route element={<MainLayout />}>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/benchmark" element={<Benchmark />} />
+              <Route 
+                path="/benchmark" 
+                element={
+                  <FeatureGuard flagKey="ai-benchmark" title="AI Benchmark">
+                    <Benchmark />
+                  </FeatureGuard>
+                } 
+              />
               <Route path="/flows" element={<Flows />} />
               <Route path="/flows/:slug" element={<FlowDetail />} />
               <Route path="/browse" element={<Browse />} />
               <Route path="/pricing" element={<Pricing />} />
-              <Route path="/design-agent" element={<DesignAgentStudio />} />
+              <Route 
+                path="/design-agent" 
+                element={
+                  <FeatureGuard flagKey="design-agent-studio" title="Design Agent Studio">
+                    <DesignAgentStudio />
+                  </FeatureGuard>
+                } 
+              />
               <Route path="/app/:slug" element={<AppProtectedRoute><AppPage /></AppProtectedRoute>} />
               <Route path="/app/:slug/flows" element={<AppProtectedRoute><AppFlows /></AppProtectedRoute>} />
               <Route path="/app/:slug/screens" element={<AppProtectedRoute><AppScreens /></AppProtectedRoute>} />

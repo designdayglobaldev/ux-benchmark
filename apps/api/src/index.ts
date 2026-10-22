@@ -24,6 +24,7 @@ import quotaRoutes from './routes/quota.routes';
 import workspaceRoutes from './routes/workspace.routes';
 import boardRoutes from './routes/board.routes';
 import mobbinRoutes from './routes/mobbin.routes';
+import featureFlagRoutes from './routes/feature-flag.routes';
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Increased limit for base64 images
@@ -52,6 +53,7 @@ app.use('/api/v1/quota', quotaRoutes);
 app.use('/api/v1/workspaces', workspaceRoutes);
 app.use('/api/v1/boards', boardRoutes);
 app.use('/api/v1/mobbin', mobbinRoutes);
+app.use('/api/v1/feature-flags', featureFlagRoutes);
 
 const PORT = process.env.PORT || 4000;
 

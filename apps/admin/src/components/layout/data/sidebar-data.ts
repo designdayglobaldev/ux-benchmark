@@ -20,6 +20,7 @@ import {
   MessageSquare,
   ScrollText,
   FileWarning,
+  SlidersHorizontal,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -124,6 +125,11 @@ export const sidebarData: SidebarData = {
               title: 'Profile',
               url: '/settings',
               icon: UserCog,
+            },
+            {
+              title: 'Feature Flags',
+              url: '/settings/feature-flags',
+              icon: SlidersHorizontal,
             },
             {
               title: 'Account',

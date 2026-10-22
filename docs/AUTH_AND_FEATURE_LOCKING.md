@@ -52,3 +52,5 @@ Administrators can toggle whether new users get instant access upon registration
 
 For complete details on user provisioning, workspaces, and collections, refer to [`docs/COLLECTIONS_AND_USER_PROVISIONING.md`](file:///c:/projects/ux-libaray/docs/COLLECTIONS_AND_USER_PROVISIONING.md).
 
+For complete details on remote feature toggles and PostHog integration, refer to [`docs/FEATURE_FLAGS.md`](file://docs/FEATURE_FLAGS.md).
+

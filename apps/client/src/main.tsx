@@ -24,12 +24,20 @@ const queryClient = new QueryClient({
   },
 })
 
+const content = (
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+)
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
+    {posthogKey ? (
       <PostHogProvider client={posthog}>
-        <App />
+        {content}
       </PostHogProvider>
-    </QueryClientProvider>
+    ) : (
+      content
+    )}
   </StrictMode>,
 )
