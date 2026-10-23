@@ -9,6 +9,8 @@ import { Send, Sparkles, X, MessageSquare, Plus, Bookmark, Compass } from "lucid
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { ScreenActionOverlay } from "@/components/ScreenActionOverlay";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ScreenCardItem {
   id: string;
@@ -227,12 +229,24 @@ export function SharedBoard() {
   useEffect(() => {
     fetchBoard();
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-    const socket = io(apiUrl);
+    const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+    let socketUrl = rawUrl;
+    try {
+      const parsed = new URL(rawUrl);
+      socketUrl = parsed.origin;
+    } catch {
+      socketUrl = rawUrl.replace(/\/api\/v1\/?$/, '');
+    }
+    const socket = io(socketUrl);
     socketRef.current = socket;
 
     socket.on('connect', () => {
+      console.log('Socket connected to board:', boardId);
       socket.emit('join-board', boardId);
+    });
+
+    socket.on('connect_error', (err) => {
+      console.error('Socket connection error:', err);
     });
 
     socket.on('chat-message', (msg: any) => {
@@ -663,7 +677,17 @@ export function SharedBoard() {
                           className="rounded-xl max-h-48 w-full object-cover mb-2 border border-white/10" 
                         />
                       )}
-                      {msg.content && <p className="whitespace-pre-wrap">{msg.content}</p>}
+                      {msg.content && (
+                        isAI ? (
+                          <div className="prose prose-invert prose-purple max-w-none text-[13px] leading-relaxed prose-p:my-1.5 prose-p:leading-relaxed prose-headings:text-purple-200 prose-headings:my-2 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-strong:text-purple-100 prose-strong:font-semibold prose-code:text-purple-200 prose-code:bg-purple-950/40 prose-code:px-1 prose-code:py-0.5 prose-code:rounded">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                        )
+                      )}
                     </div>
 
                     {/* Sender and Timestamp Label */}

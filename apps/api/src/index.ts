@@ -119,42 +119,51 @@ io.on('connection', (socket) => {
         
         let screenContext = "The board has no screens saved yet.";
         if (board && board.screens && board.screens.length > 0) {
-          const screenNames = board.screens.map((s: any) => `"${s.screen.name}" from the app ${s.screen.app?.name || 'Unknown'}`).join(', ');
+          const screenNames = board.screens.map((s: any) => `"${s.screen?.name || 'Screen'}" from the app ${s.screen?.app?.name || 'Unknown'}`).join(', ');
           screenContext = `The user has saved the following UI screens to this board for inspiration: ${screenNames}. Use this context if they ask questions about the board's designs.`;
         }
 
-        const response = await anthropic.messages.create({
-          model: 'claude-sonnet-5',
-          max_tokens: 1024,
-          system: `You are Zibo AI, a helpful, witty, and concise AI assistant built into the Zibo design platform workspace. You help teams collaborate and answer questions.\n\nContext about the current workspace: ${screenContext}`,
-          messages: [
-            { role: 'user', content: data.message.content }
-          ]
-        });
+        try {
+          const response = await anthropic.messages.create({
+            model: 'claude-sonnet-5',
+            max_tokens: 1024,
+            system: `You are Zibo AI, a helpful, witty, and concise AI assistant built into the Zibo design platform workspace. You help teams collaborate and answer questions.\n\nContext about the current workspace: ${screenContext}`,
+            messages: [
+              { role: 'user', content: data.message.content }
+            ]
+          });
 
-        const aiText = response.content
-          .filter((block) => block.type === 'text')
-          .map((block: any) => block.text)
-          .join('\n') || "Sorry, I couldn't generate a response.";
+          const aiText = response.content
+            .filter((block) => block.type === 'text')
+            .map((block: any) => block.text)
+            .join('\n') || "Sorry, I couldn't generate a response.";
+
+          const aiMessage = {
+            id: Date.now().toString(),
+            content: aiText,
+            user: { email: "Zibo AI" },
+            createdAt: new Date().toISOString()
+          };
           
-        console.log("AI Raw Response Content:", JSON.stringify(response.content));
+          // Append AI message and save
+          currentMessages.push(aiMessage);
+          await prisma.board.update({
+            where: { id: data.boardId },
+            data: { canvasState: currentMessages }
+          });
 
-        const aiMessage = {
-          id: Date.now().toString(),
-          content: aiText,
-          user: { email: "Zibo AI" },
-          createdAt: new Date().toISOString()
-        };
-        
-        // Append AI message and save
-        currentMessages.push(aiMessage);
-        await prisma.board.update({
-          where: { id: data.boardId },
-          data: { canvasState: currentMessages }
-        });
-
-        // Broadcast AI response to everyone in the room (including sender)
-        io.to(`board-${data.boardId}`).emit('chat-message', aiMessage);
+          // Broadcast AI response to everyone in the room (including sender)
+          io.to(`board-${data.boardId}`).emit('chat-message', aiMessage);
+        } catch (aiErr: any) {
+          console.error("Anthropic AI chat error:", aiErr);
+          const fallbackMsg = {
+            id: Date.now().toString(),
+            content: `I encountered an issue generating a response: ${aiErr?.message || 'Please check API quota or try again.'}`,
+            user: { email: "Zibo AI" },
+            createdAt: new Date().toISOString()
+          };
+          io.to(`board-${data.boardId}`).emit('chat-message', fallbackMsg);
+        }
       }
     } catch (error) {
       console.error("DB/AI Error:", error);
