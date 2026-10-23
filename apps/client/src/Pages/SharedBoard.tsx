@@ -297,8 +297,37 @@ export function SharedBoard() {
       }, 25000);
     }
 
-    if (socketRef.current) {
+    // 1. Emit via WebSocket for real-time peer sync if connected
+    if (socketRef.current && socketRef.current.connected) {
       socketRef.current.emit('chat-message', { boardId, message: newMessage });
+    }
+
+    // 2. Also send via HTTP fallback (which works 100% on live HTTPS production regardless of WebSocket/Nginx proxy config)
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+      const endpoint = apiUrl.endsWith('/api/v1')
+        ? `${apiUrl}/boards/${boardId}/messages`
+        : `${apiUrl.replace(/\/+$/, '')}/api/v1/boards/${boardId}/messages`;
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: newMessage }),
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        // If an AI response was returned by the HTTP handler, add it if not already in state
+        if (result.aiMessage) {
+          setIsAiTyping(false);
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === result.aiMessage.id)) return prev;
+            return [...prev, result.aiMessage];
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('HTTP chat fallback error:', err);
     }
   };
 

@@ -30,6 +30,16 @@ server {
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
     }
+
+    # Proxy WebSocket / Socket.io Connections to Node.js Backend
+    location /socket.io/ {
+        proxy_pass http://localhost:4000/socket.io/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
 }
 
 # Admin App on Port 8080
