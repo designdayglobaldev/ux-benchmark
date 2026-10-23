@@ -114,8 +114,10 @@ location / {
 }
 ```
 
-### Reverse Proxying the API
-The backend Node.js API runs on port 4000 (managed by PM2), which is firewalled from the outside world. To allow the frontend apps to securely communicate with it, we created a reverse proxy rule inside both Nginx server blocks.
+### Reverse Proxying the API & WebSockets
+The backend Node.js API runs on port 4000 (managed by PM2), which is firewalled from the outside world. To allow the frontend apps to securely communicate with it, we created reverse proxy rules inside Nginx:
+
+1. **Standard REST API (`/api/`):**
 ```nginx
 location /api/ {
     proxy_pass http://localhost:4000/api/;
@@ -126,11 +128,66 @@ location /api/ {
     proxy_cache_bypass $http_upgrade;
 }
 ```
-This tells Nginx: *"If any request comes in starting with `/api/`, do not look for a static file. Instead, forward it internally to `http://localhost:4000/api/` and return the response."*
+
+2. **Real-time WebSockets / Socket.io (`/socket.io/`):**
+For collaborative boards, live comments, and AI copilot interactions, Socket.io requests must be forwarded directly to the Node server rather than hitting the single-page application `index.html`:
+```nginx
+location /socket.io/ {
+    proxy_pass http://localhost:4000/socket.io/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_cache_bypass $http_upgrade;
+}
+```
 
 ### Finalizing
-Once the configuration was written to `/etc/nginx/nginx.conf`, we tested and restarted the service to bring the entire ecosystem online:
+Once the configuration is written, test and restart Nginx:
 ```bash
-nginx -t
-sudo systemctl restart nginx
+sudo nginx -t
+sudo systemctl reload nginx
 ```
+
+---
+
+## 5. Standard Deployment & Update Runbook
+
+When pushing new code updates to the production server (`/var/www/ux-library`), use the following sequence:
+
+### Step 1: Pull Latest Code
+If local changes were modified on the server (like `nginx-setup.sh`), reset them first:
+```bash
+cd /var/www/ux-library
+git checkout -- nginx-setup.sh
+git pull origin main
+```
+
+### Step 2: Install & Build
+```bash
+pnpm install
+pnpm run build
+```
+
+### Step 3: Restart Backend Process
+Restart the PM2 background process to load the newly compiled `apps/api/dist`:
+```bash
+pm2 restart all
+# or
+pm2 restart ux-api
+```
+
+### Step 4: Verify Status
+```bash
+pm2 status
+pm2 logs ux-api --lines 50
+```
+
+---
+
+## 6. Real-Time Chat & AI Copilot Resilience
+
+To ensure board comments and `@ai` queries never drop on live production:
+1. **Dual Transport Architecture:** The frontend (`SharedBoard.tsx`) broadcasts chat messages via WebSockets when connected, and simultaneously syncs with `POST /api/v1/boards/:id/messages` over standard HTTPS.
+2. **AI Execution:** The `@ai` copilot executes via Claude Sonnet on port 4000, contextually informed by the board's pinned screens, and responds directly into the board chat canvas state.
+3. **Markdown Rendering:** Board chat responses are rendered with `react-markdown` and `remark-gfm` so that bolding, bullet points, and numbered lists format properly in the comment drawer.
