@@ -61,9 +61,11 @@ export function Workspaces() {
     setIsCreatingWorkspace(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      let primaryWorkspaceId = workspaces[0]?.id;
+      // Find the user's OWN workspace (where they are the owner)
+      let primaryWorkspace = workspaces.find((ws) => ws.ownerId === user.id);
+      let primaryWorkspaceId = primaryWorkspace?.id;
 
-      // Ensure user has a workspace container
+      // Ensure user has their own personal workspace container
       if (!primaryWorkspaceId) {
         const wsRes = await fetch(`${apiUrl}/api/v1/workspaces`, {
           method: "POST",
@@ -78,7 +80,7 @@ export function Workspaces() {
         primaryWorkspaceId = ws.id;
       }
 
-      // Create the collection board
+      // Create the collection board inside the user's OWN workspace
       const boardRes = await fetch(`${apiUrl}/api/v1/boards`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -109,9 +111,11 @@ export function Workspaces() {
     setDeletingId(targetId);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+      const headers = user?.id ? { 'X-User-Id': user.id } : undefined;
       if (boardId) {
         const res = await fetch(`${apiUrl}/api/v1/boards/${boardId}`, {
           method: "DELETE",
+          headers,
         });
         if (!res.ok) {
           console.error("Failed to delete board:", await res.text());
@@ -119,6 +123,7 @@ export function Workspaces() {
       } else if (workspaceId) {
         const res = await fetch(`${apiUrl}/api/v1/workspaces/${workspaceId}`, {
           method: "DELETE",
+          headers,
         });
         if (!res.ok) {
           console.error("Failed to delete workspace:", await res.text());
@@ -176,7 +181,7 @@ export function Workspaces() {
   });
 
   // Display collections based on active tab
-  const activeCollections: CollectionItem[] = allCollections.filter((col) => 
+  const activeCollections = allCollections.filter((col) => 
     activeTab === 'my-collections' ? col.isOwner : !col.isOwner
   );
 
@@ -382,7 +387,7 @@ export function Workspaces() {
                           <FolderKanban className="w-3.5 h-3.5" />
                           <span>View Details</span>
                         </button>
-                        {col.isCustom && (
+                        {col.isCustom && col.isOwner && (
                           <button
                             type="button"
                             disabled={deletingId === (col.boardId || col.workspaceId || col.id)}

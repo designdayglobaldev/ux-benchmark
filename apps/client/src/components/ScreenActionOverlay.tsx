@@ -115,7 +115,8 @@ export function ScreenActionOverlay({
     setIsCreating(true);
     try {
       const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
-      let workspaceId = workspaces[0]?.id;
+      const userOwnedWorkspace = workspaces.find((ws: any) => ws.ownerId === user.id);
+      let workspaceId = userOwnedWorkspace?.id;
 
       if (!workspaceId) {
         const wsRes = await fetch(`${apiUrl}/api/v1/workspaces`, {

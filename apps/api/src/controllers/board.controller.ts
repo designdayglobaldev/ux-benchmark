@@ -110,6 +110,22 @@ export const updateBoardState = async (req: Request, res: Response) => {
 export const deleteBoard = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const requesterId = (req.headers['x-user-id'] || req.query.userId || req.body?.userId) as string | undefined;
+
+    // Fetch board and its workspace to verify ownership
+    const board = await prisma.board.findUnique({
+      where: { id },
+      include: { workspace: true }
+    });
+
+    if (!board) {
+      return res.status(404).json({ error: 'Collection not found' });
+    }
+
+    if (requesterId && board.workspace?.ownerId && board.workspace.ownerId !== requesterId) {
+      return res.status(403).json({ error: 'Only the workspace owner can delete this collection' });
+    }
+
     // Delete board screens and chat messages first
     await prisma.boardScreen.deleteMany({
       where: { boardId: id }

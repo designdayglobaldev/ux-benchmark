@@ -54,9 +54,10 @@ export function SaveToBoardButton({ screenId }: SaveToBoardButtonProps) {
         setIsCreating(true);
         try {
             const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-            let workspaceId = workspaces[0]?.id;
+            const userOwnedWorkspace = workspaces.find((ws: any) => ws.ownerId === user.id);
+            let workspaceId = userOwnedWorkspace?.id;
             
-            // If no workspace exists, create a default one first
+            // If no personal workspace exists, create one first
             if (!workspaceId) {
                 const wsRes = await fetch(`${apiUrl}/api/v1/workspaces`, {
                     method: "POST",

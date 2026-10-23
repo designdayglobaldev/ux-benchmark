@@ -176,6 +176,19 @@ export const inviteToWorkspace = async (req: Request, res: Response): Promise<an
 export const deleteWorkspace = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const requesterId = (req.headers['x-user-id'] || req.query.userId || req.body?.userId) as string | undefined;
+
+    const workspace = await prisma.workspace.findUnique({
+      where: { id }
+    });
+
+    if (!workspace) {
+      return res.status(404).json({ error: 'Workspace not found' });
+    }
+
+    if (requesterId && workspace.ownerId !== requesterId) {
+      return res.status(403).json({ error: 'Only the workspace owner can delete this workspace' });
+    }
 
     // Delete all board screens for boards in this workspace
     const boards = await prisma.board.findMany({
