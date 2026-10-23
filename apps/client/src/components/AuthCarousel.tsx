@@ -53,6 +53,8 @@ export function AuthCarousel() {
               src={slide.image}
               alt={slide.title}
               className={`max-w-full max-h-full object-contain object-bottom transition-all duration-700 ease-in-out ${
+                slide.imageClassName || ''
+              } ${
                 idx === currentIndex
                   ? 'opacity-100 scale-100 pointer-events-auto'
                   : 'opacity-0 scale-95 pointer-events-none absolute'

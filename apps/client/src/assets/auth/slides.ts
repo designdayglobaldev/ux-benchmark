@@ -9,6 +9,7 @@ export interface AuthSlide {
   description: string;
   image: string;
   tagline?: string;
+  imageClassName?: string;
 }
 
 /**
@@ -24,14 +25,14 @@ export const authCarouselSlides: AuthSlide[] = [
   },
   {
     id: 'benchmark-vault',
-    title: 'Benchmark against market leaders.',
-    description: 'Discover conversion-tested patterns, heuristics and interaction teardowns from the world’s best apps.',
+    title: 'Where Great Design Makes Sense.',
+    description: 'Deconstruct complex user flows, onboarding journeys, and checkout patterns with deep reasoning.',
     image: auth2,
   },
   {
     id: 'design-decisions',
-    title: 'Where Great Design Makes Sense.',
-    description: 'Deconstruct complex user flows, onboarding journeys, and checkout patterns with deep reasoning.',
+    title: 'Benchmark against market leaders.',
+    description: 'Discover conversion-tested patterns, heuristics and interaction teardowns from the world’s best apps.',
     image: auth3,
   },
   {
@@ -39,5 +40,6 @@ export const authCarouselSlides: AuthSlide[] = [
     title: 'Organize, annotate & collaborate.',
     description: 'Save reference screens to interactive boards, invite teammates, and craft production-ready interfaces.',
     image: auth4,
+    imageClassName: 'translate-y-8 xl:translate-y-10',
   },
 ];
