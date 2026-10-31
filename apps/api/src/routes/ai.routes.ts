@@ -70,7 +70,32 @@ router.post('/inspect', async (req, res) => {
 });
 router.post('/insights', async (req, res) => {
   try {
-    const { imageBase64 } = req.body;
+    const { imageBase64, screenId, appName } = req.body;
+
+    // 1. Database Check & Metadata Retrieval
+    let screenMetadata: { name?: string; flowName?: string; appName?: string } = { appName };
+    if (screenId) {
+      const existingScreen: any = await (prisma.screen as any).findUnique({
+        where: { id: screenId },
+        select: { 
+          name: true,
+          hotspots: true,
+          flow: { select: { name: true } },
+          app: { select: { name: true } }
+        }
+      });
+
+      if (existingScreen) {
+        screenMetadata.name = existingScreen.name;
+        screenMetadata.flowName = existingScreen.flow?.name;
+        screenMetadata.appName = existingScreen.app?.name || appName;
+
+        // Return cached hotspots immediately if already generated
+        if (existingScreen.hotspots && Array.isArray((existingScreen.hotspots as any).insights) && (existingScreen.hotspots as any).insights.length > 0) {
+          return res.json(existingScreen.hotspots);
+        }
+      }
+    }
 
     if (!imageBase64) {
       return res.status(400).json({ error: 'Missing imageBase64 in request body' });
@@ -84,10 +109,38 @@ router.post('/insights', async (req, res) => {
     const mediaType = match ? (match[1] === 'image/jpg' ? 'image/jpeg' : match[1]) : 'image/jpeg';
     const base64Data = imageBase64.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, '');
 
+    const screenContextStr = [
+      screenMetadata.appName ? `App: "${screenMetadata.appName}"` : '',
+      screenMetadata.flowName ? `User Flow: "${screenMetadata.flowName}"` : '',
+      screenMetadata.name ? `Screen Name: "${screenMetadata.name}"` : ''
+    ].filter(Boolean).join(' | ');
+
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-5',
-      max_tokens: 1024,
-      system: "You are an elite Staff Product Designer. Analyze the provided screenshot and return exactly 4 MINDBLOWING, hidden UX/UI insights. Do NOT state the obvious (e.g., 'this is a button'). Instead, explain the deep psychological reasoning, advanced interaction design choices, conversion optimization tactics, or genius heuristic applications that a senior designer would say 'wow' to. Keep all descriptions concise (max 2-3 short sentences) so they fit perfectly in small UI cards. You MUST return your response as a valid JSON object with the following schema:\n{\n  \"insights\": [\n    {\n      \"title\": \"Insight Title (e.g. Cognitive Load Reduction)\",\n      \"description\": \"Concise explanation of the design choice and its impact (max 2-3 sentences).\",\n      \"x\": 25, // percentage x-coordinate (0-100) of the specific UI element on the screen this insight applies to\n      \"y\": 30 // percentage y-coordinate (0-100) of the specific UI element on the screen this insight applies to\n    }\n  ]\n}\nDo not wrap the JSON in markdown blocks, just return the raw JSON.",
+      max_tokens: 3000,
+      system: `You are the lead product designer & growth teardown critic at a tier-1 product studio (Figma, Linear, Apple, Mobbin caliber).
+Analyze the provided mobile UI screenshot with intense product critique and surgical spatial accuracy.
+${screenContextStr ? `Context: ${screenContextStr}.` : ''}
+
+=== PART 1: COMPUTER GRAPHICS (CG) BOUNDING BOX GROUNDING (0 to 1000 Grid) ===
+To position the inspection pin with exact mathematical precision, you MUST define the physical bounding box of the visual element on a normalized 1000 x 1000 coordinate grid:
+- "ymin": Top edge of the element (0 = top of screen, 1000 = bottom of screen)
+- "xmin": Left edge of the element (0 = left border, 1000 = right border)
+- "ymax": Bottom edge of the element
+- "xmax": Right edge of the element
+
+=== PART 2: TEARDOWN CONTENT STANDARDS (SHORT, PUNCHY & SHARP) ===
+STRICTLY FORBIDDEN:
+❌ Do NOT write long paragraphs. Keep each description strictly to 1 or 2 concise, punchy sentences (UNDER 35 WORDS TOTAL).
+❌ Do NOT use generic textbook clichés: "reduces cognitive load", "applies Hick's law", "uses progressive disclosure", "creates visual hierarchy".
+
+REQUIRED TEARDOWN FRAMEWORK:
+State the deliberate trade-off and the conversion lever in under 35 words.
+Example: "Spotify promotes 'Wrapped' to a solid white campaign button instead of a neutral chip, guaranteeing seasonal engagement at the expense of regular feed navigation."
+
+=== PART 3: DYNAMIC DENSITY COUNT ===
+- Minimal / Splash / Single-Action screens: Return ONLY 1 or 2 high-impact teardowns. NEVER invent weak filler points!
+- Rich Feeds / Complex Dashboards: Return 3 or 4 deep teardowns.`,
       messages: [
         {
           role: 'user',
@@ -102,28 +155,103 @@ router.post('/insights', async (req, res) => {
             },
             {
               type: 'text',
-              text: 'Please analyze this UI and provide 4 key insights with exact coordinates.',
+              text: 'Perform an elite product design teardown with exact CG bounding boxes (0-1000 scale).',
             }
           ],
         },
       ],
+      tools: [
+        {
+          name: 'submit_hotspots',
+          description: 'Submit structured UX hotspot insights with exact 0-1000 CG bounding boxes',
+          input_schema: {
+            type: 'object',
+            properties: {
+              insights: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    targetElement: { type: 'string', description: 'Brief element name' },
+                    visibleReference: { type: 'string', description: 'Exact text or visual snippet' },
+                    title: { type: 'string', description: 'Punchy growth critique title' },
+                    category: { 
+                      type: 'string', 
+                      enum: ['Heuristic', 'Microcopy', 'Hierarchy', 'Conversion', 'Friction'] 
+                    },
+                    description: { type: 'string', description: 'Two crisp sentences with deliberate sacrifice and psychological mechanism' },
+                    box_2d: {
+                      type: 'array',
+                      items: { type: 'number' },
+                      description: '[ymin, xmin, ymax, xmax] on a 0-1000 grid'
+                    }
+                  },
+                  required: ['targetElement', 'title', 'category', 'description', 'box_2d']
+                }
+              }
+            },
+            required: ['insights']
+          }
+        }
+      ],
+      tool_choice: { type: 'tool', name: 'submit_hotspots' }
     });
 
-    let aiResponse = message.content
-      .filter((block) => block.type === 'text')
-      .map((block) => block.text)
-      .join('\n');
-      
-    // Attempt to parse JSON
-    try {
-      // Strip markdown JSON wrapping if Claude ignored the instruction
-      aiResponse = aiResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsedData = JSON.parse(aiResponse);
-      res.json(parsedData);
-    } catch (parseError) {
-      console.error('Failed to parse AI insights as JSON:', aiResponse);
-      res.status(500).json({ error: 'Failed to parse AI response into structured insights data.' });
+    const toolCall = message.content.find((block: any) => block.type === 'tool_use');
+    if (!toolCall || toolCall.type !== 'tool_use') {
+      throw new Error('Claude did not return structured hotspot data');
     }
+
+    const parsedData = toolCall.input as any;
+
+    // Computer Graphics Centroid Calculation:
+    // Robustly handles both 0-1000 integer grids and 0.0-1.0 float scales
+    if (parsedData.insights && Array.isArray(parsedData.insights)) {
+      parsedData.insights = parsedData.insights.map((item: any) => {
+        let x = typeof item.x === 'number' ? item.x : 50;
+        let y = typeof item.y === 'number' ? item.y : 50;
+
+        if (Array.isArray(item.box_2d) && item.box_2d.length === 4) {
+          const [ymin, xmin, ymax, xmax] = item.box_2d.map(Number);
+          
+          // Check if coordinates are 0.0 - 1.0 (float) or 0 - 1000 (integer)
+          const isFloatScale = (xmax <= 1.0 && ymax <= 1.0 && xmin <= 1.0 && ymin <= 1.0);
+          const scaleMultiplier = isFloatScale ? 100 : 0.1;
+
+          const centroidX = ((xmin + xmax) / 2) * scaleMultiplier;
+          const centroidY = ((ymin + ymax) / 2) * scaleMultiplier;
+
+          if (!isNaN(centroidX) && !isNaN(centroidY)) {
+            x = Math.round(Math.max(5, Math.min(95, centroidX)) * 10) / 10;
+            y = Math.round(Math.max(5, Math.min(95, centroidY)) * 10) / 10;
+          }
+        }
+
+        return {
+          title: item.title,
+          description: item.description,
+          category: item.category || 'Heuristic',
+          x,
+          y,
+          targetElement: item.targetElement,
+          visibleReference: item.visibleReference
+        };
+      });
+    }
+
+    // 2. Persist to Database if screenId is present
+    if (screenId && parsedData.insights && Array.isArray(parsedData.insights)) {
+      try {
+        await (prisma.screen as any).update({
+          where: { id: screenId },
+          data: { hotspots: parsedData }
+        });
+      } catch (dbErr) {
+        console.warn('Could not cache hotspots in DB:', dbErr);
+      }
+    }
+
+    res.json(parsedData);
   } catch (error: any) {
     console.error('AI Insights Error:', error);
     res.status(500).json({ error: error?.message || 'An error occurred while generating insights' });
@@ -1227,6 +1355,475 @@ CRITICAL RULES:
   } catch (error: any) {
     console.error('Design Agent Generator Error:', error);
     res.status(500).json({ error: error?.message || 'Failed to generate design screen' });
+  }
+});
+
+
+/**
+ * POST /api/ai/workspace-chat
+ * Real-time AI research chat using Claude Sonnet with UX database context
+ */
+router.post('/workspace-chat', async (req, res) => {
+  try {
+    const { prompt, conversationHistory = [] } = req.body;
+
+    if (!prompt || typeof prompt !== 'string') {
+      return res.status(400).json({ error: 'Missing or invalid prompt in request body' });
+    }
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: 'ANTHROPIC_API_KEY is not configured in the server' });
+    }
+
+    const db = req.app.get('prisma') || prisma;
+
+    // Fast selective query: Get apps and flows without heavy full-table scanning
+    let appsContextList: any[] = [];
+    try {
+      const allApps = await db.app.findMany({
+        select: {
+          name: true,
+          slug: true,
+          appFlows: {
+            select: {
+              flow: {
+                select: {
+                  name: true,
+                  slug: true,
+                }
+              }
+            },
+            take: 10,
+          }
+        },
+        take: 30,
+      });
+
+      appsContextList = allApps.map((a: any) => ({
+        name: a.name,
+        slug: a.slug,
+        availableFlows: (a.appFlows || []).map((af: any) => af.flow?.name).filter(Boolean)
+      }));
+    } catch (dbErr) {
+      console.warn('Non-blocking: could not fetch full apps list, continuing with AI generation:', dbErr);
+    }
+
+    const systemPrompt = `You are Zibo AI, a world-class Staff Product Designer and interactive canvas AI researcher (like ChatGPT Canvas, Perplexity Pro, and Mobbin AI).
+The user is working in an interactive design workspace. Instead of returning a plain wall of text or rigid hardcoded layouts, you dynamically structure your response into an expressive, modular Generative UI (GenUI) array of sections.
+
+Available apps in the UX library:
+${JSON.stringify(appsContextList)}
+
+You have the following modular UI components available in your palette:
+1. "text": Markdown formatted analysis, explanations, and breakdowns. Use standard markdown formatting (**bold**, lists, etc.).
+2. "comparison_table": A structured matrix table comparing UX dimensions, patterns, or heuristics across apps (columns: headers, rows: 2D array of string cells).
+3. "timeline": A step-by-step user journey or onboarding flow for an app (with step numbers, titles, badges, and descriptions).
+4. "insight_card": High-impact takeaway bullet points or psychological heuristics.
+5. "interactive_flow": A full multi-screen app flow (e.g., "Purchasing & Ordering", "Onboarding", "Transfer Money") featuring sequential screen cards and an "interactive flow" inspector button.
+
+DO NOT use "screen_gallery" anymore; always use "interactive_flow" for showing screens.
+
+Respond in valid JSON ONLY with the following schema:
+{
+  "introText": "A warm, high-level 1-2 sentence executive summary of your findings.",
+  "sections": [
+    {
+      "type": "text",
+      "content": "### Detailed Breakdown\\nHere is why this flow works..."
+    },
+    {
+      "type": "interactive_flow",
+      "flowName": "Purchasing & Ordering",
+      "appName": "Apple Wallet",
+      "appSlug": "apple-wallet",
+      "description": "Screens for the Purchasing & Ordering flow. Use the interactive flow button to inspect.",
+      "screens": [
+        { "name": "Card Balance", "uxAnalysis": "Biometric trigger with instant tactile feedback." },
+        { "name": "Double-Click to Pay", "uxAnalysis": "Physical button confirmation reducing accidental spend." },
+        { "name": "Done / Success", "uxAnalysis": "Haptic chime and checkmark confirming transaction." }
+      ]
+    },
+    {
+      "type": "timeline",
+      "appName": "Duolingo",
+      "steps": [
+        {
+          "number": 1,
+          "title": "Language Selection",
+          "badge": "Low friction",
+          "description": "Users immediately pick a target language before any registration wall."
+        },
+        {
+          "number": 2,
+          "title": "Motivation Framing",
+          "badge": "Goal-gradient priming",
+          "description": "Asks why you are learning to personalize the journey."
+        }
+      ]
+    },
+    {
+      "type": "comparison_table",
+      "title": "UX Comparison Matrix",
+      "headers": ["UX Dimension", "Duolingo", "Cleo"],
+      "rows": [
+        ["Onboarding Tone", "Gamified, playful & cartoonish", "Witty, conversational AI chat"],
+        ["Time to Value", "Instant lesson in < 30 seconds", "Fast chat rapport before bank link"],
+        ["Conversion Gate", "Delayed until after 1st lesson completed", "Delayed until value & trust established"]
+      ]
+    },
+    {
+      "type": "insight_card",
+      "title": "Key UX Takeaways",
+      "points": [
+        "Delayed registration (soft wall) boosts activation by over 20% compared to upfront auth.",
+        "Micro-commitments create cognitive momentum through consistency bias before asking for sensitive bank credentials."
+      ]
+    }
+  ],
+  "recommendedApps": [
+    {
+      "name": "Duolingo",
+      "slug": "duolingo",
+      "category": "Gamified Education",
+      "reason": "Masterclass in gamified commitment escalation"
+    }
+  ],
+  "suggestedFollowUps": [
+    "What onboarding patterns work best for financial trust-building?",
+    "How does progressive disclosure differ between gamified apps and fintech apps?"
+  ]
+}
+
+CRITICAL RULES:
+1. FOCUS ON THE CURRENT USER PROMPT: 
+   - Answer ONLY the user's latest request! Do NOT blend, drag, or copy topics from previous questions unless the user explicitly refers back to them (e.g. "compare those two" or "tell me more about that").
+   - If the user switches topics (e.g. from "Venmo retention" to "dashboard design for my finance app"), do NOT re-hash the old topic. Focus 100% on the new subject!
+2. FLOW MATCHING & IDENTIFICATION: When generating "interactive_flow", you MUST match the flow directly to the current question!
+   - Inspect the app's 'availableFlows' in the context list above and select the exact real flow name that answers the user's prompt (e.g., if the user asks for dashboard inspiration, pick "Dashboard", "Home", or "Account Overview"; do NOT return social feed or onboarding unless asked).
+   - Use the exact flowName from 'availableFlows' whenever possible so the database can fetch the real verified screens!
+3. PREFER "interactive_flow": When comparing flows, app features, or step-by-step journeys, use "interactive_flow" for each app.
+4. Always compose a rich, multi-component visual answer! Combine "text", "interactive_flow", "comparison_table", and "insight_card". Never use "screen_gallery".
+5. Keep markdown text concise and readable.
+6. Output RAW JSON ONLY without markdown backticks or explanations.`;
+
+    const formattedMessages: any[] = [];
+
+    if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+      for (const msg of conversationHistory) {
+        if (msg.role && msg.content) {
+          formattedMessages.push({
+            role: msg.role === 'user' ? 'user' : 'assistant',
+            content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+          });
+        }
+      }
+    }
+
+    formattedMessages.push({
+      role: 'user',
+      content: prompt.trim()
+    });
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-5',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: formattedMessages,
+    });
+
+    const aiText = message.content
+      .filter((block) => block.type === 'text')
+      .map((block: any) => block.text)
+      .join('\n');
+
+    let parsedResult: any = null;
+
+    // 1. Try direct JSON parse
+    try {
+      parsedResult = JSON.parse(aiText.trim());
+    } catch (_) {}
+
+    // 2. Try regex extraction of JSON block
+    if (!parsedResult) {
+      const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          parsedResult = JSON.parse(jsonMatch[0]);
+        } catch (_) {
+          // If truncated at the end due to token limit, try to salvage sections array or introText
+          try {
+            // Attempt auto-closing incomplete JSON structure
+            let unclosed = jsonMatch[0];
+            const openBrackets = (unclosed.match(/\[/g) || []).length;
+            const closeBrackets = (unclosed.match(/\]/g) || []).length;
+            const openBraces = (unclosed.match(/\{/g) || []).length;
+            const closeBraces = (unclosed.match(/\}/g) || []).length;
+            
+            for (let i = 0; i < openBrackets - closeBrackets; i++) unclosed += ']';
+            for (let i = 0; i < openBraces - closeBraces; i++) unclosed += '}';
+            
+            parsedResult = JSON.parse(unclosed);
+          } catch (_) {}
+
+          if (!parsedResult) {
+            const introMatch = jsonMatch[0].match(/"introText"\s*:\s*"((?:[^"\\]|\\.)*)/);
+            if (introMatch && introMatch[1]) {
+              try {
+                const sanitized = JSON.parse(`"${introMatch[1]}"`);
+                parsedResult = {
+                  introText: sanitized,
+                  sections: [],
+                  recommendedApps: [],
+                  uxInsights: "",
+                  suggestedFollowUps: []
+                };
+              } catch (e) {
+                parsedResult = {
+                  introText: introMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"'),
+                  sections: [],
+                  recommendedApps: [],
+                  uxInsights: "",
+                  suggestedFollowUps: []
+                };
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (!parsedResult) {
+      parsedResult = {
+        introText: aiText.replace(/^\{[\s\S]*?"introText"\s*:\s*"/, '').replace(/"[\s\S]*$/, '').replace(/\\n/g, '\n'),
+        recommendedApps: [],
+        uxInsights: "",
+        suggestedFollowUps: []
+      };
+    }
+
+    const allSlugsOrNames = new Set<string>();
+    (parsedResult.recommendedApps || []).forEach((a: any) => {
+      if (a.slug) allSlugsOrNames.add(a.slug);
+      if (a.name) allSlugsOrNames.add(a.name);
+    });
+    (parsedResult.comparisonFlows || []).forEach((f: any) => {
+      if (f.slug) allSlugsOrNames.add(f.slug);
+      if (f.appName) allSlugsOrNames.add(f.appName);
+    });
+    (parsedResult.sections || []).forEach((s: any) => {
+      if (s.appName) allSlugsOrNames.add(s.appName);
+      if (s.screens && Array.isArray(s.screens)) {
+        s.screens.forEach((sc: any) => {
+          if (sc.appName) allSlugsOrNames.add(sc.appName);
+          if (sc.appSlug) allSlugsOrNames.add(sc.appSlug);
+        });
+      }
+      if (s.headers && Array.isArray(s.headers)) {
+        s.headers.slice(1).forEach((h: string) => allSlugsOrNames.add(h));
+      }
+    });
+
+    const queryList = Array.from(allSlugsOrNames);
+    const matchedDbApps = await db.app.findMany({
+      where: {
+        OR: [
+          { slug: { in: queryList } },
+          { name: { in: queryList } }
+        ]
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        appLogo: true,
+        appThumbnail: true,
+        category: { select: { title: true } },
+        subcategory: { select: { title: true } },
+        screens: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            imageUrl: true,
+            screenNo: true,
+            uxAnalysis: true,
+            flow: {
+              select: {
+                id: true,
+                name: true,
+                slug: true
+              }
+            }
+          },
+          orderBy: { screenNo: 'asc' }
+        }
+      }
+    });
+
+    // Helper to find app by name or slug
+    const findDbApp = (nameOrSlug?: string) => {
+      if (!nameOrSlug) return null;
+      const lower = nameOrSlug.toLowerCase();
+      return matchedDbApps.find(
+        (m: any) => m.slug.toLowerCase() === lower || m.name.toLowerCase() === lower
+      ) || null;
+    };
+
+    // Enrich dynamic sections (e.g. screen_gallery and interactive_flow with real imageUrls from DB)
+    const enrichedSections = (parsedResult.sections || []).map((sec: any) => {
+      if (sec.type === 'screen_gallery' && Array.isArray(sec.screens)) {
+        const enrichedScreens = sec.screens.map((sc: any, scIdx: number) => {
+          const dbApp = findDbApp(sc.appName || sc.appSlug);
+          const dbScreens = dbApp?.screens || [];
+          const matchedScreen = dbScreens[scIdx] || dbScreens[0];
+          return {
+            ...sc,
+            id: matchedScreen?.id || `scr-${scIdx}`,
+            imageUrl: matchedScreen?.imageUrl || sc.imageUrl || dbApp?.appThumbnail || null,
+            appSlug: dbApp?.slug || sc.appSlug || sc.appName?.toLowerCase().replace(/\s+/g, '-'),
+            appName: dbApp?.name || sc.appName,
+          };
+        });
+        return { ...sec, screens: enrichedScreens.filter((s: any) => !!s.imageUrl) };
+      }
+
+      if (sec.type === 'interactive_flow') {
+        const dbApp = findDbApp(sec.appName || sec.appSlug);
+        const allAppScreens = dbApp?.screens || [];
+
+        // Determine requested flow name keywords (e.g. "feed", "social", "onboarding", "investing", etc.)
+        const flowKeyword = (sec.flowName || '').toLowerCase().trim();
+
+        // 1. Try matching by exact or partial flow name / slug in database
+        let flowScreens: any[] = [];
+        if (flowKeyword) {
+          flowScreens = allAppScreens.filter((s: any) => {
+            const sFlowName = (s.flow?.name || '').toLowerCase();
+            const sFlowSlug = (s.flow?.slug || '').toLowerCase();
+            const sName = (s.name || '').toLowerCase();
+
+            // Direct substring match with flow name or screen name
+            if (sFlowName && (sFlowName.includes(flowKeyword) || flowKeyword.includes(sFlowName))) return true;
+            if (sFlowSlug && (sFlowSlug.includes(flowKeyword) || flowKeyword.includes(sFlowSlug))) return true;
+
+            // Keyword semantic aliases
+            if (flowKeyword.includes('onboard') || flowKeyword.includes('sign')) {
+              return sFlowName.includes('onboard') || sFlowSlug.includes('onboard') || sName.includes('onboard') ||
+                     sFlowName.includes('creating account') || sFlowSlug.includes('creating-account');
+            }
+            if (flowKeyword.includes('feed') || flowKeyword.includes('social') || flowKeyword.includes('activity')) {
+              return sFlowName.includes('feed') || sFlowSlug.includes('feed') || sFlowName.includes('home') ||
+                     sFlowName.includes('activity') || sName.includes('feed') || sName.includes('social');
+            }
+            if (flowKeyword.includes('pay') || flowKeyword.includes('transfer') || flowKeyword.includes('send')) {
+              return sFlowName.includes('pay') || sFlowName.includes('transfer') || sFlowName.includes('send') ||
+                     sFlowSlug.includes('transfer') || sFlowSlug.includes('payment');
+            }
+            return false;
+          });
+        }
+
+        // 2. If no flow-specific match found, check if screens have names matching the keyword
+        if (flowScreens.length === 0 && flowKeyword) {
+          flowScreens = allAppScreens.filter((s: any) => {
+            const sName = (s.name || '').toLowerCase();
+            return flowKeyword.split(/\s+/).some((kw: string) => kw.length > 3 && sName.includes(kw));
+          });
+        }
+
+        // 3. Fallback to first N screens if still nothing matched
+        if (flowScreens.length === 0) {
+          flowScreens = allAppScreens.slice(0, (sec.screens && sec.screens.length > 0) ? sec.screens.length : 5);
+        }
+
+        // Sort accurately by screenNo so the user journey flow is in true sequential order
+        flowScreens.sort((a: any, b: any) => (a.screenNo || 0) - (b.screenNo || 0));
+
+        const enrichedScreens = flowScreens.slice(0, 10).map((screen: any, idx: number) => {
+          const aiScreenDesc = sec.screens && sec.screens[idx];
+          return {
+            id: screen.id,
+            imageUrl: screen.imageUrl,
+            name: aiScreenDesc?.name || screen.name || `Screen ${idx + 1}`,
+            uxAnalysis: aiScreenDesc?.uxAnalysis || screen.uxAnalysis || "",
+            screenNo: screen.screenNo || idx + 1,
+            slug: screen.slug
+          };
+        });
+
+        return {
+          ...sec,
+          appSlug: dbApp?.slug || sec.appSlug || sec.appName?.toLowerCase().replace(/\s+/g, '-'),
+          screens: enrichedScreens.filter((s: any) => !!s.imageUrl)
+        };
+      }
+
+      return sec;
+    });
+
+    // Enrich comparisonFlows with actual screens matching each step!
+    const enrichedComparisonFlows = (parsedResult.comparisonFlows || []).map((flow: any) => {
+      const dbMatch = matchedDbApps.find(
+        (m: any) => 
+          (flow.slug && m.slug.toLowerCase() === flow.slug.toLowerCase()) || 
+          (flow.appName && m.name.toLowerCase() === flow.appName.toLowerCase())
+      );
+
+      const dbScreens = dbMatch?.screens || [];
+
+      const enrichedSteps = (flow.steps || []).map((step: any, sIdx: number) => {
+        // Try to find a matching screen by step index or name
+        const screen = dbScreens[sIdx] || dbScreens[sIdx % (dbScreens.length || 1)] || null;
+
+        return {
+          ...step,
+          screenImageUrl: screen?.imageUrl || null,
+          screenName: screen?.name || null,
+          screenId: screen?.id || null,
+        };
+      });
+
+      return {
+        ...flow,
+        appLogo: dbMatch?.appLogo || null,
+        appThumbnail: dbMatch?.appThumbnail || null,
+        slug: dbMatch?.slug || flow.slug,
+        appName: dbMatch?.name || flow.appName,
+        steps: enrichedSteps,
+        totalScreens: dbScreens.length
+      };
+    });
+
+    const enrichedApps = (parsedResult.recommendedApps || []).map((rec: any) => {
+      const dbMatch = matchedDbApps.find(
+        (m: any) => m.slug.toLowerCase() === (rec.slug || '').toLowerCase() || m.name.toLowerCase() === rec.name.toLowerCase()
+      );
+
+      return {
+        id: dbMatch?.id || rec.slug || rec.name,
+        name: rec.name,
+        slug: dbMatch?.slug || rec.slug,
+        category: dbMatch?.subcategory?.title || dbMatch?.category?.title || rec.category || 'Finance',
+        reason: rec.reason,
+        appLogo: dbMatch?.appLogo || null,
+        appThumbnail: dbMatch?.appThumbnail || null,
+      };
+    });
+
+    return res.json({
+      success: true,
+      data: {
+        introText: parsedResult.introText || "Here are the top recommended apps matching your request.",
+        sections: enrichedSections,
+        comparisonFlows: enrichedComparisonFlows,
+        apps: enrichedApps,
+        uxInsights: parsedResult.uxInsights || "",
+        suggestedFollowUps: parsedResult.suggestedFollowUps || []
+      }
+    });
+  } catch (error: any) {
+    console.error('Workspace AI Chat Error:', error);
+    res.status(500).json({ error: error?.message || 'Failed to process AI research chat' });
   }
 });
 

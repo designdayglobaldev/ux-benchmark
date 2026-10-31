@@ -18,6 +18,7 @@ interface InsightData {
     description: string;
     x: number;
     y: number;
+    category?: 'Heuristic' | 'Microcopy' | 'Hierarchy' | 'Conversion' | 'Friction' | string;
 }
 
 interface MiddleProps {
@@ -59,33 +60,7 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
         };
     }, [isHotspotMode]);
     
-    const getCardYPercent = (idx: number, length: number) => {
-        if (length === 1) return 50;
-        if (length === 2) return idx === 0 ? 25 : 75;
-        if (length === 3) return idx === 0 ? 15 : (idx === 1 ? 50 : 85);
-        return 10 + (idx * (80 / (length - 1)));
-    };
-
-    const { leftHalf, rightHalf, balancedData } = useMemo(() => {
-        if (!insightsData.length) return { leftHalf: [], rightHalf: [], balancedData: [] };
-        const imgWidth = imgRef.current?.naturalWidth || 400;
-        const imgHeight = imgRef.current?.naturalHeight || 850;
-        
-        const normalizedData = insightsData.map(insight => {
-            let nx = insight.x > 100 ? (insight.x / imgWidth) * 100 : insight.x;
-            let ny = insight.y > 100 ? (insight.y / imgHeight) * 100 : insight.y;
-            return {
-                ...insight,
-                x: Math.max(0, Math.min(100, nx)),
-                y: Math.max(0, Math.min(100, ny))
-            };
-        });
-
-        const sortedByX = [...normalizedData].sort((a, b) => a.x - b.x);
-        const leftHalf = sortedByX.slice(0, Math.ceil(sortedByX.length / 2)).sort((a, b) => a.y - b.y);
-        const rightHalf = sortedByX.slice(Math.ceil(sortedByX.length / 2)).sort((a, b) => a.y - b.y);
-        return { leftHalf, rightHalf, balancedData: [...leftHalf, ...rightHalf] };
-    }, [insightsData]);
+    const { leftHalf, rightHalf, balancedData } = useMemo(() => { if (!insightsData.length) return { leftHalf: [] as InsightData[], rightHalf: [] as InsightData[], balancedData: [] as InsightData[] }; const imgWidth = imgRef.current?.naturalWidth || 400; const imgHeight = imgRef.current?.naturalHeight || 850; const normalizedData: InsightData[] = insightsData.map(insight => { let nx = insight.x > 100 ? (insight.x / imgWidth) * 100 : insight.x; let ny = insight.y > 100 ? (insight.y / imgHeight) * 100 : insight.y; return { ...insight, x: Math.max(3, Math.min(97, nx)), y: Math.max(5, Math.min(95, ny)) }; }); const sortedByX = [...normalizedData].sort((a, b) => a.x - b.x); const leftHalf = sortedByX.slice(0, Math.ceil(sortedByX.length / 2)).sort((a, b) => a.y - b.y); const rightHalf = sortedByX.slice(Math.ceil(sortedByX.length / 2)).sort((a, b) => a.y - b.y); return { leftHalf, rightHalf, balancedData: [...leftHalf, ...rightHalf] }; }, [insightsData]); const normalizedInsights = balancedData;
 
     const loadingMessages = [
         "Analyzing UI elements...",
@@ -153,7 +128,11 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
             const response = await fetch(`${apiUrl}/api/v1/ai/insights`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ imageBase64 })
+                body: JSON.stringify({
+                    imageBase64,
+                    screenId: activeScreen?.id,
+                    appName
+                })
             });
             
             const data = await response.json();
@@ -718,11 +697,13 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
                 isOpen={isHotspotMode} 
                 onClose={() => setIsHotspotMode(false)} 
                 activeScreen={activeScreen} 
-                leftHalf={leftHalf} 
-                rightHalf={rightHalf} 
-                getCardYPercent={getCardYPercent} 
+                insights={normalizedInsights} 
                 isInsightsLoading={isInsightsLoading}
                 loadingMessage={loadingMessages[loadingMessageIndex]}
+                onOpenCompare={() => {
+                    setIsHotspotMode(false);
+                    setIsCompareMode(true);
+                }}
             />
 
             {/* Compare Mode Overlay */}

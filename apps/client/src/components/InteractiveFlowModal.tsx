@@ -14,6 +14,7 @@ interface InteractiveFlowModalProps {
     isOpen: boolean;
     onClose: () => void;
     flow: Flow | undefined;
+    appSlug?: string;
 }
 
 function ImageWithSkeleton({ src, alt, className }: { src: string, alt: string, className?: string }) {
@@ -32,9 +33,10 @@ function ImageWithSkeleton({ src, alt, className }: { src: string, alt: string, 
     );
 }
 
-export function InteractiveFlowModal({ isOpen, onClose, flow }: InteractiveFlowModalProps) {
+export function InteractiveFlowModal({ isOpen, onClose, flow, appSlug }: InteractiveFlowModalProps) {
     const navigate = useNavigate();
-    const { slug } = useParams<{ slug: string }>();
+    const { slug: routeSlug } = useParams<{ slug: string }>();
+    const effectiveAppSlug = appSlug || routeSlug;
 
     if (!flow) return null;
 
@@ -53,12 +55,20 @@ export function InteractiveFlowModal({ isOpen, onClose, flow }: InteractiveFlowM
                 </div>
 
                 {/* Horizontal Scrolling Container */}
-                <div className="flex-1 overflow-x-auto overflow-y-hidden pb-4 custom-scrollbar">
+                <div 
+                    tabIndex={0}
+                    onWheel={(e) => {
+                        if (e.deltaY !== 0) {
+                            e.currentTarget.scrollLeft += e.deltaY;
+                        }
+                    }}
+                    className="flex-1 overflow-x-auto overflow-y-hidden pb-4 custom-flow-scrollbar focus:outline-none"
+                >
                     <div className="flex gap-8 w-max h-full items-center">
                         {flow.screens.map((screen, idx) => (
                             <div key={screen.id} className="flex flex-col items-center gap-4 group relative h-full">
-                                {/* The phone frame wrapper */}
-                                <div className="h-[60vh] min-h-[400px] aspect-[440/850] relative overflow-hidden rounded-[24px] bg-black border-4 border-transparent group-hover:border-[#0099FF] transition-all duration-300">
+                                {/* The phone frame wrapper: exact match with AppFlows.tsx aspect-[230/500] */}
+                                <div className="h-[60vh] min-h-[400px] aspect-[230/500] relative overflow-hidden rounded-[24px] bg-[#121212] border border-[#222222] group-hover:border-[#0099FF] transition-all duration-300 shadow-2xl">
                                     <ImageWithSkeleton 
                                         src={screen.imageUrl} 
                                         alt={screen.name}
@@ -107,9 +117,11 @@ export function InteractiveFlowModal({ isOpen, onClose, flow }: InteractiveFlowM
                                             <button 
                                                 onClick={() => {
                                                     onClose();
-                                                    navigate(`/app/${slug}/screens/${screen.slug}`);
+                                                    if (effectiveAppSlug) {
+                                                        navigate(`/app/${effectiveAppSlug}/screens/${screen.slug}`);
+                                                    }
                                                 }}
-                                                className="w-full bg-[#0099FF] hover:bg-[#0088EE] text-white px-4 py-2 rounded-lg font-medium text-[13px] transition-colors flex items-center justify-center gap-2"
+                                                className="w-full bg-[#0099FF] hover:bg-[#0088EE] text-white px-4 py-2 rounded-lg font-medium text-[13px] transition-colors flex items-center justify-center gap-2 cursor-pointer"
                                             >
                                                 Inspect Screen Details
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>

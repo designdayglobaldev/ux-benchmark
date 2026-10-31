@@ -16,6 +16,9 @@ interface SearchModalProps {
   className?: string;
   inputClassName?: string;
   showScanIcon?: boolean;
+  isOpenControlled?: boolean;
+  onOpenChangeControlled?: (open: boolean) => void;
+  hideTrigger?: boolean;
 }
 
 export function SearchModal({
@@ -23,9 +26,14 @@ export function SearchModal({
   className,
   inputClassName,
   showScanIcon = false,
+  isOpenControlled,
+  onOpenChangeControlled,
+  hideTrigger = false,
 }: SearchModalProps = {}) {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = isOpenControlled !== undefined ? isOpenControlled : internalOpen;
+  const setOpen = onOpenChangeControlled || setInternalOpen;
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -188,19 +196,21 @@ export function SearchModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <div className={`relative w-full cursor-pointer ${className || ""}`} onClick={() => setOpen(true)}>
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-[17px] w-[17px] text-[#777777]" />
-          <div 
-            className={inputClassName || "flex items-center w-full h-[40px] bg-[#161616]/90 rounded-full pl-[40px] pr-4 text-[14px] text-[#777777] hover:bg-[#202020] transition-colors border border-[#262626] hover:border-[#333333]"}
-          >
-            {displayText || placeholder || "Search for apps.."}
+      {!hideTrigger && (
+        <DialogTrigger asChild>
+          <div className={`relative w-full cursor-pointer ${className || ""}`} onClick={() => setOpen(true)}>
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-[17px] w-[17px] text-[#777777]" />
+            <div 
+              className={inputClassName || "flex items-center w-full h-[40px] bg-[#161616]/90 rounded-full pl-[40px] pr-4 text-[14px] text-[#777777] hover:bg-[#202020] transition-colors border border-[#262626] hover:border-[#333333]"}
+            >
+              {displayText || placeholder || "Search for apps.."}
+            </div>
+            {showScanIcon && (
+              <Scan className="absolute right-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-[#A1A1A1] hover:text-white transition-colors" />
+            )}
           </div>
-          {showScanIcon && (
-            <Scan className="absolute right-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-[#A1A1A1] hover:text-white transition-colors" />
-          )}
-        </div>
-      </DialogTrigger>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-[800px] bg-[#161616] border-[#222222] text-white p-0 gap-0 rounded-[16px] overflow-hidden">
         {/* Search Input Area */}
         <div className="flex items-center px-4 py-3 border-b border-[#222222]">

@@ -169,6 +169,7 @@ model Screen {
   similarApps String[]
   uiElements  UiElement[]
   patterns    Pattern[]
+  hotspots    Json?
   status      Status      @default(DRAFT)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt

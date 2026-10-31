@@ -140,3 +140,91 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
+
+/* Smooth Dialog Keyframe Animations */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes modalScaleOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.97);
+  }
+}
+
+.animate-dialog-overlay[data-state='open'] {
+  animation: modalFadeIn 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-dialog-overlay[data-state='closed'] {
+  animation: modalFadeOut 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-dialog-content[data-state='open'] {
+  animation: modalScaleIn 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-dialog-content[data-state='closed'] {
+  animation: modalScaleOut 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom horizontal scrollbar for flow trays */
+.custom-flow-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+.custom-flow-scrollbar::-webkit-scrollbar-track {
+  background: #181818;
+  border-radius: 9999px;
+}
+.custom-flow-scrollbar::-webkit-scrollbar-thumb {
+  background: #383838;
+  border-radius: 9999px;
+}
+.custom-flow-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #505050;
+}
+.custom-flow-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #383838 #181818;
+}
+
+

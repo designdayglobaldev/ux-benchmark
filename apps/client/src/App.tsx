@@ -11,6 +11,7 @@ import { AppFlows } from "./Pages/AppFlows"
 import { AppScreens } from "./Pages/AppScreens"
 import { AppAllScreens } from "./Pages/AppAllScreens"
 import { Workspaces } from "./Pages/Workspaces"
+import { AIWorkspace } from "./Pages/AIWorkspace"
 import { SharedBoard } from "./Pages/SharedBoard"
 import { InspectContext } from "./contexts/InspectContext"
 import { AuthProvider } from "./contexts/AuthContext"
@@ -98,7 +99,14 @@ function App() {
             <Routes>
             {/* Routes with Navbar */}
             <Route element={<MainLayout />}>
-              <Route path="/" element={<Dashboard />} />
+              {/* AI Workspace is now the primary Home (/) */}
+              <Route path="/" element={<AppProtectedRoute><AIWorkspace /></AppProtectedRoute>} />
+              <Route path="/ai-workspace" element={<Navigate to="/" replace />} />
+              
+              {/* Apps Catalog */}
+              <Route path="/apps" element={<Dashboard />} />
+              <Route path="/browse" element={<Browse />} />
+
               <Route 
                 path="/benchmark" 
                 element={
@@ -109,7 +117,6 @@ function App() {
               />
               <Route path="/flows" element={<Flows />} />
               <Route path="/flows/:slug" element={<FlowDetail />} />
-              <Route path="/browse" element={<Browse />} />
               <Route path="/pricing" element={<Pricing />} />
               <Route 
                 path="/design-agent" 

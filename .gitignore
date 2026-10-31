@@ -8,3 +8,5 @@ coverage/
 apps/api/mobbin-tokens.json
 apps/api/test-db.ts
 .agents/
+apps/api/scratch/
+check_screens.js
