@@ -69,8 +69,9 @@ export const executeUserApproval = async (email: string) => {
     if (!resend) {
       console.warn("Skipping email send: RESEND_API_KEY is not configured.");
     } else {
+      const fromEmail = process.env.RESEND_FROM_EMAIL || 'Zibo <heyz@zibo.design>';
       const { data, error: resendError } = await resend.emails.send({
-        from: 'Zibo <hello@zibo.co>',
+        from: fromEmail,
         to: email,
         subject: 'Welcome to Zibo Beta!',
         html: `

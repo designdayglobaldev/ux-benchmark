@@ -156,7 +156,7 @@ export function Login() {
         <div className="flex items-center justify-center gap-6 text-[13px] text-[#71717A] pt-4">
           <button 
             type="button"
-            onClick={() => window.location.href = "mailto:hello@zibo.co"}
+            onClick={() => window.location.href = "mailto:heyz@zibo.design"}
             className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer"
           >
             <Headphones size={15} />
