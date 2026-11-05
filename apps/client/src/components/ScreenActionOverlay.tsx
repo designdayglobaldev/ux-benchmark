@@ -4,6 +4,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Bookmark, Copy, Check, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUserWorkspaces } from "@/hooks/queries/useWorkspaces";
+import { useQueryClient } from "@tanstack/react-query";
+import api from "@/utils/api";
 
 interface ScreenActionOverlayProps {
   screenId?: string;
@@ -29,9 +32,10 @@ export function ScreenActionOverlay({
 }: ScreenActionOverlayProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [workspaces, setWorkspaces] = useState<any[]>([]);
-  const [isLoadingWorkspaces, setIsLoadingWorkspaces] = useState(false);
+  // Cached via TanStack Query
+  const { data: workspaces = [], isLoading: isLoadingWorkspaces } = useUserWorkspaces(user?.id);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [newCollectionName, setNewCollectionName] = useState("");
   const [isCreatingInputOpen, setIsCreatingInputOpen] = useState(false);
@@ -40,42 +44,23 @@ export function ScreenActionOverlay({
   const [isCopied, setIsCopied] = useState(false);
   const [savedBoardIds, setSavedBoardIds] = useState<Set<string>>(new Set());
 
-  // Fetch collections when popover opens
+  // Check which collections/boards contain this screen when workspaces or screenId change
   useEffect(() => {
-    if (!isPopoverOpen || !user) return;
-    const fetchWorkspaces = async () => {
-      setIsLoadingWorkspaces(true);
-      try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
-        const res = await fetch(`${apiUrl}/api/v1/workspaces/user/${user.id}`);
-        const data = await res.json();
-        const list = Array.isArray(data) ? data : [];
-        setWorkspaces(list);
-
-        // Check which collections/boards already contain this screen
-        if (screenId) {
-          const containingBoardIds = new Set<string>();
-          for (const ws of list) {
-            for (const b of ws.boards || []) {
-              if (b.screens?.some((s: any) => s.screenId === screenId)) {
-                containingBoardIds.add(b.id);
-              }
-            }
-          }
-          setSavedBoardIds(containingBoardIds);
-          if (containingBoardIds.size > 0) {
-            setIsSaved(true);
-            onSavedChange?.(true);
-          }
+    if (!user || !screenId || !workspaces.length) return;
+    const containingBoardIds = new Set<string>();
+    for (const ws of workspaces) {
+      for (const b of ws.boards || []) {
+        if (b.screens?.some((s: any) => s.screenId === screenId)) {
+          containingBoardIds.add(b.id);
         }
-      } catch (error) {
-        console.error("Failed to fetch collections", error);
-      } finally {
-        setIsLoadingWorkspaces(false);
       }
-    };
-    fetchWorkspaces();
-  }, [isPopoverOpen, user, screenId, onSavedChange]);
+    }
+    setSavedBoardIds(containingBoardIds);
+    if (containingBoardIds.size > 0) {
+      setIsSaved(true);
+      onSavedChange?.(true);
+    }
+  }, [user, screenId, workspaces, onSavedChange]);
 
   // Handle saving to a collection board
   const handleSaveToBoard = async (boardId: string, e?: React.MouseEvent) => {
@@ -83,24 +68,14 @@ export function ScreenActionOverlay({
       e.preventDefault();
       e.stopPropagation();
     }
-    if (!user) {
-      return;
-    }
-    if (!screenId) {
-      return;
-    }
+    if (!user || !screenId) return;
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
-      await fetch(`${apiUrl}/api/v1/boards/${boardId}/screens`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ screenId, userId: user.id }),
-      });
-
+      await api.post(`/boards/${boardId}/screens`, { screenId, userId: user.id });
       setSavedBoardIds((prev) => new Set(prev).add(boardId));
       setIsSaved(true);
       onSavedChange?.(true);
+      queryClient.invalidateQueries({ queryKey: ['workspaces', user.id] });
     } catch (error) {
       console.error("Failed to save to collection", error);
     }
@@ -114,45 +89,24 @@ export function ScreenActionOverlay({
 
     setIsCreating(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
       const userOwnedWorkspace = workspaces.find((ws: any) => ws.ownerId === user.id);
       let workspaceId = userOwnedWorkspace?.id;
 
       if (!workspaceId) {
-        const wsRes = await fetch(`${apiUrl}/api/v1/workspaces`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: "Personal Workspace", ownerId: user.id }),
-        });
-        if (!wsRes.ok) {
-          const errText = await wsRes.text();
-          throw new Error(`Failed to initialize workspace: ${errText}`);
-        }
-        const ws = await wsRes.json();
-        workspaceId = ws.id;
+        const wsRes = await api.post('/workspaces', { name: "Personal Workspace", ownerId: user.id });
+        workspaceId = wsRes.data?.id;
       }
 
-      const boardRes = await fetch(`${apiUrl}/api/v1/boards`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newCollectionName.trim(), workspaceId }),
-      });
-      if (!boardRes.ok) {
-        const errText = await boardRes.text();
-        throw new Error(`Failed to create board: ${errText}`);
-      }
-      const newBoard = await boardRes.json();
+      const boardRes = await api.post('/boards', { name: newCollectionName.trim(), workspaceId });
+      const newBoard = boardRes.data;
 
-      if (screenId) {
+      if (screenId && newBoard?.id) {
         await handleSaveToBoard(newBoard.id);
       }
 
       setNewCollectionName("");
       setIsCreatingInputOpen(false);
-      // Refresh list
-      const res = await fetch(`${apiUrl}/api/v1/workspaces/user/${user.id}`);
-      const data = await res.json();
-      setWorkspaces(Array.isArray(data) ? data : []);
+      queryClient.invalidateQueries({ queryKey: ['workspaces', user.id] });
     } catch (error) {
       console.error("Failed to create collection", error);
     } finally {

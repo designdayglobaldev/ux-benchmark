@@ -1,10 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserWorkspaces, useWorkspaceMutations } from "@/hooks/queries/useWorkspaces";
+import { useQueryClient } from "@tanstack/react-query";
+import api from "@/utils/api";
 import { useNavigate } from "react-router-dom";
 import { Plus, FolderKanban, Loader2, Lock, MoreVertical, ExternalLink, Trash2 } from "lucide-react";
 import workspaceEmptyScreen from "@/assets/workspace-empty-scren.png";
@@ -27,8 +30,10 @@ interface CollectionItem {
 export function Workspaces() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [workspaces, setWorkspaces] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
+  // Cached via TanStack Query (5 min fresh, automatic invalidation)
+  const { data: workspaces = [], isLoading } = useUserWorkspaces(user?.id);
+  const { deleteBoard, deleteWorkspace } = useWorkspaceMutations(user?.id);
   const [activeTab, setActiveTab] = useState<'my-collections' | 'shared'>('my-collections');
   
   // Dialog States
@@ -37,63 +42,27 @@ export function Workspaces() {
   const [isCreatingWorkspace, setIsCreatingWorkspace] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  const fetchWorkspaces = async () => {
-    if (!user) return;
-    setIsLoading(true);
-    try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const res = await fetch(`${apiUrl}/api/v1/workspaces/user/${user.id}`);
-      const data = await res.json();
-      setWorkspaces(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Failed to fetch workspaces", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchWorkspaces();
-  }, [user]);
-
   const handleCreateWorkspace = async () => {
     if (!newWorkspaceName.trim() || !user) return;
     setIsCreatingWorkspace(true);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
       // Find the user's OWN workspace (where they are the owner)
       let primaryWorkspace = workspaces.find((ws) => ws.ownerId === user.id);
       let primaryWorkspaceId = primaryWorkspace?.id;
 
       // Ensure user has their own personal workspace container
       if (!primaryWorkspaceId) {
-        const wsRes = await fetch(`${apiUrl}/api/v1/workspaces`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: "Personal Workspace", ownerId: user.id }),
-        });
-        if (!wsRes.ok) {
-          const errText = await wsRes.text();
-          throw new Error(`Failed to initialize workspace: ${errText}`);
-        }
-        const ws = await wsRes.json();
-        primaryWorkspaceId = ws.id;
+        const wsRes = await api.post('/workspaces', { name: "Personal Workspace", ownerId: user.id });
+        primaryWorkspaceId = wsRes.data?.id;
       }
 
       // Create the collection board inside the user's OWN workspace
-      const boardRes = await fetch(`${apiUrl}/api/v1/boards`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newWorkspaceName.trim(), workspaceId: primaryWorkspaceId }),
-      });
-      if (!boardRes.ok) {
-        const errText = await boardRes.text();
-        throw new Error(`Failed to create collection board: ${errText}`);
-      }
+      await api.post('/boards', { name: newWorkspaceName.trim(), workspaceId: primaryWorkspaceId });
 
       setIsDialogOpen(false);
       setNewWorkspaceName("");
-      await fetchWorkspaces();
+      // Invalidate to trigger instant re-fetch in TanStack Query cache
+      queryClient.invalidateQueries({ queryKey: ['workspaces', user.id] });
     } catch (error) {
       console.error("Failed to create collection", error);
     } finally {
@@ -110,26 +79,11 @@ export function Workspaces() {
 
     setDeletingId(targetId);
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const headers = user?.id ? { 'X-User-Id': user.id } : undefined;
       if (boardId) {
-        const res = await fetch(`${apiUrl}/api/v1/boards/${boardId}`, {
-          method: "DELETE",
-          headers,
-        });
-        if (!res.ok) {
-          console.error("Failed to delete board:", await res.text());
-        }
+        await deleteBoard(boardId);
       } else if (workspaceId) {
-        const res = await fetch(`${apiUrl}/api/v1/workspaces/${workspaceId}`, {
-          method: "DELETE",
-          headers,
-        });
-        if (!res.ok) {
-          console.error("Failed to delete workspace:", await res.text());
-        }
+        await deleteWorkspace(workspaceId);
       }
-      await fetchWorkspaces();
     } catch (err) {
       console.error("Failed to delete collection:", err);
     } finally {

@@ -21,9 +21,7 @@ export function AIWorkspace() {
   const [conversationHistory, setConversationHistory] = useState<Array<{ role: string; content: string }>>([]);
 
   const recentResearches = [
-    "Top banking apps that has dark mode available",
-    "Top 10 apps with best UX",
-    "Banking apps that has similar cards in dashboard"
+    "Why do Revolut and Cash App convert 3x more KYC onboarding than traditional banking apps?"
   ];
 
   const handleSearchSubmit = (query: string) => {
@@ -234,7 +232,7 @@ export function AIWorkspace() {
 
                 {/* Card 2: Explore UX Breakdowns (Exact Figma Specs) */}
                 <div 
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/apps")}
                   className="group relative cursor-pointer overflow-hidden transition-transform hover:scale-[1.01]"
                   style={{
                     boxSizing: "border-box",

@@ -1,6 +1,7 @@
 import { Navigate, useParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useApps } from "../../hooks/useApps";
+import { AIWorkspaceSkeleton } from "../AIWorkspaceSkeleton";
 
 export function AppProtectedRoute({ children }: { children: React.ReactNode }) {
     const { slug } = useParams<{ slug: string }>();
@@ -8,6 +9,9 @@ export function AppProtectedRoute({ children }: { children: React.ReactNode }) {
     const { data: apps, isLoading: isAppsLoading } = useApps();
 
     if (isAuthLoading || isAppsLoading) {
+        if (!slug) {
+            return <AIWorkspaceSkeleton />;
+        }
         return <div className="min-h-screen bg-black" />;
     }
 

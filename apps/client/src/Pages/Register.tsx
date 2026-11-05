@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "@/assets/Logo.png";
 import { z } from "zod";
-import { Headphones, HelpCircle, Loader2 } from "lucide-react";
+import { Headphones, HelpCircle, Loader2, Mail, AlertCircle } from "lucide-react";
 import { AuthCarousel } from "@/components/AuthCarousel";
 
 const registerSchema = z.object({
@@ -19,7 +19,14 @@ export function Register() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [registrationData, setRegistrationData] = useState<any>(null);
+  const [_registrationData, setRegistrationData] = useState<any>(null);
+
+  const maskEmail = (str: string) => {
+    if (!str || !str.includes('@')) return str;
+    const [local, domain] = str.split('@');
+    if (local.length <= 3) return `${local[0]}*@${domain}`;
+    return `${local.slice(0, 3)}*@${domain}`;
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,38 +91,118 @@ export function Register() {
           </div>
         </div>
 
-        {/* Center Register Form */}
-        <div className="w-full max-w-[420px] mx-auto py-12">
+        {/* Center Register Form / Success View */}
+        <div className="w-full max-w-[473px] mx-auto py-8">
           {success ? (
-            <div className="text-center py-8">
-              <span className="text-[13px] text-[#8E8E93] block mb-2 font-normal tracking-wide">
-                Confirmation
-              </span>
-              <h1 className="text-[34px] sm:text-[38px] font-serif font-normal text-white tracking-tight leading-[1.15] mb-4">
-                {registrationData?.autoApproved ? "Access Granted!" : "You're on the list!"}
-              </h1>
-              <p className="text-[#A1A1AA] text-[15px] leading-relaxed mb-8">
-                {registrationData?.autoApproved
-                  ? "Your account has been automatically approved! We've sent temporary login credentials to your email."
-                  : "Thank you for registering for beta testing. We'll send you an email when your account is approved."}
-              </p>
-              <div className="flex flex-col gap-3">
-                {registrationData?.autoApproved ? (
-                  <button 
-                    onClick={() => navigate("/login")} 
-                    className="w-full h-12 rounded-full bg-white text-black font-semibold text-[15px] hover:bg-[#EBEBEB] active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer shadow-sm"
-                  >
-                    Go to Login
-                  </button>
-                ) : (
-                  <button 
-                    onClick={() => navigate("/")} 
-                    className="w-full h-12 rounded-full bg-white text-black font-semibold text-[15px] hover:bg-[#EBEBEB] active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer shadow-sm"
-                  >
-                    Return to Home
-                  </button>
-                )}
+            /* Frame 2147228018 */
+            <div className="flex flex-col items-start gap-[36px] w-full text-left">
+              {/* Frame 2147231079 (Header + Steps + Alert) */}
+              <div className="flex flex-col items-start gap-[38px] w-full">
+                {/* Frame 2147231076: Title & Description */}
+                <div className="flex flex-col items-start gap-[4px] w-full">
+                  <h1 className="font-serif font-normal text-[38px] leading-[49px] text-white">
+                    Check Your Email
+                  </h1>
+                  <p className="font-sans font-normal text-[16px] leading-[145%] text-[#B9B9BE]">
+                    Your registration is successful! We've sent your temporary login credentials to your registered email address.
+                  </p>
+                </div>
+
+                {/* Frame 2147231080: Next Steps Section */}
+                <div className="flex flex-col items-start w-full gap-[20px]">
+                  {/* Title */}
+                  <span className="font-sans font-normal text-[16px] leading-[19px] tracking-[0.12em] uppercase text-[#B9B9BE]">
+                    NEXT STEPS
+                  </span>
+
+                  {/* Ordered list */}
+                  <div className="flex flex-col items-start gap-[40px] w-full relative">
+                    {/* Item 1 */}
+                    <div className="flex flex-row items-start gap-[16px] w-full relative isolate">
+                      {/* Vertical connector line between step 1 and step 2 */}
+                      <div 
+                        className="absolute w-[1px] bg-[#2E2E33] pointer-events-none z-0" 
+                        style={{
+                          left: "13.5px",
+                          top: "28px",
+                          height: "115px",
+                        }}
+                      />
+
+                      {/* Step 1 marker */}
+                      <div className="pt-1 shrink-0 z-10">
+                        <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center bg-gradient-to-b from-[#F68E1D] to-[#F4336F] shadow-sm">
+                          <span className="font-sans font-semibold text-[14px] leading-[17px] text-white">
+                            1
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Step 1 Instructions */}
+                      <div className="flex flex-col items-start gap-[12px] flex-1 z-10">
+                        <div className="flex flex-col items-start gap-[4px] w-full">
+                          <h3 className="font-sans font-medium text-[18px] leading-[22px] text-white">
+                            Check your email
+                          </h3>
+                          <p className="font-sans font-normal text-[14px] leading-[145%] text-[#B9B9BE]">
+                            We've sent your login credentials. Please check your inbox or spam folder.
+                          </p>
+                        </div>
+
+                        {/* Email display pill */}
+                        <div className="flex flex-row items-center gap-[8px] text-[#B9B9BE]">
+                          <Mail size={16} className="text-[#B9B9BE]" />
+                          <span className="font-sans font-medium text-[15px] leading-[145%] text-[#B9B9BE]">
+                            {maskEmail(email)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Item 2 */}
+                    <div className="flex flex-row items-start gap-[16px] w-full relative isolate">
+                      {/* Step 2 marker */}
+                      <div className="pt-1 shrink-0 z-10">
+                        <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center bg-[#181818] border border-[#4A4A50]">
+                          <span className="font-sans font-semibold text-[14px] leading-[17px] text-white">
+                            2
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Step 2 Instructions */}
+                      <div className="flex flex-col items-start gap-[4px] flex-1 z-10">
+                        <h3 className="font-sans font-medium text-[18px] leading-[22px] text-white">
+                          Log in to your account
+                        </h3>
+                        <p className="font-sans font-normal text-[14px] leading-[145%] text-[#B9B9BE]">
+                          Use your registered email and temporary password to access Zibo.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Red Security Alert Notification */}
+                <div 
+                  role="alert" 
+                  className="flex flex-row items-start p-4 gap-[12px] w-full bg-[#3A1518] border border-[#E5484D] rounded-[12px] shadow-[0px_8px_24px_rgba(0,0,0,0.4)]"
+                >
+                  <AlertCircle size={20} className="text-[#FF6B6F] shrink-0 mt-0.5" />
+                  <p className="font-sans font-medium text-[14px] leading-[145%] text-white">
+                    You must have received a secure password, please check your email inbox and also your spam folder.
+                  </p>
+                </div>
               </div>
+
+              {/* Action Button: Go to Login */}
+              <button
+                type="button"
+                onClick={() => navigate("/login")}
+                className="w-full h-[48px] rounded-full bg-white text-[#1A1A1A] font-sans font-medium text-[14px] leading-[17px] hover:bg-[#EBEBEB] active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer shadow-sm"
+              >
+                Go to Login
+              </button>
             </div>
           ) : (
             <div>

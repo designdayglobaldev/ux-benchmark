@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowUpRight, ListFilter, Check } from "lucide-react";
 import revolutImg from "@/assets/Revolut.png";
@@ -6,6 +6,7 @@ import revolutLogo from "@/assets/Revolut_logo.png";
 import canvasImg from "@/assets/Canvas.png";
 import { SubmitModule } from "../components/Submit_module";
 import { useApps } from "@/hooks/useApps";
+import { useBrowseFilters } from "@/hooks/queries/useBrowseFilters";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useSEO } from "@/hooks/useSEO";
@@ -25,18 +26,17 @@ export function Dashboard() {
     const [activeTab, setActiveTab] = useState<string>('latest');
     const [activeCategory, setActiveCategory] = useState<string>('all');
     const [activeSubcategory, setActiveSubcategory] = useState<string>('all');
-    const [categories, setCategories] = useState<any[]>([]);
-    const [subcategories, setSubcategories] = useState<any[]>([]);
+    const { categories, subcategories } = useBrowseFilters();
     const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     // Build query string
     const queryParts = [];
     if (activeCategory !== 'all') {
-        const cat = categories.find(c => c.id === activeCategory);
+        const cat: any = categories.find((c: any) => c.id === activeCategory);
         if (cat) queryParts.push(`category=${cat.slug}`);
     }
     if (activeSubcategory !== 'all') {
-        const subcat = subcategories.find(sc => sc.id === activeSubcategory);
+        const subcat: any = subcategories.find((sc: any) => sc.id === activeSubcategory);
         if (subcat) queryParts.push(`subcategory=${subcat.slug}`);
     }
     if (activeTab === 'motion') queryParts.push('tag=motion');
@@ -50,22 +50,7 @@ export function Dashboard() {
         description: "Zibo - Explore UX analyses of top applications."
     });
 
-    useEffect(() => {
-        const fetchFilters = async () => {
-            try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-                const [catRes, subcatRes] = await Promise.all([
-                    fetch(`${apiUrl}/api/v1/categories`),
-                    fetch(`${apiUrl}/api/v1/subcategories`)
-                ]);
-                setCategories(await catRes.json());
-                setSubcategories(await subcatRes.json());
-            } catch (e) {
-                console.error("Failed to fetch filters", e);
-            }
-        };
-        fetchFilters();
-    }, []);
+    // Cached taxonomy provided by useBrowseFilters hook
 
     return (
         <main className="flex-1 w-full bg-black flex flex-col items-center pb-20 sm:pb-32">

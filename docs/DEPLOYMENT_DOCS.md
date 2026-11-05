@@ -4,14 +4,20 @@
 
 ## 1. Server Infrastructure & Dependencies
 
-This phase involves transforming a raw Hostinger KVM VPS into a production-ready web server capable of running Node.js applications and serving them to the public internet.
+This phase involves transforming a raw Hostinger KVM VPS into a production-ready web server capable of running Node.js applications, Redis queues, and serving them to the public internet.
 
 ### OS & Core Packages
-The server was initialized with a fresh installation of **Ubuntu 24.04**. Before installing any specific runtimes, we updated the system package repositories and installed essential utilities to ensure the server had the fundamental tools required for building and networking.
+The server was initialized with a fresh installation of **Ubuntu 24.04**. Before installing any specific runtimes, we updated the system package repositories and installed essential utilities to ensure the server had the fundamental tools required for building, networking, and asynchronous job queuing.
 - **Commands used:**
   ```bash
   sudo apt update && sudo apt upgrade -y
-  sudo apt install -y curl git build-essential nginx ufw postgresql postgresql-contrib
+  sudo apt install -y curl git build-essential nginx ufw postgresql postgresql-contrib redis-server
+  sudo systemctl enable redis-server
+  sudo systemctl start redis-server
+  ```
+- *Redis Service Verification:* Ensure the native Redis daemon is running locally:
+  ```bash
+  redis-cli ping # Returns PONG
   ```
 - *Note:* During `apt upgrade`, the system may prompt for configuration changes to `sshd_config` (OpenSSH). It is critical to select "keep the local version currently installed" to ensure Hostinger's custom SSH login integrations are not overwritten, which would otherwise lock us out of the server.
 
@@ -80,22 +86,27 @@ Before the backend can successfully start, the Prisma ORM must generate its data
    ```
 *(Note: Because the database schema was already fully managed and migrated in Supabase via the remote connection, running `prisma db push` or `prisma migrate` on the server was unnecessary and avoided).*
 
-### PM2 Daemonization
-Instead of running `node dist/index.js` (which would kill the server as soon as the SSH session ended), we used PM2 to daemonize the process.
-- **Starting the API:**
+### PM2 Cluster Mode & Daemonization
+To scale across multiple CPU cores without single-threaded bottlenecks, we configure PM2 in **Cluster Mode** using `ecosystem.config.js`:
+- **Starting the API via Ecosystem Configuration:**
   ```bash
-  pm2 start dist/index.js --name "ux-api"
+  pm2 start ecosystem.config.js
   ```
+  *Key ecosystem capabilities configured:*
+  * `instances: 'max'`: Utilizes all available VPS CPU cores.
+  * `exec_mode: 'cluster'`: Kernel-level TCP round-robin distribution.
+  * `max_memory_restart: '1G'`: Automatically cycles worker threads exceeding 1GB memory.
+  * `@socket.io/redis-adapter`: Real-time WebSocket pub/sub across all worker instances.
 - **Ensuring Persistence on Reboot:**
   To guarantee the API automatically restarts if the VPS experiences a reboot or crash, we ran the PM2 startup script and saved the current process list.
   ```bash
   pm2 startup
   pm2 save
   ```
-- **Log Management:**
-  PM2 natively handles log rotation and error output. The application logs can be monitored at any time using:
+- **Zero-Downtime Reloads & Log Management:**
   ```bash
-  pm2 logs ux-api
+  pm2 reload ux-api       # Zero-downtime rolling reload
+  pm2 logs ux-api --lines 50
   ```
 
 ## 4. Web Server & Reverse Proxy (Nginx)
@@ -169,11 +180,11 @@ pnpm install
 pnpm run build
 ```
 
-### Step 3: Restart Backend Process
-Restart the PM2 background process to load the newly compiled `apps/api/dist`:
+### Step 3: Reload Backend Cluster
+Reload the PM2 background process cluster with zero-downtime:
 ```bash
-pm2 restart all
-# or
+pm2 reload ecosystem.config.js
+# or fallback restart
 pm2 restart ux-api
 ```
 

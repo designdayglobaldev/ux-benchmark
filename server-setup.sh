@@ -8,7 +8,11 @@ echo "Starting Ubuntu 24.04 Server Setup for UX Library Monorepo..."
 # 1. Update and install basic dependencies
 echo "Updating packages..."
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y curl git build-essential nginx ufw postgresql postgresql-contrib
+sudo apt install -y curl git build-essential nginx ufw postgresql postgresql-contrib redis-server
+
+# Enable and start Redis service
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
 
 # 2. Install Node.js v20 LTS
 echo "Installing Node.js v20..."
@@ -48,5 +52,12 @@ echo "3. After adding the key to GitHub, clone your repo:"
 echo "   mkdir -p /var/www"
 echo "   cd /var/www"
 echo "   git clone git@github.com:YOUR_USERNAME/ux-library.git"
-echo "4. CD into the directory and run 'pnpm install' and 'pnpm run build'"
+echo "4. CD into the directory and install/build:"
+echo "   cd /var/www/ux-library"
+echo "   pnpm install"
+echo "   pnpm run build"
+echo "5. Launch API in Multi-Instance Cluster Mode with PM2:"
+echo "   pm2 start ecosystem.config.js"
+echo "   pm2 save"
+echo "   pm2 startup"
 echo "=========================================================="

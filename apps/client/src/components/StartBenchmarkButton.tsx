@@ -3,20 +3,29 @@ import React from "react";
 interface StartBenchmarkButtonProps {
   onClick?: () => void;
   className?: string;
+  text?: string;
+  disabled?: boolean;
+  width?: string;
+  height?: string;
 }
 
 export const StartBenchmarkButton: React.FC<StartBenchmarkButtonProps> = ({
   onClick,
-  className = ""
+  className = "",
+  text = "Start a Benchmark",
+  disabled = false,
+  width = "199px",
+  height = "37px"
 }) => {
   return (
     <button
-      onClick={onClick}
-      className={`shrink-0 p-0 m-0 border-0 cursor-pointer transition-transform hover:opacity-95 active:scale-[0.98] flex items-center justify-center outline-none relative overflow-hidden ${className}`}
-      title="Start a Benchmark"
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`shrink-0 p-0 m-0 border-0 cursor-pointer transition-transform hover:opacity-95 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none flex items-center justify-center outline-none relative overflow-hidden ${className}`}
+      title={text}
       style={{
-        width: "199px",
-        height: "37px",
+        width: width,
+        height: height,
         borderRadius: "8px",
         backgroundColor: "#1A1A1A",
         isolation: "isolate",
@@ -28,7 +37,7 @@ export const StartBenchmarkButton: React.FC<StartBenchmarkButtonProps> = ({
       <div
         className="absolute pointer-events-none"
         style={{
-          width: "199px",
+          width: width,
           height: "48px",
           left: "0px",
           top: "0px",
@@ -106,12 +115,10 @@ export const StartBenchmarkButton: React.FC<StartBenchmarkButtonProps> = ({
         }}
       />
 
-      {/* Start a Benchmark Text */}
+      {/* Button Text */}
       <span
-        className="relative font-medium text-white select-none pointer-events-none flex items-center justify-center"
+        className="relative font-medium text-white select-none pointer-events-none whitespace-nowrap flex items-center justify-center px-2"
         style={{
-          width: "125px",
-          height: "17px",
           fontFamily: "'Inter', sans-serif",
           fontStyle: "normal",
           fontWeight: 500,
@@ -122,7 +129,7 @@ export const StartBenchmarkButton: React.FC<StartBenchmarkButtonProps> = ({
           zIndex: 6
         }}
       >
-        Start a Benchmark
+        {text}
       </span>
     </button>
   );

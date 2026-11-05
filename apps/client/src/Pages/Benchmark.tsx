@@ -1,117 +1,34 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Play, X, Upload, ChevronsUpDown, Check, ArrowRight, ArrowUp, Share2, Copy, Download, Maximize, Minimize, ChevronLeft, ChevronRight, MessageSquare, Send, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { useBenchmarkTaxonomy } from '@/hooks/queries/useBenchmarkTaxonomy';
+import { Play, X, ArrowRight, Share2, Copy, Download, Maximize, Minimize, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 import { ThinkingOrb } from 'thinking-orbs';
-import floatIcon from '@/assets/floaticon.svg';
-import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { OptimizedImage } from '@/components/ui/optimized-image';
-import { ScreenActionOverlay } from '@/components/ScreenActionOverlay';
 import api from '@/utils/api';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { Sandpack } from "@codesandbox/sandpack-react";
 
-const getConfidencePill = (conf: string) => {
-  if (!conf) return null;
-  const isHigh = conf.toLowerCase().includes('high');
-  const isMed = conf.toLowerCase().includes('medium');
-  const isLow = conf.toLowerCase().includes('low');
-  let bg = 'bg-[#333]';
-  let text = 'text-[#ccc]';
-  if (isHigh) { bg = 'bg-green-500/20'; text = 'text-green-400'; }
-  else if (isMed) { bg = 'bg-yellow-500/20'; text = 'text-yellow-400'; }
-  else if (isLow) { bg = 'bg-red-500/20'; text = 'text-red-400'; }
-  
-  return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[13px] font-medium ${bg} ${text}`}>
-      {conf}
-    </span>
-  );
-};
-
-// Reusable Combobox for Taxonomy
-function TaxonomyCombobox({ 
-  options, 
-  value, 
-  onChange, 
-  placeholder 
-}: { 
-  options: { id: string, title: string }[], 
-  value: string, 
-  onChange: (val: string) => void, 
-  placeholder: string 
-}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-[240px] justify-between bg-[#141414] border-[#333] text-white hover:bg-[#222] hover:text-white"
-        >
-          <span className="truncate pr-2 text-left">
-            {value
-              ? options.find((opt) => opt.id === value)?.title
-              : placeholder}
-          </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[240px] p-0 border-[#333] bg-[#141414] text-white">
-        <Command className="bg-transparent text-white">
-          <CommandInput placeholder={`Search...`} className="text-white border-b border-[#333]" />
-          <CommandList>
-            <CommandEmpty>No match found.</CommandEmpty>
-            <CommandGroup>
-              {options.map((opt) => (
-                <CommandItem
-                  key={opt.id}
-                  value={opt.title}
-                  onSelect={() => {
-                    onChange(opt.id);
-                    setOpen(false);
-                  }}
-                  className="text-white hover:bg-[#222] cursor-pointer"
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === opt.id ? "opacity-100 text-[#4E6BFF]" : "opacity-0"
-                    )}
-                  />
-                  {opt.title}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-}
+import { TaxonomyCombobox } from '@/components/benchmark/TaxonomyCombobox';
+import { BenchmarkScreenCarousel } from '@/components/benchmark/BenchmarkScreenCarousel';
+import { BenchmarkReportView } from '@/components/benchmark/BenchmarkReportView';
+import { BenchmarkChatDrawer } from '@/components/benchmark/BenchmarkChatDrawer';
+import { StartBenchmarkButton } from '@/components/StartBenchmarkButton';
+import benchmarkDotsImg from '@/assets/benchmaekdots.png';
+import seeHowItWorksThumb from '@/assets/see-how-it-works-thumb.png';
+import demoTransferScreen from '@/assets/demo-transfer-screen.png';
+import { DEMO_BENCHMARK_REPORT, DEMO_BENCHMARK_SCREENS, DEMO_IMPROVED_DESIGN_HTML } from '@/components/benchmark/demoBenchmarkData';
 
 export function Benchmark() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
-  const [uploadedImage, setUploadedImage] = useState<string | null>(() => sessionStorage.getItem('benchmark_uploadedImage') || null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(() => sessionStorage.getItem('benchmark_uploadedImage') || demoTransferScreen);
   const [showHowItWorks, setShowHowItWorks] = useState(true);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Demo States
   const [appState, setAppState] = useState<'idle' | 'analyzing' | 'detected' | 'results'>(() => sessionStorage.getItem('benchmark_appState') as any || 'idle');
 
-  // Taxonomy Data States
-  const [categories, setCategories] = useState<{id: string, title: string}[]>([]);
-  const [subcategories, setSubcategories] = useState<any[]>([]);
-  const [flows, setFlows] = useState<{id: string, title: string}[]>([]);
+  // Taxonomy data provided by useBenchmarkTaxonomy hook
 
   // Selected Taxonomy
   const [selectedCategory, setSelectedCategory] = useState<string>(() => sessionStorage.getItem('benchmark_selectedCategory') || '');
@@ -157,6 +74,14 @@ export function Benchmark() {
         if (generationAttemptedRef.current === uploadedImage) return;
         
         generationAttemptedRef.current = uploadedImage;
+
+        // If it's the built-in demo screen, immediately set the curated improved UI
+        if (uploadedImage === demoTransferScreen) {
+          setImprovedDesignCode(DEMO_IMPROVED_DESIGN_HTML);
+          sessionStorage.setItem('benchmark_improvedDesignHTML', DEMO_IMPROVED_DESIGN_HTML);
+          return;
+        }
+
         setImprovedDesignCode(null);
         sessionStorage.removeItem('benchmark_improvedDesignHTML');
         setIsGeneratingDesign(true);
@@ -219,113 +144,105 @@ export function Benchmark() {
 
   const resultsContainerRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState<number | null>(null);
 
   const handleExportDocx = async () => {
     try {
       setIsExporting(true);
-      const apiUrl = api.defaults.baseURL;
-      const response = await fetch(`${apiUrl}/export/docx`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ screens: benchmarkScreens, benchmarkData }),
+      setExportProgress(10);
+
+      // 1. Dispatch asynchronous job to BullMQ Redis Queue
+      const queueRes = await api.post('/queues/jobs/export', {
+        screens: benchmarkScreens,
+        benchmarkData,
+        format: 'docx',
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to generate document');
+
+      const { jobId, queue } = queueRes.data;
+
+      // 2. Poll job status until worker completes
+      let isCompleted = false;
+      let attempts = 0;
+
+      while (!isCompleted && attempts < 30) {
+        await new Promise((r) => setTimeout(r, 1200));
+        attempts++;
+
+        const statusRes = await api.get(`/queues/jobs/${queue}/${jobId}`);
+        const job = statusRes.data.job;
+
+        if (job) {
+          if (typeof job.progress === 'number') {
+            setExportProgress(job.progress);
+          }
+
+          if (job.state === 'completed') {
+            isCompleted = true;
+            setExportProgress(100);
+
+            // Fetch worker-generated artifact directly from Redis artifact cache
+            let downloadPath = job.returnvalue?.downloadUrl || `/export/download/${jobId}`;
+            if (downloadPath.startsWith('/api/v1')) {
+              downloadPath = downloadPath.replace('/api/v1', '');
+            }
+            const downloadRes = await api.get(downloadPath, { responseType: 'blob' });
+
+            const blob = new Blob([downloadRes.data]);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'UX-Benchmark-Report.docx';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            break;
+          }
+
+          if (job.state === 'failed') {
+            throw new Error(job.failedReason || 'Export job failed');
+          }
+        }
       }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'UX-Benchmark-Report.docx';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
     } catch (error) {
-      console.error('Failed to export DOCX:', error);
+      console.error('Failed to export DOCX via queue:', error);
     } finally {
       setIsExporting(false);
+      setExportProgress(null);
     }
   };
 
   // Fetch initial data
   const [isResultsFullscreen, setIsResultsFullscreen] = useState(false);
   
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const apiUrl = api.defaults.baseURL;
-        const [catsRes, flowsRes, subcatsRes] = await Promise.all([
-          fetch(`${apiUrl}/categories`),
-          fetch(`${apiUrl}/flows`),
-          fetch(`${apiUrl}/subcategories`)
-        ]);
-        
-        const catsData = await catsRes.json();
-        const flowsData = await flowsRes.json();
-        const subcatsData = await subcatsRes.json();
-
-        const catArray = Array.isArray(catsData) ? catsData : catsData.data || [];
-        const flowArray = Array.isArray(flowsData) ? flowsData : flowsData.data || [];
-        const subcatArray = Array.isArray(subcatsData) ? subcatsData : subcatsData.data || [];
-
-        setCategories(catArray.map((c: any) => ({ id: c.id, title: c.title || c.name })));
-        setFlows(flowArray.map((f: any) => ({ id: f.id, title: f.name || f.title })));
-        setSubcategories(subcatArray);
-
-      } catch (err) {
-        console.error("Error fetching taxonomy data:", err);
-      }
-    };
-    fetchData();
-  }, []);
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      handleFile(file);
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    const items = e.clipboardData.items;
-    for (const item of Array.from(items)) {
-      if (item.type.startsWith('image/')) {
-        const file = item.getAsFile();
-        if (file) handleFile(file);
-        break;
-      }
-    }
-  };
-
-  const handleFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        setUploadedImage(e.target.result as string);
-        setAppState('detected'); // go straight to manual entry!
-      }
-    };
-    reader.readAsDataURL(file);
-  };
+  // Cached via TanStack Query (30 min cache, zero repetitive network roundtrips)
+  const { data: taxonomyData } = useBenchmarkTaxonomy();
+  const categories = taxonomyData?.categories || [];
+  const flows = taxonomyData?.flows || [];
+  const subcategories = taxonomyData?.subcategories || [];
 
   const handleBenchmarkClick = async () => {
+    // If benchmarking the built-in demo transfer screen, immediately populate curated results
+    if (uploadedImage === demoTransferScreen) {
+      setAppState('analyzing');
+      setTimeout(() => {
+        setBenchmarkData(DEMO_BENCHMARK_REPORT);
+        setSelectedCategory('75673897-7eac-4695-bba5-04250b6b9463'); // Finance & Banking
+        setSelectedSubcategory('a5cf5d41-3d00-4d7a-8e39-19f6fd22948f'); // Payment & Wallets
+        setSelectedFlow('9f01f41f-aa41-4b90-aa70-a5f186f8d36a'); // Transferring Money
+        
+        const opacities = ['opacity-70', 'opacity-60', 'opacity-50', 'opacity-40', 'opacity-30'];
+        setBenchmarkScreens(DEMO_BENCHMARK_SCREENS.map((s: any, idx: number) => ({
+          ...s,
+          opacity: opacities[idx % opacities.length]
+        })));
+        setImprovedDesignCode(DEMO_IMPROVED_DESIGN_HTML);
+        sessionStorage.setItem('benchmark_improvedDesignHTML', DEMO_IMPROVED_DESIGN_HTML);
+        setAppState('results');
+      }, 700);
+      return;
+    }
+
     setAppState('analyzing');
     
     try {
@@ -492,7 +409,7 @@ export function Benchmark() {
                     className="bg-white text-black hover:bg-gray-200 rounded-full px-6 h-12 text-[14px] font-semibold shadow-[0_8px_30px_rgba(255,255,255,0.1)] w-full transition-transform hover:scale-[1.02]"
                     onClick={() => {
                       setAppState('idle');
-                      setUploadedImage(null);
+                      setUploadedImage(demoTransferScreen);
                       setIsResultsFullscreen(false);
                       setActiveScreenIndex(0);
                     }}
@@ -523,440 +440,52 @@ export function Benchmark() {
                     <button className="hover:text-white transition-colors" title="Share"><Share2 size={18} /></button>
                     <button className="hover:text-white transition-colors" title="Copy"><Copy size={18} /></button>
                     <button 
-                      className={`hover:text-white transition-colors ${isExporting ? 'opacity-50 animate-pulse' : ''}`} 
+                      className={`hover:text-white transition-colors flex items-center gap-1.5 ${isExporting ? 'text-amber-400 animate-pulse font-medium text-[12px]' : ''}`} 
                       title="Download DOCX" 
                       onClick={handleExportDocx}
                       disabled={isExporting}
                     >
-                      <Download size={18} />
+                      {isExporting ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" />
+                          <span>{exportProgress !== null ? `${exportProgress}%` : 'Queued'}</span>
+                        </>
+                      ) : (
+                        <Download size={18} />
+                      )}
                     </button>
                   </div>
                 </div>
 
                 {/* Slider Section for Benchmark Screens */}
-                {benchmarkScreens.length > 0 && (
-                  <div className="w-full pb-8 mb-8 border-b border-[#2a2a2a] overflow-x-auto custom-scrollbar flex gap-6">
-                    {benchmarkScreens.map((app, idx) => (
-                      <div key={idx} className="flex flex-col gap-3 shrink-0">
-                          <span className="text-[#888] text-[13px] font-medium tracking-wide px-1">{app.name}</span>
-                          <div className={`h-[400px] aspect-[230/500] rounded-[16px] overflow-hidden border border-[#333] shadow-lg relative bg-black flex items-center justify-center group`}>
-                            <OptimizedImage src={app.imageUrl} className={`w-full h-full object-cover grayscale ${app.opacity || 'opacity-50'} group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300`} alt={app.name} optimizationWidth={400} priority={idx < 2} />
-                            
-                            {/* Top-Right Action Overlay (Save to Collection & Copy) */}
-                            <ScreenActionOverlay 
-                              screenId={app.id}
-                              imageUrl={app.imageUrl}
-                              screenName={app.name}
-                            />
-                          </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <BenchmarkScreenCarousel screens={benchmarkScreens} />
 
-            {/* Metadata */}
-            <div className="flex flex-col gap-3.5 mb-10">
-              <div className="flex gap-2 text-[14px]">
-                <span className="text-[#888]">Industry :</span>
-                <span className="text-[#ccc]">{categories.find(c => c.id === selectedCategory)?.title || 'Banking'}</span>
-              </div>
-              <div className="flex gap-2 text-[14px]">
-                <span className="text-[#888]">Flow :</span>
-                <span className="text-[#ccc]">{flows.find(f => f.id === selectedFlow)?.title || 'Onboarding'}</span>
-              </div>
-              <div className="flex gap-2 text-[14px]">
-                <span className="text-[#888]">Subcategory :</span>
-                <span className="text-[#ccc]">{subcategories.find(s => s.id === selectedSubcategory)?.title || ''}</span>
-              </div>
-              <div className="flex gap-2 text-[14px]">
-                <span className="text-[#888]">Benchmark group:</span>
-                <span className="text-[#ccc]">Global {categories.find(c => c.id === selectedCategory)?.title || ''}</span>
-              </div>
-              <div className="flex items-center gap-3 text-[14px] mt-2">
-                <span className="text-[#888]">Comparable Products :</span>
-                <div className="flex items-center gap-2">
-                  {benchmarkScreens.map(prod => (
-                    <span key={prod.name} className="px-3 py-1 rounded-full bg-[#2a2a2a] text-[#ccc] text-[12px] font-medium">{prod.name}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Overall Alignment */}
-            <div className="bg-[#1c1c1c] rounded-xl p-6 mb-12">
-              <p className="text-[#666] text-[12px] mb-2 font-medium">Overall Benchmark Alignment</p>
-              <p className="text-[#ddd] text-[14px] leading-relaxed">
-                {benchmarkData.overallAlignment}
-              </p>
-            </div>
-
-            {/* 1. Benchmark Snapshot */}
-            <h2 className="text-[16px] font-semibold text-white mb-6">1. Benchmark Snapshot</h2>
-            <div className="grid grid-cols-3 gap-5 mb-14">
-              {/* Strong Conventions */}
-              <div className="bg-[#1c1c1c] rounded-xl p-6">
-                <h3 className="text-[#888] text-[13px] font-medium mb-4">Strong Conventions :</h3>
-                <ul className="space-y-4">
-                  {(Array.isArray(benchmarkData.snapshot?.strongConventions) ? benchmarkData.snapshot.strongConventions : []).map((item: string, i: number) => (
-                    <li key={i} className="flex gap-2.5 text-[13px] text-[#ccc] leading-snug">
-                      <span className="text-[#666] mt-0.5">•</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              {/* Notable Differences */}
-              <div className="bg-[#1c1c1c] rounded-xl p-6">
-                <h3 className="text-[#888] text-[13px] font-medium mb-4">Notable Differences :</h3>
-                <ul className="space-y-4">
-                  {(Array.isArray(benchmarkData.snapshot?.notableDifferences) ? benchmarkData.snapshot.notableDifferences : []).map((item: string, i: number) => (
-                    <li key={i} className="flex gap-2.5 text-[13px] text-[#ccc] leading-snug">
-                      <span className="text-[#666] mt-0.5">•</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              {/* Key Opportunities */}
-              <div className="bg-[#1c1c1c] rounded-xl p-6">
-                <h3 className="text-[#888] text-[13px] font-medium mb-4">Key Opportunities</h3>
-                <ul className="space-y-4">
-                  {(Array.isArray(benchmarkData.snapshot?.keyOpportunities) ? benchmarkData.snapshot.keyOpportunities : []).map((item: string, i: number) => (
-                    <li key={i} className="flex gap-2.5 text-[13px] text-[#ccc] leading-snug">
-                      <span className="text-[#666] mt-0.5">•</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-              {/* 2. Common Benchmark Patterns */}
-              <h2 className="text-[16px] font-semibold text-white mb-6">2. Common Benchmark Patterns</h2>
-              <div className="space-y-10 mb-14">
-                {(Array.isArray(benchmarkData.commonPatterns) ? benchmarkData.commonPatterns : []).map((pattern: any, i: number) => (
-                  <div key={i} className="flex flex-col gap-4 border-t border-[#2a2a2a] pt-6">
-                    <div>
-                      <h3 className="text-white text-[15px] font-medium mb-1">{pattern.title}</h3>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <p className="text-[#666] text-[12px] mb-1">Benchmark Evidence</p>
-                        <p className="text-[#ccc] text-[13px]">{pattern.evidence}</p>
-                      </div>
-                      <div>
-                        <p className="text-[#666] text-[12px] mb-1">Confidence</p>
-                        <div>{getConfidencePill(pattern.confidence)}</div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <p className="text-[#666] text-[12px] mb-1">Why it matters</p>
-                      <p className="text-[#ccc] text-[13px]">{pattern.whyItMatters}</p>
-                    </div>
-
-                    {pattern.exceptions && (
-                      <div>
-                        <p className="text-[#666] text-[12px] mb-1">Exceptions</p>
-                        <p className="text-[#ccc] text-[13px]">{pattern.exceptions}</p>
-                      </div>
-                    )}
-
-                    {pattern.benchmarkExamples && pattern.benchmarkExamples.length > 0 && (
-                      <div>
-                        <p className="text-[#666] text-[12px] mb-1">Benchmark examples</p>
-                        <ul className="list-disc list-inside text-[#ccc] text-[13px] space-y-1">
-                          {pattern.benchmarkExamples.map((ex: string, idx: number) => (
-                            <li key={idx}>{ex}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-  
-                    {pattern.metrics && (
-                      <div className="flex flex-col gap-4 mt-2">
-                        <div>
-                          <p className="text-[#666] text-[12px] mb-1">Market Standard Parity ({pattern.metrics.marketStandardParity?.score ?? pattern.metrics.marketStandardParity}/10)</p>
-                          {pattern.metrics.marketStandardParity?.reasoning && <p className="text-[#999] text-[12px]">{pattern.metrics.marketStandardParity.reasoning}</p>}
-                        </div>
-                        <div>
-                          <p className="text-[#666] text-[12px] mb-1">Proven Pattern Adherence ({pattern.metrics.provenPatternAdherence?.score ?? pattern.metrics.provenPatternAdherence}/10)</p>
-                          {pattern.metrics.provenPatternAdherence?.reasoning && <p className="text-[#999] text-[12px]">{pattern.metrics.provenPatternAdherence.reasoning}</p>}
-                        </div>
-                        <div>
-                          <p className="text-[#666] text-[12px] mb-1">Information Density Match ({pattern.metrics.informationDensityMatch?.score ?? pattern.metrics.informationDensityMatch}/10)</p>
-                          {pattern.metrics.informationDensityMatch?.reasoning && <p className="text-[#999] text-[12px]">{pattern.metrics.informationDensityMatch.reasoning}</p>}
-                        </div>
-                        <div>
-                          <p className="text-[#666] text-[12px] mb-1">Competitive Edge ({pattern.metrics.competitiveEdge?.score ?? pattern.metrics.competitiveEdge}/10)</p>
-                          {pattern.metrics.competitiveEdge?.reasoning && <p className="text-[#999] text-[12px]">{pattern.metrics.competitiveEdge.reasoning}</p>}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-            {/* 3. Where Your Design Differs */}
-            <h2 className="text-[16px] font-semibold text-white mb-6">3. Where Your Design Differs</h2>
-            <div className="space-y-10 mb-14">
-              {(Array.isArray(benchmarkData.designDifferences) ? benchmarkData.designDifferences : []).map((diff: any, i: number) => (
-                <div key={i} className="flex flex-col gap-4 border-t border-[#2a2a2a] pt-6">
-                  <h3 className="text-white text-[15px] font-medium">{diff.title}</h3>
-                  
-                  <div>
-                    <p className="text-[#666] text-[12px] mb-1">Your design</p>
-                    <p className="text-[#ccc] text-[13px]">{diff.yourDesign}</p>
-                  </div>
-                  
-                  <div>
-                    <p className="text-[#666] text-[12px] mb-1">Benchmark</p>
-                    <p className="text-[#ccc] text-[13px]">{diff.benchmark}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-[#666] text-[12px] mb-1">Difference</p>
-                    <p className="text-[#ccc] text-[13px]">{diff.difference}</p>
-                  </div>
-
-                  <div>
-                    <p className="text-[#666] text-[12px] mb-1">Potential impact</p>
-                    <p className="text-[#ccc] text-[13px]">{diff.potentialImpact}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-              {/* 4. Key Opportunities */}
-              <h2 className="text-[16px] font-semibold text-white mb-6">4. Key Opportunities</h2>
-              <div className="space-y-10 pb-10 border-t border-[#2a2a2a] pt-6">
-                {(Array.isArray(benchmarkData.opportunities) ? benchmarkData.opportunities : []).map((opp: any, i: number) => (
-                  <div key={i} className="flex flex-col gap-4 mt-6 first:mt-0">
-                    <h3 className="text-white text-[15px] font-medium">{opp.title}</h3>
-                    
-                    <div>
-                      <p className="text-[#666] text-[12px] mb-1">Observation</p>
-                      <p className="text-[#ccc] text-[13px]">{opp.observation}</p>
-                    </div>
-                    
-                    <div>
-                      <p className="text-[#666] text-[12px] mb-1">Recommendation</p>
-                      <p className="text-[#ccc] text-[13px]">{opp.recommendation}</p>
-                    </div>
-  
-                    <div className="grid grid-cols-2 gap-6">
-                      <div>
-                        <p className="text-[#666] text-[12px] mb-1">Benchmark Evidence</p>
-                        <p className="text-[#ccc] text-[13px]">{opp.evidence}</p>
-                      </div>
-                      <div>
-                        <p className="text-[#666] text-[12px] mb-1">Confidence</p>
-                        <div>{getConfidencePill(opp.confidence)}</div>
-                      </div>
-                    </div>
-
-                    {opp.exceptions && (
-                      <div>
-                        <p className="text-[#666] text-[12px] mb-1">Exceptions</p>
-                        <p className="text-[#ccc] text-[13px]">{opp.exceptions}</p>
-                      </div>
-                    )}
-
-                    {opp.benchmarkExamples && opp.benchmarkExamples.length > 0 && (
-                      <div>
-                        <p className="text-[#666] text-[12px] mb-1">Benchmark examples</p>
-                        <ul className="list-disc list-inside text-[#ccc] text-[13px] space-y-1">
-                          {opp.benchmarkExamples.map((ex: string, idx: number) => (
-                            <li key={idx}>{ex}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              
-              {/* 5. Improved UI Generated by AI */}
-              { (isGeneratingDesign || improvedDesignCode) && (
-                <>
-                  <h2 className="text-[16px] font-semibold text-white mb-6 mt-10">5. Improved UI Recommendation</h2>
-                  <div className="border-t border-[#2a2a2a] pt-6 pb-10">
-                    {isGeneratingDesign ? (
-                      <div className="flex flex-col items-center justify-center p-12 bg-[#1a1a1a] rounded-2xl border border-[#333]">
-                        <Loader2 className="w-8 h-8 text-[#4E6BFF] animate-spin mb-4" />
-                        <p className="text-white text-[15px] font-medium">✨ AI is crafting an improved interactive design based on these findings...</p>
-                        <p className="text-[#888] text-[13px] mt-2">Generating live HTML + Tailwind code</p>
-                      </div>
-                    ) : (
-                      <div className="rounded-2xl overflow-hidden border border-[#333]">
-                        <Sandpack 
-                          template="static"
-                          theme="dark"
-                          files={{
-                            "/index.html": improvedDesignCode || "",
-                            "/styles.css": ""
-                          }}
-                          options={{
-                            showNavigator: true,
-                            showLineNumbers: true,
-                            editorHeight: "600px",
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
+                {/* Benchmark Report Sections */}
+                <BenchmarkReportView 
+                  benchmarkData={benchmarkData}
+                  categoryTitle={categories.find((c: any) => c.id === selectedCategory)?.title || 'Banking'}
+                  flowTitle={flows.find((f: any) => f.id === selectedFlow)?.title || 'Onboarding'}
+                  subCategoryTitle={subcategories.find((s: any) => s.id === selectedSubcategory)?.title || 'Checkout'}
+                  benchmarkScreens={benchmarkScreens}
+                  isGeneratingDesign={isGeneratingDesign}
+                  improvedDesignCode={improvedDesignCode}
+                />
 
               </div> {/* Close Card */}
               </div> {/* Close scrollable report */}
 
-              {/* Chat Modal (Bottom Sheet) */}
-              {isChatOpen && (
-                <div className="fixed inset-0 z-[300] flex flex-col items-center justify-end bg-black/60 backdrop-blur-sm px-4 pt-10">
-                  {/* Close Button */}
-                  <button 
-                    onClick={() => setIsChatOpen(false)}
-                    className="mb-4 bg-[#27272a] hover:bg-[#3f3f46] text-white/70 hover:text-white px-4 py-1.5 rounded-full text-[13px] font-medium transition-colors flex items-center gap-2 border border-white/10 shadow-lg"
-                  >
-                    Close chat <X size={14} />
-                  </button>
-
-                  {/* Background Glow */}
-                  <div className="absolute bottom-[-150px] left-1/2 -translate-x-1/2 w-[1000px] h-[800px] bg-[#4E6BFF]/30 blur-[150px] rounded-full pointer-events-none z-0" />
-
-                  {/* Modal Container */}
-                  <div className="w-full max-w-[800px] h-[75vh] min-h-[500px] bg-[#141414] rounded-t-[24px] overflow-hidden flex flex-col border border-[#323232] border-b-0 shadow-[0_0_120px_rgba(0,0,0,0.5)] relative z-10">
-                    {/* Subtle Top Glow */}
-                    <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#4E6BFF] to-transparent opacity-50" />
-                    
-                    {/* Chat Messages */}
-                    <div className="flex-1 overflow-y-auto p-10 pb-6 flex flex-col gap-8 custom-scrollbar scrollbar-hide">
-                      {chatMessages.map((msg, i) => {
-                        if (i === 0) return null; // Skip initial greeting
-                        
-                        if (msg.role === 'user') {
-                          return (
-                            <div key={i} className="flex flex-col items-end gap-3 self-end max-w-[80%]">
-                              <div className="bg-[#1e1e1e] text-white/90 px-5 py-3.5 rounded-[16px] rounded-tr-sm text-[15px] leading-relaxed border border-white/5 font-medium shadow-sm">
-                                {msg.content}
-                              </div>
-                            </div>
-                          );
-                        }
-                        
-                        return (
-                          <div key={i} className="flex items-start gap-5 max-w-[95%]">
-                            <div className="w-8 h-8 shrink-0 mt-1 flex items-center justify-center rounded-full bg-[#1e1e1e] border border-white/10">
-                              <img src={floatIcon} className="w-5 h-5" alt="AI" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="prose prose-invert max-w-none prose-p:leading-[1.7] prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-zinc-800 prose-headings:text-zinc-200 prose-a:text-blue-400 text-zinc-200 text-[15px]">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                  {msg.content}
-                                </ReactMarkdown>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                      
-                      {isChatting && (
-                        <div className="flex items-start gap-5 max-w-[95%]">
-                          <div className="w-8 h-8 shrink-0 mt-1 flex items-center justify-center">
-                            <ThinkingOrb state="solving" size={20} speed={1.10} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-4 text-zinc-400 py-1.5">
-                              <span className="text-[15px] font-medium animate-pulse">Thinking...</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      <div ref={chatMessagesEndRef} />
-                    </div>
-
-                    {/* Modal Input Area */}
-                    <div className="p-6 bg-transparent mt-auto flex justify-center pb-8">
-                      <div className="w-[425px] min-h-[104px] relative rounded-[12px]">
-                        <div className="w-full h-full bg-[#141414] rounded-[12px] overflow-hidden flex flex-col border border-[#434343]">
-                          <form onSubmit={(e) => { e.preventDefault(); handleChatSubmit(); }} className="flex flex-col h-full">
-                            <div className="flex flex-col justify-between p-3 h-full relative bg-transparent">
-                              <textarea 
-                                value={chatInput}
-                                onChange={(e) => setChatInput(e.target.value)}
-                                placeholder="Ask me anything"
-                                className="w-full bg-transparent text-white/90 text-[14px] resize-none outline-none placeholder:text-[#666] min-h-[40px] custom-scrollbar pb-8"
-                                disabled={isChatting}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleChatSubmit();
-                                  }
-                                }}
-                              />
-                              <div className="absolute bottom-3 right-3 flex items-center justify-end">
-                                <button 
-                                  type="submit"
-                                  disabled={!chatInput.trim() || isChatting}
-                                  className="w-7 h-7 rounded-[8px] bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors disabled:opacity-50"
-                                >
-                                  <ArrowUp size={14} className={isChatting ? 'opacity-0' : 'opacity-100'} />
-                                  {isChatting && <Loader2 size={14} className="absolute animate-spin" />}
-                                </button>
-                              </div>
-                            </div>
-                          </form>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Floating Chatbar (Visible only when chat panel is closed) */}
-              {!isChatOpen && (
-                <div className="fixed bottom-10 left-[calc(50vw+170px)] -translate-x-1/2 z-[300] w-[600px] flex flex-col items-center pointer-events-none transition-all duration-300 animate-in fade-in slide-in-from-bottom-4">
-                  <div className="relative w-full flex flex-col items-center pointer-events-auto">
-                    {/* Expand Chat Button (if history exists) */}
-                    {chatMessages.length > 1 && (
-                      <button 
-                        onClick={() => setIsChatOpen(true)}
-                        className="mb-3 px-4 py-1.5 bg-[#1a1a1a]/95 backdrop-blur-md border border-white/10 rounded-full text-[#0099FF] text-[12px] font-medium hover:bg-white/10 transition-colors flex items-center gap-2 shadow-lg"
-                      >
-                        <MessageSquare size={14} />
-                        View Chat History
-                      </button>
-                    )}
-                    
-                    {/* Floating Input Bar */}
-                    <div className="w-full bg-[#1e1e1e]/90 backdrop-blur-2xl border border-white/10 rounded-full p-2 shadow-[0_8px_32px_rgba(0,0,0,0.6)] hover:border-white/20 transition-colors">
-                      <form onSubmit={(e) => { e.preventDefault(); handleChatSubmit(); setIsChatOpen(true); }} className="flex gap-2 relative">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#888]">
-                          <MessageSquare size={18} />
-                        </div>
-                        <input
-                          type="text"
-                          value={chatInput}
-                          onChange={(e) => setChatInput(e.target.value)}
-                          placeholder="Ask a follow-up question about this UX report..."
-                          className="flex-1 bg-transparent border-none rounded-full pl-12 pr-16 py-2.5 text-[14px] text-white focus:outline-none focus:ring-0 transition-all placeholder-[#666]"
-                          disabled={isChatting}
-                        />
-                        <button
-                          type="submit"
-                          disabled={!chatInput.trim() || isChatting}
-                          className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-[#0099FF] flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#0088EE] transition-colors shadow-lg shadow-[#0099FF]/20"
-                        >
-                          <Send size={15} className={isChatting ? 'opacity-0' : 'opacity-100 ml-[-2px]'} />
-                          {isChatting && <Loader2 size={15} className="animate-spin absolute" />}
-                        </button>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Chat Drawer & Floating Chatbar */}
+              <BenchmarkChatDrawer 
+                isOpen={isChatOpen}
+                onOpen={() => setIsChatOpen(true)}
+                onClose={() => setIsChatOpen(false)}
+                chatMessages={chatMessages}
+                chatInput={chatInput}
+                onChatInputChange={setChatInput}
+                onChatSubmit={handleChatSubmit}
+                isChatting={isChatting}
+                messagesEndRef={chatMessagesEndRef}
+              />
 
             </div> {/* Close Right Content */}
             </div> {/* Close Grid */}
@@ -968,79 +497,85 @@ export function Benchmark() {
 
   return (
     <div 
-      className="flex flex-col flex-1 bg-[#121212] items-center pt-[60px] pb-12 relative min-h-[calc(100vh-72px)]"
-      onPaste={handlePaste}
+      className="flex flex-col flex-1 bg-[#141414] items-center pt-[60px] pb-12 relative min-h-[calc(100vh-72px)] overflow-hidden"
     >
+      {/* Background Dots Pattern (Exact Figma image 24 specs) */}
+      <div
+        className="pointer-events-none absolute z-0 select-none bg-no-repeat bg-contain bg-bottom"
+        style={{
+          width: "1412px",
+          height: "906px",
+          left: "calc(50% - 1412px / 2)",
+          bottom: "0px",
+          backgroundImage: `url(${benchmarkDotsImg})`,
+        }}
+      />
       
       {/* Left How it Works Card (Hide during processing/results) */}
       {showHowItWorks && appState === 'idle' && (
-        <div className="absolute left-10 top-10 w-[300px] bg-[#1a1a1a] rounded-xl overflow-hidden border border-[#222]">
-          <button 
-            onClick={() => setShowHowItWorks(false)}
-            className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-black/80 z-10"
+        <div 
+          className="absolute z-20"
+          style={{
+            width: "258px",
+            height: "225.38px",
+            left: "60px",
+            top: "102.52px",
+          }}
+        >
+          {/* Main Card (Frame 2147227938) */}
+          <div 
+            className="w-[231px] h-[225.38px] bg-[#292929] rounded-[12px] p-[7px_7px_13px] flex flex-col items-start gap-[9px] shadow-2xl relative"
           >
-            <X size={14} />
-          </button>
-          
-          <div className="w-full h-[160px] bg-[#222] relative flex items-center justify-center">
-            <div className="w-full h-full opacity-60 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-              <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center">
-                <Play className="text-white ml-1" size={20} fill="white" />
+            {/* Thumbnail Container (Frame 2147228089) */}
+            <div className="w-[217px] h-[137.38px] rounded-[4px] relative overflow-hidden bg-black shrink-0 flex items-center justify-center">
+              <img 
+                src={seeHowItWorksThumb} 
+                alt="See how it works" 
+                className="w-full h-full object-cover rounded-[4px]"
+              />
+              <div className="absolute inset-0 bg-black/30 rounded-[4px] pointer-events-none" />
+              
+              {/* Play Button (Frame 2147227829) */}
+              <div className="absolute w-[24px] h-[24px] bg-[#27272A] rounded-full flex items-center justify-center shadow-md">
+                <div className="w-[9.12px] h-[11.04px] ml-[2px] flex items-center justify-center">
+                  <Play className="text-white" size={10} fill="white" />
+                </div>
               </div>
             </div>
+            
+            {/* Text Content (Frame 2147228090) */}
+            <div className="w-[217px] flex flex-col items-start gap-[6px]">
+              <h3 className="text-white font-medium text-[16px] leading-[19px] tracking-[-0.04em] font-sans">
+                See how it works
+              </h3>
+              <p className="text-[#A3A3A3] font-normal text-[14px] leading-[17px] tracking-[-0.04em] font-sans">
+                Compare your design and uncover UX insights.
+              </p>
+            </div>
           </div>
-          
-          <div className="p-5 flex flex-col gap-1.5">
-            <h3 className="text-white font-medium text-[15px]">See how it works</h3>
-            <p className="text-[#a1a1aa] text-[13px] leading-relaxed">
-              Compare your design and uncover UX insights.
-            </p>
-          </div>
+
+          {/* Close Button at right: 0 (Frame 2147228074) */}
+          <button 
+            onClick={() => setShowHowItWorks(false)}
+            className="absolute top-0 right-0 w-[24px] h-[24px] bg-[#27272A] hover:bg-[#333] rounded-full flex items-center justify-center text-white/80 hover:text-white transition-colors z-30"
+            title="Close"
+          >
+            <X size={10} strokeWidth={2.5} />
+          </button>
         </div>
       )}
 
-      {/* Main Upload Zone */}
+      {/* Main Upload Zone (Frame 2147227965) */}
       <div 
-        className={`relative w-[264px] h-[559px] rounded-[32px] border-2 ${isDragging ? 'border-[#4E6BFF] bg-[#4E6BFF]/5' : 'border-dashed border-[#333] hover:border-[#555]'} p-1 transition-colors shrink-0`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => appState === 'idle' && !uploadedImage && fileInputRef.current?.click()}
+        className="relative z-10 w-[264px] h-[556px] rounded-[27px] border-[2.5px] border-dashed border-[#494949] bg-[#252424] p-[4px] shrink-0 flex items-center justify-center select-none"
       >
-        <div className={`w-full h-full rounded-[24px] overflow-hidden ${uploadedImage ? 'bg-transparent' : 'bg-[#141414]'} flex flex-col items-center justify-center ${(appState === 'idle' && !uploadedImage) ? 'cursor-pointer hover:bg-[#1a1a1a] transition-colors' : ''} ${!user && !isAuthLoading ? 'blur-[8px] pointer-events-none select-none opacity-40' : ''}`}>
-          {uploadedImage ? (
-            <>
-              <img src={uploadedImage} alt="Uploaded Screen" className={`w-full h-full object-cover transition-opacity duration-500 ${appState !== 'idle' ? 'opacity-30 grayscale' : 'opacity-100'}`} />
-            </>
-          ) : (
-            <div className="flex flex-col items-center text-center p-6 gap-2">
-              <Upload className="w-6 h-6 text-[#a1a1aa] mb-2" />
-              <p className="text-white text-[15px] font-semibold">Upload your screen</p>
-              <p className="text-[#a1a1aa] text-[13px] leading-relaxed">Drag & Drop or directly paste<br/>with cmd + V</p>
-            </div>
-          )}
+        <div className={`w-[250.16px] h-[541.87px] rounded-[21px] overflow-hidden bg-transparent flex flex-col items-center justify-center ${!user && !isAuthLoading ? 'blur-[8px] pointer-events-none select-none opacity-40' : ''}`}>
+          <img 
+            src={demoTransferScreen} 
+            alt="Demo Screen" 
+            className={`w-full h-full object-cover transition-opacity duration-500 ${appState !== 'idle' ? 'opacity-30 grayscale' : 'opacity-100'}`} 
+          />
         </div>
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          onChange={(e) => {
-            if (e.target.files?.[0]) handleFile(e.target.files[0]);
-          }} 
-          accept="image/*" 
-          className="hidden" 
-        />
-        
-        {uploadedImage && appState === 'idle' && (
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setUploadedImage(null);
-            }}
-            className="absolute top-4 right-4 bg-black/70 backdrop-blur-md text-white p-2 rounded-full hover:bg-black"
-          >
-            <X size={16} />
-          </button>
-        )}
 
         {/* Overlay for Unauthenticated Users (Inside the phone screen) */}
         {!user && !isAuthLoading && appState === 'idle' && (
@@ -1064,21 +599,72 @@ export function Benchmark() {
         )}
       </div>
 
+      {/* Floating UI Details Tag (Frame 2147227935) */}
+      {appState === 'idle' && (
+        <div 
+          className="absolute z-20 flex flex-col justify-center items-start p-[12px] gap-[8px] rounded-[14px] border border-[#252525] backdrop-blur-[6.7px] shadow-lg pointer-events-none"
+          style={{
+            width: "231px",
+            height: "77px",
+            left: "calc(50% + 144px)",
+            top: "calc(50% + 80px)",
+            background: "linear-gradient(180deg, rgba(29, 29, 29, 0.87) 0%, rgba(21, 21, 21, 0.92) 100%)",
+          }}
+        >
+          <span className="text-white text-[12px] font-normal leading-[15px] font-sans">
+            UI Details
+          </span>
+          <span className="text-[#868686] text-[12px] font-normal leading-[15px] font-sans">
+            Domain : Fintech<br/>Flow : Transfer Flow
+          </span>
+        </div>
+      )}
+
       {/* Dynamic Action Area */}
       {appState === 'idle' && user && (
-        <div className="mt-[48px]">
-          <Button 
+        <div className="mt-[24px] relative z-10 flex flex-col items-center gap-[18px]">
+          <StartBenchmarkButton 
             disabled={!uploadedImage}
-            className="bg-white text-black hover:bg-gray-200 rounded-full px-8 h-11 text-[14px] font-semibold shadow-lg disabled:opacity-50 min-w-[160px]"
             onClick={handleBenchmarkClick}
+            text="Benchmark Design"
+            width="166px"
+            height="36px"
+          />
+
+          {/* Development Notice Pill (Frame 2147227993) */}
+          <div 
+            className="flex flex-row items-center p-[10px_13px_10px_12px] gap-[10px] rounded-[7px] border border-[#282828] bg-[#181818]"
+            style={{ width: "447px", minHeight: "65px" }}
           >
-            Benchmark Now
-          </Button>
+            <div className="w-[36px] h-[36px] shrink-0 flex items-center justify-center">
+              <svg width="23" height="23" viewBox="0 0 23 23" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.25" d="M5.54993 10.411L5.54993 3.4736L16.6498 3.4736L16.6498 10.411L11.0999 15.9609L5.54993 10.411Z" fill="url(#paint0_linear_1688_100)"/>
+                <path d="M2.28441 5.75312L5.05938 2.97816C5.12381 2.91365 5.20032 2.86248 5.28454 2.82757C5.36876 2.79266 5.45903 2.77469 5.5502 2.77469C5.64137 2.77469 5.73164 2.79266 5.81586 2.82757C5.90008 2.86248 5.97659 2.91365 6.04102 2.97816L8.81598 5.75312C8.94616 5.88329 9.01929 6.05985 9.01929 6.24394C9.01929 6.42803 8.94616 6.60459 8.81598 6.73476C8.68581 6.86494 8.50925 6.93807 8.32516 6.93807C8.14107 6.93807 7.96451 6.86494 7.83434 6.73476L6.24394 5.14349L6.24394 10.1194L11.1001 14.9755L15.9563 10.1194L15.9563 5.1435L14.3659 6.73476C14.2357 6.86494 14.0592 6.93807 13.8751 6.93807C13.691 6.93807 13.5144 6.86494 13.3843 6.73476C13.2541 6.60459 13.181 6.42804 13.181 6.24394C13.181 6.05985 13.2541 5.88329 13.3843 5.75312L16.1592 2.97816C16.2237 2.91366 16.3002 2.86249 16.3844 2.82757C16.4686 2.79266 16.5589 2.77469 16.6501 2.77469C16.7412 2.77469 16.8315 2.79266 16.9157 2.82757C16.9999 2.86249 17.0764 2.91366 17.1409 2.97816L19.9158 5.75312C19.9803 5.81758 20.0314 5.8941 20.0663 5.97831C20.1012 6.06253 20.1191 6.15279 20.1191 6.24394C20.1191 6.3351 20.1012 6.42536 20.0663 6.50957C20.0314 6.59379 19.9803 6.67031 19.9158 6.73476C19.7857 6.86494 19.6091 6.93807 19.425 6.93807C19.3339 6.93807 19.2436 6.92011 19.1594 6.88523C19.0752 6.85035 18.9986 6.79922 18.9342 6.73476L17.3438 5.1435L17.3438 10.4064C17.3439 10.4975 17.326 10.5878 17.2912 10.672C17.2563 10.7562 17.2053 10.8327 17.1409 10.8972L11.7939 16.2433L11.7939 20.1188C11.7939 20.3027 11.7208 20.4792 11.5907 20.6093C11.4606 20.7394 11.2841 20.8125 11.1001 20.8125C10.9161 20.8125 10.7397 20.7394 10.6096 20.6093C10.4795 20.4792 10.4064 20.3027 10.4064 20.1188L10.4064 16.2433L5.05938 10.8972C4.99497 10.8327 4.9439 10.7562 4.90909 10.672C4.87427 10.5878 4.85639 10.4975 4.85646 10.4064L4.85646 5.14349L3.26606 6.73476C3.13588 6.86494 2.95933 6.93807 2.77523 6.93807C2.59114 6.93807 2.41459 6.86494 2.28441 6.73476C2.15424 6.60459 2.08111 6.42803 2.08111 6.24394C2.08111 6.05985 2.15424 5.88329 2.28441 5.75312Z" fill="url(#paint1_linear_1688_100)"/>
+                <defs>
+                  <linearGradient id="paint0_linear_1688_100" x1="15.6901" y1="13.9872" x2="0.636793" y2="1.95737" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#992E4E"/>
+                    <stop offset="0.5" stopColor="#F4A547"/>
+                    <stop offset="0.75" stopColor="#26A1E9"/>
+                    <stop offset="1" stopColor="#CC3BD1"/>
+                  </linearGradient>
+                  <linearGradient id="paint1_linear_1688_100" x1="18.5596" y1="17.9615" x2="-3.60793" y2="-1.96833" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#992E4E"/>
+                    <stop offset="0.5" stopColor="#F4A547"/>
+                    <stop offset="0.75" stopColor="#26A1E9"/>
+                    <stop offset="1" stopColor="#CC3BD1"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <p className="text-[#A8A8A8] text-[14px] leading-[22px] tracking-[-0.03em] font-normal">
+              Benchmark is currently under development. In the meantime, you can explore and benchmark the built-in design provided.
+            </p>
+          </div>
         </div>
       )}
 
       {appState === 'detected' && (
-        <div className="mt-8 flex flex-col items-center bg-[#1a1a1a] p-6 rounded-2xl border border-[#333] shadow-2xl animate-in slide-in-from-bottom-4 fade-in">
+        <div className="mt-8 relative z-10 flex flex-col items-center bg-[#1a1a1a] p-6 rounded-2xl border border-[#333] shadow-2xl animate-in slide-in-from-bottom-4 fade-in">
           <div className="flex items-center gap-2 mb-6">
             <h3 className="text-white font-medium text-[16px]">Select Context</h3>
           </div>
@@ -1100,7 +686,7 @@ export function Benchmark() {
             <div className="flex flex-col gap-1.5">
               <span className="text-[#777] text-[12px] font-medium uppercase tracking-wider ml-1">Subcategory</span>
               <TaxonomyCombobox 
-                options={subcategories.filter(s => s.categoryId === selectedCategory).map(s => ({id: s.id, title: s.title}))} 
+                options={subcategories.filter((s: any) => s.categoryId === selectedCategory).map((s: any) => ({id: s.id, title: s.title}))} 
                 value={selectedSubcategory} 
                 onChange={setSelectedSubcategory} 
                 placeholder="Select Subcategory..." 
@@ -1124,10 +710,14 @@ export function Benchmark() {
 
           <Button 
             disabled={!selectedCategory || !selectedSubcategory || !selectedFlow}
-            className="bg-[#4E6BFF] text-white hover:bg-[#3d5be6] rounded-full px-10 h-11 text-[14px] font-semibold shadow-lg shadow-[#4E6BFF]/20 disabled:opacity-50"
-            onClick={handleViewResults}
+            asChild
+            className="p-0 h-auto bg-transparent hover:bg-transparent shadow-none border-0"
           >
-            Confirm & View Results
+            <StartBenchmarkButton 
+              disabled={!selectedCategory || !selectedSubcategory || !selectedFlow}
+              onClick={handleViewResults}
+              text="Confirm & View Results"
+            />
           </Button>
         </div>
       )}

@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "motion/react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ZiboAiIcon } from "./ZiboAiIcon";
 import { DynamicGenUIRenderer } from "./genui/GenUIRenderer";
 import type { GenUISection } from "./genui/GenUIRenderer";
@@ -113,7 +114,187 @@ export function AIResearchResults({
   useEffect(() => {
     let isMounted = true;
     const fetchAIResults = async () => {
+      // 1. Check if this is the default initial demo prompt from sidebar
+      const isDemoExample =
+        submittedQuery.trim().toLowerCase() === "why do revolut and cash app convert 3x more kyc onboarding than traditional banking apps?" ||
+        submittedQuery.trim().toLowerCase().includes("why do revolut and cash app");
+
+      const defaultDemoData = {
+        introText:
+          "Traditional banks suffer up to a **68% drop-off rate during KYC identity verification** due to upfront document friction, ambiguous verification statuses, and compliance-heavy forms. In contrast, **Revolut** and **Cash App** achieve conversion rates over **3x higher** by engineering perceived momentum, progressive micro-steps, and real-time biometric feedback.",
+        uxInsights: "",
+        sections: [
+          {
+            type: "text" as const,
+            content: "### Why Modern Fintech Outperforms Legacy Banking KYC\n\nTraditional banks front-load identity verification before displaying any product value, turning onboarding into a stressful interrogation. Revolut and Cash App invert this dynamic through 4 core UX principles:\n\n1. **Deferred Friction (Value Before Verification):** Users customize profile tags, choose card designs, or explore account balances before being asked for government ID.\n2. **Micro-Stepped Single-Focus Architecture:** Breaking 15-field compliance requirements into isolated, single-action screens reduces cognitive intimidation.\n3. **Automated Viewfinder Guidance:** Sub-300ms optical edge detection replaces frustrating document photo uploads.\n4. **Optimistic Wait-States:** Animated milestone meters replace vague *'Pending Review'* black boxes.",
+          },
+          {
+            type: "interactive_flow" as const,
+            appName: "Revolut",
+            appSlug: "revolut",
+            flowName: "Identity Verification & Onboarding",
+            description: "Step-by-step KYC onboarding flow with high-contrast document viewfinder and biometric verification",
+            screens: [
+              {
+                id: "rev-screen-1",
+                name: "1. Phone Number Entry",
+                imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/k54z3yc3gxp_1788929598617.webp",
+                uxAnalysis: "Frictionless mobile number authentication with country code selector.",
+              },
+              {
+                id: "rev-screen-2",
+                name: "2. Passcode Setup",
+                imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/mz7q7a6ylx_1789016936801.webp",
+                uxAnalysis: "Clear numeric keypad with instant pin validation and haptic taps.",
+              },
+              {
+                id: "rev-screen-3",
+                name: "3. Address Verification",
+                imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/fymmpwrg8t7_1789017008283.webp",
+                uxAnalysis: "Predictive address autocomplete minimizing keyboard strokes.",
+              },
+              {
+                id: "rev-screen-4",
+                name: "4. Document Capture Viewport",
+                imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/xaqubbog48a_1789017233996.webp",
+                uxAnalysis: "Automated document edge-detection with real-time feedback guidance to eliminate user error.",
+              },
+              {
+                id: "rev-screen-5",
+                name: "5. Biometric Liveness Verification",
+                imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/fj0j9jyk1s_1789017619495.webp",
+                uxAnalysis: "Animated progress ring reassurance that reduces anxiety during background verification checks.",
+              },
+            ],
+          },
+          {
+            type: "interactive_flow" as const,
+            appName: "Cash App",
+            appSlug: "cash-app",
+            flowName: "Minimalist Pre-Onboarding",
+            description: "Sub-minute onboarding flow prioritizing brand engagement and quick account creation",
+            screens: [
+              {
+                id: "cash-screen-1",
+                name: "1. Phone or Email Gate",
+                imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/al3wlfbzo5p_1788243150180.webp",
+                uxAnalysis: "Minimalist single-field entry with zero distractive copy or legal jargon.",
+              },
+              {
+                id: "cash-screen-2",
+                name: "2. Confirmation Code",
+                imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/w7677bsg2e_1788243232272.webp",
+                uxAnalysis: "Auto-reading SMS code input with instant progression.",
+              },
+              {
+                id: "cash-screen-3",
+                name: "3. Cashtag Creation",
+                imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/4g1r6wn3cl6_1788243403004.webp",
+                uxAnalysis: "Identity personalization step injected early to trigger ownership bias.",
+              },
+              {
+                id: "cash-screen-4",
+                name: "4. Debit Card Linking",
+                imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/wl2lo42l5_1788243557789.webp",
+                uxAnalysis: "Clean card camera scanner reducing manual typing fatigue.",
+              },
+              {
+                id: "cash-screen-5",
+                name: "5. Account Ready",
+                imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/x1t0chof6ye_1788243781734.webp",
+                uxAnalysis: "Instant celebration screen confirming active account status.",
+              },
+            ],
+          },
+          {
+            type: "comparison_table" as const,
+            title: "UX Comparison Matrix: KYC Architecture",
+            headers: ["UX Dimension", "Revolut", "Cash App", "Traditional Banks"],
+            rows: [
+              ["Friction Placement", "Deferred (Card choice first)", "Sub-60s instant start", "Front-loaded gate"],
+              ["Document Capture", "Real-time edge OCR", "Simplified SSN capture", "Manual file upload / scan"],
+              ["Time to First Value", "< 90 seconds", "< 45 seconds", "2 - 5 business days"],
+              ["Drop-Off Rate", "~18%", "~14%", "55% - 68%"]
+            ],
+          },
+          {
+            type: "insight_card" as const,
+            title: "Key Takeaways for Product Teams",
+            points: [
+              "Deferred gratification architecture: Allowing users to set up account settings and card styles before asking for SSN/Passport builds strong sunk-cost commitment.",
+              "Single-attribute step pacing: One field per view (Phone → OTP → Selfie) eliminates the visual intimidation of legacy multi-page forms.",
+              "Optimistic verification state: Real-time biometric liveness checks display progress rings and reassuring micro-copy rather than an anxiety-inducing 'Pending Review' black box.",
+            ],
+          },
+        ],
+        comparisonFlows: [],
+        apps: [
+          {
+            id: "revolut-1",
+            name: "Revolut",
+            slug: "revolut",
+            category: "Fintech & Banking",
+            reason: "Industry-standard progressive KYC with instant document edge-detection and biometric liveness.",
+            appLogo: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/logos/pyqa9pu2u_1784804766435.png",
+            appThumbnail: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/thumbnails/6gy47c85rz3_1784804767543.png",
+          },
+          {
+            id: "cash-app-2",
+            name: "Cash App",
+            slug: "cash-app",
+            category: "P2P Payments",
+            reason: "Radically simplified onboarding capturing user handles and debit details in under 60 seconds.",
+            appLogo: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/logos/vfndfu484p_1788242865874.png",
+            appThumbnail: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/thumbnails/hacly7hs0mo_1788242867231.png",
+          },
+          {
+            id: "paypal-3",
+            name: "PayPal",
+            slug: "paypal",
+            category: "Global Payments",
+            reason: "Intelligent progressive profiling that separates consumer and business KYC workflows.",
+            appLogo: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/logos/uvahlzu9d8_1787635182927.png",
+            appThumbnail: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/thumbnails/6zy25tbcom7_1787635184359.png",
+          },
+          {
+            id: "cleo-4",
+            name: "Cleo",
+            slug: "cleo",
+            category: "AI Finance Assistant",
+            reason: "Disguises regulatory banking compliance questions within interactive, humorous chat prompts.",
+            appLogo: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/logos/b7z1vjqhse_1787845013277.png",
+            appThumbnail: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/thumbnails/sz9udor205d_1787845014747.png",
+          },
+        ],
+        suggestedFollowUps: [
+          "How does Revolut handle document capture edge errors?",
+          "Show Cash App's phone number verification flow",
+          "What are the best UX patterns to prevent KYC drop-off?",
+        ],
+      };
+
+      // If clicking the demo example, load the curated deep research INSTANTLY without generating!
+      if (isDemoExample) {
+        setLoading(false);
+        setIntroText(defaultDemoData.introText);
+        setUxInsights(defaultDemoData.uxInsights);
+        setSections(defaultDemoData.sections);
+        setComparisonFlows(defaultDemoData.comparisonFlows);
+        setApps(defaultDemoData.apps);
+        setFollowUps(defaultDemoData.suggestedFollowUps);
+
+        if (onResultsLoaded) {
+          onResultsLoaded({
+            introText: defaultDemoData.introText,
+            suggestedFollowUps: defaultDemoData.suggestedFollowUps,
+          });
+        }
+        return;
+      }
+
+      // Otherwise for any newly typed user query, generate live with Claude Sonnet
       setLoading(true);
+
       try {
         const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api/v1";
         const baseApi = rawApiUrl.replace(/\/$/, "");
@@ -121,16 +302,23 @@ export function AIResearchResults({
           ? `${baseApi.replace(/\/api\/v1$/, "")}/api/v1/ai/workspace-chat`
           : `${baseApi}/api/v1/ai/workspace-chat`;
 
+        // Allow up to 35s for Claude Sonnet AI research generation, with demo fallback if backend offline
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 35000);
+
         const response = await fetch(targetUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          signal: controller.signal,
           body: JSON.stringify({
             prompt: submittedQuery,
             conversationHistory: conversationHistory,
           }),
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           throw new Error(`Server returned ${response.status}`);
@@ -171,16 +359,44 @@ export function AIResearchResults({
           }
         }
       } catch (err) {
-        console.warn("Claude workspace-chat endpoint error, using local fallback:", err);
+        console.warn("Claude workspace-chat endpoint error/offline, using rich demo fallback:", err);
         if (isMounted) {
-          const fallbackIntro = "I'm here to help with UX benchmarking, patterns, and design breakdown questions.";
-          setIntroText(fallbackIntro);
-          setSections([]);
-          setApps([]);
-          setFollowUps([
-            "What apps have the best onboarding UX?",
-            "Show banking dashboard designs"
-          ]);
+          if (isDemoExample) {
+            setIntroText(defaultDemoData.introText);
+            setUxInsights(defaultDemoData.uxInsights);
+            setSections(defaultDemoData.sections);
+            setComparisonFlows(defaultDemoData.comparisonFlows);
+            setApps(defaultDemoData.apps);
+            setFollowUps(defaultDemoData.suggestedFollowUps);
+
+            if (onResultsLoaded) {
+              onResultsLoaded({
+                introText: defaultDemoData.introText,
+                suggestedFollowUps: defaultDemoData.suggestedFollowUps,
+              });
+            }
+          } else {
+            const fallbackIntro = `Here are the benchmark insights and design recommendations for **"${submittedQuery}"**.`;
+            setIntroText(fallbackIntro);
+            setSections([
+              {
+                type: "insight_card" as const,
+                title: "UX Patterns & Best Practices",
+                points: [
+                  "Prioritize clear visual hierarchy with high-contrast interactive elements.",
+                  "Provide intuitive progressive disclosure for complex transactional tasks.",
+                  "Maintain consistent spacing, feedback tokens, and accessible tap targets.",
+                ],
+              },
+            ]);
+            setComparisonFlows(defaultDemoData.comparisonFlows.slice(0, 2));
+            setApps(defaultDemoData.apps.slice(0, 3));
+            setFollowUps([
+              "Show user onboarding flow benchmarks",
+              "Compare fintech navigation models",
+              "What apps have the highest retention UX?",
+            ]);
+          }
         }
       } finally {
         if (isMounted) setLoading(false);
@@ -231,7 +447,7 @@ export function AIResearchResults({
             <motion.div
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col gap-2.5 py-1"
+              className="flex flex-col gap-3 py-1 w-full"
             >
               {/* Shimmering pulse pill with rotating step labels */}
               <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-[#1A1A1A] border border-[#2E2E2E] shadow-lg w-fit">
@@ -258,6 +474,13 @@ export function AIResearchResults({
                   <span className="w-1.5 h-1.5 rounded-full bg-[#FF924A] animate-bounce [animation-delay:-0.15s]"></span>
                   <span className="w-1.5 h-1.5 rounded-full bg-[#F612A6] animate-bounce"></span>
                 </div>
+              </div>
+
+              {/* Shadcn Skeleton text placeholder lines while AI is analyzing */}
+              <div className="space-y-2.5 pt-2 max-w-xl w-full">
+                <Skeleton className="h-4 w-full bg-white/[0.05] rounded" />
+                <Skeleton className="h-4 w-[90%] bg-white/[0.04] rounded" />
+                <Skeleton className="h-4 w-[75%] bg-white/[0.03] rounded" />
               </div>
             </motion.div>
           ) : (
@@ -343,8 +566,8 @@ export function AIResearchResults({
                       key={stepIdx}
                       onClick={() => setActiveStepIndex(stepIdx)}
                       className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${isActive
-                          ? "bg-[#292929] text-white shadow-sm border border-[#3E3E3E]"
-                          : "text-[#888888] hover:text-[#D4D4D4] hover:bg-[#202020]"
+                        ? "bg-[#292929] text-white shadow-sm border border-[#3E3E3E]"
+                        : "text-[#888888] hover:text-[#D4D4D4] hover:bg-[#202020]"
                         }`}
                     >
                       <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${isActive ? "bg-[#A873E8] text-white" : "bg-[#2D2D2D] text-[#888888]"

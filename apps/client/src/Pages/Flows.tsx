@@ -1,50 +1,20 @@
-import { useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { useSEO } from "@/hooks/useSEO";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-
-interface Flow {
-    id: string;
-    name: string;
-    slug: string;
-    screens: any[];
-}
+import { useFlows } from "@/hooks/queries/useFlows";
 
 export function Flows() {
     const navigate = useNavigate();
     const { user, isLoading: isAuthLoading } = useAuth();
-    const [flows, setFlows] = useState<Flow[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(false);
+    const { data: flows = [], isLoading, isError } = useFlows();
 
     useSEO({
         title: "Flows",
         description: "Explore how top apps build every flow."
     });
-
-    useEffect(() => {
-        const fetchFlows = async () => {
-            try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-                const res = await fetch(`${apiUrl}/api/v1/flows`);
-                if (!res.ok) throw new Error("Failed to fetch");
-                const data = await res.json();
-                
-                // Only keep flows that have at least one screen
-                const flowsWithScreens = data.filter((flow: Flow) => flow.screens && flow.screens.length > 0);
-                setFlows(flowsWithScreens);
-            } catch (e) {
-                console.error(e);
-                setError(true);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchFlows();
-    }, []);
 
     return (
         <main className="flex-1 w-full bg-black flex flex-col items-center pb-20 sm:pb-32 min-h-screen">
@@ -82,7 +52,7 @@ export function Flows() {
                             </div>
                         ))}
                     </div>
-                ) : error ? (
+                ) : isError ? (
                     <div className="text-center text-red-500 py-20">Error loading flows. Please try again later.</div>
                 ) : flows.length === 0 ? (
                     <div className="text-center text-[#A1A1A1] py-20">No flows found.</div>

@@ -10,33 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { ScreenActionOverlay } from "@/components/ScreenActionOverlay";
-
-interface Screen {
-  id: string;
-  name: string;
-  slug: string;
-  imageUrl: string;
-  screenNo?: number;
-  appId: string;
-  app?: {
-    id?: string;
-    name: string;
-    slug: string;
-    appLogo?: string;
-    category?: {
-      title: string;
-      slug: string;
-    };
-  };
-}
-
-interface FlowData {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  screens: Screen[];
-}
+import { useFlows, type FlowScreen } from "@/hooks/queries/useFlows";
 
 interface AppGroup {
   id: string;
@@ -45,7 +19,7 @@ interface AppGroup {
   appLogo?: string;
   categoryName: string;
   categorySlug?: string;
-  screens: Screen[];
+  screens: FlowScreen[];
 }
 
 export function FlowDetail() {
@@ -54,72 +28,21 @@ export function FlowDetail() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const { openUpgradeModal } = useUpgradeModal();
 
-  const [allFlows, setAllFlows] = useState<FlowData[]>([]);
-  const [currentFlow, setCurrentFlow] = useState<FlowData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { data: allFlows = [], isLoading, isError } = useFlows();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Fetch all flows for the dropdown and current flow resolution
   useEffect(() => {
-    let isMounted = true;
     window.scrollTo(0, 0);
     setSelectedCategory(null);
-
-    const fetchFlowData = async () => {
-      setIsLoading(true);
-      setError(false);
-      try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
-        const res = await fetch(`${apiUrl}/api/v1/flows`);
-        if (!res.ok) throw new Error("Failed to fetch flows");
-        const rawFlows: FlowData[] = await res.json();
-        
-        if (!isMounted) return;
-
-        // Filter flows with at least one screen
-        const validFlows = rawFlows.filter(
-          (flow) => flow.screens && flow.screens.length > 0
-        );
-        setAllFlows(validFlows);
-
-        // Find the matched flow by slug or id (case-insensitive)
-        const currentSlugLower = (slug || "").toLowerCase();
-        const matched = validFlows.find(
-          (f) =>
-            (f.slug && f.slug.toLowerCase() === currentSlugLower) ||
-            f.id === slug
-        );
-
-        if (matched) {
-          setCurrentFlow(matched);
-        } else if (slug) {
-          // Fallback direct fetch by id or slug
-          const directRes = await fetch(`${apiUrl}/api/v1/flows/${slug}`);
-          if (directRes.ok) {
-            const single = await directRes.json();
-            if (isMounted) setCurrentFlow(single);
-          } else {
-            if (isMounted) setError(true);
-          }
-        } else if (validFlows.length > 0) {
-          setCurrentFlow(validFlows[0]);
-        } else {
-          if (isMounted) setError(true);
-        }
-      } catch (err) {
-        console.error(err);
-        if (isMounted) setError(true);
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    };
-
-    fetchFlowData();
-    return () => {
-      isMounted = false;
-    };
   }, [slug]);
+
+  // Find the matched flow from cached flows list (or first available)
+  const currentSlugLower = (slug || "").toLowerCase();
+  const currentFlow = allFlows.find(
+    (f) =>
+      (f.slug && f.slug.toLowerCase() === currentSlugLower) ||
+      f.id === slug
+  ) || (allFlows.length > 0 && !slug ? allFlows[0] : null);
 
   useSEO({
     title: currentFlow ? `${currentFlow.name} Flow` : "Flow Details",
@@ -248,7 +171,7 @@ export function FlowDetail() {
     );
   }
 
-  if (error || !currentFlow) {
+  if (isError || (!isLoading && !currentFlow)) {
     return (
       <main className="flex-1 w-full bg-black flex flex-col items-center justify-center min-h-[70vh] text-white">
         <h2 className="text-2xl font-semibold mb-2">Flow not found</h2>
@@ -294,17 +217,17 @@ export function FlowDetail() {
             Flows
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-[#555555]" />
-          <span className="text-[#DDDDDD] font-medium">{currentFlow.name}</span>
+          <span className="text-[#DDDDDD] font-medium">{currentFlow?.name}</span>
         </nav>
 
         {/* Header Title & Subtitle */}
         <div className="flex flex-col gap-2 mb-8">
           <h1 className="text-[32px] sm:text-[42px] font-semibold tracking-[-0.03em] text-white">
-            {currentFlow.name}
+            {currentFlow?.name}
           </h1>
           <p className="text-[#888888] text-[14px] sm:text-[15px] font-normal max-w-2xl">
-            {currentFlow.description ||
-              `How apps build ${currentFlow.name.toLowerCase()} screen, each app staged in its real order, screen by screen.`}
+            {currentFlow?.description ||
+              `How apps build ${(currentFlow?.name || '').toLowerCase()} screen, each app staged in its real order, screen by screen.`}
           </p>
         </div>
 
@@ -360,7 +283,7 @@ export function FlowDetail() {
             <Popover>
               <PopoverTrigger asChild>
                 <button className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#2A2A2A] bg-[#141414] hover:bg-[#1F1F1F] hover:border-[#444] text-[13px] text-white transition-colors">
-                  <span>{currentFlow.name}</span>
+                  <span>{currentFlow?.name}</span>
                   <ChevronDown className="w-3.5 h-3.5 text-[#888]" />
                 </button>
               </PopoverTrigger>
@@ -381,7 +304,7 @@ export function FlowDetail() {
                           className="flex items-center justify-between px-3 py-2 cursor-pointer text-[#EAEAEA] hover:bg-[#222]"
                         >
                           <span>{flow.name}</span>
-                          {flow.id === currentFlow.id && <Check className="w-3.5 h-3.5 text-white" />}
+                          {flow.id === currentFlow?.id && <Check className="w-3.5 h-3.5 text-white" />}
                         </CommandItem>
                       ))}
                     </CommandGroup>
@@ -617,7 +540,7 @@ function ScreenCard({
   isLocked,
   onUnlock,
 }: {
-  screen: Screen;
+  screen: FlowScreen;
   screenIndex: number;
   appSlug: string;
   appName?: string;

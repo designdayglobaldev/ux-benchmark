@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom"
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/queryClient";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Navbar } from "./components/Layout/Navbar"
 import { Dashboard } from "./Pages/Dashboard"
 import { Browse } from "./Pages/Browse"
@@ -92,10 +95,12 @@ function App() {
   const [isInspectMode, setIsInspectMode] = useState(false);
 
   return (
-    <AuthProvider>
-      <UpgradeProvider>
-        <InspectContext.Provider value={{ isInspectMode, setIsInspectMode }}>
-          <BrowserRouter>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <UpgradeProvider>
+            <InspectContext.Provider value={{ isInspectMode, setIsInspectMode }}>
+              <BrowserRouter>
             <Routes>
             {/* Routes with Navbar */}
             <Route element={<MainLayout />}>
@@ -105,6 +110,7 @@ function App() {
               
               {/* Apps Catalog */}
               <Route path="/apps" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Navigate to="/apps" replace />} />
               <Route path="/browse" element={<Browse />} />
 
               <Route 
@@ -148,6 +154,8 @@ function App() {
         </InspectContext.Provider>
       </UpgradeProvider>
     </AuthProvider>
+    </QueryClientProvider>
+    </ErrorBoundary>
   )
 }
 

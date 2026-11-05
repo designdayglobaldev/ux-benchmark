@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect, useRef } from "react";
 import RevolutLogo from "@/assets/Revolut_logo.png";
 import { Skeleton } from "@/components/ui/skeleton";
+import { OptimizedImage } from "@/components/ui/optimized-image";
 import { InteractiveFlowModal } from "@/components/InteractiveFlowModal";
 import { ScreenActionOverlay } from "@/components/ScreenActionOverlay";
 import { useSEO } from "@/hooks/useSEO";
@@ -13,23 +14,6 @@ interface Flow {
     id: string;
     name: string;
     screens: ScreenType[];
-}
-
-function ImageWithSkeleton({ src, alt, className, loading = "lazy" }: { src: string, alt: string, className?: string, loading?: "eager" | "lazy" }) {
-    const [isLoaded, setIsLoaded] = useState(false);
-
-    return (
-        <>
-            {!isLoaded && <Skeleton className={`absolute inset-0 ${className}`} />}
-            <img 
-                src={src} 
-                alt={alt}
-                loading={loading}
-                className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
-                onLoad={() => setIsLoaded(true)}
-            />
-        </>
-    );
 }
 
 export function AppFlows() {
@@ -364,9 +348,10 @@ export function AppFlows() {
                                     {flow.screens.map((screen) => (
                                         <div key={screen.id} className="flex flex-col relative group">
                                             <div className="w-full aspect-[230/500] relative overflow-hidden rounded-[24px] bg-[#121212] border border-[#222222] group-hover:border-[#383838] transition-all">
-                                                <ImageWithSkeleton 
+                                                <OptimizedImage 
                                                     src={screen.imageUrl} 
                                                     alt={screen.name}
+                                                    optimizationWidth={450}
                                                     className="w-full h-full object-cover"
                                                 />
 

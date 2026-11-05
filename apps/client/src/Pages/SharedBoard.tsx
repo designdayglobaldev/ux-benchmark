@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBoardDetails } from "@/hooks/queries/useWorkspaces";
+import api from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -56,8 +58,9 @@ const formatMemberName = (email?: string) => {
 export function SharedBoard() {
   const { boardId } = useParams();
   const { user } = useAuth();
+  const { data: cachedBoard, isLoading: isBoardLoading } = useBoardDetails(boardId);
   const [board, setBoard] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const loading = isBoardLoading && !board;
   
   // Comments sidebar toggle (open by default if requested or toggled)
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
@@ -175,59 +178,36 @@ export function SharedBoard() {
   };
 
 
-  const fetchBoard = async () => {
-    try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const res = await fetch(`${apiUrl}/api/v1/boards/${boardId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setBoard(data);
-        if (data.canvasState && Array.isArray(data.canvasState)) {
-          const savedMessages = data.canvasState
-            .filter((msg: any) => msg && msg.content && msg.user && !msg.content.includes("Box Box Club dashboard highlights live telemetry"))
-            .map((msg: any) => {
-              let formattedTime = msg.time;
-              if (!formattedTime && msg.createdAt) {
-                try {
-                  const d = new Date(msg.createdAt);
-                  if (!isNaN(d.getTime())) {
-                    formattedTime = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-                  }
-                } catch {
-                  formattedTime = undefined;
+  // Synchronize cached board from TanStack Query into local component state
+  useEffect(() => {
+    if (cachedBoard) {
+      setBoard(cachedBoard);
+      if (cachedBoard.canvasState && Array.isArray(cachedBoard.canvasState)) {
+        const savedMessages = cachedBoard.canvasState
+          .filter((msg: any) => msg && msg.content && msg.user && !msg.content.includes("Box Box Club dashboard highlights live telemetry"))
+          .map((msg: any) => {
+            let formattedTime = msg.time;
+            if (!formattedTime && msg.createdAt) {
+              try {
+                const d = new Date(msg.createdAt);
+                if (!isNaN(d.getTime())) {
+                  formattedTime = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
                 }
+              } catch {
+                formattedTime = undefined;
               }
-              return {
-                ...msg,
-                time: formattedTime
-              };
-            });
-          setMessages(savedMessages);
-        } else {
-          setMessages([]);
-        }
-      } else {
-        // Fallback demo board
-        setBoard({
-          id: boardId || "dashboards",
-          name: "Dashboards",
-          screens: []
-        });
+            }
+            return {
+              ...msg,
+              time: formattedTime
+            };
+          });
+        setMessages(savedMessages);
       }
-    } catch {
-      setBoard({
-        id: boardId || "dashboards",
-        name: "Dashboards",
-        screens: []
-      });
-      setMessages([]);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [cachedBoard]);
 
   useEffect(() => {
-    fetchBoard();
 
     const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
     let socketUrl = rawUrl;
@@ -304,27 +284,15 @@ export function SharedBoard() {
 
     // 2. Also send via HTTP fallback (which works 100% on live HTTPS production regardless of WebSocket/Nginx proxy config)
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const endpoint = apiUrl.endsWith('/api/v1')
-        ? `${apiUrl}/boards/${boardId}/messages`
-        : `${apiUrl.replace(/\/+$/, '')}/api/v1/boards/${boardId}/messages`;
-
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: newMessage }),
-      });
-
-      if (res.ok) {
-        const result = await res.json();
-        // If an AI response was returned by the HTTP handler, add it if not already in state
-        if (result.aiMessage) {
-          setIsAiTyping(false);
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === result.aiMessage.id)) return prev;
-            return [...prev, result.aiMessage];
-          });
-        }
+      const res = await api.post(`/boards/${boardId}/messages`, { message: newMessage });
+      const result = res.data;
+      // If an AI response was returned by the HTTP handler, add it if not already in state
+      if (result?.aiMessage) {
+        setIsAiTyping(false);
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === result.aiMessage.id)) return prev;
+          return [...prev, result.aiMessage];
+        });
       }
     } catch (err) {
       console.warn('HTTP chat fallback error:', err);
@@ -361,16 +329,9 @@ export function SharedBoard() {
   const handleInvite = async () => {
     if (!inviteEmail.trim() || !board?.workspaceId) return;
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-      const res = await fetch(`${apiUrl}/api/v1/workspaces/${board.workspaceId}/invite`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: inviteEmail })
-      });
-      if (res.ok) {
-        setIsInviteOpen(false);
-        setInviteEmail("");
-      }
+      await api.post(`/workspaces/${board.workspaceId}/invite`, { email: inviteEmail });
+      setIsInviteOpen(false);
+      setInviteEmail("");
     } catch (e) {
       console.error(e);
     }

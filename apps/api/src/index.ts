@@ -1,8 +1,12 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import { generalLimiter, aiRateLimiter } from './middleware/rate-limiter';
 import http from 'http';
 import { Server } from 'socket.io';
+import { createAdapter } from '@socket.io/redis-adapter';
+import { createRedisClient, redis } from './lib/redis';
 import Anthropic from '@anthropic-ai/sdk';
 import { prisma } from './db/prisma';
 import categoryRoutes from './routes/category.routes';
@@ -26,8 +30,16 @@ import workspaceRoutes from './routes/workspace.routes';
 import boardRoutes from './routes/board.routes';
 import mobbinRoutes from './routes/mobbin.routes';
 import featureFlagRoutes from './routes/feature-flag.routes';
+import queueRoutes from './routes/queue.routes';
+import './queues/workers'; // Initialize BullMQ background workers
 const app = express();
+
+// Security Headers & Global Rate Limiting
+app.use(helmet({
+  crossOriginResourcePolicy: false, // Allow cross-origin asset loading for images/canvas
+}));
 app.use(cors());
+app.use(generalLimiter);
 app.use(express.json({ limit: '50mb' })); // Increased limit for base64 images
 
 app.get('/', (req, res) => {
@@ -43,8 +55,8 @@ app.use('/api/v1/ui-elements', uiElementRoutes);
 app.use('/api/v1/patterns', patternRoutes);
 app.use('/api/v1/screens', screenRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
-app.use('/api/v1/ai', aiRoutes);
-app.use('/api/v1/ai', aiRagRoutes);
+app.use('/api/v1/ai', aiRateLimiter, aiRoutes);
+app.use('/api/v1/ai', aiRateLimiter, aiRagRoutes);
 app.use('/api/v1/search', searchRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/export', exportRoutes);
@@ -56,6 +68,7 @@ app.use('/api/v1/workspaces', workspaceRoutes);
 app.use('/api/v1/boards', boardRoutes);
 app.use('/api/v1/mobbin', mobbinRoutes);
 app.use('/api/v1/feature-flags', featureFlagRoutes);
+app.use('/api/v1/queues', queueRoutes);
 
 const PORT = process.env.PORT || 4000;
 
@@ -66,6 +79,16 @@ const io = new Server(server, {
     methods: ['GET', 'POST', 'PUT', 'DELETE']
   }
 });
+
+// Configure horizontal scaling adapter via Redis Pub/Sub
+try {
+  const pubClient = createRedisClient();
+  const subClient = pubClient.duplicate();
+  io.adapter(createAdapter(pubClient, subClient));
+  console.log('[Socket.IO] Redis adapter enabled for multi-instance broadcast.');
+} catch (err: any) {
+  console.warn('[Socket.IO] Redis adapter fallback, using in-memory adapter:', err.message);
+}
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
