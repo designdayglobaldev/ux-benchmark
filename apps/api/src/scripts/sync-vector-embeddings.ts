@@ -134,65 +134,78 @@ async function syncMultimodalScreens(limit: number = Infinity) {
       ]
     }));
 
-    try {
-      const voyageRes = await fetch('https://api.voyageai.com/v1/multimodalembeddings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${VOYAGE_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'voyage-multimodal-3',
-          inputs: payloadInputs
-        })
-      });
+    // Robust retry loop for the current batch
+    let success = false;
+    let attempts = 0;
 
-      if (!voyageRes.ok) {
-        const errText = await voyageRes.text();
-        console.warn(`[Voyage Multimodal] API warning (${voyageRes.status}):`, errText);
-        if (voyageRes.status === 429) {
-          console.log('Rate limit reached: pausing 25s...');
-          await sleep(25000);
-          continue;
+    while (!success && attempts < 10) {
+      attempts++;
+      try {
+        const voyageRes = await fetch('https://api.voyageai.com/v1/multimodalembeddings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${VOYAGE_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: 'voyage-multimodal-3',
+            inputs: payloadInputs
+          })
+        });
+
+        if (!voyageRes.ok) {
+          const errText = await voyageRes.text();
+          if (voyageRes.status === 429 || errText.includes('rate limits')) {
+            console.log(`[Rate Limit 429] Voyage limit hit. Cooling down for 25s before retry (attempt ${attempts}/10)...`);
+            await sleep(25000);
+            continue;
+          }
+          console.warn(`[Voyage Multimodal] API error (${voyageRes.status}):`, errText);
+          break;
         }
-        break;
+
+        const voyageData = await voyageRes.json();
+        const embeddings = voyageData.data;
+
+        // Upsert into ScreenEmbedding
+        for (let i = 0; i < validItems.length; i++) {
+          const { screen, text } = validItems[i];
+          const vector = embeddings[i].embedding;
+          const recordId = crypto.randomUUID();
+
+          await prisma.$executeRawUnsafe(
+            `
+            INSERT INTO "ScreenEmbedding" ("id", "screenId", "metadataText", "embedding", "updatedAt")
+            VALUES ($1, $2, $3, $4::vector, NOW())
+            ON CONFLICT ("screenId") DO UPDATE 
+            SET "metadataText" = EXCLUDED."metadataText",
+                "embedding" = EXCLUDED."embedding",
+                "updatedAt" = NOW();
+            `,
+            recordId,
+            screen.id,
+            text,
+            JSON.stringify(vector)
+          );
+
+          alreadyUpgradedIds.add(screen.id);
+        }
+
+        processed += validItems.length;
+        console.log(`[Screen Sync] Embedded ${processed}/${targetLimit === Infinity ? remainingCount : targetLimit} screens in this run (tokens: ${voyageData.usage?.total_tokens || 'N/A'})`);
+        success = true;
+
+        // Rate limit cooling pause between successful batches (22s keeps safely under 3 RPM & 10K TPM)
+        await sleep(22000);
+      } catch (err: any) {
+        console.error('[Embedder] Batch sync error:', err.message);
+        await sleep(5000);
       }
+    }
 
-      const voyageData = await voyageRes.json();
-      const embeddings = voyageData.data;
-
-      // Upsert into ScreenEmbedding
-      for (let i = 0; i < validItems.length; i++) {
-        const { screen, text } = validItems[i];
-        const vector = embeddings[i].embedding;
-        const recordId = crypto.randomUUID();
-
-        await prisma.$executeRawUnsafe(
-          `
-          INSERT INTO "ScreenEmbedding" ("id", "screenId", "metadataText", "embedding", "updatedAt")
-          VALUES ($1, $2, $3, $4::vector, NOW())
-          ON CONFLICT ("screenId") DO UPDATE 
-          SET "metadataText" = EXCLUDED."metadataText",
-              "embedding" = EXCLUDED."embedding",
-              "updatedAt" = NOW();
-          `,
-          recordId,
-          screen.id,
-          text,
-          JSON.stringify(vector)
-        );
-
-        alreadyUpgradedIds.add(screen.id);
-      }
-
-      processed += validItems.length;
-      console.log(`[Screen Sync] Embedded ${processed}/${limit} screens in this run (tokens: ${voyageData.usage?.total_tokens})`);
-
-      // Rate limit cooling pause (20s)
-      await sleep(20500);
-    } catch (err: any) {
-      console.error('[Embedder] Batch sync error:', err.message);
-      break;
+    if (!success) {
+      console.warn(`[Embedder] Failed batch after ${attempts} attempts. Moving to next screens...`);
+      screens.forEach((s) => alreadyUpgradedIds.add(s.id));
     }
   }
 }
