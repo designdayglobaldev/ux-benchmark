@@ -104,8 +104,11 @@ function App() {
             <Routes>
             {/* Routes with Navbar */}
             <Route element={<MainLayout />}>
-              {/* AI Workspace is now the primary Home (/) */}
+              {/* AI Workspace is primary Home (/) & dedicated clean /aiworkspace/c/:id */}
               <Route path="/" element={<AppProtectedRoute><AIWorkspace /></AppProtectedRoute>} />
+              <Route path="/aiworkspace" element={<Navigate to="/" replace />} />
+              <Route path="/aiworkspace/c/:id" element={<AppProtectedRoute><AIWorkspace /></AppProtectedRoute>} />
+              <Route path="/workspace/c/:id" element={<AppProtectedRoute><AIWorkspace /></AppProtectedRoute>} />
               <Route path="/ai-workspace" element={<Navigate to="/" replace />} />
               
               {/* Apps Catalog */}

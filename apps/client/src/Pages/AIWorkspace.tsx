@@ -1,43 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { 
-  Plus, 
+  Plus,
   ChevronRight, 
-  ArrowUp,
+  Trash2
 } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import leftCardImage from "../assets/leftcardimagewithsocialmedia.png";
 import rightCardImage from "../assets/rightcard.png";
-import { ZiboAiIcon } from "../components/ZiboAiIcon";
 import { StartBenchmarkButton } from "../components/StartBenchmarkButton";
 import { WatiCaseStudyModal } from "../components/WatiCaseStudyModal";
 import { AIResearchResults } from "../components/AIResearchResults";
+import { StickyChatInput } from "../components/chat/StickyChatInput";
+import { useAuth } from "../contexts/AuthContext";
+import { groupSessionsByDate } from "../utils/groupSessionsByDate";
+import { useAIChatStore } from "../stores/useAIChatStore";
 
 export function AIWorkspace() {
   const navigate = useNavigate();
-  const [inputValue, setInputValue] = useState("");
-  const [activeResearch, setActiveResearch] = useState<string | null>(null);
+  const params = useParams();
+  const { user } = useAuth();
+  
+  // Clean REST Route: /aiworkspace/c/:id
+  const activeSessionId = params.id || null;
   const [watiModalOpen, setWatiModalOpen] = useState(false);
-  const [submittedQuery, setSubmittedQuery] = useState<string | null>(null);
-  const [conversationHistory, setConversationHistory] = useState<Array<{ role: string; content: string }>>([]);
 
-  const recentResearches = [
-    "Why do Revolut and Cash App convert 3x more KYC onboarding than traditional banking apps?"
-  ];
+  // Single Source of Truth: Zustand Store
+  const sessions = useAIChatStore((state) => state.sessions);
+  const fetchSessions = useAIChatStore((state) => state.fetchSessions);
+  const setActiveSession = useAIChatStore((state) => state.setActiveSession);
+  const clearActiveSession = useAIChatStore((state) => state.clearActiveSession);
+  const createAndSendPrompt = useAIChatStore((state) => state.createAndSendPrompt);
+  const deleteSession = useAIChatStore((state) => state.deleteSession);
+
+  const demoResearch = "Why do Revolut and Cash App convert 3x more KYC onboarding than traditional banking apps?";
+
+  // Fetch past user sessions on mount
+  useEffect(() => {
+    fetchSessions(user?.id);
+  }, [user?.id]);
+
+  // Sync active session with route parameter
+  useEffect(() => {
+    if (activeSessionId) {
+      setActiveSession(activeSessionId);
+    } else {
+      clearActiveSession();
+    }
+  }, [activeSessionId]);
+
+  // Deduplicate and group sessions (Twenty CRM pattern)
+  const groupedSessions = useMemo(() => {
+    return groupSessionsByDate(sessions);
+  }, [sessions]);
+
+  const handleSelectSession = (sessionId: string) => {
+    navigate(`/aiworkspace/c/${sessionId}`);
+  };
 
   const handleSearchSubmit = (query: string) => {
     if (!query.trim()) return;
-    const trimmed = query.trim();
-    setSubmittedQuery(trimmed);
-    setActiveResearch(trimmed);
-    setConversationHistory(prev => [...prev, { role: "user", content: trimmed }]);
-    setInputValue("");
+    createAndSendPrompt(query, navigate, user?.id);
   };
 
   const handleNewResearch = () => {
-    setActiveResearch(null);
-    setSubmittedQuery(null);
-    setInputValue("");
-    setConversationHistory([]);
+    clearActiveSession();
+    navigate("/aiworkspace");
+  };
+
+  const handleDeleteSession = async (e: React.MouseEvent, sessionId: string) => {
+    e.stopPropagation();
+    await deleteSession(sessionId);
+    if (activeSessionId === sessionId) {
+      handleNewResearch();
+    }
   };
 
   return (
@@ -77,8 +112,8 @@ export function AIWorkspace() {
             <span>New Research</span>
           </button>
 
-          {/* Recent Researches Section */}
-          <div className="mt-4 flex flex-col gap-2">
+          {/* Recent Researches Section with Twenty CRM Date Grouping */}
+          <div className="mt-4 flex flex-col gap-2 max-h-[calc(100vh-230px)] overflow-y-auto pr-1">
             <span 
               style={{
                 fontFamily: "'Inter', sans-serif",
@@ -92,39 +127,55 @@ export function AIWorkspace() {
             </span>
 
             <div className="flex flex-col gap-1.5 mt-0.5">
-              {recentResearches.map((item, idx) => {
-                const isSelected = (submittedQuery === item) || (activeResearch === item);
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setInputValue(item);
-                      handleSearchSubmit(item);
-                    }}
-                    className="w-[199px] h-[36px] px-3 rounded-[8px] text-[13px] transition-all truncate text-left cursor-pointer flex items-center"
-                    style={{
-                      backgroundColor: isSelected ? "#181818" : "transparent",
-                      color: isSelected ? "#FFFFFF" : "#999999",
-                      fontFamily: "'Inter', sans-serif",
-                      fontWeight: 400
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSelected) {
-                        e.currentTarget.style.backgroundColor = "#181818";
-                        e.currentTarget.style.color = "#FFFFFF";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isSelected) {
-                        e.currentTarget.style.backgroundColor = "transparent";
-                        e.currentTarget.style.color = "#999999";
-                      }
-                    }}
-                  >
-                    {item}
-                  </button>
-                );
-              })}
+              {/* 1. Permanent Curated Demo Benchmark (Untouched & Always Pinned) */}
+              <button
+                onClick={() => {
+                  handleSearchSubmit(demoResearch);
+                }}
+                className="w-[199px] h-[36px] px-3 rounded-[8px] text-[13px] transition-all truncate text-left cursor-pointer flex items-center"
+                style={{
+                  backgroundColor: !activeSessionId ? "#181818" : "transparent",
+                  color: !activeSessionId ? "#FFFFFF" : "#999999",
+                  fontFamily: "'Inter', sans-serif",
+                  fontWeight: 400
+                }}
+                title={demoResearch}
+              >
+                <span className="truncate">{demoResearch}</span>
+              </button>
+
+              {/* 2. Twenty CRM Date-Grouped User Sessions (Today, Yesterday, Previous 7 Days, Older) */}
+              {groupedSessions.map((group) => (
+                <div key={group.id} className="flex flex-col gap-1 mt-2">
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-[#555555] px-2 py-0.5">
+                    {group.title}
+                  </span>
+                  {group.sessions.map((session) => {
+                    const isSelected = activeSessionId === session.id;
+                    return (
+                      <div
+                        key={session.id}
+                        onClick={() => handleSelectSession(session.id)}
+                        className={`group relative w-[199px] h-[36px] px-3 rounded-[8px] text-[13px] transition-all cursor-pointer flex items-center justify-between ${
+                          isSelected ? "bg-[#181818] text-white" : "text-[#999999] hover:bg-[#141414] hover:text-white"
+                        }`}
+                        title={session.title}
+                      >
+                        <span className="truncate pr-2">{session.title}</span>
+                        {/* Hover Delete Action (Twenty CRM / Claude pattern) */}
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteSession(e, session.id)}
+                          className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 text-[#777777] transition-all rounded"
+                          title="Delete chat"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -135,7 +186,9 @@ export function AIWorkspace() {
       {/* 2. CENTER HERO STAGE & RESEARCH CANVAS (Frame 2147230977)    */}
       {/* ============================================================ */}
       <main 
-        className="flex-1 flex flex-col justify-between relative px-4 sm:px-8 py-7 overflow-y-auto overflow-x-hidden my-[19px] mr-[24px] min-w-0 max-w-full"
+        className={`flex-1 flex flex-col justify-between relative overflow-y-auto overflow-x-hidden my-[19px] mr-[24px] min-w-0 max-w-full ${
+          activeSessionId ? "px-4 sm:px-8 pt-7 pb-0" : "px-4 sm:px-8 py-7"
+        }`}
         style={{
           backgroundColor: "#161616",
           borderRadius: "16px"
@@ -150,8 +203,8 @@ export function AIWorkspace() {
           }}
         />
 
-        {/* Center Dynamic Content: Either Response Screen OR Default Recommendations */}
-        {!submittedQuery ? (
+        {/* Center Dynamic Content: Either Active Response Canvas OR Default Recommendations */}
+        {!activeSessionId ? (
           /* ================= DEFAULT RECOMMENDATIONS VIEW ================= */
           <div className="w-full max-w-[840px] mx-auto flex flex-col items-center my-auto z-10">
             
@@ -426,187 +479,20 @@ export function AIWorkspace() {
         ) : (
           /* ================= ACTIVE AI RESPONSE SCREEN ================= */
           <AIResearchResults 
-            submittedQuery={submittedQuery} 
-            conversationHistory={conversationHistory}
-            onSelectFollowUp={(q) => {
-              handleSearchSubmit(q);
-            }}
+            sessionId={activeSessionId}
           />
         )}
 
         {/* ============================================================ */}
-        {/* 3. FLOATING GLOWING BOTTOM AI COMMAND BAR (Exact 1:1 Figma CSS Group 2134283849) */}
-        <div className="relative z-20 mt-6 mb-2 flex items-center justify-center shrink-0 self-center" style={{ width: "456px", height: "123.84px" }}>
-          
-          {/* Shadow (Ambient Multi-color Glow) */}
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              width: "452px",
-              height: "114.47px",
-              left: "2px",
-              top: "9.38px",
-              background: "linear-gradient(90.01deg, #FF924A 34.09%, #6396ED 67.61%, #F612A6 98.31%)",
-              opacity: 0.64,
-              filter: "blur(11.55px)",
-              borderRadius: "20px",
-              zIndex: 0
-            }}
-          />
-
-          {/* Frame 2147230971 (Outer Glass Frame) */}
-          <div
-            className="relative"
-            style={{
-              width: "456px",
-              height: "118px",
-              background: "rgba(255, 255, 255, 0.18)",
-              borderRadius: "20px",
-              zIndex: 1
-            }}
-          >
-            {/* Rectangle 1321321425 (Inner Dark Gradient Surface) */}
-            <div
-              className="absolute"
-              style={{
-                left: "3.5px",
-                right: "3.5px",
-                top: "3.5px",
-                bottom: "3.5px",
-                background: "linear-gradient(96.72deg, #2C2C2C 0.02%, #050505 99.98%)",
-                borderRadius: "17px"
-              }}
-            >
-              {/* Zibo AI Symbol SVG */}
-              <div
-                className="absolute flex items-center justify-center pointer-events-none"
-                style={{
-                  width: "23px",
-                  height: "23px",
-                  left: "17.47px",
-                  top: "13.87px"
-                }}
-              >
-                <ZiboAiIcon size={23} />
-              </div>
-
-              {/* Input "Ask how your design is blocking you" */}
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && inputValue.trim()) {
-                    handleSearchSubmit(inputValue.trim());
-                  }
-                }}
-                placeholder={submittedQuery ? "Ask how your design is blocking you" : "Ask how your design is blocking you"}
-                className="absolute bg-transparent text-white focus:outline-none placeholder:text-[rgba(255,255,255,0.6)]"
-                style={{
-                  left: "53.08px",
-                  top: "16.9px",
-                  right: "16px",
-                  height: "16px",
-                  fontFamily: "'Geist', 'Inter', sans-serif",
-                  fontWeight: 400,
-                  fontSize: "14px",
-                  lineHeight: "16px",
-                  letterSpacing: "-0.24px"
-                }}
-              />
-
-              {/* Frame 2147230972: Plus Button */}
-              <button
-                type="button"
-                onClick={() => navigate("/benchmark")}
-                className="absolute cursor-pointer flex items-center justify-center transition-colors hover:bg-[#4A4A4A]"
-                style={{
-                  boxSizing: "border-box",
-                  width: "32px",
-                  height: "32px",
-                  left: "10.5px",
-                  top: "68.5px",
-                  background: "#3C3C3C",
-                  border: "1px solid #4F4F4F",
-                  borderRadius: "17px"
-                }}
-                title="Upload screenshot or benchmark"
-              >
-                <Plus size={16} color="#E3E3E3" strokeWidth={2} />
-              </button>
-
-              {/* Frame 2147230973: Research Mode Pill */}
-              <div
-                className="absolute flex items-center"
-                style={{
-                  gap: "5px",
-                  left: "54.5px",
-                  top: "76.5px",
-                  height: "16px"
-                }}
-              >
-                {/* Binoculars Icon */}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="binocGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="18.7%" stopColor="#F48E4A" />
-                      <stop offset="97.74%" stopColor="#A873E8" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M7 6C4.79 6 3 7.79 3 10V18C3 19.1 3.9 20 5 20C6.1 20 7 19.1 7 18V6ZM17 6C14.79 6 13 7.79 13 10V18C13 19.1 13.9 20 15 20C16.1 20 17 19.1 17 18V6Z"
-                    fill="url(#binocGrad)"
-                  />
-                  <rect x="7" y="10" width="6" height="2" rx="1" fill="url(#binocGrad)" />
-                </svg>
-                <span
-                  style={{
-                    fontFamily: "'Geist', 'Inter', sans-serif",
-                    fontWeight: 400,
-                    fontSize: "12px",
-                    lineHeight: "16px",
-                    letterSpacing: "-0.24px",
-                    background: "linear-gradient(92.38deg, #F98537 1.05%, #A873E8 98.95%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text"
-                  }}
-                >
-                  Research mode
-                </span>
-              </div>
-
-              {/* Button: Send / Up Button */}
-              <button
-                type="button"
-                disabled={!inputValue.trim()}
-                onClick={() => {
-                  if (inputValue.trim()) {
-                    handleSearchSubmit(inputValue.trim());
-                  }
-                }}
-                className={`absolute cursor-pointer flex items-center justify-center transition-all ${
-                  inputValue.trim() ? "hover:opacity-90 active:scale-95" : "opacity-80 cursor-default"
-                }`}
-                style={{
-                  boxSizing: "border-box",
-                  width: "32px",
-                  height: "32px",
-                  left: "406.5px",
-                  top: "68.5px",
-                  background: "linear-gradient(142.66deg, #FFFFFF 5.13%, #C6C6C6 94.87%)",
-                  boxShadow: "inset 0.5px 0.5px 0.5px rgba(99, 99, 99, 0.56)",
-                  borderRadius: "28px",
-                  border: "none",
-                  outline: "none"
-                }}
-              >
-                <ArrowUp size={15} color="#1A1A1A" strokeWidth={2.5} />
-              </button>
-            </div>
+        {/* 3. FLOATING GLOWING BOTTOM AI COMMAND BAR (Shown ONLY on initial empty state) */}
+        {!activeSessionId && (
+          <div className="relative z-20 mt-6 mb-2 flex items-center justify-center shrink-0 self-center">
+            <StickyChatInput
+              onSendMessage={(query: string) => handleSearchSubmit(query)}
+              placeholder="Ask how your design is blocking you"
+            />
           </div>
-
-        </div>
+        )}
 
       </main>
 

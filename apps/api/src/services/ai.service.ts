@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { prisma } from '../db/prisma';
+import { CognitiveSearchEngine } from './ux-search-engine.service';
 
 let anthropicClient: Anthropic | null = null;
 
@@ -72,6 +73,7 @@ export interface DesignAgentGenerateParams {
 export interface WorkspaceChatParams {
   prompt: string;
   conversationHistory?: Array<{ role: string; content: string }>;
+  useCognitive?: boolean;
 }
 
 const extractImageDetails = (base64Str: string) => {
@@ -1250,7 +1252,520 @@ CRITICAL RULES:
     };
   }
 
+  /**
+   * Main Dispatcher for Workspace Chat.
+   * If useCognitive === true: runs the new Voyage-3 + 2-hop Graph Walk associative search.
+   * Otherwise: runs the 100% UNTOUCHED legacy code path so production and teammates are never affected.
+   */
   public static async chatWorkspace(params: WorkspaceChatParams) {
+    if (params.useCognitive === true) {
+      return this.chatWorkspaceCognitive(params);
+    }
+    return this.chatWorkspaceLegacy(params);
+  }
+
+  /**
+   * COGNITIVE ASSOCIATIVE RETRIEVAL ENGINE (Experimental / Stealth Mode)
+   */
+  public static async chatWorkspaceCognitive(params: WorkspaceChatParams) {
+    const { prompt, conversationHistory = [] } = params;
+    const client = getAnthropicClient();
+
+    // =========================================================================
+    // 1. COGNITIVE ASSOCIATIVE RETRIEVAL: Dense Vector + Graph Walk
+    // =========================================================================
+    let cognitiveResults: any = { apps: [], flows: [], rawAnchors: [] };
+    let retrievedScreens: any[] = [];
+    let retrievedApps: any[] = [];
+
+    try {
+      // 1A. Run Cognitive Search Engine (Voyage-3 dense search + 2-hop graph walk)
+      cognitiveResults = await CognitiveSearchEngine.search({ prompt, limit: 4 });
+      console.log(`[chatWorkspace] Cognitive retrieval found ${cognitiveResults.flows?.length || 0} flows, ${cognitiveResults.apps?.length || 0} apps`);
+    } catch (cogErr) {
+      console.warn('[chatWorkspace] Cognitive search warning, falling back:', cogErr);
+    }
+
+    try {
+      // 1B. Fallback keyword search if cognitive search yielded no flows
+      if (!cognitiveResults.flows || cognitiveResults.flows.length === 0) {
+        const promptKeywords = prompt
+          .toLowerCase()
+          .replace(/[^a-z0-9\s]/g, ' ')
+          .split(/\s+/)
+          .filter((w) => w.length > 2 && !['what', 'how', 'does', 'show', 'the', 'and', 'for', 'app', 'apps', 'screen', 'screens', 'with', 'best', 'more', 'about'].includes(w));
+
+        const expandedTerms = new Set<string>(promptKeywords);
+        if (promptKeywords.some((w) => w === 'kyc' || w === 'kyb' || w.includes('verif') || w.includes('ident'))) {
+          ['verify', 'verifying', 'verification', 'document', 'identity'].forEach((t) => expandedTerms.add(t));
+        }
+        if (promptKeywords.some((w) => w.includes('pay') || w.includes('transfer') || w.includes('send'))) {
+          ['transfer', 'transferring', 'send', 'payment'].forEach((t) => expandedTerms.add(t));
+        }
+        if (promptKeywords.some((w) => w.includes('splash') || w.includes('launch') || w.includes('start'))) {
+          ['pre-onboarding', 'onboarding', 'splash', 'welcome'].forEach((t) => expandedTerms.add(t));
+        }
+
+        const searchKeywords = Array.from(expandedTerms).slice(0, 8);
+        const searchOrConditions: any[] = [];
+        for (const kw of searchKeywords) {
+          searchOrConditions.push({ name: { contains: kw, mode: 'insensitive' } });
+          searchOrConditions.push({ app: { name: { contains: kw, mode: 'insensitive' } } });
+          searchOrConditions.push({ flow: { name: { contains: kw, mode: 'insensitive' } } });
+        }
+
+        if (searchOrConditions.length > 0) {
+          retrievedScreens = await prisma.screen.findMany({
+            where: {
+              OR: searchOrConditions,
+              imageUrl: { not: '' }
+            },
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              imageUrl: true,
+              screenNo: true,
+              uxAnalysis: true,
+              keyHighlights: true,
+              appId: true,
+              flowId: true,
+              app: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  appLogo: true,
+                  appThumbnail: true,
+                  category: { select: { title: true } }
+                }
+              },
+              flow: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true
+                }
+              }
+            },
+            take: 12
+          });
+        }
+      }
+
+      // App fallback / supplement
+      retrievedApps = cognitiveResults.apps && cognitiveResults.apps.length > 0
+        ? cognitiveResults.apps
+        : await prisma.app.findMany({
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              appLogo: true,
+              appThumbnail: true,
+              category: { select: { title: true } }
+            },
+            take: 20
+          });
+    } catch (dbErr) {
+      console.warn('[chatWorkspace] Non-blocking RAG pre-fetch error:', dbErr);
+    }
+
+    // Build verified flow context from cognitive graph reconstruction
+    const verifiedFlowsContext = (cognitiveResults.flows || []).map((f: any) => ({
+      appName: f.appName,
+      appSlug: f.appSlug,
+      flowName: f.flowName,
+      flowSlug: f.flowSlug,
+      description: f.description,
+      screens: (f.screens || []).map((s: any) => ({
+        screenId: s.id,
+        screenName: s.name,
+        screenNo: s.screenNo,
+        uxAnalysis: s.uxAnalysis?.replace(/<[^>]*>?/gm, '').slice(0, 140) || '',
+        keyHighlights: s.keyHighlights?.replace(/<[^>]*>?/gm, '').slice(0, 90) || '',
+        isAnchor: s.isAnchor || false
+      }))
+    }));
+
+    const verifiedAppsContext = retrievedApps.slice(0, 25).map((a: any) => ({
+      name: a.name,
+      slug: a.slug,
+      category: a.category?.title || a.category || 'General',
+    }));
+
+    const systemPrompt = `You are Zibo AI, a world-class Staff Product Designer.
+When answering the user, focus primarily on SHOWING THE FLOW!
+
+VERIFIED RETRIEVED FLOWS (Chronologically Ordered & Graph-Linked):
+${JSON.stringify(verifiedFlowsContext, null, 1)}
+
+MATCHING APPS:
+${JSON.stringify(verifiedAppsContext, null, 1)}
+
+COMPONENTS AVAILABLE:
+1. "text": Very brief overview (1-2 short paragraphs maximum).
+2. "interactive_flow": The primary component! Show the app's real flow with sequential screen cards and the "interactive flow" inspector button.
+   - "flowName": The real flow name
+   - "appName": Real app name
+   - "appSlug": Real app slug
+   - "description": 1-sentence overview
+   - "screens": Array of screen objects [{ "screenId": "...", "name": "...", "uxAnalysis": "..." }] using the exact screenId values from the VERIFIED RETRIEVED FLOWS above.
+3. "insight_card": 2-3 key takeaways.
+
+CRITICAL RULES:
+- ALWAYS PREFER "interactive_flow" to showcase flows! Do NOT use "single_screen" unless the user explicitly asks for only 1 isolated screenshot.
+- Keep text concise and let the flow visual do the talking.
+- Reference real screenId values from VERIFIED RETRIEVED FLOWS above.
+- Output RAW JSON ONLY without markdown backticks.
+
+SCHEMA:
+{
+  "introText": "Crisp 1-sentence executive summary.",
+  "sections": [
+    { "type": "text", "content": "..." },
+    { "type": "interactive_flow", "flowName": "...", "appName": "...", "appSlug": "...", "description": "...", "screens": [{ "screenId": "...", "name": "...", "uxAnalysis": "..." }] },
+    { "type": "insight_card", "title": "Key Takeaways", "points": ["..."] }
+  ],
+  "recommendedApps": [{ "name": "...", "slug": "...", "category": "...", "reason": "..." }],
+  "suggestedFollowUps": ["Follow-up 1?", "Follow-up 2?"]
+}`;
+
+    // Formatted messages with multi-turn prompt caching support
+    const formattedMessages: any[] = [];
+    if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+      for (const msg of conversationHistory) {
+        if (msg.role && msg.content) {
+          formattedMessages.push({
+            role: msg.role === 'user' ? ('user' as const) : ('assistant' as const),
+            content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content)
+          });
+        }
+      }
+    }
+
+    // Cache the previous conversation context breakpoint if thread is multi-turn
+    if (formattedMessages.length >= 2) {
+      const priorTurn = formattedMessages[formattedMessages.length - 2];
+      if (typeof priorTurn.content === 'string') {
+        priorTurn.content = [
+          {
+            type: 'text',
+            text: priorTurn.content,
+            cache_control: { type: 'ephemeral' }
+          }
+        ];
+      }
+    }
+
+    formattedMessages.push({
+      role: 'user',
+      content: prompt.trim()
+    });
+
+    // Invoke Claude with Ephemeral Prompt Caching on verified system RAG context
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 1800,
+      system: [
+        {
+          type: 'text',
+          text: systemPrompt,
+          cache_control: { type: 'ephemeral' }
+        }
+      ],
+      messages: formattedMessages,
+    });
+
+    const cacheCreationTokens = (message.usage as any)?.cache_creation_input_tokens || 0;
+    const cacheReadTokens = (message.usage as any)?.cache_read_input_tokens || 0;
+    if (cacheCreationTokens > 0 || cacheReadTokens > 0) {
+      console.log(`[Anthropic PromptCache] Hit! Read: ${cacheReadTokens} tokens (90% cost saved), Created: ${cacheCreationTokens} tokens, Input: ${message.usage.input_tokens} tokens`);
+    }
+
+    const aiText = message.content
+      .filter((block) => block.type === 'text')
+      .map((block: any) => block.text)
+      .join('\n');
+
+    let parsedResult: any = null;
+    try {
+      parsedResult = JSON.parse(aiText.trim());
+    } catch (_) {}
+
+    if (!parsedResult) {
+      const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          parsedResult = JSON.parse(jsonMatch[0]);
+        } catch (_) {
+          try {
+            let unclosed = jsonMatch[0];
+            const openBrackets = (unclosed.match(/\[/g) || []).length;
+            const closeBrackets = (unclosed.match(/\]/g) || []).length;
+            const openBraces = (unclosed.match(/\{/g) || []).length;
+            const closeBraces = (unclosed.match(/\}/g) || []).length;
+            for (let i = 0; i < openBrackets - closeBrackets; i++) unclosed += ']';
+            for (let i = 0; i < openBraces - closeBraces; i++) unclosed += '}';
+            parsedResult = JSON.parse(unclosed);
+          } catch (_) {}
+        }
+      }
+    }
+
+    if (!parsedResult) {
+      parsedResult = {
+        introText: aiText.replace(/^\{[\s\S]*?"introText"\s*:\s*"/, '').replace(/"[\s\S]*$/, '').replace(/\\n/g, '\n'),
+        recommendedApps: [],
+        uxInsights: "",
+        suggestedFollowUps: []
+      };
+    }
+
+    const allSlugsOrNames = new Set<string>();
+    (parsedResult.recommendedApps || []).forEach((a: any) => {
+      if (a.slug) allSlugsOrNames.add(a.slug);
+      if (a.name) allSlugsOrNames.add(a.name);
+    });
+    (parsedResult.comparisonFlows || []).forEach((f: any) => {
+      if (f.slug) allSlugsOrNames.add(f.slug);
+      if (f.appName) allSlugsOrNames.add(f.appName);
+    });
+    (parsedResult.sections || []).forEach((s: any) => {
+      if (s.appName) allSlugsOrNames.add(s.appName);
+      if (s.screens && Array.isArray(s.screens)) {
+        s.screens.forEach((sc: any) => {
+          if (sc.appName) allSlugsOrNames.add(sc.appName);
+          if (sc.appSlug) allSlugsOrNames.add(sc.appSlug);
+        });
+      }
+      if (s.headers && Array.isArray(s.headers)) {
+        s.headers.slice(1).forEach((h: string) => allSlugsOrNames.add(h));
+      }
+    });
+
+    const queryList = Array.from(allSlugsOrNames);
+    const matchedDbApps = await prisma.app.findMany({
+      where: {
+        OR: [
+          { slug: { in: queryList } },
+          { name: { in: queryList } }
+        ]
+      },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        appLogo: true,
+        appThumbnail: true,
+        category: { select: { title: true } },
+        subcategory: { select: { title: true } },
+        screens: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            imageUrl: true,
+            screenNo: true,
+            uxAnalysis: true,
+            flow: {
+              select: {
+                id: true,
+                name: true,
+                slug: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Collect all candidate screen IDs and app identifiers from Claude's response
+    const candidateScreenIds = new Set<string>();
+    (parsedResult.sections || []).forEach((s: any) => {
+      if (s.type === 'single_screen' && s.screenId) {
+        candidateScreenIds.add(s.screenId);
+      }
+      if (s.screens && Array.isArray(s.screens)) {
+        s.screens.forEach((sc: any) => {
+          if (sc.screenId) candidateScreenIds.add(sc.screenId);
+        });
+      }
+    });
+
+    // Fetch verified screens directly by ID if referenced by Claude
+    let directScreens: any[] = [];
+    if (candidateScreenIds.size > 0) {
+      try {
+        directScreens = await prisma.screen.findMany({
+          where: { id: { in: Array.from(candidateScreenIds) } },
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            imageUrl: true,
+            screenNo: true,
+            uxAnalysis: true,
+            keyHighlights: true,
+            app: { select: { name: true, slug: true } },
+            flow: { select: { id: true, name: true, slug: true } }
+          }
+        });
+      } catch (e) {
+        console.warn('Failed to fetch direct screens by ID:', e);
+      }
+    }
+    const directScreenMap = new Map(directScreens.map((s) => [s.id, s]));
+
+    const enrichedSections = (parsedResult.sections || []).map((sec: any) => {
+      // 1. Handle Single Screen Card
+      if (sec.type === 'single_screen') {
+        const found = (sec.screenId && directScreenMap.get(sec.screenId)) ||
+          retrievedScreens.find((rs: any) => rs.id === sec.screenId || (sec.screenName && rs.name.toLowerCase().includes(sec.screenName.toLowerCase())));
+
+        if (found) {
+          return {
+            ...sec,
+            screenId: found.id,
+            screenName: found.name || sec.screenName,
+            imageUrl: found.imageUrl,
+            appName: found.app?.name || sec.appName,
+            appSlug: found.app?.slug || sec.appSlug,
+            flowName: found.flow?.name || sec.flowName,
+            uxAnalysis: sec.uxAnalysis || found.uxAnalysis || '',
+            keyHighlights: sec.keyHighlights || found.keyHighlights || ''
+          };
+        }
+      }
+
+      // 2. Handle Interactive Flow
+      if (sec.type === 'interactive_flow' || sec.type === 'screen_gallery') {
+        const dbApp = matchedDbApps.find(
+          (m: any) =>
+            (sec.appSlug && m.slug.toLowerCase() === sec.appSlug.toLowerCase()) ||
+            (sec.appName && m.name.toLowerCase() === sec.appName.toLowerCase())
+        );
+
+        const allAppScreens = dbApp?.screens || [];
+        let flowScreens: any[] = [];
+
+        // First check if screens have explicit verified screenIds from prompt
+        if (sec.screens && Array.isArray(sec.screens)) {
+          const matchedByIds = sec.screens
+            .map((sc: any) => (sc.screenId && directScreenMap.get(sc.screenId)) || allAppScreens.find((as: any) => as.id === sc.screenId))
+            .filter(Boolean);
+
+          if (matchedByIds.length > 0) {
+            flowScreens = matchedByIds;
+          }
+        }
+
+        // Second check: match by flowName
+        if (flowScreens.length === 0 && sec.flowName) {
+          flowScreens = allAppScreens.filter((s: any) =>
+            s.flow?.name?.toLowerCase().includes(sec.flowName.toLowerCase()) ||
+            s.flow?.slug?.toLowerCase().includes(sec.flowName.toLowerCase())
+          );
+        }
+
+        // Third check: match by screen names
+        if (flowScreens.length === 0 && sec.screens && sec.screens.length > 0) {
+          const aiScreenNames = sec.screens.map((sc: any) => (sc.name || '').toLowerCase()).filter(Boolean);
+          flowScreens = allAppScreens.filter((s: any) =>
+            aiScreenNames.some((name: string) => s.name?.toLowerCase().includes(name))
+          );
+        }
+
+        // Fallback: If still empty, check retrievedScreens matching this app
+        if (flowScreens.length === 0) {
+          flowScreens = retrievedScreens.filter((rs: any) => rs.app?.slug === sec.appSlug || rs.app?.name === sec.appName);
+        }
+
+        flowScreens.sort((a: any, b: any) => (a.screenNo || 0) - (b.screenNo || 0));
+
+        const enrichedScreens = flowScreens.slice(0, 10).map((screen: any, idx: number) => {
+          const aiScreenDesc = sec.screens && sec.screens[idx];
+          return {
+            id: screen.id,
+            imageUrl: screen.imageUrl,
+            name: screen.name || aiScreenDesc?.name || `Screen ${idx + 1}`,
+            uxAnalysis: screen.uxAnalysis || aiScreenDesc?.uxAnalysis || "",
+            screenNo: screen.screenNo || idx + 1,
+            slug: screen.slug
+          };
+        });
+
+        return {
+          ...sec,
+          appSlug: dbApp?.slug || sec.appSlug || sec.appName?.toLowerCase().replace(/\s+/g, '-'),
+          screens: enrichedScreens.filter((s: any) => !!s.imageUrl)
+        };
+      }
+      return sec;
+    });
+
+    const enrichedComparisonFlows = (parsedResult.comparisonFlows || []).map((flow: any) => {
+      const dbMatch = matchedDbApps.find(
+        (m: any) =>
+          (flow.slug && m.slug.toLowerCase() === flow.slug.toLowerCase()) ||
+          (flow.appName && m.name.toLowerCase() === flow.appName.toLowerCase())
+      );
+      const dbScreens = dbMatch?.screens || [];
+
+      const enrichedSteps = (flow.steps || []).map((step: any, sIdx: number) => {
+        const screen = dbScreens[sIdx] || dbScreens[sIdx % (dbScreens.length || 1)] || null;
+        return {
+          ...step,
+          screenImageUrl: screen?.imageUrl || null,
+          screenName: screen?.name || null,
+          screenId: screen?.id || null,
+        };
+      });
+
+      return {
+        ...flow,
+        appLogo: dbMatch?.appLogo || null,
+        appThumbnail: dbMatch?.appThumbnail || null,
+        slug: dbMatch?.slug || flow.slug,
+        appName: dbMatch?.name || flow.appName,
+        steps: enrichedSteps,
+        totalScreens: dbScreens.length
+      };
+    });
+
+    const enrichedApps = (parsedResult.recommendedApps || []).map((rec: any) => {
+      const dbMatch = matchedDbApps.find(
+        (m: any) => m.slug.toLowerCase() === (rec.slug || '').toLowerCase() || m.name.toLowerCase() === rec.name.toLowerCase()
+      );
+      return {
+        id: dbMatch?.id || rec.slug || rec.name,
+        name: rec.name,
+        slug: dbMatch?.slug || rec.slug,
+        category: dbMatch?.subcategory?.title || dbMatch?.category?.title || rec.category || 'Finance',
+        reason: rec.reason,
+        appLogo: dbMatch?.appLogo || null,
+        appThumbnail: dbMatch?.appThumbnail || null,
+      };
+    });
+
+    return {
+      success: true,
+      data: {
+        introText: parsedResult.introText || "Here are the top recommended apps matching your request.",
+        sections: enrichedSections,
+        comparisonFlows: enrichedComparisonFlows,
+        apps: enrichedApps,
+        uxInsights: parsedResult.uxInsights || "",
+        suggestedFollowUps: parsedResult.suggestedFollowUps || []
+      }
+    };
+  }
+
+  /**
+   * 100% UNTOUCHED ORIGINAL LIVE CHAT CODE (LEGACY PATH)
+   * This is executed by default for all standard users and teammates.
+   */
+  public static async chatWorkspaceLegacy(params: WorkspaceChatParams) {
     const { prompt, conversationHistory = [] } = params;
     const client = getAnthropicClient();
 

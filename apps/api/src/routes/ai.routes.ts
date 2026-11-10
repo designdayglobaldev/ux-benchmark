@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AIController } from '../controllers/ai.controller';
+import { AiChatController } from '../controllers/ai-chat.controller';
 import {
   validateRequest,
   AIInspectSchema,
@@ -32,7 +33,17 @@ router.post('/improve-design', validateRequest(AIImproveDesignSchema), AIControl
 router.get('/design-agent/filters', AIController.getDesignAgentFilters);
 router.post('/design-agent/generate', validateRequest(AIDesignAgentGenerateSchema), AIController.generateDesignAgent);
 
-// 4. Interactive Workspace Canvas Chat
+// 4. Interactive Workspace Canvas Chat (Synchronous & Real-Time SSE Stream)
 router.post('/workspace-chat', validateRequest(AIWorkspaceChatSchema), AIController.workspaceChat);
+router.post('/workspace-chat/stream', validateRequest(AIWorkspaceChatSchema), AIController.workspaceChatStream);
+
+// 5. Continuous AI Chat Sessions & Context Window
+router.get('/sessions', AiChatController.listSessions);
+router.get('/sessions/:id', AiChatController.getSession);
+router.delete('/sessions/:id', AiChatController.deleteSession);
+router.post('/sessions', AiChatController.createSession);
+router.post('/feedback', AiChatController.submitFeedback);
+router.get('/training/export', AiChatController.exportDataset);
+router.get('/admin/chats', AiChatController.adminListChats);
 
 export default router;

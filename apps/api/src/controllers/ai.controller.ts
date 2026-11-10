@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
 import { AIService } from '../services/ai.service';
+import { AiChatService } from '../services/ai-chat.service';
+import { RedisLockService } from '../services/redis-lock.service';
+import { prisma } from '../db/prisma';
+import { redis } from '../lib/redis';
 
 export class AIController {
   public static async inspect(req: Request, res: Response) {
@@ -113,12 +117,226 @@ export class AIController {
 
   public static async workspaceChat(req: Request, res: Response) {
     try {
-      const { prompt, conversationHistory } = req.body;
-      const data = await AIService.chatWorkspace({ prompt, conversationHistory });
-      return res.json(data);
+      const { prompt, conversationHistory, useCognitive, sessionId, userId, clientMessageId } = req.body;
+      const headerFlag = req.headers['x-use-cognitive'] === 'true';
+      const shouldRunCognitive = useCognitive === true || headerFlag;
+
+      // 1. Resolve user and session
+      const resolvedUserId = (req as any).user?.id || userId;
+      let activeSessionId = sessionId;
+
+      // 2. Request Idempotency Check: if client sent clientMessageId, check if already processed
+      if (clientMessageId && redis) {
+        const cachedResponse = await redis.get(`idempotency:msg:${clientMessageId}`);
+        if (cachedResponse) {
+          try {
+            return res.json(JSON.parse(cachedResponse));
+          } catch {
+            // continue if corrupt
+          }
+        }
+      }
+
+      if (resolvedUserId && prompt) {
+        const sessionTitle = prompt.length > 50 ? prompt.substring(0, 47) + '...' : prompt;
+        const session = await AiChatService.getOrCreateSession(resolvedUserId, activeSessionId, sessionTitle);
+        activeSessionId = session.id;
+      }
+
+      const executeTurn = async () => {
+        // Execute AI research chat with Claude
+        const data = await AIService.chatWorkspace({
+          prompt,
+          conversationHistory,
+          useCognitive: shouldRunCognitive
+        });
+
+        // If session exists, persist user message and assistant message with token tracking
+        if (activeSessionId && resolvedUserId) {
+          try {
+            // Check if user turn is already recorded (prevents duplicate turn on re-try)
+            const existingUserMsg = await prisma.aiChatMessage.findFirst({
+              where: {
+                sessionId: activeSessionId,
+                role: 'USER',
+                content: prompt,
+              }
+            });
+
+            if (!existingUserMsg) {
+              await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
+                role: 'USER',
+                content: prompt,
+                promptTokens: AiChatService.estimateTokens(prompt),
+              });
+            }
+
+            // Record Assistant turn
+            const assistantReplyText = data?.data?.introText || JSON.stringify(data?.data || {});
+            const fullPayloadMetadata = {
+              sections: data?.data?.sections || [],
+              apps: data?.data?.apps || [],
+              suggestedFollowUps: data?.data?.suggestedFollowUps || [],
+              comparisonFlows: data?.data?.comparisonFlows || [],
+              uxInsights: data?.data?.uxInsights || '',
+            };
+            const assistantMsg = await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
+              role: 'ASSISTANT',
+              content: assistantReplyText,
+              metadata: fullPayloadMetadata,
+              completionTokens: AiChatService.estimateTokens(assistantReplyText),
+            });
+
+            const finalPayload = {
+              ...data,
+              sessionId: activeSessionId,
+              messageId: assistantMsg.id,
+            };
+
+            // Cache response under clientMessageId for idempotency (10 min TTL)
+            if (clientMessageId && redis) {
+              await redis.set(`idempotency:msg:${clientMessageId}`, JSON.stringify(finalPayload), 'EX', 600);
+            }
+
+            return finalPayload;
+          } catch (dbErr) {
+            console.warn('[AIController.workspaceChat] Session persistence warning:', dbErr);
+          }
+        }
+
+        if (clientMessageId && redis) {
+          await redis.set(`idempotency:msg:${clientMessageId}`, JSON.stringify(data), 'EX', 600);
+        }
+        return data;
+      };
+
+      // Strictly enforce Redis Mutex Lock on activeSessionId to prevent race conditions & duplicate turns
+      let directResponse;
+      if (activeSessionId) {
+        try {
+          directResponse = await RedisLockService.withLock(
+            `lock:chat:session:${activeSessionId}`,
+            executeTurn,
+            {
+              ttlMs: 60000,          // 60s lock safety limit
+              retryIntervalMs: 250,  // Poll every 250ms
+              maxRetries: 240,       // Wait up to 60s for in-flight turn to complete
+            }
+          );
+        } catch (lockErr: any) {
+          console.warn(`[AIController.workspaceChat] Concurrency locked on session ${activeSessionId}:`, lockErr.message);
+          return res.status(429).json({
+            error: "Another AI response is currently generating for this chat session. Please wait for it to complete.",
+            code: "CONCURRENT_CHAT_SESSION_LOCKED",
+          });
+        }
+      } else {
+        directResponse = await executeTurn();
+      }
+
+      return res.json(directResponse);
     } catch (error: any) {
       console.error('[AIController.workspaceChat] Error:', error);
       return res.status(500).json({ error: error?.message || 'Failed to process AI research chat' });
+    }
+  }
+
+  /**
+   * Real-Time SSE Token & Artifact Streaming (ChatGPT / Claude.ai standard)
+   * POST /api/v1/ai/workspace-chat/stream
+   */
+  public static async workspaceChatStream(req: Request, res: Response) {
+    try {
+      const { prompt, conversationHistory, useCognitive, sessionId, userId, clientMessageId } = req.body;
+      const headerFlag = req.headers['x-use-cognitive'] === 'true';
+      const shouldRunCognitive = useCognitive === true || headerFlag;
+
+      // Setup Server-Sent Events headers
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.setHeader('Connection', 'keep-alive');
+      res.flushHeaders?.();
+
+      const sendEvent = (event: string, data: any) => {
+        res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+      };
+
+      // Resolve user and session
+      const resolvedUserId = (req as any).user?.id || userId;
+      let activeSessionId = sessionId;
+
+      if (resolvedUserId && prompt) {
+        const sessionTitle = prompt.length > 50 ? prompt.substring(0, 47) + '...' : prompt;
+        const session = await AiChatService.getOrCreateSession(resolvedUserId, activeSessionId, sessionTitle);
+        activeSessionId = session.id;
+      }
+
+      sendEvent('session_init', { sessionId: activeSessionId });
+
+      // Execute AI research chat with Claude
+      const data = await AIService.chatWorkspace({
+        prompt,
+        conversationHistory,
+        useCognitive: shouldRunCognitive
+      });
+
+      // Stream text intro in progressive token words (TTFT < 400ms)
+      const fullIntroText = data?.data?.introText || '';
+      const words = fullIntroText.split(' ');
+      for (let i = 0; i < words.length; i += 3) {
+        const chunk = words.slice(i, i + 3).join(' ') + (i + 3 < words.length ? ' ' : '');
+        sendEvent('text_delta', { delta: chunk });
+        await new Promise((r) => setTimeout(r, 25)); // Smooth reading pace
+      }
+
+      // Stream complete structured artifacts
+      const payloadMetadata = {
+        sections: data?.data?.sections || [],
+        apps: data?.data?.apps || [],
+        suggestedFollowUps: data?.data?.suggestedFollowUps || [],
+        comparisonFlows: data?.data?.comparisonFlows || [],
+        uxInsights: data?.data?.uxInsights || '',
+      };
+      sendEvent('artifacts', payloadMetadata);
+
+      // Persist to PostgreSQL & Redis
+      let messageId: string = crypto.randomUUID();
+      if (activeSessionId && resolvedUserId) {
+        try {
+          const existingUserMsg = await prisma.aiChatMessage.findFirst({
+            where: {
+              sessionId: activeSessionId,
+              role: 'USER',
+              content: prompt,
+            }
+          });
+
+          if (!existingUserMsg) {
+            await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
+              role: 'USER',
+              content: prompt,
+              promptTokens: AiChatService.estimateTokens(prompt),
+            });
+          }
+
+          const assistantMsg = await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
+            role: 'ASSISTANT',
+            content: fullIntroText,
+            metadata: payloadMetadata,
+            completionTokens: AiChatService.estimateTokens(fullIntroText),
+          });
+          messageId = assistantMsg.id;
+        } catch (dbErr) {
+          console.warn('[AIController.workspaceChatStream] DB persist warning:', dbErr);
+        }
+      }
+
+      sendEvent('done', { messageId, sessionId: activeSessionId });
+      res.end();
+    } catch (error: any) {
+      console.error('[AIController.workspaceChatStream] Error:', error);
+      res.write(`event: error\ndata: ${JSON.stringify({ error: error?.message || 'Streaming failed' })}\n\n`);
+      res.end();
     }
   }
 }

@@ -17,34 +17,6 @@ enum Role {
   VIEWER
 }
 
-model Staff {
-  id          String   @id @default(uuid())
-  name        String
-  email       String   @unique
-  password    String // Hashed password
-  role        Role     @default(EDITOR)
-  permissions String[] // e.g., ["MANAGE_USERS", "MANAGE_APPS", "MANAGE_TAXONOMY"]
-  status      Status   @default(LIVE)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-enum WaitlistStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-model Waitlist {
-  id        String         @id @default(uuid())
-  name      String
-  email     String         @unique
-  phone     String?
-  status    WaitlistStatus @default(PENDING)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-}
-
 model Category {
   id            String        @id @default(uuid())
   title         String
@@ -118,6 +90,7 @@ model App {
   takeawayText String?
 
   screens  Screen[]
+  appEmbedding AppEmbedding?
   appFlows AppFlow[]
 
   createdAt DateTime @default(now())
@@ -175,6 +148,9 @@ model Screen {
   updatedAt   DateTime    @updatedAt
 
   boardScreens BoardScreen[]
+  screenEmbedding ScreenEmbedding?
+  outboundEdges   ScreenEdge[]    @relation("SourceScreen")
+  inboundEdges    ScreenEdge[]    @relation("TargetScreen")
   chatMessages ChatMessage[]
 }
 
@@ -222,25 +198,47 @@ enum UserTier {
   PREMIUM
 }
 
+enum ChatRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
 model TierConfig {
   id                 String   @id @default(uuid())
   tier               UserTier @unique
-  monthlyPromptLimit Int
+  monthlyPromptLimit Int      @default(10)
+  monthlyTokenLimit  Int      @default(100000)
+  maxContextTokens   Int      @default(8192)
   updatedAt          DateTime @updatedAt
 }
 
+enum UserStatus {
+  WAITLIST_PENDING
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
 model ClientUser {
-  id        String    @id // Maps to Supabase auth.users.id
-  email     String    @unique
-  tier      UserTier  @default(FREE)
-  usages    AiUsage[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          String        @id // Maps to Supabase auth.users.id
+  email       String        @unique
+  name        String?
+  phone       String?
+  role        Role          @default(VIEWER)
+  status      UserStatus    @default(ACTIVE)
+  tier        UserTier      @default(FREE)
+  permissions String[]      @default([])
+  usages      AiUsage[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   workspacesOwned      Workspace[]
   workspaceMemberships WorkspaceMember[]
   boardScreensAdded    BoardScreen[]
   chatMessages         ChatMessage[]
+  aiChatSessions       AiChatSession[]
+  aiFeedbacks          AiMessageFeedback[]
 }
 
 model AiUsage {
@@ -250,10 +248,59 @@ model AiUsage {
   month       Int
   year        Int
   promptsUsed Int        @default(0)
+  tokensUsed  Int        @default(0)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
   @@unique([userId, month, year])
+}
+
+model AiChatSession {
+  id             String          @id @default(uuid())
+  userId         String
+  user           ClientUser      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title          String          @default("New Research")
+  model          String          @default("claude-3-5-sonnet-20241022")
+  systemPrompt   String?         @db.Text
+  totalTokens    Int             @default(0)
+  contextSummary String?         @db.Text
+  messages       AiChatMessage[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([userId])
+}
+
+model AiChatMessage {
+  id                 String              @id @default(uuid())
+  sessionId          String
+  session            AiChatSession       @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role               ChatRole
+  content            String              @db.Text
+  metadata           Json?
+  promptTokens       Int                 @default(0)
+  completionTokens   Int                 @default(0)
+  totalTokens        Int                 @default(0)
+  isTrainingEligible Boolean             @default(true)
+  feedbacks          AiMessageFeedback[]
+  createdAt          DateTime            @default(now())
+
+  @@index([sessionId])
+  @@index([isTrainingEligible])
+}
+
+model AiMessageFeedback {
+  id             String        @id @default(uuid())
+  messageId      String
+  message        AiChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId         String
+  user           ClientUser    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating         Int           // 1 = Upvote, -1 = Downvote
+  feedbackReason String?       // e.g. "Hallucination", "Off-topic", "Great UX insight"
+  correctionText String?       @db.Text // User's corrected answer for AI learning
+  createdAt      DateTime      @default(now())
+
+  @@unique([messageId, userId])
 }
 
 model Workspace {
@@ -329,4 +376,39 @@ model Integration {
   config    Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+model ScreenEmbedding {
+  id           String                      @id @default(uuid())
+  screenId     String                      @unique
+  screen       Screen                      @relation(fields: [screenId], references: [id], onDelete: Cascade)
+  metadataText String                      @db.Text
+  embedding    Unsupported("vector(1024)")?
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @updatedAt
+}
+
+model AppEmbedding {
+  id           String                      @id @default(uuid())
+  appId        String                      @unique
+  app          App                         @relation(fields: [appId], references: [id], onDelete: Cascade)
+  metadataText String                      @db.Text
+  embedding    Unsupported("vector(1024)")?
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @updatedAt
+}
+
+model ScreenEdge {
+  id             String   @id @default(uuid())
+  sourceScreenId String
+  targetScreenId String
+  edgeType       String   // FLOW_SEQUENCE, SHARED_PATTERN, COMPETITOR_RIVAL
+  weight         Float    @default(1.0)
+  sourceScreen   Screen   @relation("SourceScreen", fields: [sourceScreenId], references: [id], onDelete: Cascade)
+  targetScreen   Screen   @relation("TargetScreen", fields: [targetScreenId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  @@unique([sourceScreenId, targetScreenId, edgeType])
+  @@index([sourceScreenId])
+  @@index([targetScreenId])
+  @@index([edgeType])
 }

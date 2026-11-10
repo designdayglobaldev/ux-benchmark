@@ -227,4 +227,59 @@
   scrollbar-color: #383838 #181818;
 }
 
+/* Continuous Flowing Horizontal Ambient Glow */
+@keyframes continuousGlowFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.animate-glow-flow {
+  background-size: 200% 100% !important;
+  animation: continuousGlowFlow 4s linear infinite;
+  will-change: background-position;
+}
+
+.animate-glow-flow-fast {
+  background-size: 200% 100% !important;
+  animation: continuousGlowFlow 1.8s linear infinite;
+  will-change: background-position;
+}
+
+/* Icon Ambient Breathing Aura Glow */
+@keyframes iconAuraPulse {
+  0% {
+    opacity: 0.60;
+    transform: scale(0.96);
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 0.90;
+    transform: scale(1.08);
+    filter: blur(14px);
+  }
+  100% {
+    opacity: 0.60;
+    transform: scale(0.96);
+    filter: blur(10px);
+  }
+}
+
+.animate-icon-aura {
+  animation: iconAuraPulse 3.5s ease-in-out infinite;
+  will-change: transform, opacity, filter;
+}
+
+.animate-icon-aura-fast {
+  animation: iconAuraPulse 1.8s ease-in-out infinite;
+  will-change: transform, opacity, filter;
+}
+
+
+
+
+
 

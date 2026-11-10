@@ -32,14 +32,15 @@ export const generalLimiter = rateLimit({
 
 /**
  * Strict AI rate limiter:
- * 15 requests per 1 minute window
- * Protects Anthropic/OpenAI quota and prevents server memory overload
+ * Protects Anthropic/OpenAI quota and prevents server memory overload.
+ * Reads endpoints (GET /sessions, GET /sessions/:id) skip this limiter.
  */
 export const aiRateLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 15,
+  max: 60,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.method === 'GET', // Never rate-limit reading session history or polling
   store: createStore('rl:ai:'),
   message: {
     status: 'error',

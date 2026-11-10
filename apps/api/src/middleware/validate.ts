@@ -85,6 +85,9 @@ export const AIDesignAgentGenerateSchema = z.object({
 export const AIWorkspaceChatSchema = z.object({
   prompt: z.string().min(1, 'Prompt is required'),
   conversationHistory: z.array(z.any()).optional().default([]),
+  useCognitive: z.boolean().optional(),
+  sessionId: z.string().optional(),
+  userId: z.string().optional(),
 });
 
 export const AIBenchmarkRAGSchema = z.object({

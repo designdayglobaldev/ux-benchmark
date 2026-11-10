@@ -260,8 +260,8 @@ export function TimelineFlow({
   if (!steps || steps.length === 0) return null;
 
   const modalFlowData = {
-    id: appName.toLowerCase().replace(/\s+/g, '-'),
-    name: `${appName} Onboarding Flow`,
+    id: (appName || "app").toLowerCase().replace(/\s+/g, '-'),
+    name: `${appName || "App"} Onboarding Flow`,
     screens: steps.map((st, i) => ({
       id: `step-${i}`,
       name: st.title,
@@ -367,8 +367,8 @@ export function InteractiveFlowSection({
   if (!screens || screens.length === 0) return null;
 
   const modalFlowData = {
-    id: flowName.toLowerCase().replace(/\s+/g, '-'),
-    name: `${appName ? appName + ' · ' : ''}${flowName}`,
+    id: (flowName || "flow").toLowerCase().replace(/\s+/g, '-'),
+    name: `${appName ? appName + ' · ' : ''}${flowName || "User Flow"}`,
     screens: screens.map((s, idx) => ({
       id: s.id || `flow-screen-${idx}`,
       name: s.name || `Screen ${idx + 1}`,
@@ -455,7 +455,7 @@ export function InteractiveFlowSection({
                       draggable={false}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 pointer-events-none"
                     />
-                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/75 backdrop-blur-sm text-[10px] font-mono text-white/90">
+                    <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-black/85 border border-white/10 backdrop-blur-md text-[10px] font-mono font-medium text-white shadow-md z-10">
                       #{idx + 1}
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2.5">
@@ -470,7 +470,7 @@ export function InteractiveFlowSection({
                       {screen.name}
                     </span>
                     {screen.uxAnalysis && (
-                      <p className="text-[11px] text-[#808080] line-clamp-1 m-0">
+                      <p className="text-[11px] text-[#8E8E8E] line-clamp-2 m-0 leading-snug" title={screen.uxAnalysis.replace(/<[^>]+>/g, '')}>
                         {screen.uxAnalysis.replace(/<[^>]+>/g, '')}
                       </p>
                     )}
@@ -493,11 +493,116 @@ export function InteractiveFlowSection({
   );
 }
 
+// 6. Single Screen Focus Card
+export function SingleScreenCard({
+  appName,
+  appSlug,
+  screenName,
+  imageUrl,
+  uxAnalysis,
+  keyHighlights,
+  flowName,
+}: {
+  appName?: string;
+  appSlug?: string;
+  screenName?: string;
+  imageUrl?: string;
+  uxAnalysis?: string;
+  keyHighlights?: string;
+  flowName?: string;
+}) {
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const navigate = useNavigate();
+
+  if (!imageUrl) return null;
+
+  return (
+    <div className="my-3 rounded-2xl bg-[#141414] border border-[#262626] p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-start">
+      {/* Screen Preview Container */}
+      <div 
+        className="relative group shrink-0 w-full sm:w-[220px] rounded-xl overflow-hidden bg-black/60 border border-[#2D2D2D] cursor-pointer"
+        onClick={() => setZoomOpen(true)}
+      >
+        <img
+          src={imageUrl}
+          alt={screenName || "Screen focus"}
+          className="w-full h-auto max-h-[360px] object-contain transition-transform duration-300 group-hover:scale-102"
+        />
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div className="px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-[12px] flex items-center gap-1.5">
+            <Maximize2 size={13} />
+            <span>Enlarge</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Screen UX Context */}
+      <div className="flex flex-col gap-3 min-w-0 flex-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="px-2.5 py-0.5 rounded-full bg-[#202020] text-[#A0A0A0] text-[11px] font-medium border border-[#333]">
+            {appName || "App Screen"}
+          </span>
+          {flowName && (
+            <span className="px-2.5 py-0.5 rounded-full bg-[#1E1B2E] text-[#B89AFF] text-[11px] font-medium border border-[#3E3466]">
+              {flowName}
+            </span>
+          )}
+          <span className="text-[11px] text-[#666]">Focus Screen</span>
+        </div>
+
+        <h4 className="text-[16px] font-semibold text-white tracking-tight m-0">
+          {screenName || "Screen Breakdown"}
+        </h4>
+
+        {uxAnalysis && (
+          <div className="text-[13px] text-[#C4C4C4] leading-relaxed prose prose-invert prose-p:my-1">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{uxAnalysis}</ReactMarkdown>
+          </div>
+        )}
+
+        {keyHighlights && (
+          <div className="p-3 rounded-xl bg-[#1A1A1A] border border-[#2B2B2B] text-[12px] text-[#A5A5A5] leading-normal flex items-start gap-2">
+            <Sparkles size={14} className="text-[#A873E8] shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <span className="font-medium text-white mr-1.5">Key Principle:</span>
+              <span className="text-[#C4C4C4]">{keyHighlights.replace(/<[^>]*>?/gm, '')}</span>
+            </div>
+          </div>
+        )}
+
+        {appSlug && (
+          <button
+            onClick={() => navigate(`/apps/${appSlug}`)}
+            className="self-start mt-1 text-[12px] text-[#8E8E8E] hover:text-white flex items-center gap-1 transition-colors"
+          >
+            <span>Explore all flows for {appName || "this app"}</span>
+            <ChevronRight size={13} />
+          </button>
+        )}
+      </div>
+
+      {/* Zoom Dialog */}
+      <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
+        <DialogContent className="max-w-[90vw] md:max-w-[650px] p-2 bg-[#121212] border-[#2A2A2A] text-white">
+          <div className="flex flex-col items-center">
+            <img
+              src={imageUrl}
+              alt={screenName || "Zoomed screen"}
+              className="max-h-[80vh] w-auto object-contain rounded-lg"
+            />
+            <p className="text-[13px] text-[#A0A0A0] mt-2 mb-1">{screenName}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
 // ==========================================
 // DYNAMIC COMPONENT MAP & RENDERER
 // ==========================================
 export interface GenUISection {
-  type: "text" | "screen_gallery" | "comparison_table" | "insight_card" | "timeline" | "interactive_flow";
+  type: "text" | "screen_gallery" | "comparison_table" | "insight_card" | "timeline" | "interactive_flow" | "single_screen";
   content?: string;
   title?: string;
   points?: string[];
@@ -507,6 +612,10 @@ export interface GenUISection {
   appName?: string;
   appSlug?: string;
   flowName?: string;
+  screenName?: string;
+  imageUrl?: string;
+  uxAnalysis?: string;
+  keyHighlights?: string;
   description?: string;
   steps?: TimelineStepItem[];
 }
@@ -517,6 +626,7 @@ const componentRegistry: Record<string, React.ComponentType<any>> = {
   insight_card: InsightCard,
   timeline: TimelineFlow,
   interactive_flow: InteractiveFlowSection,
+  single_screen: SingleScreenCard,
 };
 
 export function DynamicGenUIRenderer({ sections }: { sections: GenUISection[] }) {

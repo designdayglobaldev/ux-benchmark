@@ -17,51 +17,61 @@ const supabase = createClient(
 
 // Helper function to approve user and send email
 export const executeUserApproval = async (email: string) => {
-  const waitlist = await prisma.waitlist.findUnique({ where: { email } });
-  if (!waitlist) {
-    throw new Error('Waitlist entry not found');
-  }
+  let clientUser = await prisma.clientUser.findUnique({ where: { email } });
 
-  if (waitlist.status === 'APPROVED') {
+  if (clientUser && clientUser.status === 'ACTIVE') {
     return { alreadyApproved: true };
   }
 
   // Generate random password
   const tempPassword = Math.random().toString(36).slice(-10) + 'A1!';
 
-  // Create user in Supabase Auth
-  const { data: userData, error: authError } = await supabase.auth.admin.createUser({
-    email,
-    password: tempPassword,
-    email_confirm: true,
-  });
+  // Check if user already exists in Supabase Auth
+  const { data: userList } = await supabase.auth.admin.listUsers();
+  const existingAuthUser = userList?.users?.find((u: any) => u.email === email);
 
-  if (authError) {
-    console.error('Supabase auth error:', authError);
-    throw new Error(authError.message || 'Failed to create user in Auth');
-  }
+  let authUserId = existingAuthUser?.id;
 
-  // Create ClientUser in Prisma DB so user can immediately create workspaces/collections
-  if (userData?.user?.id) {
-    try {
-      await prisma.clientUser.upsert({
-        where: { id: userData.user.id },
-        update: { email },
-        create: {
-          id: userData.user.id,
-          email,
-          tier: 'FREE',
-        },
-      });
-    } catch (dbUserErr) {
-      console.error('Failed to create ClientUser in Prisma:', dbUserErr);
+  if (!authUserId) {
+    // Create user in Supabase Auth
+    const { data: userData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password: tempPassword,
+      email_confirm: true,
+    });
+
+    if (authError) {
+      console.error('Supabase auth error:', authError);
+      throw new Error(authError.message || 'Failed to create user in Auth');
     }
+    authUserId = userData?.user?.id;
   }
 
-  // Update waitlist status
-  await prisma.waitlist.update({
-    where: { email },
-    data: { status: 'APPROVED' },
+  if (!authUserId) {
+    throw new Error('Could not obtain auth user ID');
+  }
+
+  // If clientUser had a placeholder ID (from waitlist pre-reg), clean it up before upserting with authUserId
+  if (clientUser && clientUser.id !== authUserId) {
+    await prisma.clientUser.delete({ where: { id: clientUser.id } });
+  }
+
+  // Upsert ClientUser in Prisma DB so user can immediately create workspaces/collections
+  clientUser = await prisma.clientUser.upsert({
+    where: { id: authUserId },
+    update: {
+      email,
+      status: 'ACTIVE',
+    },
+    create: {
+      id: authUserId,
+      email,
+      name: clientUser?.name || null,
+      phone: clientUser?.phone || null,
+      status: 'ACTIVE',
+      tier: 'FREE',
+      role: 'VIEWER',
+    },
   });
 
   // Send email via Resend
@@ -76,7 +86,7 @@ export const executeUserApproval = async (email: string) => {
         subject: 'Welcome to Zibo Beta!',
         html: `
           <h2>You've been approved!</h2>
-          <p>Hi ${waitlist.name},</p>
+          <p>Hi ${clientUser.name || 'there'},</p>
           <p>Your beta access for Zibo is now active.</p>
           <p>Here are your temporary login credentials:</p>
           <p><strong>Email:</strong> ${email}</p>
@@ -121,29 +131,53 @@ export const registerWaitlist = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Name and email are required' });
     }
 
-    const existing = await prisma.waitlist.findUnique({ where: { email } });
+    const existing = await prisma.clientUser.findUnique({ where: { email } });
     if (existing) {
+      if (existing.status === 'ACTIVE') {
+        return res.status(400).json({ message: 'Email already registered and active' });
+      }
       return res.status(400).json({ message: 'Email already registered on waitlist' });
     }
-
-    const waitlist = await prisma.waitlist.create({
-      data: { name, email, phone },
-    });
 
     const autoApprove = await isAutoApprovalEnabled();
     if (autoApprove) {
       try {
         await executeUserApproval(email);
-        const updated = await prisma.waitlist.findUnique({ where: { email } });
+        const updated = await prisma.clientUser.update({
+          where: { email },
+          data: { name, phone },
+        });
         return res.status(201).json({ ...updated, autoApproved: true });
       } catch (approveErr: any) {
         console.error('Auto-approval error:', approveErr);
-        // Even if email/auth creation hits an issue, waitlist record was created
-        return res.status(201).json({ ...waitlist, autoApproved: false, error: approveErr.message });
+        const crypto = require('crypto');
+        const fallbackPending = await prisma.clientUser.create({
+          data: {
+            id: crypto.randomUUID(),
+            name,
+            email,
+            phone,
+            status: 'WAITLIST_PENDING',
+            role: 'VIEWER',
+          },
+        });
+        return res.status(201).json({ ...fallbackPending, autoApproved: false, error: approveErr.message });
       }
     }
 
-    res.status(201).json(waitlist);
+    const crypto = require('crypto');
+    const pendingUser = await prisma.clientUser.create({
+      data: {
+        id: crypto.randomUUID(),
+        name,
+        email,
+        phone,
+        status: 'WAITLIST_PENDING',
+        role: 'VIEWER',
+      },
+    });
+
+    res.status(201).json(pendingUser);
   } catch (error) {
     console.error('Error registering waitlist:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -191,12 +225,12 @@ export const approveUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Email is required' });
     }
 
-    const waitlist = await prisma.waitlist.findUnique({ where: { email } });
-    if (!waitlist) {
-      return res.status(404).json({ message: 'Waitlist entry not found' });
+    const clientUser = await prisma.clientUser.findUnique({ where: { email } });
+    if (!clientUser) {
+      return res.status(404).json({ message: 'User record not found' });
     }
 
-    if (waitlist.status === 'APPROVED') {
+    if (clientUser.status === 'ACTIVE') {
       return res.status(400).json({ message: 'User already approved' });
     }
 
@@ -211,12 +245,12 @@ export const approveUser = async (req: Request, res: Response) => {
 
 export const getWaitlist = async (req: Request, res: Response) => {
   try {
-    const waitlist = await prisma.waitlist.findMany({
+    const users = await prisma.clientUser.findMany({
       orderBy: { createdAt: 'desc' }
     });
-    res.status(200).json(waitlist);
+    res.status(200).json(users);
   } catch (error) {
-    console.error('Error fetching waitlist:', error);
+    console.error('Error fetching waitlist users:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -229,16 +263,16 @@ export const rejectUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Email is required' });
     }
 
-    const waitlist = await prisma.waitlist.findUnique({ where: { email } });
-    if (!waitlist) {
-      return res.status(404).json({ message: 'Waitlist entry not found' });
+    const clientUser = await prisma.clientUser.findUnique({ where: { email } });
+    if (!clientUser) {
+      return res.status(404).json({ message: 'User record not found' });
     }
 
-    if (waitlist.status === 'REJECTED') {
+    if (clientUser.status === 'REJECTED') {
       return res.status(400).json({ message: 'User already rejected' });
     }
 
-    await prisma.waitlist.update({
+    await prisma.clientUser.update({
       where: { email },
       data: { status: 'REJECTED' },
     });
