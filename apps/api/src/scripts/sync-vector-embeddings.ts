@@ -62,7 +62,7 @@ function buildScreenMetadataText(screen: any, app: any): string {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function syncMultimodalScreens(limit = 50) {
+async function syncMultimodalScreens(limit: number = Infinity) {
   console.log('\n======================================================');
   console.log('1. UPGRADING & SYNCING MULTIMODAL EMBEDDINGS (IMAGE + TEXT)');
   console.log('======================================================');
@@ -76,20 +76,24 @@ async function syncMultimodalScreens(limit = 50) {
   const alreadyUpgradedIds = new Set<string>(alreadyUpgradedRows.map((r: any) => String(r.screenId)));
 
   const totalScreens = await prisma.screen.count({ where: { imageUrl: { not: '' } } });
+  const remainingCount = totalScreens - alreadyUpgradedIds.size;
   console.log(`Total valid screens in DB:              ${totalScreens}`);
   console.log(`Already multimodal (Image + Text):      ${alreadyUpgradedIds.size}`);
-  console.log(`Needing Multimodal Sync or Upgrade:     ${totalScreens - alreadyUpgradedIds.size}`);
+  console.log(`Needing Multimodal Sync or Upgrade:     ${remainingCount}`);
+
+  const targetLimit = limit <= 0 ? Infinity : limit;
+  console.log(`Target processing limit for this run:   ${targetLimit === Infinity ? 'ALL (' + remainingCount + ' screens)' : targetLimit}`);
 
   const CHUNK_SIZE = 3; // 3 screens per batch safely fits Voyage rate limits
   let processed = 0;
 
-  while (processed < limit) {
+  while (processed < targetLimit) {
     const screens: any[] = await prisma.screen.findMany({
       where: {
         id: { notIn: Array.from(alreadyUpgradedIds) },
         imageUrl: { not: '' }
       },
-      take: Math.min(CHUNK_SIZE, limit - processed),
+      take: Math.min(CHUNK_SIZE, targetLimit === Infinity ? CHUNK_SIZE : targetLimit - processed),
       include: {
         app: {
           include: {
@@ -330,8 +334,10 @@ async function main() {
     process.exit(1);
   }
 
-  const runLimit = process.env.SYNC_LIMIT ? parseInt(process.env.SYNC_LIMIT, 10) : 30;
-  console.log(`🚀 Starting Vector Sync Pipeline (Max limit per run: ${runLimit})...`);
+  // Parse SYNC_LIMIT: support "ALL", "all", "0", or numbers
+  const rawLimit = (process.env.SYNC_LIMIT || 'ALL').trim().toUpperCase();
+  const runLimit = rawLimit === 'ALL' || rawLimit === '0' ? Infinity : parseInt(rawLimit, 10) || Infinity;
+  console.log(`🚀 Starting Vector Sync Pipeline (Target: ${runLimit === Infinity ? 'ALL remaining screens' : runLimit + ' screens'})...`);
 
   await syncMultimodalScreens(runLimit);
   await syncAppEmbeddings();

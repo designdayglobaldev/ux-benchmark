@@ -7,16 +7,16 @@ on:
   workflow_dispatch:
     inputs:
       sync_limit:
-        description: 'Number of screens to process in this run'
+        description: 'Number of screens to process (enter "ALL" or "0" for all screens in database, or a number)'
         required: true
-        default: '30'
+        default: 'ALL'
         type: string
 
 jobs:
   sync-vectors:
     name: Sync Screen & App Vectors
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 360 # 6 hours max (GitHub Actions maximum job limit)
 
     steps:
       - name: Checkout Repository
@@ -46,11 +46,12 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
-          SYNC_LIMIT: ${{ github.event.inputs.sync_limit || '30' }}
+          SYNC_LIMIT: ${{ github.event.inputs.sync_limit || 'ALL' }}
 
       - name: Run Health & Retrieval Verification
         run: pnpm --filter api exec tsx src/scripts/verify-vector-health.ts
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+
 
