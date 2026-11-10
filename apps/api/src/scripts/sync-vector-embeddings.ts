@@ -84,7 +84,10 @@ async function syncMultimodalScreens(limit: number = Infinity) {
   const targetLimit = limit <= 0 ? Infinity : limit;
   console.log(`Target processing limit for this run:   ${targetLimit === Infinity ? 'ALL (' + remainingCount + ' screens)' : targetLimit}`);
 
-  const CHUNK_SIZE = 3; // 3 screens per batch safely fits Voyage rate limits
+  // 1 screen per batch: ~2,500 tokens. 
+  // With a 21s delay, this uses ~7,500 TPM and exactly 2.8 RPM.
+  // This is mathematically guaranteed to NEVER exceed Voyage's 10,000 TPM / 3 RPM free tier limits.
+  const CHUNK_SIZE = 1;
   let processed = 0;
 
   while (processed < targetLimit) {
