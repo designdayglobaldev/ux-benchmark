@@ -3,6 +3,7 @@ import { Plus, ArrowUp, Square } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ZiboAiIcon } from "../ZiboAiIcon";
 import { useAIChatStore } from "../../stores/useAIChatStore";
+import { AiChatContextUsageButton } from "./AiChatContextUsageButton";
 
 interface StickyChatInputProps {
   onSendMessage: (query: string) => void;
@@ -184,6 +185,9 @@ export function StickyChatInput({
                     Research mode
                   </span>
                 </div>
+
+                {/* Twenty CRM AI Usage & Context Window Pill */}
+                <AiChatContextUsageButton />
               </div>
 
               {/* Send / Stop Generating Button (ChatGPT / Claude.ai standard) */}
