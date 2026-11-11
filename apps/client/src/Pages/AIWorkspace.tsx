@@ -131,12 +131,12 @@ export function AIWorkspace() {
               {/* 1. Permanent Curated Demo Benchmark (Untouched & Always Pinned) */}
               <button
                 onClick={() => {
-                  handleSearchSubmit(demoResearch);
+                  navigate("/aiworkspace/c/demo-kyc-benchmark-revolut-cashapp");
                 }}
                 className="w-[199px] h-[36px] px-3 rounded-[8px] text-[13px] transition-all truncate text-left cursor-pointer flex items-center"
                 style={{
-                  backgroundColor: !activeSessionId ? "#181818" : "transparent",
-                  color: !activeSessionId ? "#FFFFFF" : "#999999",
+                  backgroundColor: activeSessionId === "demo-kyc-benchmark-revolut-cashapp" ? "#181818" : "transparent",
+                  color: activeSessionId === "demo-kyc-benchmark-revolut-cashapp" ? "#FFFFFF" : "#999999",
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: 400
                 }}
@@ -146,37 +146,44 @@ export function AIWorkspace() {
               </button>
 
               {/* 2. Twenty CRM Date-Grouped User Sessions (Today, Yesterday, Previous 7 Days, Older) */}
-              {groupedSessions.map((group) => (
-                <div key={group.id} className="flex flex-col gap-1 mt-2">
-                  <span className="text-[11px] font-medium uppercase tracking-wider text-[#555555] px-2 py-0.5">
-                    {group.title}
-                  </span>
-                  {group.sessions.map((session) => {
-                    const isSelected = activeSessionId === session.id;
-                    return (
-                      <div
-                        key={session.id}
-                        onClick={() => handleSelectSession(session.id)}
-                        className={`group relative w-[199px] h-[36px] px-3 rounded-[8px] text-[13px] transition-all cursor-pointer flex items-center justify-between ${
-                          isSelected ? "bg-[#181818] text-white" : "text-[#999999] hover:bg-[#141414] hover:text-white"
-                        }`}
-                        title={session.title}
-                      >
-                        <span className="truncate pr-2">{session.title}</span>
-                        {/* Hover Delete Action (Twenty CRM / Claude pattern) */}
-                        <button
-                          type="button"
-                          onClick={(e) => handleDeleteSession(e, session.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 text-[#777777] transition-all rounded"
-                          title="Delete chat"
+              {groupedSessions.map((group) => {
+                const userSessionsOnly = group.sessions.filter(
+                  (s) => s.id !== "demo-kyc-benchmark-revolut-cashapp" && !s.title.toLowerCase().includes("why do revolut")
+                );
+                if (userSessionsOnly.length === 0) return null;
+
+                return (
+                  <div key={group.id} className="flex flex-col gap-1 mt-2">
+                    <span className="text-[11px] font-medium uppercase tracking-wider text-[#555555] px-2 py-0.5">
+                      {group.title}
+                    </span>
+                    {userSessionsOnly.map((session) => {
+                      const isSelected = activeSessionId === session.id;
+                      return (
+                        <div
+                          key={session.id}
+                          onClick={() => handleSelectSession(session.id)}
+                          className={`group relative w-[199px] h-[36px] px-3 rounded-[8px] text-[13px] transition-all cursor-pointer flex items-center justify-between ${
+                            isSelected ? "bg-[#181818] text-white" : "text-[#999999] hover:bg-[#141414] hover:text-white"
+                          }`}
+                          title={session.title}
                         >
-                          <Trash2 size={13} />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
+                          <span className="truncate pr-2">{session.title}</span>
+                          {/* Hover Delete Action (Twenty CRM / Claude pattern) */}
+                          <button
+                            type="button"
+                            onClick={(e) => handleDeleteSession(e, session.id)}
+                            className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 text-[#777777] transition-all rounded"
+                            title="Delete chat"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

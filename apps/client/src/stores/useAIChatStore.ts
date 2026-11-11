@@ -90,9 +90,17 @@ export const useAIChatStore = create<AIChatState>()(
             // Keep any active optimistic session if it has not yet arrived in server response
             const serverIds = new Set(uniqueSessions.map((s) => s.id));
             const pendingOptimistic = state.sessions.filter(
-              (s) => !serverIds.has(s.id) && s.id === state.activeSessionId
+              (s) =>
+                !serverIds.has(s.id) &&
+                s.id === state.activeSessionId &&
+                s.id !== "demo-kyc-benchmark-revolut-cashapp"
             );
-            return { sessions: [...pendingOptimistic, ...uniqueSessions] };
+            return {
+              sessions: [
+                ...pendingOptimistic,
+                ...uniqueSessions.filter((s) => s.id !== "demo-kyc-benchmark-revolut-cashapp"),
+              ],
+            };
           });
         } catch (err) {
           console.warn("[AIChatStore] fetchSessions error:", err);
@@ -101,6 +109,33 @@ export const useAIChatStore = create<AIChatState>()(
 
       // 2. Load turns for a specific session (reads from Redis/DB via API)
       loadSessionTurns: async (sessionId) => {
+        if (sessionId === "demo-kyc-benchmark-revolut-cashapp") {
+          if (!get().threads[sessionId] || get().threads[sessionId].length === 0) {
+            set((state) => ({
+              threads: {
+                ...state.threads,
+                [sessionId]: [
+                  {
+                    id: "demo-user-turn-1",
+                    role: "user",
+                    content: "Why do Revolut and Cash App convert 3x more KYC onboarding than traditional banking apps?",
+                    createdAt: new Date().toISOString(),
+                  },
+                  {
+                    id: "demo-assistant-turn-1",
+                    role: "assistant",
+                    content: defaultDemoData.introText,
+                    data: defaultDemoData,
+                    createdAt: new Date().toISOString(),
+                    isStreaming: false,
+                  },
+                ],
+              },
+            }));
+          }
+          return;
+        }
+
         const existingTurns = get().threads[sessionId];
         if (existingTurns && existingTurns.length > 0) return;
 
@@ -213,31 +248,41 @@ export const useAIChatStore = create<AIChatState>()(
 
         navigate(`/aiworkspace/c/${newSessionId}`);
 
-        // Check for Demo KYC query shortcut
+        // Check for Demo KYC query shortcut: Reuse permanent static demo ID so it NEVER creates a duplicate
         const isDemo =
           cleanPrompt.toLowerCase().includes("revolut") &&
           cleanPrompt.toLowerCase().includes("cash app") &&
           cleanPrompt.toLowerCase().includes("kyc");
 
         if (isDemo) {
-          setTimeout(() => {
-            const assistantTurn: ChatTurn = {
-              id: assistantTurnId,
-              role: "assistant",
-              content: defaultDemoData.introText,
-              data: defaultDemoData,
-              createdAt: new Date().toISOString(),
-              isStreaming: false,
-            };
-            set((state) => ({
-              threads: {
-                ...state.threads,
-                [newSessionId]: [optimisticUserTurn, assistantTurn],
-              },
-              isLoading: false,
-              activeAbortController: null,
-            }));
-          }, 600);
+          const demoSessionId = "demo-kyc-benchmark-revolut-cashapp";
+          const demoUserTurn: ChatTurn = {
+            id: "demo-user-turn-1",
+            role: "user",
+            content: cleanPrompt,
+            createdAt: now,
+          };
+          const demoAssistantTurn: ChatTurn = {
+            id: "demo-assistant-turn-1",
+            role: "assistant",
+            content: defaultDemoData.introText,
+            data: defaultDemoData,
+            createdAt: now,
+            isStreaming: false,
+          };
+
+          // Update active session WITHOUT adding it to user's database or session sidebar
+          set((state) => ({
+            activeSessionId: demoSessionId,
+            threads: {
+              ...state.threads,
+              [demoSessionId]: [demoUserTurn, demoAssistantTurn],
+            },
+            isLoading: false,
+            activeAbortController: null,
+          }));
+
+          navigate(`/aiworkspace/c/${demoSessionId}`);
           return;
         }
 

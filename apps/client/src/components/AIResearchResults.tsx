@@ -36,31 +36,31 @@ export const defaultDemoData: AssistantTurnPayload = {
         },
         {
           id: "rev-screen-2",
-          name: "2. Passcode Setup",
+          name: "2. Welcome & Onboarding Intro",
           imageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/mz7q7a6ylx_1789016936801.webp",
-          uxAnalysis: "Clear numeric keypad with instant pin validation and haptic taps.",
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/b3h4s63s606_1784870797386.webp",
+          uxAnalysis: "Clear value proposition highlighting speed and security before document gate.",
         },
         {
           id: "rev-screen-3",
           name: "3. Address Verification",
           imageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/fymmpwrg8t7_1789017008283.webp",
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/hmk8b3suwo4_1789110842300.webp",
           uxAnalysis: "Predictive address autocomplete minimizing keyboard strokes.",
         },
         {
           id: "rev-screen-4",
-          name: "4. Document Capture Viewport",
+          name: "4. Identity Verification",
           imageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/xaqubbog48a_1789017233996.webp",
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/m9swhhl7mmm_1789110887011.webp",
           uxAnalysis:
             "Automated document edge-detection with real-time feedback guidance to eliminate user error.",
         },
         {
           id: "rev-screen-5",
-          name: "5. Biometric Liveness Verification",
+          name: "5. Security Setup",
           imageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/fj0j9jyk1s_1789017619495.webp",
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/yw3h6dikg3_1789451368601.webp",
           uxAnalysis:
             "Animated progress ring reassurance that reduces anxiety during background verification checks.",
         },
@@ -78,36 +78,29 @@ export const defaultDemoData: AssistantTurnPayload = {
           id: "cash-screen-1",
           name: "1. Phone or Email Gate",
           imageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/al3wlfbzo5p_1788243150180.webp",
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/fkfxpur7rwa_1788243351409.webp",
           uxAnalysis: "Minimalist single-field entry with zero distractive copy or legal jargon.",
         },
         {
           id: "cash-screen-2",
           name: "2. Confirmation Code",
           imageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/w7677bsg2e_1788243232272.webp",
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/mki122wa1gs_1788243197819.webp",
           uxAnalysis: "Auto-reading SMS code input with instant progression.",
         },
         {
           id: "cash-screen-3",
           name: "3. Cashtag Claim",
           imageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/d9kwh5i13j_1788243403328.webp",
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/k0llxq79gq_1788243509466.webp",
           uxAnalysis: "Identity claim acting as psychological endowment effect.",
         },
         {
           id: "cash-screen-4",
-          name: "4. Debit Card Selector",
+          name: "4. Account Setup",
           imageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/u8t2d7k29b_1788243510984.webp",
-          uxAnalysis: "Tangible artifact customization before banking disclosures.",
-        },
-        {
-          id: "cash-screen-5",
-          name: "5. Deferred SSN Friction",
-          imageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/6qfx75oml8m_1788243729910.webp",
-          uxAnalysis: "SSN requested only when user attempts to withdraw or order a physical card.",
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/5vn34ovr5kr_1788243700109.webp",
+          uxAnalysis: "Deferred friction: SSN and banking disclosures are delayed until account is established.",
         },
       ],
     },
@@ -116,29 +109,40 @@ export const defaultDemoData: AssistantTurnPayload = {
     {
       id: "revolut-app-id",
       name: "Revolut",
+      slug: "revolut",
       category: "Banking (Digital)",
       appLogo:
-        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/icons/revolut.png",
+        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/logos/pyqa9pu2u_1784804766435.png",
+      appThumbnail:
+        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/thumbnails/6gy47c85rz3_1784804767543.png",
     },
     {
       id: "cash-app-id",
       name: "Cash App",
+      slug: "cash-app",
       category: "Banking (Digital)",
       appLogo:
-        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/icons/cashapp.png",
+        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/logos/vfndfu484p_1788242865874.png",
+      appThumbnail:
+        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/thumbnails/hacly7hs0mo_1788242867231.png",
     },
     {
-      id: "monzo-app-id",
-      name: "Monzo",
-      category: "Banking (Digital)",
+      id: "paypal-app-id",
+      name: "PayPal",
+      slug: "paypal",
+      category: "Payments & Banking",
       appLogo:
-        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/icons/monzo.png",
+        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/logos/uvahlzu9d8_1787635182927.png",
+      appThumbnail:
+        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/thumbnails/6zy25tbcom7_1787635184359.png",
     },
   ],
   comparisonFlows: [
     {
       appName: "Revolut",
       badge: "Verified KYC",
+      appLogo:
+        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/logos/pyqa9pu2u_1784804766435.png",
       steps: [
         {
           stepNumber: 1,
@@ -149,17 +153,46 @@ export const defaultDemoData: AssistantTurnPayload = {
         },
         {
           stepNumber: 2,
-          title: "Passcode Setup",
-          description: "Clear numeric keypad with instant pin validation and haptic taps.",
+          title: "Welcome & Onboarding Intro",
+          description: "High-contrast brand moment with clear value proposition prior to identity verification.",
           screenImageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/mz7q7a6ylx_1789016936801.webp",
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/b3h4s63s606_1784870797386.webp",
         },
         {
           stepNumber: 3,
           title: "Address Verification",
           description: "Predictive address autocomplete minimizing keyboard strokes.",
           screenImageUrl:
-            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/fymmpwrg8t7_1789017008283.webp",
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/hmk8b3suwo4_1789110842300.webp",
+        },
+      ],
+    },
+    {
+      appName: "Cash App",
+      badge: "Minimalist Flow",
+      appLogo:
+        "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/logos/vfndfu484p_1788242865874.png",
+      steps: [
+        {
+          stepNumber: 1,
+          title: "Single-Field Phone Entry",
+          description: "Ultra-lean single input field removing all cognitive friction.",
+          screenImageUrl:
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/fkfxpur7rwa_1788243351409.webp",
+        },
+        {
+          stepNumber: 2,
+          title: "SMS Confirmation",
+          description: "Auto-reading OTP code validation with instant progression.",
+          screenImageUrl:
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/mki122wa1gs_1788243197819.webp",
+        },
+        {
+          stepNumber: 3,
+          title: "Cashtag Claim",
+          description: "Psychological endowment effect through immediate username claim.",
+          screenImageUrl:
+            "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/k0llxq79gq_1788243509466.webp",
         },
       ],
     },
