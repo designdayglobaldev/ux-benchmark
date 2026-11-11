@@ -35,9 +35,10 @@ export function AIWorkspace() {
   const demoResearch = "Why do Revolut and Cash App convert 3x more KYC onboarding than traditional banking apps?";
 
   // Fetch past user sessions on mount
+  const userId = user?.id;
   useEffect(() => {
-    fetchSessions(user?.id);
-  }, [user?.id]);
+    fetchSessions(userId);
+  }, [userId, fetchSessions]);
 
   // Sync active session with route parameter
   useEffect(() => {
@@ -46,7 +47,7 @@ export function AIWorkspace() {
     } else {
       clearActiveSession();
     }
-  }, [activeSessionId]);
+  }, [activeSessionId, setActiveSession, clearActiveSession]);
 
   // Deduplicate and group sessions (Twenty CRM pattern)
   const groupedSessions = useMemo(() => {
