@@ -192,6 +192,12 @@ export const useAIChatStore = create<AIChatState>()(
 
       // 3. Create Session and Stream First Prompt (Real-time SSE token typing)
       createAndSendPrompt: async (prompt, navigate, userId) => {
+        // Abort any existing in-flight stream before starting a new one
+        const previousAbort = get().activeAbortController;
+        if (previousAbort) {
+          previousAbort.abort();
+        }
+
         const cleanPrompt = prompt.trim();
         if (!cleanPrompt) return;
 
@@ -265,24 +271,95 @@ export const useAIChatStore = create<AIChatState>()(
           const demoAssistantTurn: ChatTurn = {
             id: "demo-assistant-turn-1",
             role: "assistant",
-            content: defaultDemoData.introText,
-            data: defaultDemoData,
+            content: "",
+            data: {
+              introText: "",
+              sections: [],
+              apps: [],
+              comparisonFlows: [],
+              uxInsights: "",
+              suggestedFollowUps: [],
+            },
             createdAt: now,
-            isStreaming: false,
+            isStreaming: true,
           };
 
-          // Update active session WITHOUT adding it to user's database or session sidebar
+          // 1. Mount turn in streaming state with thinking status
           set((state) => ({
             activeSessionId: demoSessionId,
             threads: {
               ...state.threads,
               [demoSessionId]: [demoUserTurn, demoAssistantTurn],
             },
-            isLoading: false,
+            isLoading: true,
             activeAbortController: null,
           }));
 
           navigate(`/aiworkspace/c/${demoSessionId}`);
+
+          // 2. Claude-style Typewriter Streaming with abort controller & cleanup protection
+          const streamAbort = new AbortController();
+          set({ activeAbortController: streamAbort });
+
+          setTimeout(async () => {
+            const words = defaultDemoData.introText.split(" ");
+            let streamIntro = "";
+
+            for (let i = 0; i < words.length; i += 2) {
+              if (streamAbort.signal.aborted || get().activeSessionId !== demoSessionId) {
+                break;
+              }
+
+              const chunk = words.slice(i, i + 2).join(" ") + (i + 2 < words.length ? " " : "");
+              streamIntro += chunk;
+
+              set((state) => ({
+                threads: {
+                  ...state.threads,
+                  [demoSessionId]: [
+                    demoUserTurn,
+                    {
+                      ...demoAssistantTurn,
+                      content: streamIntro,
+                      data: {
+                        ...defaultDemoData,
+                        introText: streamIntro,
+                        sections: [],
+                        apps: [],
+                        comparisonFlows: [],
+                      },
+                      isStreaming: true,
+                    },
+                  ],
+                },
+              }));
+
+              await new Promise((r) => setTimeout(r, 35));
+            }
+
+            if (streamAbort.signal.aborted || get().activeSessionId !== demoSessionId) {
+              return;
+            }
+
+            // 3. Reveal structured artifacts (Carousels, Cards, Follow-ups) once text completes
+            set((state) => ({
+              threads: {
+                ...state.threads,
+                [demoSessionId]: [
+                  demoUserTurn,
+                  {
+                    ...demoAssistantTurn,
+                    content: defaultDemoData.introText,
+                    data: defaultDemoData,
+                    isStreaming: false,
+                  },
+                ],
+              },
+              isLoading: false,
+              activeAbortController: null,
+            }));
+          }, 700);
+
           return;
         }
 
@@ -322,21 +399,24 @@ export const useAIChatStore = create<AIChatState>()(
           let accumulatedText = "";
           let buffer = "";
 
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+          const isStale = () => abortController.signal.aborted || get().activeSessionId !== newSessionId;
 
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split("\n\n");
-            buffer = lines.pop() || "";
-
-            for (const line of lines) {
+          const processBuffer = (rawLines: string[]) => {
+            for (const line of rawLines) {
+              if (isStale()) return false;
               const eventMatch = line.match(/^event:\s*(.+)$/m);
               const dataMatch = line.match(/^data:\s*(.+)$/m);
 
               if (eventMatch && dataMatch) {
                 const event = eventMatch[1].trim();
-                const data = JSON.parse(dataMatch[1].trim());
+                let data: any;
+                try {
+                  data = JSON.parse(dataMatch[1].trim());
+                } catch {
+                  continue;
+                }
+
+                if (isStale()) return false;
 
                 if (event === "text_delta" && data.delta) {
                   accumulatedText += data.delta;
@@ -379,7 +459,6 @@ export const useAIChatStore = create<AIChatState>()(
                 } else if (event === "done") {
                   const finalSessionId = data.sessionId || newSessionId;
                   set((state) => {
-                    // Update session ID if server provided canonical session
                     const updatedSessions = state.sessions.map((s) =>
                       s.id === newSessionId ? { ...s, id: finalSessionId } : s
                     );
@@ -397,18 +476,50 @@ export const useAIChatStore = create<AIChatState>()(
                         [finalSessionId]: finalizedThread,
                       },
                       isLoading: false,
-                      activeAbortController: null,
                     };
                   });
                 }
               }
+            }
+            return true;
+          };
+
+          streamLoop: while (true) {
+            let readResult: ReadableStreamReadResult<Uint8Array>;
+            try {
+              readResult = await reader.read();
+            } catch (readErr: any) {
+              if (readErr.name === "AbortError") break streamLoop;
+              throw readErr;
+            }
+
+            const { done, value } = readResult;
+            if (done) {
+              // Flush any remaining buffer terminated without trailing double-newline
+              if (buffer.trim()) {
+                processBuffer([buffer]);
+              }
+              break streamLoop;
+            }
+
+            if (isStale()) {
+              try { await reader.cancel(); } catch {}
+              break streamLoop;
+            }
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n\n");
+            buffer = lines.pop() || "";
+
+            if (!processBuffer(lines)) {
+              try { await reader.cancel(); } catch {}
+              break streamLoop;
             }
           }
 
           get().fetchSessions(userId);
         } catch (err: any) {
           if (err.name === "AbortError") {
-            // User aborted via Stop button
             set((state) => ({
               threads: {
                 ...state.threads,
@@ -416,8 +527,6 @@ export const useAIChatStore = create<AIChatState>()(
                   t.id === assistantTurnId ? { ...t, isStreaming: false } : t
                 ),
               },
-              isLoading: false,
-              activeAbortController: null,
             }));
             return;
           }
@@ -457,16 +566,24 @@ export const useAIChatStore = create<AIChatState>()(
               ...state.threads,
               [newSessionId]: [optimisticUserTurn, fallbackTurn],
             },
-            isLoading: false,
-            activeAbortController: null,
           }));
+        } finally {
+          // Guaranteed reset of loading & abort controller regardless of connection drop or unhandled error
+          if (get().activeAbortController === abortController) {
+            set({ isLoading: false, activeAbortController: null });
+          }
         }
       },
 
       // 4. Send follow-up in existing session with SSE stream
       sendFollowUp: async (prompt, userId) => {
-        const { activeSessionId, threads, isLoading } = get();
+        const { activeSessionId, threads, isLoading, activeAbortController } = get();
         if (!activeSessionId || !prompt.trim() || isLoading) return;
+
+        // Abort any previous pending stream
+        if (activeAbortController) {
+          activeAbortController.abort();
+        }
 
         const cleanPrompt = prompt.trim();
         const now = new Date().toISOString();
@@ -546,24 +663,54 @@ export const useAIChatStore = create<AIChatState>()(
           let accumulatedText = "";
           let buffer = "";
 
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+          streamFollowUpLoop: while (true) {
+            let readResult: ReadableStreamReadResult<Uint8Array>;
+            try {
+              readResult = await reader.read();
+            } catch (readErr: any) {
+              if (readErr.name === "AbortError") break streamFollowUpLoop;
+              throw readErr;
+            }
+
+            const { done, value } = readResult;
+            if (done || abortController.signal.aborted || get().activeSessionId !== activeSessionId) {
+              try { await reader.cancel(); } catch {}
+              break streamFollowUpLoop;
+            }
 
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split("\n\n");
             buffer = lines.pop() || "";
 
             for (const line of lines) {
+              if (abortController.signal.aborted || get().activeSessionId !== activeSessionId) {
+                try { await reader.cancel(); } catch {}
+                break streamFollowUpLoop;
+              }
+
               const eventMatch = line.match(/^event:\s*(.+)$/m);
               const dataMatch = line.match(/^data:\s*(.+)$/m);
 
               if (eventMatch && dataMatch) {
                 const event = eventMatch[1].trim();
-                const data = JSON.parse(dataMatch[1].trim());
+                let data: any;
+                try {
+                  data = JSON.parse(dataMatch[1].trim());
+                } catch {
+                  continue;
+                }
+
+                if (abortController.signal.aborted || get().activeSessionId !== activeSessionId) {
+                  try { await reader.cancel(); } catch {}
+                  break streamFollowUpLoop;
+                }
 
                 if (event === "text_delta" && data.delta) {
                   accumulatedText += data.delta;
+                  if (abortController.signal.aborted || get().activeSessionId !== activeSessionId) {
+                    try { await reader.cancel(); } catch {}
+                    break streamFollowUpLoop;
+                  }
                   set((state) => ({
                     threads: {
                       ...state.threads,
@@ -579,6 +726,10 @@ export const useAIChatStore = create<AIChatState>()(
                     },
                   }));
                 } else if (event === "artifacts") {
+                  if (abortController.signal.aborted || get().activeSessionId !== activeSessionId) {
+                    try { await reader.cancel(); } catch {}
+                    break streamFollowUpLoop;
+                  }
                   set((state) => ({
                     threads: {
                       ...state.threads,
@@ -601,6 +752,10 @@ export const useAIChatStore = create<AIChatState>()(
                     },
                   }));
                 } else if (event === "done") {
+                  if (abortController.signal.aborted || get().activeSessionId !== activeSessionId) {
+                    try { await reader.cancel(); } catch {}
+                    break streamFollowUpLoop;
+                  }
                   set((state) => ({
                     threads: {
                       ...state.threads,
@@ -611,7 +766,8 @@ export const useAIChatStore = create<AIChatState>()(
                       ),
                     },
                     isLoading: false,
-                    activeAbortController: null,
+                    activeAbortController:
+                      state.activeAbortController === abortController ? null : state.activeAbortController,
                   }));
                 }
               }

@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ZiboAiIcon } from "../ZiboAiIcon";
 import { DynamicGenUIRenderer } from "../genui/GenUIRenderer";
+import { ClaudeThinkingBar } from "./ClaudeThinkingBar";
 import revolutScreen from "../../assets/Revolut.png";
 import revolutLogo from "../../assets/Revolut_logo.png";
 import { useAuth } from "../../contexts/AuthContext";
@@ -93,9 +94,9 @@ export function AssistantTurnArtifact({
   };
 
   return (
-    <div className="w-full flex items-start gap-3.5 sm:gap-4 mb-10 min-w-0">
+    <div className="w-full flex items-start gap-3 sm:gap-3.5 mb-10 min-w-0">
       {/* 1. Left AI Avatar Icon */}
-      <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg mt-1">
+      <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg">
         <div className="w-full h-full bg-[#141414] rounded-full flex items-center justify-center">
           <ZiboAiIcon size={18} className="text-white" />
         </div>
@@ -104,37 +105,35 @@ export function AssistantTurnArtifact({
       {/* 2. Main Response Body */}
       <div className="flex-1 flex flex-col gap-5 min-w-0">
         
-        {/* If streaming and no text/content has arrived yet, show subtle thinking animation inline */}
+        {/* Claude-style Minimalist Elegant Thinking Bar */}
         {isStreaming && !hasBodyContent && (
-          <div className="flex items-center gap-2.5 py-1">
-            <div className="w-2 h-2 rounded-full bg-purple-500 animate-ping" />
-            <span className="text-[13px] font-medium text-purple-300">
-              Analyzing design patterns & generating benchmarks...
-            </span>
-          </div>
+          <ClaudeThinkingBar />
         )}
 
-        {/* Intro Markdown Text */}
+        {/* Intro Markdown Text with Claude Streaming Cursor */}
         {introText && (
           <div className="prose prose-invert max-w-none text-[#E0E0E0] text-[14px] sm:text-[15px] leading-[26px] font-normal tracking-[-0.01em] prose-headings:font-medium prose-headings:text-white prose-p:my-2.5 prose-strong:text-white prose-strong:font-semibold prose-ul:my-2 prose-li:my-1">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{introText}</ReactMarkdown>
+            {isStreaming && (
+              <span className="animate-claude-cursor" aria-hidden="true" />
+            )}
           </div>
         )}
 
-        {/* Dynamic GenUI Sections (Interactive Flow Carousels, Insight Cards, Text Blocks) */}
-        {sections.length > 0 && (
-          <div className="flex flex-col gap-5 w-full">
+        {/* Dynamic GenUI Sections (Interactive Flow Carousels, Insight Cards, Text Blocks) - Shown after text finishes or when streaming is complete */}
+        {!isStreaming && sections.length > 0 && (
+          <div className="flex flex-col gap-5 w-full animate-in fade-in duration-500">
             <DynamicGenUIRenderer sections={sections} />
           </div>
         )}
 
-        {/* Interactive Comparison Flows (Dual-App Step Comparison View) */}
-        {comparisonFlows.length > 0 && (() => {
+        {/* Interactive Comparison Flows (Dual-App Step Comparison View) - Shown after streaming completes */}
+        {!isStreaming && comparisonFlows.length > 0 && (() => {
           const maxSteps = Math.max(...comparisonFlows.map((f: ComparisonFlow) => f.steps.length), 1);
           const clampedIndex = Math.min(activeStepIndex, maxSteps - 1);
 
           return (
-            <div className="flex flex-col gap-4 my-2 w-full rounded-2xl bg-[#121212] border border-[#252525] p-5 shadow-2xl overflow-hidden">
+            <div className="flex flex-col gap-4 my-2 w-full rounded-2xl bg-[#121212] border border-[#252525] p-5 shadow-2xl overflow-hidden animate-in fade-in duration-500">
               {/* Top Toolbar: Heading + Step Scrubber Tabs */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#222222]">
                 <div className="flex items-center gap-2.5">
@@ -305,9 +304,9 @@ export function AssistantTurnArtifact({
           </Dialog>
         )}
 
-        {/* App Showcase Cards Container */}
-        {apps.length > 0 && (
-          <div className="flex flex-col gap-3 pt-2">
+        {/* App Showcase Cards Container - Shown once streaming finishes */}
+        {!isStreaming && apps.length > 0 && (
+          <div className="flex flex-col gap-3 pt-2 animate-in fade-in duration-500">
             <div
               className={`flex items-center gap-6 overflow-x-auto no-scrollbar pb-3 pt-1 w-full scroll-smooth ${
                 apps.length <= 3 ? "justify-start" : "justify-start"

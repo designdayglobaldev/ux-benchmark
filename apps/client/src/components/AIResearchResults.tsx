@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { ZiboAiIcon } from "./ZiboAiIcon";
 import { UserTurnBubble } from "./chat/UserTurnBubble";
 import { AssistantTurnArtifact } from "./chat/AssistantTurnArtifact";
+import { ClaudeThinkingBar } from "./chat/ClaudeThinkingBar";
 import { StickyChatInput } from "./chat/StickyChatInput";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useAIChatStore } from "../stores/useAIChatStore";
 import { useAuth } from "../contexts/AuthContext";
-import type { AssistantTurnPayload } from "../types/ai-chat.types";
+import type { AssistantTurnPayload, ChatTurn } from "../types/ai-chat.types";
 
 // Standard curated benchmark baseline for the default demo query
 export const defaultDemoData: AssistantTurnPayload = {
@@ -208,46 +208,86 @@ interface AIResearchResultsProps {
   sessionId?: string | null;
 }
 
+const EMPTY_TURNS: ChatTurn[] = [];
+
 export function AIResearchResults({
   sessionId,
 }: AIResearchResultsProps) {
   const { user } = useAuth();
   
-  // Single Source of Truth: Zustand Store
-  const turns = useAIChatStore((state) => (sessionId ? state.threads[sessionId] || [] : []));
+  // Single Source of Truth: Zustand Store (Using cached EMPTY_TURNS selector to avoid React #185 loop)
+  const turns = useAIChatStore((state) => (sessionId && state.threads[sessionId] ? state.threads[sessionId] : EMPTY_TURNS));
   const isLoading = useAIChatStore((state) => state.isLoading);
   const sendFollowUp = useAIChatStore((state) => state.sendFollowUp);
 
-  // Rotating thinking messages
-  const [thinkingIndex, setThinkingIndex] = useState(0);
-  const thinkingSteps = [
-    "Searching design database & screen repositories...",
-    "Retrieving verified onboarding flows & screenshots...",
-    "Extracting step-by-step UX patterns & friction points...",
-    "Synthesizing benchmark comparison & interactive flows...",
-  ];
-
   const threadEndRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  
+  // Track scroll position continuously BEFORE the DOM updates with a new turn
+  const wasNearBottomRef = useRef(true);
+  const prevSessionIdRef = useRef(sessionId);
+  const prevTurnsLengthRef = useRef(turns.length);
+  // If turns already exist in memory on mount, mark loaded; if empty, wait for the async fetch to finish first
+  const isInitialLoadDoneRef = useRef(turns.length > 0);
 
+  // 1. Continuously track if user is near bottom on the scroll parent (<main>)
   useEffect(() => {
-    if (!isLoading) return;
-    const interval = setInterval(() => {
-      setThinkingIndex((prev) => (prev + 1) % thinkingSteps.length);
-    }, 2200);
-    return () => clearInterval(interval);
-  }, [isLoading]);
+    const el = containerRef.current?.closest('main') || containerRef.current?.parentElement;
+    if (!el) return;
+    const onScroll = () => {
+      wasNearBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 250;
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
 
-  // Auto-scroll when new turn or thinking arrives
+  // 2. Reset trackers when switching to a different session
   useEffect(() => {
-    threadEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [turns, isLoading]);
+    if (prevSessionIdRef.current !== sessionId) {
+      prevSessionIdRef.current = sessionId;
+      prevTurnsLengthRef.current = turns.length;
+      isInitialLoadDoneRef.current = turns.length > 0;
+      wasNearBottomRef.current = true;
+    }
+  }, [sessionId, turns.length]);
+
+  // 3. Smart Auto-Scroll: Ignores async bulk population (0 -> 12), scrolls on appends using pre-commit scroll position
+  useEffect(() => {
+    // If this session was waiting for its initial turns to load from DB/network (0 -> N)
+    if (!isInitialLoadDoneRef.current) {
+      if (turns.length > 0) {
+        isInitialLoadDoneRef.current = true;
+        prevTurnsLengthRef.current = turns.length;
+        
+        // If it's a newly created chat session (starts with user prompt and assistant turn: 1 or 2 turns),
+        // we DO want to scroll to ensure the new question and streaming status are visible
+        if (turns.length <= 2) {
+          const scrollParent = containerRef.current?.closest('main') || containerRef.current?.parentElement;
+          scrollParent?.scrollTo({ top: scrollParent.scrollHeight, behavior: "smooth" });
+        }
+      }
+      return;
+    }
+
+    // Only fire if turns actually increased AFTER initial load
+    if (sessionId === prevSessionIdRef.current && turns.length > prevTurnsLengthRef.current) {
+      const scrollParent = containerRef.current?.closest('main') || containerRef.current?.parentElement;
+      if (scrollParent) {
+        // Read the pre-commit wasNearBottomRef state (not post-render height)
+        if (wasNearBottomRef.current || turns.length <= 2) {
+          scrollParent.scrollTo({ top: scrollParent.scrollHeight, behavior: "smooth" });
+        }
+      }
+    }
+    prevTurnsLengthRef.current = turns.length;
+  }, [turns.length, sessionId]);
 
   const handleFollowUpClick = (question: string) => {
     sendFollowUp(question, user?.id);
   };
 
   return (
-    <div className="w-full max-w-full flex-1 flex flex-col justify-between z-10 px-2 sm:px-4 pt-4 min-w-0 pb-0">
+    <div ref={containerRef} className="w-full max-w-full flex-1 flex flex-col justify-between z-10 px-2 sm:px-4 pt-4 min-w-0 pb-0">
       {/* Scrollable Conversation Thread */}
       <div className="flex-1 flex flex-col w-full min-w-0">
         {turns.map((turn) => {
@@ -263,26 +303,16 @@ export function AIResearchResults({
           );
         })}
 
-        {/* Pending Thinking Turn State: Only show when loading and there is NO turn already rendering */}
+        {/* Claude-style Minimalist Thinking State: Only shown when loading and no turn has rendered */}
         {isLoading && turns.length === 0 && (
-          <div className="w-full flex items-start gap-3.5 sm:gap-4 mb-8 min-w-0 animate-in fade-in duration-300">
-            <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg mt-1 animate-pulse">
+          <div className="w-full flex items-start gap-3 sm:gap-3.5 mb-8 min-w-0 animate-in fade-in duration-300">
+            <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg">
               <div className="w-full h-full bg-[#141414] rounded-full flex items-center justify-center">
                 <ZiboAiIcon size={18} className="text-white" />
               </div>
             </div>
 
-            <div className="flex-1 flex flex-col gap-3 min-w-0 bg-[#141414] border border-[#252525] rounded-2xl p-4 sm:p-5 shadow-2xl">
-              <div className="flex items-center gap-2.5">
-                <div className="w-2 h-2 rounded-full bg-purple-500 animate-ping" />
-                <span className="text-[13px] font-medium text-purple-300">
-                  {thinkingSteps[thinkingIndex]}
-                </span>
-              </div>
-              <Skeleton className="h-4 w-5/6 bg-[#222222] rounded" />
-              <Skeleton className="h-4 w-4/6 bg-[#222222] rounded" />
-              <Skeleton className="h-28 w-full bg-[#1C1C1C] rounded-xl" />
-            </div>
+            <ClaudeThinkingBar />
           </div>
         )}
 

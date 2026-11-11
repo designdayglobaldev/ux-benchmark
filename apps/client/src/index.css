@@ -278,6 +278,79 @@
   will-change: transform, opacity, filter;
 }
 
+/* Claude / ChatGPT Minimalist Shimmer Text */
+@keyframes claudeShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-claude-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0.35) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: claudeShimmer 2.2s ease-in-out infinite;
+}
+
+/* Claude Bouncing Dots */
+@keyframes claudeDotBounce {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+.animate-claude-dot-1 {
+  animation: claudeDotBounce 1.4s infinite ease-in-out;
+  animation-delay: 0s;
+}
+
+.animate-claude-dot-2 {
+  animation: claudeDotBounce 1.4s infinite ease-in-out;
+  animation-delay: 0.2s;
+}
+
+.animate-claude-dot-3 {
+  animation: claudeDotBounce 1.4s infinite ease-in-out;
+  animation-delay: 0.4s;
+}
+
+/* Claude / ChatGPT Streaming Blinking Cursor */
+@keyframes claudeBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-claude-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.15em;
+  background-color: #A873E8;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  animation: claudeBlink 0.85s infinite ease-in-out;
+  border-radius: 1px;
+}
+
+
+
 
 
 
