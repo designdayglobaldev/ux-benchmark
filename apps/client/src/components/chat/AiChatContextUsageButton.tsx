@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Gauge, Sparkles, Cpu, Layers, ChevronDown, Check } from "lucide-react";
+import { Gauge, Sparkles, Cpu, Layers, Check } from "lucide-react";
 
 interface AiUsageMetricsProps {
   usedTokens?: number;
@@ -74,11 +74,11 @@ export function AiChatContextUsageButton({
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="group flex items-center gap-1.5 h-[26px] px-2 rounded-full bg-[#1F1F1F] hover:bg-[#2A2A2A] border border-[#333333] transition-all cursor-pointer text-[#C0C0C0] hover:text-white select-none shadow-sm"
+          className="group flex items-center gap-1.5 transition-all cursor-pointer text-[#C0C0C0] hover:text-white select-none bg-transparent border-0 p-0 outline-none"
           title={`Context Usage: ${tokenPercentage.toFixed(1)}% | ${queriesUsedToday}/${queriesDailyLimit} Daily Queries`}
         >
           {/* Twenty CRM Styled Progress Ring */}
-          <div className="relative w-4 h-4 flex items-center justify-center shrink-0">
+          <div className="relative w-3.5 h-3.5 flex items-center justify-center shrink-0">
             <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 16 16">
               {/* Background Ring Track */}
               <circle
@@ -112,11 +112,9 @@ export function AiChatContextUsageButton({
           </div>
 
           {/* Compact Usage Percentage Label */}
-          <span className="text-[11px] font-medium tracking-tight text-[#E0E0E0] font-sans">
+          <span className="text-[12px] font-medium tracking-tight text-[#A0A0A0] group-hover:text-white font-sans transition-colors">
             {tokenPercentage.toFixed(0)}%
           </span>
-
-          <ChevronDown size={11} className="text-[#888888] group-hover:text-white transition-colors" />
         </button>
       </PopoverTrigger>
 
