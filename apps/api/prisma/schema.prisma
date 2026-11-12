@@ -107,6 +107,7 @@ model Flow {
   status      Status    @default(DRAFT)
   screens     Screen[]
   appFlows    AppFlow[]
+  flowDocuments FlowDocument[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -151,6 +152,7 @@ model Screen {
 
   boardScreens BoardScreen[]
   screenEmbedding ScreenEmbedding?
+  fieldEmbeddings ScreenFieldEmbedding[]
   outboundEdges   ScreenEdge[]    @relation("SourceScreen")
   inboundEdges    ScreenEdge[]    @relation("TargetScreen")
   chatMessages ChatMessage[]
@@ -638,4 +640,41 @@ model AiRequestLog {
   createdAt           DateTime   @default(now())
 
   @@index([userId, createdAt])
+}
+
+// =========================================================================
+// COGNITIVE UX RETRIEVAL PHASE 1 MODELS (Section 5 of Spec V2)
+// =========================================================================
+
+// 1. Flow-Level Document (Hierarchical Level 1)
+model FlowDocument {
+  id            String   @id @default(uuid())
+  flowId        String
+  promptVersion String   // Prompt version that generated this summary
+  summaryText   String   @db.Text
+  embedding     Unsupported("vector(1024)")?
+  sourceHash    String   // Hash of constituent screens; marked STALE if screens edit
+  modelVersion  String   // "voyage-3" or "voyage-multimodal-3"
+  status        String   // "PENDING" | "READY" | "STALE" | "FAILED"
+  isActive      Boolean  @default(true) // Allows version side-by-side comparison without overwrite
+  updatedAt     DateTime @default(now()) @updatedAt
+  flow          Flow     @relation(fields: [flowId], references: [id], onDelete: Cascade)
+
+  @@unique([flowId, promptVersion])
+}
+
+// 2. Multi-Vector Screen Field Embeddings (Solves Single-Vector Dilution)
+model ScreenFieldEmbedding {
+  id            String                      @id @default(uuid())
+  screenId      String
+  field         String                      // "METADATA" | "WHERE_TO_USE" | "WHERE_NOT_TO_USE" | "TONALITY" | "CONTEXT_NOTE"
+  sourceText    String?                     @db.Text // Preserved raw text for BM25 keyword index / auditing invented notes
+  promptVersion String?                     // Version tracking for LLM-generated fields (e.g. CONTEXT_NOTE)
+  textHash      String
+  model         String
+  embedding     Unsupported("vector(1024)")
+  updatedAt     DateTime                    @default(now()) @updatedAt
+  screen        Screen                      @relation(fields: [screenId], references: [id], onDelete: Cascade)
+
+  @@unique([screenId, field, model])
 }
