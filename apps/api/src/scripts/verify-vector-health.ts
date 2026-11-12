@@ -62,15 +62,19 @@ async function verify() {
   const testQuery = 'Fintech KYC onboarding identity verification passport selfie';
   console.log(`  Query: "${testQuery}"`);
 
-  const voyageRes = await fetch('https://api.voyageai.com/v1/embeddings', {
+  const voyageRes = await fetch('https://api.voyageai.com/v1/multimodalembeddings', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${VOYAGE_API_KEY}`
     },
     body: JSON.stringify({
-      model: 'voyage-3',
-      input: [testQuery]
+      model: 'voyage-multimodal-3',
+      inputs: [
+        {
+          content: [{ type: 'text', text: testQuery }]
+        }
+      ]
     })
   });
 

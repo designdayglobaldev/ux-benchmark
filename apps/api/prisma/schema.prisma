@@ -54,6 +54,8 @@ model App {
   appThumbnail  String
   status        Status       @default(DRAFT)
   isStaffPick   Boolean      @default(false)
+  isPremium     Boolean      @default(false) // When true: Requires UserTier.PREMIUM for full screen flow
+  previewLimit  Int          @default(4)     // Number of screens free users can preview before lock
   sourceUrl     String?
   description   String?
   platform      String[]
@@ -221,17 +223,22 @@ enum UserStatus {
 }
 
 model ClientUser {
-  id          String        @id // Maps to Supabase auth.users.id
-  email       String        @unique
-  name        String?
-  phone       String?
-  role        Role          @default(VIEWER)
-  status      UserStatus    @default(ACTIVE)
-  tier        UserTier      @default(FREE)
-  permissions String[]      @default([])
-  usages      AiUsage[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id                  String               @id // Maps to Supabase auth.users.id
+  email               String               @unique
+  name                String?
+  phone               String?
+  role                Role                 @default(VIEWER)
+  status              UserStatus           @default(ACTIVE)
+  creditsBalance      Int                  @default(0) // Invariant I1: welcome grant arrives as a ledger row
+  tier                UserTier             @default(FREE) // Invariant I5: cache, written only by recomputeTier()
+  tierOverride        UserTier?            // Admin VIP or team accounts
+  tierOverrideUntil   DateTime?
+  tierOverrideReason  String?
+  welcomeGrantedAt    DateTime?
+  permissions         String[]             @default([])
+  usages              AiUsage[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
   workspacesOwned      Workspace[]
   workspaceMemberships WorkspaceMember[]
@@ -239,6 +246,13 @@ model ClientUser {
   chatMessages         ChatMessage[]
   aiChatSessions       AiChatSession[]
   aiFeedbacks          AiMessageFeedback[]
+  subscriptions        UserSubscription[]
+  creditReservations   CreditReservation[]
+  creditLedgers        CreditLedger[]
+  paymentTransactions  PaymentTransaction[]
+  aiRequestLogs        AiRequestLog[]
+  adminAuditsGiven     AdminAuditLog[]      @relation("AdminActor")
+  adminAuditsReceived  AdminAuditLog[]      @relation("AdminTarget")
 }
 
 model AiUsage {
@@ -277,6 +291,7 @@ model AiChatMessage {
   session            AiChatSession       @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   role               ChatRole
   content            String              @db.Text
+  clientMessageId    String?
   metadata           Json?
   promptTokens       Int                 @default(0)
   completionTokens   Int                 @default(0)
@@ -285,6 +300,7 @@ model AiChatMessage {
   feedbacks          AiMessageFeedback[]
   createdAt          DateTime            @default(now())
 
+  @@unique([sessionId, clientMessageId])
   @@index([sessionId])
   @@index([isTrainingEligible])
 }
@@ -411,4 +427,215 @@ model ScreenEdge {
   @@index([sourceScreenId])
   @@index([targetScreenId])
   @@index([edgeType])
+}
+
+// =========================================================================
+// ZIBO PAYMENTS, CREDITS, LEDGER & SUBSCRIPTIONS (Satyajit Pujapanda Spec)
+// =========================================================================
+
+enum LedgerType {
+  FREE_WELCOME_GRANT
+  MONTHLY_SUBSCRIPTION_REFILL
+  ROLLOVER_EXPIRY
+  CREDIT_PACK_PURCHASE
+  AI_QUERY_DEBIT
+  SYSTEM_REFUND
+  PAYMENT_REFUND_CLAWBACK
+  ADMIN_MANUAL_GRANT
+  ADMIN_MANUAL_DEDUCTION
+  MIGRATION_BACKFILL
+}
+
+enum ReservationStatus {
+  RESERVED
+  SETTLED
+  RELEASED
+}
+
+enum SubscriptionStatus {
+  INCOMPLETE // created or authenticated, first charge not confirmed
+  ACTIVE
+  PAST_DUE   // Razorpay state pending: charge failed, retries running
+  HALTED     // retries exhausted
+  PAUSED
+  CANCELLED
+  COMPLETED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentType {
+  SUBSCRIPTION_MANDATE_INIT
+  SUBSCRIPTION_RECURRING
+  CREDIT_PACK_PURCHASE
+  ADMIN_MANUAL
+}
+
+model CreditReservation {
+  id             String            @id @default(uuid())
+  userId         String
+  user           ClientUser        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  requestKey     String            // client Idempotency-Key, one per user
+  actionType     String
+  payloadHash    String            // same key with different payload is rejected
+  cost           Int
+  status         ReservationStatus @default(RESERVED)
+  releaseReason  String?
+  expiresAt      DateTime          // request hard timeout plus safety margin
+  createdAt      DateTime          @default(now())
+  settledAt      DateTime?
+
+  @@unique([userId, requestKey])
+  @@index([status, expiresAt])
+}
+
+model CreditLedger {
+  id             String     @id @default(uuid())
+  userId         String
+  user           ClientUser @relation(fields: [userId], references: [id], onDelete: Restrict)
+  amountDelta    Int
+  balanceAfter   Int
+  type           LedgerType
+  idempotencyKey String     @unique // namespaced: "debit:<userId>:<requestKey>", "pay:<razorpayPaymentId>"
+  reservationId  String?
+  paymentId      String?
+  reason         String?
+  adminId        String?
+  createdAt      DateTime   @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model SubscriptionPlan {
+  id          String      @id @default(uuid())
+  code        String      @unique // "pro", "agency"
+  name        String
+  description String?
+  prices      PlanPrice[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model PlanPrice {
+  id             String           @id @default(uuid())
+  planId         String
+  plan           SubscriptionPlan @relation(fields: [planId], references: [id])
+  currency       String           // "INR" | "USD"
+  amountMinor    Int              // paise or cents
+  razorpayPlanId String           @unique
+  isActive       Boolean          @default(true)
+  monthlyCredits Int              @default(2500)
+  subscriptions  UserSubscription[]
+  transactions   PaymentTransaction[]
+
+  @@unique([planId, currency, amountMinor])
+}
+
+model UserSubscription {
+  id                 String             @id @default(uuid())
+  userId             String
+  user               ClientUser         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  planPriceId        String
+  price              PlanPrice          @relation(fields: [planPriceId], references: [id])
+  razorpaySubId      String             @unique
+  status             SubscriptionStatus @default(INCOMPLETE)
+  razorpayStatus     String?            // raw value kept for debugging
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?          // unknown until first charge
+  entitledUntil      DateTime?          // access boundary, includes any grace
+  cancelAtPeriodEnd  Boolean            @default(false)
+  lastEventAt        DateTime?          // newest applied event timestamp, guards out-of-order delivery
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model PaymentTransaction {
+  id                     String           @id @default(uuid())
+  userId                 String
+  user                   ClientUser       @relation(fields: [userId], references: [id], onDelete: Restrict)
+  planPriceId            String?
+  planPrice              PlanPrice?       @relation(fields: [planPriceId], references: [id], onDelete: SetNull)
+  amount                 Int              // minor units: paise or cents
+  currency               String           @default("INR")
+  status                 PaymentStatus    @default(PENDING)
+  paymentType            PaymentType      @default(SUBSCRIPTION_RECURRING)
+  razorpayOrderId        String?
+  razorpayPaymentId      String?          @unique
+  razorpaySubscriptionId String?
+  razorpaySignature      String?
+  creditsGranted         Int              @default(0)
+  paymentMethod          String?          // "upi", "card", "netbanking"
+  rawWebhookPayload      Json?
+  errorCode              String?
+  errorDescription       String?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([razorpayOrderId])
+  @@index([razorpaySubscriptionId])
+}
+
+model PaymentWebhookEvent {
+  id          String   @id @default(uuid())
+  eventId     String   @unique // x-razorpay-event-id
+  event       String
+  entityId    String?
+  payload     Json
+  processedAt DateTime @default(now())
+}
+
+model PaymentWebhookFailure {
+  id          String    @id @default(uuid())
+  eventId     String
+  event       String?
+  payload     Json
+  error       String
+  attempts    Int       @default(1)
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([resolvedAt])
+}
+
+model AdminAuditLog {
+  id           String      @id @default(uuid())
+  adminId      String
+  admin        ClientUser  @relation("AdminActor", fields: [adminId], references: [id])
+  action       String      // "credits.adjust", "tier.override", "app.premium_toggle"
+  targetUserId String?
+  targetUser   ClientUser? @relation("AdminTarget", fields: [targetUserId], references: [id])
+  before       Json?
+  after        Json?
+  reason       String
+  requestKey   String      @unique
+  createdAt    DateTime    @default(now())
+}
+
+model AiRequestLog {
+  id                  String     @id @default(uuid())
+  userId              String
+  user                ClientUser @relation(fields: [userId], references: [id], onDelete: Restrict)
+  sessionId           String?
+  clientMessageId     String     @unique // Idempotency key from client
+  actionType          String     // "WORKSPACE_CHAT", "BENCHMARK", etc.
+  model               String     // "claude-sonnet-4-5-20250929"
+  inputTokens         Int
+  outputTokens        Int
+  cacheCreationTokens Int        @default(0)
+  cacheReadTokens     Int        @default(0)
+  costUsd             Decimal    @db.Decimal(10, 6) // Invariant: Decimal for cost, avoiding float drift
+  creditsDeducted     Int
+  createdAt           DateTime   @default(now())
+
+  @@index([userId, createdAt])
 }

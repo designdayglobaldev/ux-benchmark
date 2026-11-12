@@ -4,12 +4,26 @@ import { AiChatService } from '../services/ai-chat.service';
 import { RedisLockService } from '../services/redis-lock.service';
 import { prisma } from '../db/prisma';
 import { redis } from '../lib/redis';
+import { MeteredContext } from '../middleware/metered';
+import { CreditService } from '../services/credit.service';
 
 export class AIController {
-  public static async inspect(req: Request, res: Response) {
+  public static async inspect(req: Request, res: Response, ctx?: MeteredContext) {
     try {
       const { prompt, region, imageBase64 } = req.body;
       const response = await AIService.inspectScreen({ prompt, region, imageBase64 });
+      if (ctx) {
+        ctx.state.outputStarted = true;
+        await CreditService.settle({
+          reservationId: ctx.reservationId,
+          userId: ctx.userId,
+          clientMessageId: ctx.requestKey,
+          actionType: ctx.action,
+          model: 'claude-3-5-sonnet-20241022',
+          inputTokens: 1000,
+          outputTokens: 500,
+        });
+      }
       return res.json({ response });
     } catch (error: any) {
       console.error('[AIController.inspect] Error:', error);
@@ -17,10 +31,22 @@ export class AIController {
     }
   }
 
-  public static async insights(req: Request, res: Response) {
+  public static async insights(req: Request, res: Response, ctx?: MeteredContext) {
     try {
       const { imageBase64, screenId, appName } = req.body;
       const data = await AIService.generateInsights({ imageBase64, screenId, appName });
+      if (ctx) {
+        ctx.state.outputStarted = true;
+        await CreditService.settle({
+          reservationId: ctx.reservationId,
+          userId: ctx.userId,
+          clientMessageId: ctx.requestKey,
+          actionType: ctx.action,
+          model: 'claude-3-5-sonnet-20241022',
+          inputTokens: 1200,
+          outputTokens: 600,
+        });
+      }
       return res.json(data);
     } catch (error: any) {
       console.error('[AIController.insights] Error:', error);
@@ -28,10 +54,22 @@ export class AIController {
     }
   }
 
-  public static async compare(req: Request, res: Response) {
+  public static async compare(req: Request, res: Response, ctx?: MeteredContext) {
     try {
       const { originalImageBase64, userImageBase64 } = req.body;
       const data = await AIService.compareScreens({ originalImageBase64, userImageBase64 });
+      if (ctx) {
+        ctx.state.outputStarted = true;
+        await CreditService.settle({
+          reservationId: ctx.reservationId,
+          userId: ctx.userId,
+          clientMessageId: ctx.requestKey,
+          actionType: ctx.action,
+          model: 'claude-3-5-sonnet-20241022',
+          inputTokens: 1500,
+          outputTokens: 800,
+        });
+      }
       return res.json(data);
     } catch (error: any) {
       console.error('[AIController.compare] Error:', error);
@@ -39,10 +77,22 @@ export class AIController {
     }
   }
 
-  public static async detectContext(req: Request, res: Response) {
+  public static async detectContext(req: Request, res: Response, ctx?: MeteredContext) {
     try {
       const { imageBase64 } = req.body;
       const data = await AIService.detectContext({ imageBase64 });
+      if (ctx) {
+        ctx.state.outputStarted = true;
+        await CreditService.settle({
+          reservationId: ctx.reservationId,
+          userId: ctx.userId,
+          clientMessageId: ctx.requestKey,
+          actionType: ctx.action,
+          model: 'claude-3-5-sonnet-20241022',
+          inputTokens: 800,
+          outputTokens: 400,
+        });
+      }
       return res.json(data);
     } catch (error: any) {
       console.error('[AIController.detectContext] Error:', error);
@@ -50,10 +100,22 @@ export class AIController {
     }
   }
 
-  public static async benchmark(req: Request, res: Response) {
+  public static async benchmark(req: Request, res: Response, ctx?: MeteredContext) {
     try {
       const { imageBase64, categoryId, subcategoryId, flowId, screenType } = req.body;
       const data = await AIService.benchmarkScreen({ imageBase64, categoryId, subcategoryId, flowId, screenType });
+      if (ctx) {
+        ctx.state.outputStarted = true;
+        await CreditService.settle({
+          reservationId: ctx.reservationId,
+          userId: ctx.userId,
+          clientMessageId: ctx.requestKey,
+          actionType: ctx.action,
+          model: 'claude-3-5-sonnet-20241022',
+          inputTokens: 2500,
+          outputTokens: 1200,
+        });
+      }
       return res.json(data);
     } catch (error: any) {
       console.error('[AIController.benchmark] Error:', error);
@@ -72,10 +134,22 @@ export class AIController {
     }
   }
 
-  public static async benchmarkChat(req: Request, res: Response) {
+  public static async benchmarkChat(req: Request, res: Response, ctx?: MeteredContext) {
     try {
       const { message, chatHistory, benchmarkData } = req.body;
       const data = await AIService.chatBenchmark({ message, chatHistory, benchmarkData });
+      if (ctx) {
+        ctx.state.outputStarted = true;
+        await CreditService.settle({
+          reservationId: ctx.reservationId,
+          userId: ctx.userId,
+          clientMessageId: ctx.requestKey,
+          actionType: ctx.action,
+          model: 'claude-3-5-sonnet-20241022',
+          inputTokens: 1500,
+          outputTokens: 600,
+        });
+      }
       return res.json(data);
     } catch (error: any) {
       console.error('[AIController.benchmarkChat] Error:', error);
@@ -83,10 +157,22 @@ export class AIController {
     }
   }
 
-  public static async improveDesign(req: Request, res: Response) {
+  public static async improveDesign(req: Request, res: Response, ctx?: MeteredContext) {
     try {
       const { imageBase64, benchmarkResult } = req.body;
       const data = await AIService.improveDesign({ imageBase64, benchmarkResult });
+      if (ctx) {
+        ctx.state.outputStarted = true;
+        await CreditService.settle({
+          reservationId: ctx.reservationId,
+          userId: ctx.userId,
+          clientMessageId: ctx.requestKey,
+          actionType: ctx.action,
+          model: 'claude-3-5-sonnet-20241022',
+          inputTokens: 2200,
+          outputTokens: 1100,
+        });
+      }
       return res.json(data);
     } catch (error: any) {
       console.error('[AIController.improveDesign] Error:', error);
@@ -104,10 +190,22 @@ export class AIController {
     }
   }
 
-  public static async generateDesignAgent(req: Request, res: Response) {
+  public static async generateDesignAgent(req: Request, res: Response, ctx?: MeteredContext) {
     try {
       const { prompt, category, flow, device } = req.body;
       const data = await AIService.generateDesignAgentScreen({ prompt, category, flow, device });
+      if (ctx) {
+        ctx.state.outputStarted = true;
+        await CreditService.settle({
+          reservationId: ctx.reservationId,
+          userId: ctx.userId,
+          clientMessageId: ctx.requestKey,
+          actionType: ctx.action,
+          model: 'claude-3-5-sonnet-20241022',
+          inputTokens: 3000,
+          outputTokens: 1500,
+        });
+      }
       return res.json(data);
     } catch (error: any) {
       console.error('[AIController.generateDesignAgent] Error:', error);
@@ -115,19 +213,20 @@ export class AIController {
     }
   }
 
-  public static async workspaceChat(req: Request, res: Response) {
+  public static async workspaceChat(req: Request, res: Response, ctx?: MeteredContext) {
     try {
       const { prompt, conversationHistory, useCognitive, sessionId, userId, clientMessageId } = req.body;
       const headerFlag = req.headers['x-use-cognitive'] === 'true';
       const shouldRunCognitive = useCognitive === true || headerFlag;
 
       // 1. Resolve user and session
-      const resolvedUserId = (req as any).user?.id || userId;
+      const resolvedUserId = ctx?.userId || (req as any).user?.id || userId;
       let activeSessionId = sessionId;
 
       // 2. Request Idempotency Check: if client sent clientMessageId, check if already processed
-      if (clientMessageId && redis) {
-        const cachedResponse = await redis.get(`idempotency:msg:${clientMessageId}`);
+      const effectiveMessageId = ctx?.requestKey || clientMessageId;
+      if (effectiveMessageId && redis) {
+        const cachedResponse = await redis.get(`idempotency:msg:${effectiveMessageId}`);
         if (cachedResponse) {
           try {
             return res.json(JSON.parse(cachedResponse));
@@ -151,6 +250,20 @@ export class AIController {
           useCognitive: shouldRunCognitive
         });
 
+        if (ctx) {
+          ctx.state.outputStarted = true;
+          await CreditService.settle({
+            reservationId: ctx.reservationId,
+            userId: ctx.userId,
+            sessionId: activeSessionId,
+            clientMessageId: effectiveMessageId,
+            actionType: ctx.action,
+            model: 'claude-3-5-sonnet-20241022',
+            inputTokens: 1800,
+            outputTokens: 900,
+          });
+        }
+
         // If session exists, persist user message and assistant message with token tracking
         if (activeSessionId && resolvedUserId) {
           try {
@@ -167,6 +280,7 @@ export class AIController {
               await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
                 role: 'USER',
                 content: prompt,
+                clientMessageId: effectiveMessageId,
                 promptTokens: AiChatService.estimateTokens(prompt),
               });
             }
@@ -183,6 +297,7 @@ export class AIController {
             const assistantMsg = await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
               role: 'ASSISTANT',
               content: assistantReplyText,
+              clientMessageId: effectiveMessageId ? `${effectiveMessageId}:reply` : undefined,
               metadata: fullPayloadMetadata,
               completionTokens: AiChatService.estimateTokens(assistantReplyText),
             });
@@ -194,8 +309,8 @@ export class AIController {
             };
 
             // Cache response under clientMessageId for idempotency (10 min TTL)
-            if (clientMessageId && redis) {
-              await redis.set(`idempotency:msg:${clientMessageId}`, JSON.stringify(finalPayload), 'EX', 600);
+            if (effectiveMessageId && redis) {
+              await redis.set(`idempotency:msg:${effectiveMessageId}`, JSON.stringify(finalPayload), 'EX', 600);
             }
 
             return finalPayload;
@@ -204,8 +319,8 @@ export class AIController {
           }
         }
 
-        if (clientMessageId && redis) {
-          await redis.set(`idempotency:msg:${clientMessageId}`, JSON.stringify(data), 'EX', 600);
+        if (effectiveMessageId && redis) {
+          await redis.set(`idempotency:msg:${effectiveMessageId}`, JSON.stringify(data), 'EX', 600);
         }
         return data;
       };
@@ -245,11 +360,12 @@ export class AIController {
    * Real-Time SSE Token & Artifact Streaming (ChatGPT / Claude.ai standard)
    * POST /api/v1/ai/workspace-chat/stream
    */
-  public static async workspaceChatStream(req: Request, res: Response) {
+  public static async workspaceChatStream(req: Request, res: Response, ctx?: MeteredContext) {
     try {
       const { prompt, conversationHistory, useCognitive, sessionId, userId, clientMessageId } = req.body;
       const headerFlag = req.headers['x-use-cognitive'] === 'true';
       const shouldRunCognitive = useCognitive === true || headerFlag;
+      const effectiveMessageId = ctx?.requestKey || clientMessageId;
 
       // Setup Server-Sent Events headers
       res.setHeader('Content-Type', 'text/event-stream');
@@ -262,7 +378,7 @@ export class AIController {
       };
 
       // Resolve user and session
-      const resolvedUserId = (req as any).user?.id || userId;
+      const resolvedUserId = ctx?.userId || (req as any).user?.id || userId;
       let activeSessionId = sessionId;
 
       if (resolvedUserId && prompt) {
@@ -283,6 +399,12 @@ export class AIController {
       // Stream text intro in progressive token words (TTFT < 400ms)
       const fullIntroText = data?.data?.introText || '';
       const words = fullIntroText.split(' ');
+      
+      // Mark output started on first token delivery (Page 10 Refund Boundary)
+      if (ctx) {
+        ctx.state.outputStarted = true;
+      }
+
       for (let i = 0; i < words.length; i += 3) {
         const chunk = words.slice(i, i + 3).join(' ') + (i + 3 < words.length ? ' ' : '');
         sendEvent('text_delta', { delta: chunk });
@@ -298,6 +420,20 @@ export class AIController {
         uxInsights: data?.data?.uxInsights || '',
       };
       sendEvent('artifacts', payloadMetadata);
+
+      // Settle reservation atomically
+      if (ctx) {
+        await CreditService.settle({
+          reservationId: ctx.reservationId,
+          userId: ctx.userId,
+          sessionId: activeSessionId,
+          clientMessageId: effectiveMessageId,
+          actionType: ctx.action,
+          model: 'claude-3-5-sonnet-20241022',
+          inputTokens: 1800,
+          outputTokens: 900,
+        });
+      }
 
       // Persist to PostgreSQL & Redis
       let messageId: string = crypto.randomUUID();
@@ -315,6 +451,7 @@ export class AIController {
             await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
               role: 'USER',
               content: prompt,
+              clientMessageId: effectiveMessageId,
               promptTokens: AiChatService.estimateTokens(prompt),
             });
           }
@@ -322,6 +459,7 @@ export class AIController {
           const assistantMsg = await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
             role: 'ASSISTANT',
             content: fullIntroText,
+            clientMessageId: effectiveMessageId ? `${effectiveMessageId}:reply` : undefined,
             metadata: payloadMetadata,
             completionTokens: AiChatService.estimateTokens(fullIntroText),
           });

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../db/prisma';
 import Anthropic from '@anthropic-ai/sdk';
 import { activeProcessingScreens, markScreensProcessing, unmarkScreenProcessing } from '../services/analysis-queue.service';
+import { canViewScreen, redactScreenForViewer, Viewer } from '../policies/can-view-screen';
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || 'dummy_to_prevent_crash',
@@ -69,10 +70,38 @@ export const getAllScreens = async (req: Request, res: Response) => {
 export const getScreenById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const userId = (req as any).user?.id;
+
+    let viewer: Viewer | null = null;
+    if (userId) {
+      const user = await prisma.clientUser.findUnique({
+        where: { id: userId },
+        include: {
+          subscriptions: {
+            where: { status: 'ACTIVE' },
+            orderBy: { entitledUntil: 'desc' },
+            take: 1,
+          },
+        },
+      });
+
+      if (user) {
+        viewer = {
+          user: {
+            id: user.id,
+            tier: user.tier,
+            tierOverride: user.tierOverride,
+            tierOverrideUntil: user.tierOverrideUntil,
+          },
+          sub: user.subscriptions[0] ? { entitledUntil: user.subscriptions[0].entitledUntil } : null,
+        };
+      }
+    }
+
     const screen = await prisma.screen.findUnique({
       where: { id },
       include: {
-        app: { select: { name: true, slug: true, appLogo: true } },
+        app: { select: { id: true, name: true, slug: true, appLogo: true, isPremium: true, previewLimit: true } },
         flow: { select: { name: true, slug: true } },
         uiElements: true,
         patterns: true,
@@ -83,7 +112,10 @@ export const getScreenById = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Screen not found' });
     }
 
-    res.json(screen);
+    const screenIndex = (screen.screenNo ? screen.screenNo - 1 : 0);
+    const isViewable = canViewScreen(viewer, screen.app || {}, screenIndex);
+
+    res.json(redactScreenForViewer(screen, isViewable));
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch screen' });

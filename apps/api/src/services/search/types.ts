@@ -1,6 +1,7 @@
 export interface CognitiveRetrievalParams {
   prompt: string;
   limit?: number;
+  injectRationale?: boolean; // When true (Arm A+), injects whereToUse, whereNotToUse, and highlights into rerank payload
 }
 
 export interface RetrievedFlowScreen {
@@ -10,6 +11,10 @@ export interface RetrievedFlowScreen {
   imageUrl: string;
   uxAnalysis?: string | null;
   keyHighlights?: string | null;
+  evidenceWhoWhy?: string | null;
+  whereToUse?: string | null;
+  whereNotToUse?: string | null;
+  uiElements?: string[];
   isAnchor?: boolean;
   activationScore: number;
 }

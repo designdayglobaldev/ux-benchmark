@@ -95,3 +95,6 @@ export const screenAnalysisWorker = new Worker(
     concurrency: 3,
   }
 );
+
+// 3. Billing Background Worker & Schedulers
+export { billingCronWorker, initBillingSchedulers } from './billing.jobs';

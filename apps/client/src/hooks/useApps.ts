@@ -8,6 +8,8 @@ export interface AppType {
   appLogo: string;
   appThumbnail: string;
   isStaffPick: boolean;
+  isPremium?: boolean;
+  previewLimit?: number;
   tags: string[];
   category?: { title: string; slug: string };
   subcategory?: { title: string; slug: string };

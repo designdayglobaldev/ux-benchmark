@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { getAllFlows, getFlowById, createFlow, updateFlow, deleteFlow, reorderScreens, reorderAppFlows, publishFlowScreens } from '../controllers/flow.controller';
+import { authenticateUser } from '../middleware/auth.middleware';
 
 const router = Router();
+
+router.use(authenticateUser);
 
 router.get('/', getAllFlows);
 router.get('/:id', getFlowById);

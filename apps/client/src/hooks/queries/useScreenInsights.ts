@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '@/utils/api';
+import { invalidateBillingStatus } from './useBillingStatus';
 
 export interface InsightData {
   title: string;
@@ -24,6 +25,8 @@ export function useScreenInsights(
         screenId,
         appName
       });
+      // Invalidate billing so token counter updates after generating hotspots
+      invalidateBillingStatus();
       return Array.isArray(res.data?.insights) ? res.data.insights : [];
     },
     enabled: enabled && !!imageBase64 && !!screenId,

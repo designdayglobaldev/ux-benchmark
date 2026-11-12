@@ -81,19 +81,44 @@ export function Middle({ activeScreen, appName, appSlug, nextUrl, prevUrl }: Mid
     };
   }, [activeScreen?.imageUrl]);
 
-  const captureImageBase64 = () => {
-    if (!imgRef.current || imgRef.current.naturalWidth === 0) return;
-    try {
-      const canvas = document.createElement('canvas');
-      canvas.width = imgRef.current.naturalWidth;
-      canvas.height = imgRef.current.naturalHeight;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(imgRef.current, 0, 0);
-        setImageBase64(canvas.toDataURL('image/jpeg', 0.8));
+  const urlToBase64 = async (url: string): Promise<string> => {
+    if (url.startsWith('data:image')) return url;
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const captureImageBase64 = async () => {
+    if (imgRef.current && imgRef.current.naturalWidth > 0) {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = imgRef.current.naturalWidth;
+        canvas.height = imgRef.current.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(imgRef.current, 0, 0);
+          const b64 = canvas.toDataURL('image/jpeg', 0.8);
+          setImageBase64(b64);
+          return;
+        }
+      } catch (e) {
+        console.warn('Canvas export failed, falling back to fetch blob:', e);
       }
-    } catch (e) {
-      console.warn('Canvas export skipped:', e);
+    }
+
+    // Fallback: fetch directly from activeScreen.imageUrl
+    if (activeScreen?.imageUrl) {
+      try {
+        const b64 = await urlToBase64(activeScreen.imageUrl);
+        setImageBase64(b64);
+      } catch (err) {
+        console.warn('Failed to convert imageUrl to base64:', err);
+      }
     }
   };
 

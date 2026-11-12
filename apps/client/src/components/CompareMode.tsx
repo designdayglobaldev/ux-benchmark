@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { ScreenType } from "@/hooks/useAppDetails";
 import { ThinkingOrb } from 'thinking-orbs';
+import api from '@/utils/api';
 
 interface CompareModeProps {
     isOpen: boolean;
@@ -113,21 +114,13 @@ export function CompareMode({ isOpen, onClose, activeScreen, appName }: CompareM
 
         try {
             const originalBase64 = await urlToBase64(activeScreen.imageUrl);
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
             
-            const response = await fetch(`${apiUrl}/api/v1/ai/compare`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    originalImageBase64: originalBase64,
-                    userImageBase64: uploadedImage
-                })
+            const response = await api.post('/ai/compare', {
+                originalImageBase64: originalBase64,
+                userImageBase64: uploadedImage
             });
 
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to compare screens');
-            }
+            const data = response.data;
             
             console.log("Comparison Results from API:", data);
             

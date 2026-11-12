@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { ZiboAiIcon } from "../ZiboAiIcon";
 import { useAIChatStore } from "../../stores/useAIChatStore";
 import { AiChatContextUsageButton } from "./AiChatContextUsageButton";
+import { AiQuotaExhaustedBanner } from "./AiQuotaExhaustedBanner";
+import { useUpgradeModal } from "../../contexts/UpgradeContext";
+import { useBillingStatus } from "@/hooks/queries/useBillingStatus";
 
 interface StickyChatInputProps {
   onSendMessage: (query: string) => void;
@@ -17,9 +20,12 @@ export function StickyChatInput({
   placeholder = "Ask how your design is blocking you",
 }: StickyChatInputProps) {
   const navigate = useNavigate();
+  const { openUpgradeModal } = useUpgradeModal();
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const abortCurrentTurn = useAIChatStore((state) => state.abortCurrentTurn);
+  const { data: billing } = useBillingStatus();
+  const isQuotaExhausted = Boolean(billing && billing.creditsBalance <= 0);
 
   // Auto-grow textarea up to max-height without scrollbars jumping
   useEffect(() => {
@@ -48,7 +54,15 @@ export function StickyChatInput({
   };
 
   return (
-    <div className="sticky bottom-0 left-0 right-0 z-30 pt-3 pb-0 flex items-center justify-center shrink-0 w-full bg-gradient-to-t from-[#161616] via-[#161616]/95 to-transparent backdrop-blur-[2px]">
+    <div className="sticky bottom-0 left-0 right-0 z-30 pt-3 pb-0 flex flex-col items-center justify-center shrink-0 w-full bg-gradient-to-t from-[#161616] via-[#161616]/95 to-transparent backdrop-blur-[2px]">
+      {/* Figma Daily Limit Reached Banner (Only shown when balance drops to 0) */}
+      {isQuotaExhausted && (
+        <AiQuotaExhaustedBanner
+          className="mb-2.5 shrink-0"
+          onUpgradeClick={openUpgradeModal}
+        />
+      )}
+
       {/* Container: Exactly 456px wide matching the Figma Command Bar */}
       <div
         className="relative flex items-center justify-center shrink-0"

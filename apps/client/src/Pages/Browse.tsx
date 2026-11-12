@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useApps } from "@/hooks/useApps";
 import { useBrowseFilters } from "@/hooks/queries/useBrowseFilters";
-import { Sparkles, ArrowUpRight, ChevronDown, Check } from "lucide-react";
+import { Sparkles, ArrowUpRight, ChevronDown, Check, Lock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -189,6 +189,13 @@ export function Browse() {
                                 <div className="absolute top-[16px] left-[20px] flex items-center gap-2 z-10">
                                     <Sparkles className="w-4 h-4 text-[#FF5500] fill-[#FF5500]" />
                                     <span className="text-white text-[14px] font-medium tracking-wide">Staff picks</span>
+                                </div>
+                            )}
+
+                            {app.isPremium && (
+                                <div className={`absolute top-[16px] ${app.isStaffPick ? 'left-[130px]' : 'left-[20px]'} flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-amber-500/30 text-amber-400 text-[11px] font-bold tracking-wider z-10 shadow-lg`}>
+                                    <Lock className="w-3 h-3 text-amber-400" />
+                                    <span>PRO</span>
                                 </div>
                             )}
                             

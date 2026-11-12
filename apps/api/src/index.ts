@@ -31,7 +31,12 @@ import boardRoutes from './routes/board.routes';
 import mobbinRoutes from './routes/mobbin.routes';
 import featureFlagRoutes from './routes/feature-flag.routes';
 import queueRoutes from './routes/queue.routes';
+import { billingRouter, fulfilCharge } from './routes/billing.routes';
+import { adminBillingRouter } from './routes/admin-billing.routes';
+import { authenticateUser } from './middleware/auth.middleware';
+import crypto from 'crypto';
 import './queues/workers'; // Initialize BullMQ background workers
+import { initBillingSchedulers } from './queues/workers';
 const app = express();
 
 // Security Headers & Global Rate Limiting
@@ -39,8 +44,90 @@ app.use(helmet({
   crossOriginResourcePolicy: false, // Allow cross-origin asset loading for images/canvas
 }));
 app.use(cors());
+
+// Webhook Route: Mounted BEFORE express.json() with raw body buffer (Page 14 of Implementation Plan)
+// Preserves byte-exact payload for HMAC-SHA256 signature verification
+app.post(
+  '/api/v1/billing/webhook',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    try {
+      const signature = req.headers['x-razorpay-signature'] as string;
+      const eventId = req.headers['x-razorpay-event-id'] as string;
+
+      if (!signature) {
+        return res.status(400).json({ error: 'MISSING_SIGNATURE' });
+      }
+
+      const secret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET;
+      if (!secret) {
+        console.error('[Razorpay Webhook] Missing RAZORPAY_WEBHOOK_SECRET or RAZORPAY_KEY_SECRET environment variable.');
+        return res.status(500).json({ error: 'SERVER_MISCONFIGURED' });
+      }
+      const rawBody = req.body;
+      const expected = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+
+      const isValid = crypto.timingSafeEqual(
+        Buffer.from(expected, 'utf8'),
+        Buffer.from(signature, 'utf8')
+      );
+
+      if (!isValid) {
+        console.warn('[Razorpay Webhook] Invalid signature rejected');
+        return res.status(400).json({ error: 'INVALID_SIGNATURE' });
+      }
+
+      const payload = JSON.parse(rawBody.toString('utf8'));
+      const event = payload.event;
+
+      // 1. Replay Guard: Store webhook event in PaymentWebhookEvent table (Page 14, Step 3)
+      if (eventId) {
+        try {
+          await prisma.paymentWebhookEvent.create({
+            data: {
+              eventId,
+              event,
+              entityId: payload.payload?.payment?.entity?.id || payload.payload?.subscription?.entity?.id,
+              payload,
+            },
+          });
+        } catch (dbErr: any) {
+          // Unique violation means event was already processed (Race R6)
+          console.log(`[Razorpay Webhook] Replay event ${eventId} safely acknowledged.`);
+          return res.status(200).json({ status: 'ALREADY_PROCESSED' });
+        }
+      }
+
+      // 2. Dispatch to event handler (Pages 15-16 of Implementation Plan)
+      if (event === 'subscription.charged') {
+        const payment = payload.payload?.payment?.entity;
+        const subscription = payload.payload?.subscription?.entity;
+        const userId = subscription?.notes?.userId || payment?.notes?.userId;
+
+        if (userId && payment?.id && subscription?.id) {
+          await fulfilCharge({
+            userId,
+            paymentId: payment.id,
+            subId: subscription.id,
+            amountMinor: payment.amount,
+            currency: payment.currency,
+            paymentMethod: payment.method,
+            rawPayload: payload,
+          });
+        }
+      }
+
+      return res.status(200).json({ status: 'OK' });
+    } catch (err: any) {
+      console.error('[Razorpay Webhook Error]:', err);
+      return res.status(500).json({ error: 'WEBHOOK_PROCESSING_FAILED' });
+    }
+  }
+);
+
 app.use(generalLimiter);
 app.use(express.json({ limit: '50mb' })); // Increased limit for base64 images
+app.use(authenticateUser);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Hello from the UX Library API!' });
@@ -69,6 +156,8 @@ app.use('/api/v1/boards', boardRoutes);
 app.use('/api/v1/mobbin', mobbinRoutes);
 app.use('/api/v1/feature-flags', featureFlagRoutes);
 app.use('/api/v1/queues', queueRoutes);
+app.use('/api/v1/billing', billingRouter);
+app.use('/api/v1/admin', adminBillingRouter);
 
 const PORT = process.env.PORT || 4000;
 
@@ -202,5 +291,6 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  initBillingSchedulers().catch((err) => console.warn('Schedulers init warning:', err));
 });
 // Trigger restart 9

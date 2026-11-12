@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../db/prisma';
+import { canViewScreen, redactScreenForViewer, Viewer } from '../policies/can-view-screen';
 
 export const getAllApps = async (req: Request, res: Response) => {
   try {
@@ -56,6 +57,8 @@ export const getAllApps = async (req: Request, res: Response) => {
         appLogo: true,
         appThumbnail: true,
         isStaffPick: true,
+        isPremium: true,
+        previewLimit: true,
         tags: true,
         category: { select: { title: true, slug: true } },
         subcategory: { select: { title: true, slug: true } }
@@ -101,6 +104,40 @@ export const getAppById = async (req: Request, res: Response) => {
     if (!app) {
       return res.status(404).json({ error: 'App not found' });
     }
+
+    // Resolve viewer for Premium / Paid app content gating
+    const userId = (req as any).user?.id;
+    let viewer: Viewer | null = null;
+    if (userId) {
+      const user = await prisma.clientUser.findUnique({
+        where: { id: userId },
+        include: {
+          subscriptions: {
+            where: { status: 'ACTIVE' },
+            orderBy: { entitledUntil: 'desc' },
+            take: 1,
+          },
+        },
+      });
+
+      if (user) {
+        viewer = {
+          user: {
+            id: user.id,
+            tier: user.tier,
+            tierOverride: user.tierOverride,
+            tierOverrideUntil: user.tierOverrideUntil,
+          },
+          sub: user.subscriptions[0] ? { entitledUntil: user.subscriptions[0].entitledUntil } : null,
+        };
+      }
+    }
+
+    // Redact screens exceeding previewLimit on premium apps
+    const redactedScreens = app.screens.map((screen, idx) => {
+      const isAllowed = canViewScreen(viewer, app, idx);
+      return redactScreenForViewer(screen, isAllowed);
+    });
     
     // Fetch authentic similar apps (same category, exclude current app)
     let similarApps: any[] = [];
@@ -130,7 +167,7 @@ export const getAppById = async (req: Request, res: Response) => {
       });
     }
     
-    res.json({ ...app, similarApps });
+    res.json({ ...app, screens: redactedScreens, similarApps });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch app' });

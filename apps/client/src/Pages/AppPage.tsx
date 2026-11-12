@@ -23,6 +23,8 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useUpgradeModal } from "@/contexts/UpgradeContext";
+import { Lock } from "lucide-react";
 
 function ImageWithSkeleton({ src, alt, className, loading }: { src: string, alt: string, className?: string, loading?: "eager" | "lazy" }) {
     return (
@@ -41,6 +43,7 @@ function ImageWithSkeleton({ src, alt, className, loading }: { src: string, alt:
 export function AppPage() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate()
+    const { openUpgradeModal } = useUpgradeModal();
     const { data: appData, isLoading } = useAppDetails(slug || '');
     const [api, setApi] = useState<CarouselApi>()
     const [current, setCurrent] = useState(0)
@@ -415,16 +418,49 @@ export function AppPage() {
                             className="w-full aspect-[440/611] max-h-[611px] rounded-[12px] bg-[#181818] overflow-hidden relative"
                         >
                             <CarouselContent className="h-full ml-0">
-                                {sortedScreens.length ? sortedScreens.map((screen, i) => (
-                                    <CarouselItem key={i} className="pl-0 h-full flex flex-col items-center justify-center pt-8 pb-12 gap-4">
-                                        <ImageWithSkeleton
-                                            src={screen.imageUrl || RevolutScreenshot}
-                                            alt={screen.name || `Screenshot ${i + 1}`}
-                                            loading={i === 0 ? "eager" : "lazy"}
-                                            className="w-[193px] aspect-[9/19.5]"
-                                        />
-                                    </CarouselItem>
-                                )) : [1, 2, 3, 4].map((_, i) => (
+                                {sortedScreens.length ? sortedScreens.map((screen, i) => {
+                                    const isLocked = Boolean(screen.isLocked);
+                                    return (
+                                        <CarouselItem 
+                                            key={i} 
+                                            onClick={() => {
+                                                if (isLocked) openUpgradeModal();
+                                            }}
+                                            className={`pl-0 h-full flex flex-col items-center justify-center pt-8 pb-12 gap-4 relative ${
+                                                isLocked ? "cursor-pointer" : ""
+                                            }`}
+                                        >
+                                            <div className="relative w-[193px] aspect-[9/19.5]">
+                                                <ImageWithSkeleton
+                                                    src={screen.imageUrl || RevolutScreenshot}
+                                                    alt={screen.name || `Screenshot ${i + 1}`}
+                                                    loading={i === 0 ? "eager" : "lazy"}
+                                                    className={`w-full h-full object-cover transition-all duration-300 ${
+                                                        isLocked ? "filter blur-[12px] opacity-75 scale-105" : ""
+                                                    }`}
+                                                />
+                                                {/* Padlock button overlay when locked in carousel */}
+                                                {isLocked && (
+                                                    <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 rounded-[8px]">
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                openUpgradeModal();
+                                                            }}
+                                                            className="group/lockBtn relative z-30 flex items-center justify-center rounded-full bg-[#181818]/95 hover:bg-[#222222] border border-white/20 hover:border-white/40 shadow-[0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(168,85,247,0.2)] transition-all duration-300 h-10 w-10 hover:w-auto px-0 hover:px-3 cursor-pointer"
+                                                        >
+                                                            <Lock className="w-3.5 h-3.5 text-white shrink-0" />
+                                                            <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover/lockBtn:max-w-[120px] group-hover/lockBtn:opacity-100 group-hover/lockBtn:ml-1.5 transition-all duration-300 text-[12px] font-medium text-white">
+                                                                Unlock
+                                                            </span>
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CarouselItem>
+                                    );
+                                }) : [1, 2, 3, 4].map((_, i) => (
                                     <CarouselItem key={i} className="pl-0 h-full flex flex-col items-center justify-center pt-8 pb-12 gap-4">
                                         <ImageWithSkeleton
                                             src={RevolutScreenshot}

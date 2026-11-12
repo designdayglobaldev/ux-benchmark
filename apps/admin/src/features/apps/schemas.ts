@@ -9,6 +9,8 @@ export const appSchema = z.object({
   description: z.string().optional(),
   status: z.enum(['DRAFT', 'LIVE']).default('DRAFT'),
   isStaffPick: z.boolean().default(false),
+  isPremium: z.boolean().default(false),
+  previewLimit: z.number().min(0).default(4),
   
   platform: z.array(z.string()).min(1, 'Select at least one platform'),
   market: z.array(z.string()).optional(),

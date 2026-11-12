@@ -29,6 +29,7 @@ import { Route as AuthenticatedAppRequestsIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as AuthenticatedAppsAppIdRouteImport } from './routes/_authenticated/apps/$appId'
 import { Route as AuthenticatedAppsNewRouteImport } from './routes/_authenticated/apps/new'
+import { Route as AuthenticatedBillingIndexRouteImport } from './routes/_authenticated/billing/index'
 import { Route as AuthenticatedCategoriesIndexRouteImport } from './routes/_authenticated/categories/index'
 import { Route as AuthenticatedCategoriesNewRouteImport } from './routes/_authenticated/categories/new'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
@@ -177,6 +178,12 @@ const AuthenticatedAppsNewRoute = AuthenticatedAppsNewRouteImport.update({
   path: '/apps/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBillingIndexRoute =
+  AuthenticatedBillingIndexRouteImport.update({
+    id: '/billing/',
+    path: '/billing/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCategoriesIndexRoute =
   AuthenticatedCategoriesIndexRouteImport.update({
     id: '/categories/',
@@ -491,6 +498,7 @@ export interface FileRoutesByFullPath {
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/app-requests/': typeof AuthenticatedAppRequestsIndexRoute
   '/apps/': typeof AuthenticatedAppsIndexRoute
+  '/billing/': typeof AuthenticatedBillingIndexRoute
   '/categories/': typeof AuthenticatedCategoriesIndexRoute
   '/chats/': typeof AuthenticatedChatsIndexRoute
   '/client-users/': typeof AuthenticatedClientUsersIndexRoute
@@ -556,6 +564,7 @@ export interface FileRoutesByTo {
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/app-requests': typeof AuthenticatedAppRequestsIndexRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
+  '/billing': typeof AuthenticatedBillingIndexRoute
   '/categories': typeof AuthenticatedCategoriesIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/client-users': typeof AuthenticatedClientUsersIndexRoute
@@ -627,6 +636,7 @@ export interface FileRoutesById {
   '/clerk/_authenticated/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/_authenticated/app-requests/': typeof AuthenticatedAppRequestsIndexRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
+  '/_authenticated/billing/': typeof AuthenticatedBillingIndexRoute
   '/_authenticated/categories/': typeof AuthenticatedCategoriesIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/client-users/': typeof AuthenticatedClientUsersIndexRoute
@@ -696,6 +706,7 @@ export interface FileRouteTypes {
     | '/clerk/user-management'
     | '/app-requests/'
     | '/apps/'
+    | '/billing/'
     | '/categories/'
     | '/chats/'
     | '/client-users/'
@@ -761,6 +772,7 @@ export interface FileRouteTypes {
     | '/clerk/user-management'
     | '/app-requests'
     | '/apps'
+    | '/billing'
     | '/categories'
     | '/chats'
     | '/client-users'
@@ -831,6 +843,7 @@ export interface FileRouteTypes {
     | '/clerk/_authenticated/user-management'
     | '/_authenticated/app-requests/'
     | '/_authenticated/apps/'
+    | '/_authenticated/billing/'
     | '/_authenticated/categories/'
     | '/_authenticated/chats/'
     | '/_authenticated/client-users/'
@@ -1018,6 +1031,13 @@ declare module '@tanstack/react-router' {
       path: '/apps/new'
       fullPath: '/apps/new'
       preLoaderRoute: typeof AuthenticatedAppsNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/billing/': {
+      id: '/_authenticated/billing/'
+      path: '/billing'
+      fullPath: '/billing/'
+      preLoaderRoute: typeof AuthenticatedBillingIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/categories/': {
@@ -1428,6 +1448,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUiElementsNewRoute: typeof AuthenticatedUiElementsNewRoute
   AuthenticatedAppRequestsIndexRoute: typeof AuthenticatedAppRequestsIndexRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
+  AuthenticatedBillingIndexRoute: typeof AuthenticatedBillingIndexRoute
   AuthenticatedCategoriesIndexRoute: typeof AuthenticatedCategoriesIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedClientUsersIndexRoute: typeof AuthenticatedClientUsersIndexRoute
@@ -1470,6 +1491,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedUiElementsNewRoute: AuthenticatedUiElementsNewRoute,
   AuthenticatedAppRequestsIndexRoute: AuthenticatedAppRequestsIndexRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
+  AuthenticatedBillingIndexRoute: AuthenticatedBillingIndexRoute,
   AuthenticatedCategoriesIndexRoute: AuthenticatedCategoriesIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedClientUsersIndexRoute: AuthenticatedClientUsersIndexRoute,

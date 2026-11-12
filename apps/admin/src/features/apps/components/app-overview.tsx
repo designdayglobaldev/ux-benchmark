@@ -95,6 +95,11 @@ export function AppOverview() {
         <div className='space-y-3 flex-1 pt-1'>
           <div className='flex gap-2 flex-wrap items-center'>
             {app.category && <Badge variant='default' className='rounded-md'>{app.category.title}</Badge>}
+            {app.isPremium && (
+              <Badge className='bg-amber-500/20 text-amber-500 border-amber-500/30 rounded-md'>
+                PRO / PAID APP
+              </Badge>
+            )}
             {(app.platform || []).map((p: string) => (
               <Badge key={p} variant='outline' className='rounded-md bg-background'>{p}</Badge>
             ))}

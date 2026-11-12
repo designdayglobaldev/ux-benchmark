@@ -110,18 +110,28 @@ export class FlowStitcher {
           imageUrl: true,
           uxAnalysis: true,
           keyHighlights: true,
+          evidenceWhoWhy: true,
+          whereToUse: true,
+          whereNotToUse: true,
+          uiElements: {
+            select: { title: true },
+          },
         },
         orderBy: { screenNo: 'asc' },
         take: 10,
       });
 
-      const formattedScreens: RetrievedFlowScreen[] = stitchedScreens.map((sc, idx) => ({
+      const formattedScreens: RetrievedFlowScreen[] = stitchedScreens.map((sc: any, idx: number) => ({
         id: sc.id,
         name: sc.name,
         screenNo: sc.screenNo || idx + 1,
         imageUrl: sc.imageUrl,
         uxAnalysis: sc.uxAnalysis,
         keyHighlights: sc.keyHighlights,
+        evidenceWhoWhy: sc.evidenceWhoWhy,
+        whereToUse: sc.whereToUse,
+        whereNotToUse: sc.whereNotToUse,
+        uiElements: (sc.uiElements || []).map((u: any) => u.title).filter(Boolean),
         isAnchor: seedIds.has(sc.id),
         activationScore: seedIds.has(sc.id) ? 1.0 : (activationScoreMap.get(sc.id) || 0.6),
       }));

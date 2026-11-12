@@ -21,6 +21,7 @@ import {
   ScrollText,
   FileWarning,
   SlidersHorizontal,
+  CreditCard,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -115,7 +116,11 @@ export const sidebarData: SidebarData = {
           title: 'Client Users',
           url: '/client-users',
           icon: Users,
-          // HMR trigger
+        },
+        {
+          title: 'Billing & Subscriptions',
+          url: '/billing',
+          icon: CreditCard,
         },
         {
           title: 'Settings',

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { ChatTurn, AssistantTurnPayload } from "../types/ai-chat.types";
 import { defaultDemoData } from "../components/AIResearchResults";
+import { invalidateBillingStatus } from "../hooks/queries/useBillingStatus";
 
 export interface ChatSessionMeta {
   id: string;
@@ -62,11 +63,25 @@ export const useAIChatStore = create<AIChatState>()(
       },
 
       abortCurrentTurn: () => {
-        const { activeAbortController } = get();
+        const { activeAbortController, activeSessionId } = get();
         if (activeAbortController) {
           activeAbortController.abort();
-          set({ activeAbortController: null, isLoading: false });
         }
+        set((state) => {
+          const currentThread = activeSessionId ? state.threads[activeSessionId] || [] : [];
+          return {
+            activeAbortController: null,
+            isLoading: false,
+            threads: activeSessionId
+              ? {
+                  ...state.threads,
+                  [activeSessionId]: currentThread.map((t) =>
+                    t.isStreaming ? { ...t, isStreaming: false } : t
+                  ),
+                }
+              : state.threads,
+          };
+        });
       },
 
       // 1. Load User Sessions for Sidebar
@@ -371,10 +386,23 @@ export const useAIChatStore = create<AIChatState>()(
             (window.localStorage.getItem("ENABLE_COGNITIVE_AI") === "true" ||
               window.location.search.includes("cognitive=true"));
 
+          // Attach Authorization Bearer token from Supabase session if available
+          let authHeader = "";
+          try {
+            const raw = localStorage.getItem("sb-yqsjruicqhvisnftreal-auth-token");
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed?.access_token) {
+                authHeader = `Bearer ${parsed.access_token}`;
+              }
+            }
+          } catch {}
+
           const res = await fetch(`${prefix}/ai/workspace-chat/stream`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              ...(authHeader ? { Authorization: authHeader } : {}),
               ...(isCognitiveEnabled ? { "x-use-cognitive": "true" } : {}),
             },
             signal: abortController.signal,
@@ -518,6 +546,8 @@ export const useAIChatStore = create<AIChatState>()(
           }
 
           get().fetchSessions(userId);
+          // Invalidate billing so token/credit balance updates live on screen without page refresh
+          invalidateBillingStatus();
         } catch (err: any) {
           if (err.name === "AbortError") {
             set((state) => ({
@@ -637,10 +667,23 @@ export const useAIChatStore = create<AIChatState>()(
             content: t.content,
           }));
 
+          // Attach Authorization Bearer token from Supabase session if available
+          let authHeader = "";
+          try {
+            const raw = localStorage.getItem("sb-yqsjruicqhvisnftreal-auth-token");
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed?.access_token) {
+                authHeader = `Bearer ${parsed.access_token}`;
+              }
+            }
+          } catch {}
+
           const res = await fetch(`${prefix}/ai/workspace-chat/stream`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              ...(authHeader ? { Authorization: authHeader } : {}),
               ...(isCognitiveEnabled ? { "x-use-cognitive": "true" } : {}),
             },
             signal: abortController.signal,
@@ -752,6 +795,8 @@ export const useAIChatStore = create<AIChatState>()(
                     },
                   }));
                 } else if (event === "done") {
+                  // Invalidate billing so remaining tokens update dynamically
+                  invalidateBillingStatus();
                   if (abortController.signal.aborted || get().activeSessionId !== activeSessionId) {
                     try { await reader.cancel(); } catch {}
                     break streamFollowUpLoop;
@@ -826,6 +871,10 @@ export const useAIChatStore = create<AIChatState>()(
             isLoading: false,
             activeAbortController: null,
           }));
+        } finally {
+          if (get().activeAbortController === abortController) {
+            set({ isLoading: false, activeAbortController: null });
+          }
         }
       },
 

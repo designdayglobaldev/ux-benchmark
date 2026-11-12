@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../db/prisma';
+import { canViewScreen, redactScreenForViewer, Viewer } from '../policies/can-view-screen';
 
 export const getAllFlows = async (req: Request, res: Response) => {
   try {
@@ -61,6 +62,8 @@ export const getAllFlows = async (req: Request, res: Response) => {
                 name: true,
                 appLogo: true,
                 slug: true,
+                isPremium: true,
+                previewLimit: true,
                 category: { select: { title: true, slug: true } }
               }
             }
@@ -78,7 +81,56 @@ export const getAllFlows = async (req: Request, res: Response) => {
       });
     }
 
-    res.json(flows);
+    // Resolve viewer for Premium / Paid app content gating
+    const userId = (req as any).user?.id;
+    let viewer: Viewer | null = null;
+    if (userId) {
+      const user = await prisma.clientUser.findUnique({
+        where: { id: userId },
+        include: {
+          subscriptions: {
+            where: { status: 'ACTIVE' },
+            orderBy: { entitledUntil: 'desc' },
+            take: 1,
+          },
+        },
+      });
+
+      if (user) {
+        viewer = {
+          user: {
+            id: user.id,
+            tier: user.tier,
+            tierOverride: user.tierOverride,
+            tierOverrideUntil: user.tierOverrideUntil,
+          },
+          sub: user.subscriptions[0] ? { entitledUntil: user.subscriptions[0].entitledUntil } : null,
+        };
+      }
+    }
+
+    // Redact screens for paid apps across all flows
+    const sanitizedFlows = flows.map(flow => {
+      // Track screen index per app to correctly respect app.previewLimit
+      const appScreenIndexMap = new Map<string, number>();
+
+      const redactedScreens = flow.screens.map(screen => {
+        const appKey = screen.appId;
+        const currentIndex = appScreenIndexMap.get(appKey) || 0;
+        appScreenIndexMap.set(appKey, currentIndex + 1);
+
+        // In the cross-app Flows directory, any screen from a PRO/paid app is locked for free users
+        const isAllowed = canViewScreen(viewer, screen.app || {}, screen.app?.isPremium ? 999999 : currentIndex);
+        return redactScreenForViewer(screen, isAllowed);
+      });
+
+      return {
+        ...flow,
+        screens: redactedScreens,
+      };
+    });
+
+    res.json(sanitizedFlows);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch flows' });
@@ -119,6 +171,8 @@ export const getFlowById = async (req: Request, res: Response) => {
                 name: true,
                 slug: true,
                 appLogo: true,
+                isPremium: true,
+                previewLimit: true,
                 category: { select: { title: true, slug: true } }
               }
             }
@@ -130,8 +184,46 @@ export const getFlowById = async (req: Request, res: Response) => {
     if (!flow) {
       return res.status(404).json({ error: 'Flow not found' });
     }
+
+    // Resolve viewer for Premium / Paid app content gating
+    const userId = (req as any).user?.id;
+    let viewer: Viewer | null = null;
+    if (userId) {
+      const user = await prisma.clientUser.findUnique({
+        where: { id: userId },
+        include: {
+          subscriptions: {
+            where: { status: 'ACTIVE' },
+            orderBy: { entitledUntil: 'desc' },
+            take: 1,
+          },
+        },
+      });
+
+      if (user) {
+        viewer = {
+          user: {
+            id: user.id,
+            tier: user.tier,
+            tierOverride: user.tierOverride,
+            tierOverrideUntil: user.tierOverrideUntil,
+          },
+          sub: user.subscriptions[0] ? { entitledUntil: user.subscriptions[0].entitledUntil } : null,
+        };
+      }
+    }
+
+    const appScreenIndexMap = new Map<string, number>();
+    const redactedScreens = flow.screens.map(screen => {
+      const appKey = screen.appId;
+      const currentIndex = appScreenIndexMap.get(appKey) || 0;
+      appScreenIndexMap.set(appKey, currentIndex + 1);
+
+      const isAllowed = canViewScreen(viewer, screen.app || {}, screen.app?.isPremium ? 999999 : currentIndex);
+      return redactScreenForViewer(screen, isAllowed);
+    });
     
-    res.json(flow);
+    res.json({ ...flow, screens: redactedScreens });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to fetch flow' });

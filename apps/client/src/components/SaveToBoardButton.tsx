@@ -3,6 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus } from "lucide-react";
+import api from "@/utils/api";
 
 interface SaveToBoardButtonProps {
     screenId: string;
@@ -20,10 +21,8 @@ export function SaveToBoardButton({ screenId }: SaveToBoardButtonProps) {
         if (!isOpen || !user) return;
         const fetchWorkspaces = async () => {
             try {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-                const res = await fetch(`${apiUrl}/api/v1/workspaces/user/${user.id}`);
-                const data = await res.json();
-                setWorkspaces(data);
+                const res = await api.get(`/workspaces/user/${user.id}`);
+                setWorkspaces(res.data);
             } catch (error) {
                 console.error("Failed to fetch workspaces", error);
             }
@@ -34,12 +33,7 @@ export function SaveToBoardButton({ screenId }: SaveToBoardButtonProps) {
     const handleSaveToBoard = async (boardId: string) => {
         if (!user) return;
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
-            await fetch(`${apiUrl}/api/v1/boards/${boardId}/screens`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ screenId, userId: user.id }),
-            });
+            await api.post(`/boards/${boardId}/screens`, { screenId, userId: user.id });
             setIsOpen(false);
             setIsSaved(true);
             setTimeout(() => setIsSaved(false), 2000);
@@ -53,31 +47,20 @@ export function SaveToBoardButton({ screenId }: SaveToBoardButtonProps) {
         if (!newBoardName.trim() || !user || isCreating) return;
         setIsCreating(true);
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
             const userOwnedWorkspace = workspaces.find((ws: any) => ws.ownerId === user.id);
             let workspaceId = userOwnedWorkspace?.id;
             
             // If no personal workspace exists, create one first
             if (!workspaceId) {
-                const wsRes = await fetch(`${apiUrl}/api/v1/workspaces`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: "Personal Workspace", ownerId: user.id }),
-                });
-                const ws = await wsRes.json();
-                workspaceId = ws.id;
+                const wsRes = await api.post('/workspaces', { name: "Personal Workspace", ownerId: user.id });
+                workspaceId = wsRes.data.id;
             }
 
             // Create the board
-            const boardRes = await fetch(`${apiUrl}/api/v1/boards`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: newBoardName, workspaceId }),
-            });
-            const board = await boardRes.json();
+            const boardRes = await api.post('/boards', { name: newBoardName, workspaceId });
 
             // Save screen to the new board
-            await handleSaveToBoard(board.id);
+            await handleSaveToBoard(boardRes.data.id);
             setNewBoardName("");
         } catch (error) {
             console.error("Failed to quick create board", error);

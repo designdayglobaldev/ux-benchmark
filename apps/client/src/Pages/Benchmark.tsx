@@ -86,16 +86,11 @@ export function Benchmark() {
         sessionStorage.removeItem('benchmark_improvedDesignHTML');
         setIsGeneratingDesign(true);
         try {
-          const apiUrl = api.defaults.baseURL;
-          const res = await fetch(`${apiUrl}/ai/improve-design`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              imageBase64: uploadedImage,
-              benchmarkResult: benchmarkData,
-            })
+          const res = await api.post('/ai/improve-design', {
+            imageBase64: uploadedImage,
+            benchmarkResult: benchmarkData,
           });
-          const data = await res.json();
+          const data = res.data;
           if (data.code) {
             setImprovedDesignCode(data.code);
             sessionStorage.setItem('benchmark_improvedDesignHTML', data.code);
@@ -246,13 +241,10 @@ export function Benchmark() {
     setAppState('analyzing');
     
     try {
-      const apiUrl = api.defaults.baseURL;
-      const response = await fetch(`${apiUrl}/ai/detect-context`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageBase64: uploadedImage })
+      const response = await api.post('/ai/detect-context', {
+        imageBase64: uploadedImage
       });
-      const data = await response.json();
+      const data = response.data;
       
       if (data.categoryId) setSelectedCategory(data.categoryId);
       if (data.flowId) setSelectedFlow(data.flowId);
@@ -272,22 +264,13 @@ export function Benchmark() {
   const handleViewResults = async () => {
     setAppState('analyzing');
     try {
-      const apiUrl = api.defaults.baseURL;
-      const response = await fetch(`${apiUrl}/ai/benchmark`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          imageBase64: uploadedImage,
-          categoryId: selectedCategory,
-          subcategoryId: selectedSubcategory,
-          flowId: selectedFlow,
-        })
+      const response = await api.post('/ai/benchmark', {
+        imageBase64: uploadedImage,
+        categoryId: selectedCategory,
+        subcategoryId: selectedSubcategory,
+        flowId: selectedFlow,
       });
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate report');
-      }
+      const data = response.data;
       
       if (data.report) {
         setBenchmarkData(data.report);

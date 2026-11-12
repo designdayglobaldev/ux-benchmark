@@ -510,7 +510,7 @@ function AppFlowRow({
               screenIndex={idx}
               appSlug={appGroup.slug}
               appName={appGroup.name}
-              isLocked={isLocked}
+              isLocked={isLocked || Boolean(screen.isLocked)}
               onUnlock={onUnlock}
             />
           ))}

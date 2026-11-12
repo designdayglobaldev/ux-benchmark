@@ -8,6 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { OptimizedImage } from "@/components/ui/optimized-image";
 import { InteractiveFlowModal } from "@/components/InteractiveFlowModal";
 import { ScreenActionOverlay } from "@/components/ScreenActionOverlay";
+import { useUpgradeModal } from "@/contexts/UpgradeContext";
+import { Lock } from "lucide-react";
 import { useSEO } from "@/hooks/useSEO";
 
 interface Flow {
@@ -21,6 +23,7 @@ export function AppFlows() {
     const navigate = useNavigate();
     const { data: appData, isLoading } = useAppDetails(slug || '');
     const { user } = useAuth();
+    const { openUpgradeModal } = useUpgradeModal();
     const { data: rawAllApps } = useApps();
     const allApps = !user && rawAllApps ? rawAllApps.slice(0, 4) : rawAllApps;
 
@@ -343,53 +346,90 @@ export function AppFlows() {
                                     Screens for the {flow.name} flow ({flow.screens.length} screens). Use the interactive flow button to view them in the inspector.
                                 </p>
 
-                                {/* Flow Screens Grid */}
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-                                    {flow.screens.map((screen) => (
-                                        <div key={screen.id} className="flex flex-col relative group">
-                                            <div className="w-full aspect-[230/500] relative overflow-hidden rounded-[24px] bg-[#121212] border border-[#222222] group-hover:border-[#383838] transition-all">
-                                                <OptimizedImage 
-                                                    src={screen.imageUrl} 
-                                                    alt={screen.name}
-                                                    optimizationWidth={450}
-                                                    className="w-full h-full object-cover"
-                                                />
+                                 {/* Flow Screens Grid */}
+                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
+                                     {flow.screens.map((screen) => {
+                                         const isLocked = Boolean(screen.isLocked);
+                                         return (
+                                             <div key={screen.id} className="flex flex-col relative group">
+                                                 <div 
+                                                     onClick={() => {
+                                                         if (isLocked) {
+                                                             openUpgradeModal();
+                                                         }
+                                                     }}
+                                                     className={`w-full aspect-[230/500] relative overflow-hidden rounded-[24px] bg-[#121212] border transition-all ${
+                                                         isLocked 
+                                                             ? "border-[#222222] cursor-pointer" 
+                                                             : "border-[#222222] group-hover:border-[#383838]"
+                                                     }`}
+                                                 >
+                                                     <OptimizedImage 
+                                                         src={screen.imageUrl} 
+                                                         alt={screen.name}
+                                                         optimizationWidth={450}
+                                                         className={`w-full h-full object-cover transition-all duration-300 ${
+                                                             isLocked ? "filter blur-[12px] opacity-75 scale-105" : ""
+                                                         }`}
+                                                     />
 
-                                                {/* Top-Right Hover Action Overlay (Bookmark/Collections & Copy) */}
-                                                <ScreenActionOverlay 
-                                                    screenId={screen.id}
-                                                    imageUrl={screen.imageUrl}
-                                                    screenName={screen.name}
-                                                    appName={appData?.name}
-                                                />
-                                                
-                                                {/* Hover Overlay */}
-                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4 z-10">
-                                                    <div className="bg-[#1C1C1C] rounded-[16px] p-5 shadow-2xl flex flex-col gap-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 w-full">
-                                                        <span className="text-[10px] font-bold tracking-wider text-[#5E5E5E] uppercase">UX ANALYSIS</span>
-                                                        {screen.uxAnalysis ? (
-                                                            <div 
-                                                                className="text-[13px] text-white leading-relaxed line-clamp-4 [&>p]:m-0"
-                                                                dangerouslySetInnerHTML={{ __html: screen.uxAnalysis }} 
-                                                            />
-                                                        ) : (
-                                                            <p className="text-[13px] text-white leading-relaxed line-clamp-4">
-                                                                Detailed UX analysis for this screen is available in the inspector view.
-                                                            </p>
-                                                        )}
-                                                        <button 
-                                                            onClick={() => navigate(`/app/${slug}/screens/${screen.slug}`)}
-                                                            className="mt-2 bg-[#0099FF] text-white text-[12px] font-medium py-2 px-3 rounded-full hover:bg-[#0088EE] transition-colors w-full flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer"
-                                                        >
-                                                            Inspect Details
-                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                                     {/* Top-Right Hover Action Overlay (only when unlocked) */}
+                                                     {!isLocked && (
+                                                         <ScreenActionOverlay 
+                                                             screenId={screen.id}
+                                                             imageUrl={screen.imageUrl}
+                                                             screenName={screen.name}
+                                                             appName={appData?.name}
+                                                         />
+                                                     )}
+
+                                                     {/* Blurred Padlock Overlay when locked */}
+                                                     {isLocked ? (
+                                                         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
+                                                             <button
+                                                                 type="button"
+                                                                 onClick={(e) => {
+                                                                     e.stopPropagation();
+                                                                     openUpgradeModal();
+                                                                 }}
+                                                                 className="group/lockBtn relative z-30 flex items-center justify-center rounded-full bg-[#181818]/95 hover:bg-[#222222] border border-white/20 hover:border-white/40 shadow-[0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(168,85,247,0.2)] transition-all duration-300 h-11 w-11 hover:w-auto px-0 hover:px-4 cursor-pointer"
+                                                             >
+                                                                 <Lock className="w-4 h-4 text-white shrink-0" />
+                                                                 <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover/lockBtn:max-w-[120px] group-hover/lockBtn:opacity-100 group-hover/lockBtn:ml-2 transition-all duration-300 text-[13px] font-medium text-white">
+                                                                     Unlock screen
+                                                                 </span>
+                                                             </button>
+                                                         </div>
+                                                     ) : (
+                                                         /* Hover Overlay when unlocked */
+                                                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-4 z-10">
+                                                             <div className="bg-[#1C1C1C] rounded-[16px] p-5 shadow-2xl flex flex-col gap-3 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 w-full">
+                                                                 <span className="text-[10px] font-bold tracking-wider text-[#5E5E5E] uppercase">UX ANALYSIS</span>
+                                                                 {screen.uxAnalysis ? (
+                                                                     <div 
+                                                                         className="text-[13px] text-white leading-relaxed line-clamp-4 [&>p]:m-0"
+                                                                         dangerouslySetInnerHTML={{ __html: screen.uxAnalysis }} 
+                                                                     />
+                                                                 ) : (
+                                                                     <p className="text-[13px] text-white leading-relaxed line-clamp-4">
+                                                                         Detailed UX analysis for this screen is available in the inspector view.
+                                                                     </p>
+                                                                 )}
+                                                                 <button 
+                                                                     onClick={() => navigate(`/app/${slug}/screens/${screen.slug}`)}
+                                                                     className="mt-2 bg-[#0099FF] text-white text-[12px] font-medium py-2 px-3 rounded-full hover:bg-[#0088EE] transition-colors w-full flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer"
+                                                                 >
+                                                                     Inspect Details
+                                                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                                                 </button>
+                                                             </div>
+                                                         </div>
+                                                     )}
+                                                 </div>
+                                             </div>
+                                         );
+                                     })}
+                                 </div>
                             </section>
                         ))}
                     </div>

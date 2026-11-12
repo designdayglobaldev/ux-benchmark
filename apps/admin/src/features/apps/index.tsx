@@ -242,7 +242,12 @@ export function Apps() {
                         {app.category?.title || 'Uncategorized'}
                       </p>
                     </div>
-                    <div className='ml-auto'>
+                    <div className='ml-auto flex items-center gap-1.5'>
+                      {app.isPremium && (
+                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold tracking-wider bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                          PRO
+                        </span>
+                      )}
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                           app.status === 'LIVE'

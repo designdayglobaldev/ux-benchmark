@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import api from '@/utils/api';
 import type { Region } from '@/components/RegionSelector';
+import { invalidateBillingStatus } from './useBillingStatus';
 
 export interface UseScreenInspectOptions {
   activeScreenId?: string;
@@ -34,6 +35,7 @@ export function useScreenInspect() {
       setAiResponse(data);
       setLastSubmittedPrompt(variables.prompt);
       setLastSubmittedRegion(variables.region || null);
+      invalidateBillingStatus();
     },
     onError: (error: any) => {
       console.error('Screen Inspect Error:', error);

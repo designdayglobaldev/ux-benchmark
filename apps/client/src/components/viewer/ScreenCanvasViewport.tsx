@@ -4,6 +4,8 @@ import type { ScreenType } from "@/hooks/useAppDetails";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RegionSelector, type Region } from "@/components/RegionSelector";
 import { ScreenActionOverlay } from "@/components/ScreenActionOverlay";
+import { useUpgradeModal } from "@/contexts/UpgradeContext";
+import { Lock } from "lucide-react";
 
 interface ScreenCanvasViewportProps {
   activeScreen?: ScreenType;
@@ -34,6 +36,8 @@ export function ScreenCanvasViewport({
   onSelectRegion,
   isSummaryVisible = false
 }: ScreenCanvasViewportProps) {
+  const { openUpgradeModal } = useUpgradeModal();
+  const isLocked = Boolean(activeScreen?.isLocked);
   return (
     <div className="relative">
       {/* Left Navigation Button */}
@@ -70,11 +74,32 @@ export function ScreenCanvasViewport({
           src={activeScreen?.imageUrl || RevolutScreenshot}
           alt="App Screenshot"
           onLoad={onImageLoad}
-          className={`w-[243.71px] h-[544px] rounded-[16px] object-cover mx-auto block transition-opacity duration-300 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`w-[243.71px] h-[544px] rounded-[16px] object-cover mx-auto block transition-all duration-300 ${
+            isImageLoaded ? 'opacity-100' : 'opacity-0'
+          } ${isLocked ? 'filter blur-[14px] opacity-75 scale-105' : ''}`}
         />
 
-        {/* Top Right Hover Actions: Bookmark (Collections) & Copy */}
-        {activeScreen && (
+        {/* Locked Padlock Overlay */}
+        {isLocked && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/40 rounded-[16px]">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                openUpgradeModal();
+              }}
+              className="group/lockBtn relative z-40 flex items-center justify-center rounded-full bg-[#181818]/95 hover:bg-[#222222] border border-white/20 hover:border-white/40 shadow-[0_4px_20px_rgba(0,0,0,0.6),0_0_20px_rgba(168,85,247,0.2)] transition-all duration-300 h-11 w-11 hover:w-auto px-0 hover:px-4 cursor-pointer"
+            >
+              <Lock className="w-4 h-4 text-white shrink-0" />
+              <span className="max-w-0 overflow-hidden whitespace-nowrap opacity-0 group-hover/lockBtn:max-w-[120px] group-hover/lockBtn:opacity-100 group-hover/lockBtn:ml-2 transition-all duration-300 text-[13px] font-medium text-white">
+                Unlock screen
+              </span>
+            </button>
+          </div>
+        )}
+
+        {/* Top Right Hover Actions: Bookmark (Collections) & Copy (only if unlocked) */}
+        {activeScreen && !isLocked && (
           <ScreenActionOverlay 
             screenId={activeScreen.id}
             imageUrl={activeScreen.imageUrl}

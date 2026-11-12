@@ -43,6 +43,8 @@ export function AppForm() {
     defaultValues: {
       status: 'DRAFT' as const,
       isStaffPick: false,
+      isPremium: false,
+      previewLimit: 4,
       platform: [],
       market: [],
       tags: [],
@@ -114,6 +116,8 @@ export function AppForm() {
             sourceUrl: data.sourceUrl || '',
             status: data.status || 'DRAFT',
             isStaffPick: data.isStaffPick || false,
+            isPremium: Boolean(data.isPremium),
+            previewLimit: data.previewLimit !== undefined && data.previewLimit !== null ? Number(data.previewLimit) : 4,
             platform: data.platform || [],
             market: data.market || [],
             tags: data.tags || [],
@@ -289,6 +293,48 @@ export function AppForm() {
                   )}
                 />
               </div>
+
+              {/* Mobbin-style Paid / Premium App Gating Toggle */}
+              <div className='flex items-center justify-between pt-4 border-t'>
+                <div className='space-y-0.5'>
+                  <div className="flex items-center gap-2">
+                    <Label className='text-base font-semibold'>PRO / Paid App Gating</Label>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-amber-500/20 text-amber-500 rounded border border-amber-500/30">
+                      Mobbin style
+                    </span>
+                  </div>
+                  <p className='text-sm text-muted-foreground'>
+                    Lock full screen library behind the PRO plan. Free users will only see a preview.
+                  </p>
+                </div>
+                <Controller
+                  control={control}
+                  name='isPremium'
+                  render={({ field }) => (
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  )}
+                />
+              </div>
+
+              {watch('isPremium') && (
+                <div className='flex items-center justify-between pt-4 border-t bg-amber-500/5 p-4 rounded-lg'>
+                  <div className='space-y-0.5'>
+                    <Label className='text-sm font-medium'>Free User Preview Screen Limit</Label>
+                    <p className='text-xs text-muted-foreground'>
+                      How many screens free users can preview before seeing the upgrade padlock.
+                    </p>
+                  </div>
+                  <div className="w-24">
+                    <Input
+                      type="number"
+                      min="0"
+                      max="50"
+                      {...register('previewLimit', { valueAsNumber: true })}
+                      className="text-right"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className='flex items-center justify-between pt-4 border-t'>
                 <div className='space-y-0.5'>

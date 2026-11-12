@@ -91,6 +91,7 @@ export function Flows() {
                                         <div className="flex items-center justify-center w-full h-full p-6">
                                             {previewScreens.map((screen, index) => {
                                                 const total = previewScreens.length;
+                                                const isScreenLocked = Boolean(screen.isLocked);
                                                 let cardClass = "relative rounded-[12px] overflow-hidden shadow-xl border border-[#333] transition-transform duration-300 group-hover:-translate-y-2 bg-[#1C1C1C] flex-shrink-0";
                                                 
                                                 if (total === 3) {
@@ -118,7 +119,9 @@ export function Flows() {
                                                             src={screen.imageUrl} 
                                                             alt={`${flow.name} Screen ${index + 1}`} 
                                                             optimizationWidth={300}
-                                                            className="w-full h-full object-cover" 
+                                                            className={`w-full h-full object-cover transition-all duration-300 ${
+                                                                isScreenLocked ? "filter blur-[8px] opacity-75 scale-105" : ""
+                                                            }`} 
                                                         />
                                                     </div>
                                                 );

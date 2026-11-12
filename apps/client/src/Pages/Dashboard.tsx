@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowUpRight, ListFilter, Check } from "lucide-react";
+import { Sparkles, ArrowUpRight, ListFilter, Check, Lock } from "lucide-react";
 import revolutImg from "@/assets/Revolut.png";
 import revolutLogo from "@/assets/Revolut_logo.png";
 import canvasImg from "@/assets/Canvas.png";
@@ -238,6 +238,13 @@ export function Dashboard() {
                                         <div className="absolute top-[16px] left-[20px] flex items-center gap-2 z-10">
                                             <Sparkles className="w-4 h-4 text-[#FF5500] fill-[#FF5500]" />
                                             <span className="text-white text-[14px] font-medium tracking-wide">Staff picks</span>
+                                        </div>
+                                    )}
+
+                                    {app.isPremium && (
+                                        <div className={`absolute top-[16px] ${app.isStaffPick ? 'left-[130px]' : 'left-[20px]'} flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-amber-500/30 text-amber-400 text-[11px] font-bold tracking-wider z-10 shadow-lg`}>
+                                            <Lock className="w-3 h-3 text-amber-400" />
+                                            <span>PRO</span>
                                         </div>
                                     )}
                                     

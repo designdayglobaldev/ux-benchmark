@@ -6,6 +6,7 @@ export interface ScreenType {
   name: string;
   slug: string;
   imageUrl: string;
+  isLocked?: boolean;
   uxAnalysis?: string;
   keyHighlights?: string;
   evidenceWhoWhy?: string;
@@ -38,6 +39,8 @@ export interface AppDetailsType {
   platform: string[];
   market?: string[];
   targetAudience?: string;
+  isPremium?: boolean;
+  previewLimit?: number;
   screens: ScreenType[];
   palette?: any;
   visualUiTypography?: string;

@@ -1,7 +1,7 @@
 import { prisma } from '../../db/prisma';
 import type { RetrievedApp } from './types';
 
-const VOYAGE_API_KEY = process.env.VOYAGE_API_KEY || '';
+const getVoyageApiKey = () => process.env.VOYAGE_API_KEY || '';
 
 export interface DenseSeedScreen {
   id: string;
@@ -12,28 +12,34 @@ export interface DenseSeedScreen {
 
 export class VectorEngine {
   /**
-   * Embed query text using Voyage-3 (1024-dim dense vector)
+   * Embed query text using Voyage Multimodal 3 to match the ScreenEmbedding multimodal space
    */
   public static async embedQuery(queryText: string): Promise<number[]> {
-    if (!VOYAGE_API_KEY) {
+    const apiKey = getVoyageApiKey();
+    if (!apiKey) {
       throw new Error('VOYAGE_API_KEY is not configured');
     }
 
-    const res = await fetch('https://api.voyageai.com/v1/embeddings', {
+    // Call multimodalembeddings to match the indexed vectors in ScreenEmbedding
+    const res = await fetch('https://api.voyageai.com/v1/multimodalembeddings', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${VOYAGE_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'voyage-3',
-        input: [queryText.trim()],
+        model: 'voyage-multimodal-3',
+        inputs: [
+          {
+            content: [{ type: 'text', text: queryText.trim() }],
+          },
+        ],
       }),
     });
 
     if (!res.ok) {
       const err = await res.text();
-      throw new Error(`Voyage AI embedding error: ${err}`);
+      throw new Error(`Voyage AI multimodal embedding error: ${err}`);
     }
 
     const data = await res.json();

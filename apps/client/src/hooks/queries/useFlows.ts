@@ -6,6 +6,7 @@ export interface FlowScreen {
   name: string;
   slug: string;
   imageUrl: string;
+  isLocked?: boolean;
   screenNo?: number;
   appId: string;
   app?: {
@@ -13,6 +14,8 @@ export interface FlowScreen {
     name: string;
     slug: string;
     appLogo?: string;
+    isPremium?: boolean;
+    previewLimit?: number;
     category?: {
       title: string;
       slug: string;

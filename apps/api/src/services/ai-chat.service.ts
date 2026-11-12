@@ -5,6 +5,7 @@ import { redis } from '../lib/redis';
 export interface ChatMessagePayload {
   role: 'USER' | 'ASSISTANT' | 'SYSTEM';
   content: string;
+  clientMessageId?: string;
   metadata?: any;
   promptTokens?: number;
   completionTokens?: number;
@@ -171,11 +172,21 @@ export class AiChatService {
     const completionTokens = payload.completionTokens || 0;
     const totalTokens = promptTokens + completionTokens || this.estimateTokens(payload.content);
 
+    // Verify that session belongs to the user if session exists
+    const sessionOwner = await prisma.aiChatSession.findUnique({
+      where: { id: sessionId },
+      select: { userId: true },
+    });
+    if (sessionOwner && sessionOwner.userId !== userId) {
+      throw new Error('Forbidden: Session does not belong to authenticated user');
+    }
+
     const message = await prisma.aiChatMessage.create({
       data: {
         sessionId,
         role: payload.role,
         content: payload.content,
+        clientMessageId: payload.clientMessageId || undefined,
         metadata: payload.metadata || undefined,
         promptTokens,
         completionTokens,
