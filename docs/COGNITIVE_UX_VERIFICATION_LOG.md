@@ -197,38 +197,45 @@ The automated validator [`apps/api/src/benchmark/validate-dataset.ts`](file:///c
 
 ---
 
-## 6. Full Dev Split Baseline Evaluation (Arm A Baseline on 90 Queries)
+## 6. Full Dev Split Baseline Evaluation (Arm A Baseline on All 90 Dev Queries)
 
 **Execution Date:** November 13, 2026  
 **Pipeline Version:** `v2.0.0-arm_a_baseline`  
 **Git Commit Stamped:** `2323668a9384d4e2fb45bdd6ce06e411f0390aad`  
 **Embedding Model:** `voyage-multimodal-3` (1024-d, input_type: query)  
 **Cross-Encoder Model:** `rerank-2` (truncate: true)  
-**Checkpoint File:** [`apps/api/scratch/arm_a_dev_checkpoint.json`](file:///c:/projects/ux-libaray/apps/api/scratch/arm_a_dev_checkpoint.json)  
-**Dev Split Composition:** Exactly 90 queries (67 In-Domain, 13 Out-of-Domain)
+**Unified Checkpoint File:** [`apps/api/scratch/arm_a_full_dev_baseline.json`](file:///c:/projects/ux-libaray/apps/api/scratch/arm_a_full_dev_baseline.json)  
+**Dev Split Composition:** Exactly 90 queries (77 In-Domain, 13 Out-of-Domain)
 
-### 6.1 Aggregate Baseline Performance (In-Domain Dev Split, N=67)
+### 6.1 Aggregate Baseline Performance (In-Domain Dev Split, N=77)
 
-| Metric | Score / Rate | Notes |
+| Metric | Score / Rate | Statistical Notes |
 | :--- | :---: | :--- |
-| **nDCG@10 (Baseline Standard)** | **0.3756** | Reference benchmark that Arm B and Arm C must surpass |
-| **Hit@1 (Top-1 Accuracy)** | **28.4%** | 19 of 67 queries placed target flow at rank 1 |
-| **Hit@3 (Top-3 Accuracy)** | **61.2%** | 41 of 67 queries retrieved relevant flow in top 3 |
-| **Out-of-Domain Count** | **13** | Excluded from nDCG; saved for Phase 2 isotonic calibration |
+| **nDCG@10 (Baseline Standard)** | **0.4187** | Formal reference standard for Gate 0 & Gate 1 |
+| **95% Bootstrap Confidence Interval** | **[0.3446, 0.4928]** | Computed via 10,000 paired bootstrap iterations |
+| **Hit@1 (Top-1 Accuracy)** | **33.8%** | 26 of 77 queries placed target flow at rank 1 |
+| **Hit@3 (Top-3 Accuracy)** | **66.2%** | 51 of 77 queries retrieved relevant flow in top 3 |
+| **MRR (Mean Reciprocal Rank)** | **0.4903** | Mean reciprocal rank across all in-domain queries |
+| **Mean Pipeline Latency** | **7,275ms** | End-to-end vector search + rerank latency per query |
+| **Out-of-Domain Count** | **13** | Evaluated for score distribution; excluded from nDCG |
 
 ### 6.2 Performance Breakdown by Intent Bucket
 
-| Intent | Query Count | Mean nDCG@10 | Empirical Diagnosis |
-| :--- | :---: | :---: | :--- |
-| **Flow** | 11 | **0.5489** | Strong journey retrieval on global tasks; needs FlowDocument (Arm B) for multi-screen coherence. |
-| **Compare** | 17 | **0.5570** | Cross-app queries retrieve dominant app anchors effectively. |
-| **Component** | 18 | **0.2623** | **Severely diluted** by whole-screen embeddings; validates need for FieldEmbeddings. |
-| **Situational** | 21 | **0.2350** | **Critical bottleneck:** Single vector fails on nuanced context questions (e.g. *where to avoid*). |
-| **Out-of-Domain** | 13 | *N/A (OOD)* | Scored for top similarity distribution; no false-alarm filtering exists yet in Arm A. |
+| Intent | Query Count | Mean nDCG@10 | Hit@1 | Hit@3 | Diagnosis |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Flow** | 21 | **0.6244** | 57.1% | 90.5% | Strong journey retrieval on global tasks; needs FlowDocument (Arm B) for multi-screen coherence. |
+| **Compare** | 17 | **0.5570** | 52.9% | 88.2% | Cross-app queries retrieve dominant app anchors effectively. |
+| **Component** | 18 | **0.2623** | 11.1% | 55.6% | **Severely diluted** by whole-screen embeddings; validates need for FieldEmbeddings. |
+| **Situational** | 21 | **0.2350** | 14.3% | 33.3% | **Critical bottleneck:** Single vector fails on nuanced context questions (e.g. *where to avoid*). |
+| **Out-of-Domain** | 13 | *N/A (OOD)* | - | - | Scored for top similarity distribution; no false-alarm filtering exists yet in Arm A. |
 
-### 6.3 Gate 0 Invariant Status
-- **Gate 0 Invariant:** Baseline established on 100% of the Dev split with frozen checkpoint and deterministic reproducibility.
-- **Status:** **PASSED & LOCKED.** The baseline is officially stamped for Gate 1 comparative hypothesis testing ($H_0: \text{nDCG}(\text{Arm C}) \le \text{nDCG}(\text{Arm A})$).
+### 6.3 Gate 0 Invariant Status (OPEN — NOT YET PASSED)
+- **Gate 0 Criteria & Formal Audit:**
+  1. **100% of target flows embedded:** ✅ **Done** (3,693 / 3,693 screens indexed in `voyage-multimodal-3`).
+  2. **Arm A scored on Dev split:** ✅ **Done** (77 in-domain queries scored on pinned commit `2323668a`, Mean nDCG@10 = **0.4187**, 95% Bootstrap CI: `[0.3446, 0.4928]`).
+  3. **Arm 0 (un-reranked vector baseline) scored:** ❌ **Open / Not Yet Scored** (Required by spec to isolate the exact contribution of cross-encoder reranking vs raw vector retrieval).
+  4. **Annotator Agreement / Designer Label Review:** ❌ **Open / Not Done** (Label audit by a product designer is required, especially on situational, component, and compare splits where ground truth polarity between "flow that exemplifies pattern" vs "flow containing avoid guidance" must be formalized before locking the test split).
+- **Gate 0 Decision:** **OPEN / PENDING.** The Arm A numbers stand as a provisional reference benchmark, but Gate 0 cannot formally pass until Arm 0 is scored and the designer label review is documented. The 60-query Test split remains strictly locked.
 
 
 
