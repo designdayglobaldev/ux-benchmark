@@ -39,6 +39,9 @@ import './queues/workers'; // Initialize BullMQ background workers
 import { initBillingSchedulers } from './queues/workers';
 const app = express();
 
+// Trust reverse proxy (Nginx / Cloudflare) so Express and express-rate-limit correctly identify client IPs
+app.set('trust proxy', 1);
+
 // Security Headers & Global Rate Limiting
 app.use(helmet({
   crossOriginResourcePolicy: false, // Allow cross-origin asset loading for images/canvas
