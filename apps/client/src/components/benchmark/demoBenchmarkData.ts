@@ -1,105 +1,223 @@
 export const DEMO_BENCHMARK_REPORT = {
-  industry: "Finance & Banking",
-  flow: "Transferring Money",
-  screenType: "Amount Entry & Account Selection",
-  summary: "Comprehensive UX benchmarking for single-view transfer and amount entry against industry leaders (Google Pay, Venmo, Revolut). The design exhibits high clarity with a bold keypad and prominent amount display, while opportunity exists in progressive fee/limit transparency and secondary account switching velocity.",
-  overallAlignment: "Strong Alignment with Modern Peer-to-Peer & Neo-banking Standards",
-  score: 88,
-  marketAlignmentScore: 91,
-  patternMaturityScore: 85,
-  snapshot: {
-    strongConventions: [
-      "Custom in-app numerical pad optimized for rapid single-handed thumb tapping without OS keyboard bounce",
-      "Real-time available balance reflection ($5000) directly under source account card to reduce overdraft failure anxiety",
-      "Persistent primary CTA ('Proceed to Pay') fixed above the viewport baseline to guarantee clear affordance"
+  "commonPatterns": [
+    {
+      "title": "Source Account / Funding Instrument Visibility Below Keypad",
+      "evidence": "3/5 benchmark apps (60%) — Venmo, PayPal, Oportun — surface the funding source (bank/card) as a distinct tappable row with balance or account info near the amount field, while Google Pay and Cash App omit it since they're P2P transfers against a pre-linked wallet.",
+      "confidence": "Medium — [60%]",
+      "whyItMatters": "Showing the funding source with balance builds pre-transaction confidence and reduces failed payments due to insufficient funds — critical for bank-linked transfers rather than wallet-to-wallet P2P.",
+      "exceptions": "Google Pay and Venmo skip this because the money moves from an already-funded wallet balance, not a bank account, so source selection is irrelevant to their flow.",
+      "benchmarkExamples": [
+        "PayPal 'From: CHIME Savings ••••'",
+        "Oportun 'Bank of America $7,741.33 available'",
+        "Axis Bank 'Send from account XXXX XXXX X0124 — Balance $5000'"
+      ],
+      "metrics": {
+        "marketStandardParity": {
+          "score": 7,
+          "reasoning": "Axis correctly includes the source account card, matching Oportun/PayPal's pattern, but buries balance in a smaller font-weight pairing rather than making it the hero trust signal."
+        },
+        "provenPatternAdherence": {
+          "score": 7,
+          "reasoning": "The pattern of coupling account + balance in one card is proven in Oportun and PayPal; Axis replicates structure but loses the emphasis that balance should carry (used as risk mitigation cue)."
+        },
+        "informationDensityMatch": {
+          "score": 6,
+          "reasoning": "Axis's card is dense but correctly scoped — account number, bank logo, balance — comparable to Oportun's single-line reveal, avoiding PayPal's multi-tap drill-down."
+        },
+        "competitiveEdge": {
+          "score": 6,
+          "reasoning": "Keeping balance visible without a tap is a genuine edge over PayPal's chevron-gated detail, but the visual hierarchy doesn't yet let balance 'pop' as a safety signal the way Oportun's bold number does."
+        }
+      }
+    },
+    {
+      "title": "Large, Centered Hero Amount Typography",
+      "evidence": "5/5 benchmark apps (100%) place the amount as the single largest, most visually dominant element on screen, typically 48-96pt, centered or left-anchored with a cursor.",
+      "confidence": "High — [100%]",
+      "whyItMatters": "The amount is the single most consequential piece of data in a money-movement flow; oversized typography reduces misread risk and reinforces focus/intent before commitment.",
+      "exceptions": "None — every benchmark, regardless of category (P2P, wallet, bank-link), treats the amount as the hero element.",
+      "benchmarkExamples": [
+        "Cash App: ~120pt edge-to-edge amount",
+        "Google Pay: ~72pt amount with cursor",
+        "Axis Bank: $100 in ~56pt centered"
+      ],
+      "metrics": {
+        "marketStandardParity": {
+          "score": 8,
+          "reasoning": "Axis follows the convention well with a large centered number, though at a comparatively smaller scale than Cash App's maximal type treatment."
+        },
+        "provenPatternAdherence": {
+          "score": 8,
+          "reasoning": "Matches the universal 'amount as hero' convention seen across all 5 apps — a well-adopted pattern Axis has clearly inherited correctly."
+        },
+        "informationDensityMatch": {
+          "score": 7,
+          "reasoning": "Appropriately sparse above the fold, but Axis adds decorative dot-grid background noise that slightly dilutes the minimalism seen in Google Pay/Venmo's pure white canvas."
+        },
+        "competitiveEdge": {
+          "score": 5,
+          "reasoning": "Functionally on par but not differentiated — no live currency formatting cues (e.g., comma insertion, decimal handling) are demonstrated, an area where Cash App and Google Pay show more input sophistication."
+        }
+      }
+    },
+    {
+      "title": "Primary CTA Pinned Directly Above or Integrated with Keypad",
+      "evidence": "4/5 benchmark apps (80%) — Google Pay, Venmo, Cash App, Oportun — place the primary action (Pay/Next/Request/arrow) immediately above the numeric keypad for thumb-reachable, low-travel confirmation.",
+      "confidence": "High — [80%]",
+      "whyItMatters": "Placing the CTA adjacent to the input keypad minimizes thumb travel and preserves single-handed operability, a key mobile ergonomics principle for transactional flows.",
+      "exceptions": "PayPal places CTA at the very bottom after a longer preset-amount + account-selection scroll, since its flow includes more decision steps before confirmation.",
+      "benchmarkExamples": [
+        "Venmo: Request/Pay buttons directly above keypad",
+        "Cash App: black 'Pay' pill above nav, right under keypad",
+        "Axis Bank: 'Proceed to Pay' sits above keypad, below account card"
+      ],
+      "metrics": {
+        "marketStandardParity": {
+          "score": 8,
+          "reasoning": "Axis positions 'Proceed to Pay' consistent with the dominant convention of CTA-above-keypad, aligning with 4 of 5 benchmarks' ergonomic logic."
+        },
+        "provenPatternAdherence": {
+          "score": 8,
+          "reasoning": "Directly adopts the thumb-zone optimization pattern proven across Venmo, Cash App, and Oportun, reducing reach distance for one-handed use."
+        },
+        "informationDensityMatch": {
+          "score": 7,
+          "reasoning": "CTA sits in a clean dedicated zone without crowding, similar to Cash App's isolated pill, though the account-selector dropdown above it adds one more decision layer than most benchmarks allow before CTA."
+        },
+        "competitiveEdge": {
+          "score": 6,
+          "reasoning": "Solid parity, but the CTA isn't dynamically state-aware (e.g., disabled until valid amount, or showing amount inline like 'Pay $100') as seen in PayPal's 'Add $50.00 USD Now' which reinforces the exact transaction value in the button itself."
+        }
+      }
+    }
+  ],
+  "designDifferences": [
+    {
+      "title": "No Live Amount-Editing Affordance (Cursor/Edit Icon)",
+      "yourDesign": "Axis renders '$100' as static bold text with no visible cursor, caret, or edit icon — unclear if tapping the number re-opens edit mode or if only the keypad below drives changes.",
+      "benchmark": "Google Pay and Venmo both show a blinking text cursor directly beside the digit; PayPal shows an explicit pencil icon beside the amount signaling 'tap to edit.'",
+      "difference": "Axis lacks any micro-affordance (cursor, pencil, underline) indicating the amount field is live/editable versus decorative.",
+      "potentialImpact": "Users accustomed to Google Pay/PayPal conventions may hesitate or mis-tap searching for an edit entry point, adding friction and cognitive load at the exact moment they need to correct an amount."
+    },
+    {
+      "title": "No Preset / Quick-Amount Chips",
+      "yourDesign": "Axis offers only raw keypad entry with no shortcut amount chips for common transfer values.",
+      "benchmark": "PayPal shows $10/$25/$50/$100 preset chips directly under the hero amount, letting users skip manual entry entirely; Oportun and Cash App emphasize fast single-tap flows.",
+      "difference": "Axis requires full manual keypad entry for every transaction, even for round, frequent amounts.",
+      "potentialImpact": "Increases time-on-task and tap count for the majority of common low-friction transfers (e.g., repeat utility payments, round-number transfers), directly reducing transaction velocity compared to PayPal's one-tap preset model."
+    },
+    {
+      "title": "Balance Displayed as Secondary Text, Not a Safety Cue",
+      "yourDesign": "Axis shows '$5000' balance in a smaller, same-weight font tucked to the right of the account card — easy to visually skip.",
+      "benchmark": "Oportun bolds '$7,741.33 available' directly under the amount in high-contrast, impossible-to-miss placement acting as a real-time overspend guardrail.",
+      "difference": "Axis treats balance as metadata; Oportun treats it as an active risk-prevention signal co-located with the amount being typed.",
+      "potentialImpact": "Without prominent balance pairing near the amount entry, users are more likely to attempt and then fail a transfer exceeding available funds, triggering late-stage error states rather than early prevention."
+    },
+    {
+      "title": "Decorative Background Pattern Competing with Primary Content",
+      "yourDesign": "Axis uses a subtle dot-grid texture across the purple header zone behind the amount and account elements.",
+      "benchmark": "4/5 benchmarks (Google Pay, Venmo, Cash App solid color, PayPal) use flat, undecorated backgrounds to keep 100% visual attention on the numeral and CTA.",
+      "difference": "Axis introduces non-functional visual texture in the highest-priority information zone of the screen.",
+      "potentialImpact": "Marginally increases visual noise in the zone users scan first, running counter to the 'reduce everything to amount + account + CTA' minimalism that benchmark leaders enforce for transactional trust."
+    }
+  ],
+  "opportunities": [
+    {
+      "title": "Introduce Quick-Amount Preset Chips Above the Keypad",
+      "observation": "Axis forces 100% manual digit entry for every transaction regardless of frequency or amount regularity, unlike PayPal's preset-chip row that lets users bypass the keypad for common values.",
+      "recommendation": "Add a horizontally scrollable row of 3-4 contextual preset chips (e.g., last transferred amount, $500, $1000, $5000) directly beneath the hero amount, mirroring PayPal's $10/$25/$50/$100 pattern but personalized using the user's transaction history for Axis's banking context.",
+      "evidence": "1/5 benchmark apps (20%) — PayPal — currently implements this, representing a clear whitespace opportunity rather than a saturated convention.",
+      "confidence": "Low — [20%]",
+      "exceptions": "Pure P2P apps (Venmo, Cash App) intentionally skip presets since peer amounts are typically unique/negotiated, but for a bank-transfer use case like Axis, recurring round amounts are common (bill pay, savings sweep), making presets highly applicable.",
+      "benchmarkExamples": [
+        "PayPal preset chips: $10 / $25 / $50(selected) / $100"
+      ]
+    },
+    {
+      "title": "Elevate Balance Into a High-Contrast, Co-located Safety Cue",
+      "observation": "Axis's '$5000' balance sits visually subordinate (smaller/lighter) next to the account row, disconnected from the amount the user is actively typing, increasing risk of attempted overdraft entry.",
+      "recommendation": "Reposition available balance directly beneath or beside the hero amount in bold, higher-contrast type (similar scale-relationship to Oportun's '$7,741.33 available'), and optionally add real-time inline validation (e.g., amount turns red/shows warning if it exceeds balance) before the user reaches 'Proceed to Pay.'",
+      "evidence": "1/5 benchmark apps (20%) — Oportun — implements this directly, but reflects an emerging best practice specifically relevant to bank-balance-aware transfers (not wallet apps).",
+      "confidence": "Low — [20%]",
+      "exceptions": "Wallet-based apps (Google Pay, Venmo, Cash App) don't need this since users aren't drawing against a disclosed bank balance in the same screen.",
+      "benchmarkExamples": [
+        "Oportun: bold available balance under amount with bank icon"
+      ]
+    },
+    {
+      "title": "Add Explicit Edit Affordance to the Hero Amount",
+      "observation": "The static '$100' text gives no micro-signal (cursor, pencil icon, underline) that it is the live editable target, which could create first-time-user hesitation about where/how to correct the value.",
+      "recommendation": "Add a blinking text cursor adjacent to the digits (Google Pay/Venmo pattern) or a pencil icon (PayPal pattern) directly next to the amount to make editability unambiguous, and ensure tap targets extend to the full numeral, not just the keypad.",
+      "evidence": "4/5 benchmark apps (80%) — Google Pay, Venmo, PayPal, and implicitly Cash App via direct keypad-to-display binding — provide a clear visual signal of live-edit state.",
+      "confidence": "High — [80%]",
+      "exceptions": "Cash App relies on an oversized full-bleed number where the entire screen behaves as the editable canvas, so a cursor is less critical; still, intent is signaled via greyed trailing zero.",
+      "benchmarkExamples": [
+        "Google Pay blinking cursor beside '0'",
+        "PayPal pencil icon beside '$50'",
+        "Cash App greyed trailing digit indicating live input state"
+      ]
+    },
+    {
+      "title": "Dynamic, State-Aware Primary CTA Reflecting Entered Amount",
+      "observation": "Axis's 'Proceed to Pay' button is static text regardless of amount entered or validity, missing a chance to reinforce transaction value and reduce last-second amount-reading errors.",
+      "recommendation": "Update CTA label dynamically to reflect entered amount (e.g., 'Proceed to Pay $100') once a non-zero value is entered, and keep button disabled/greyed at $0 to prevent premature submission — directly adopting PayPal's confirmed-value CTA pattern.",
+      "evidence": "1/5 benchmark apps (20%) — PayPal ('Add $50.00 USD Now') — fully implements amount-reflective CTA copy, though partial dynamic-state (disabled-at-zero) logic is inferred standard practice across fintech keypad flows.",
+      "confidence": "Low — [20%]",
+      "exceptions": "Venmo and Cash App keep CTA labels generic ('Pay', 'Request') since the dual-action nature (pay vs. request) makes embedding a dynamic amount into two buttons visually cluttered.",
+      "benchmarkExamples": [
+        "PayPal: 'Add $50.00 USD Now' button copy mirrors entered amount"
+      ]
+    }
+  ],
+  "industry": "Fintech / Digital Banking",
+  "flow": "Money Transfer — Amount Entry",
+  "screenType": "Amount Entry / Numeric Keypad Transaction Screen",
+  "summary": "Axis Bank's Enter Amount screen demonstrates solid foundational adherence to transactional UX conventions — a hero-sized amount, source account visibility with balance, and a thumb-reachable primary CTA above the keypad. However, compared to 5 category-leading benchmarks spanning P2P wallets (Venmo, Cash App), super-app payments (Google Pay), and bank-linked transfers (PayPal, Oportun), Axis under-leverages several proven micro-patterns: it lacks live-edit affordances on the amount, offers no quick-preset amount chips to accelerate common transactions, and visually under-weights the available balance as a risk-prevention signal. The screen is structurally competent but ergonomically and cognitively 'quiet' compared to benchmarks that actively guide, accelerate, and safeguard the user's input decision.",
+  "overallAlignment": "Axis Bank's design is directionally aligned with 70-80% of core structural conventions (hero amount, account + balance card, CTA-above-keypad) but trails benchmark leaders in interaction richness — missing live-edit cues, preset amount shortcuts, and prominent balance-as-guardrail treatment that differentiate top-tier transfer experiences.",
+  "score": 72,
+  "marketAlignmentScore": 74,
+  "patternMaturityScore": 68,
+  "snapshot": {
+    "strongConventions": [
+      "Hero-scale amount display centered as the primary visual anchor (100% of benchmarks)",
+      "Source account card with balance adjacent to the amount entry (60% of benchmarks, high relevance for bank-linked transfers)",
+      "Primary CTA positioned directly above the numeric keypad for thumb accessibility (80% of benchmarks)"
     ],
-    notableDifferences: [
-      "Account selector dropdown is embedded directly above keypad rather than sheet-based drawer used in Cash App & Revolut",
-      "Inline 'Add note' input is styled as a secondary pill rather than an auto-expanding memo bar below recipient details",
-      "Keypad bottom row layout places '0' between '+*#' and backspace instead of modern centered zero with dot/decimal"
+    "notableDifferences": [
+      "No visible live-edit affordance (cursor/pencil) on the amount field, unlike 80% of benchmarks",
+      "Absence of quick-preset amount chips found in PayPal's flow",
+      "Balance shown as de-emphasized metadata rather than a bold safety cue as in Oportun",
+      "Decorative dot-grid background texture competes with the otherwise clean benchmark convention of flat, distraction-free canvases"
     ],
-    keyOpportunities: [
-      "Introduce immediate currency formatting micro-animations as digits are typed to validate input scale",
-      "Add quick-amount suggestion pills ($25, $50, $100, Max) to accelerate repeat peer payments by up to 40%",
-      "Display real-time transfer arrival time estimate (e.g. 'Instant' or 'Arrives by 5:00 PM') directly above the CTA"
+    "keyOpportunities": [
+      "Add contextual preset amount chips to reduce manual entry friction for recurring transfers",
+      "Elevate available balance into a bold, co-located safety cue to prevent overdraft attempts before submission",
+      "Introduce a clear cursor/pencil edit affordance on the hero amount to remove ambiguity about editability",
+      "Make the CTA dynamically reflect the entered amount (e.g., 'Proceed to Pay $100') and disable at $0 to reinforce transaction confidence"
     ]
-  },
-  commonPatterns: [
-    {
-      title: "Prominent Hero Amount Entry",
-      evidence: "94% of top tier fintech apps (Revolut, Cash App, Venmo, Google Pay) prioritize a central 40px+ typography size for input amount to prevent typographical error.",
-      confidence: "High (Validated by 14 top finance apps)",
-      whyItMatters: "Financial transactions carry severe user error anxiety; oversized real-time amount feedback reassures users of the exact quantity before confirmation.",
-      exceptions: "Enterprise wire transfer forms with multi-currency conversion tables typically defer hero styling for detailed rate breakdown rows.",
-      benchmarkExamples: ["Google Pay", "Venmo", "Cash App"]
-    },
-    {
-      title: "Source Account & Liquidity Awareness",
-      evidence: "Leading banking apps present available balance alongside the chosen funding account prior to action commitment.",
-      confidence: "High",
-      whyItMatters: "Prevents failed transaction drop-off rates and insufficient fund rejection loops.",
-      benchmarkExamples: ["Google Pay", "Revolut", "Venmo"]
-    },
-    {
-      title: "Contextual Sticky Action Bar",
-      evidence: "Payment confirmation actions are always docked immediately above the custom keypad or pinned to bottom viewport.",
-      confidence: "High",
-      whyItMatters: "Maintains uninterrupted thumb-zone accessibility during high-intent conversion flows.",
-      benchmarkExamples: ["Venmo", "Monzo"]
-    }
-  ],
-  designDifferences: [
-    {
-      title: "Keypad Character Configuration",
-      yourDesign: "Bottom row includes '+ * #' symbols on the bottom-left slot.",
-      benchmark: "Leading apps replace telephony characters with a decimal dot (.) or biometric quick-auth trigger.",
-      difference: "Telephony keys create minor cognitive friction in purely financial transaction screens.",
-      potentialImpact: "Eliminating telephone symbols streamlines the keypad purely for currency input."
-    },
-    {
-      title: "Quick Denomination Affordance",
-      yourDesign: "Requires manual entry for all transaction amounts without presets.",
-      benchmark: "Venmo and Revolut offer dynamic shortcut chips based on user transaction history.",
-      difference: "Shortcut chips reduce average interaction time by 2.4 seconds per transfer.",
-      potentialImpact: "Higher repeat payment velocity and perceived responsiveness."
-    }
-  ],
-  opportunities: [
-    {
-      title: "Dynamic Smart Denomination Chips",
-      observation: "The empty space between hero amount and source card could accommodate dynamic shortcut chips.",
-      recommendation: "Provide 3-4 contextual amount pills ($20, $50, $100, Max) dynamically populated from recurring transfers.",
-      evidence: "Fintech benchmarks demonstrate an 18% lift in payment completion velocity with 1-tap denomination pills.",
-      confidence: "High",
-      benchmarkExamples: ["Google Pay", "Venmo"]
-    },
-    {
-      title: "Transfer Speed & Fee Transparency",
-      observation: "Fee status and settlement speed are unstated on the primary entry screen.",
-      recommendation: "Include a subtle status label: 'Free • Instant Transfer' next to the source balance.",
-      evidence: "Transparent fee disclosures directly under payment amount reduce pre-confirmation drop-offs by 12%.",
-      confidence: "High",
-      benchmarkExamples: ["Wise", "Revolut"]
-    }
-  ]
+  }
 };
 
 export const DEMO_BENCHMARK_SCREENS = [
   {
-    name: "Google Pay • Amount Entry",
-    imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/4wjk2c5idr6_1787734227799.png"
+    "name": "Google Pay • Amount Entry",
+    "imageUrl": "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/4wjk2c5idr6_1787734227799.png"
   },
   {
-    name: "Venmo • Peer Payment Entry",
-    imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/bn7y74q988s_1788177478747.png"
+    "name": "Venmo • Peer Payment Entry",
+    "imageUrl": "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/bn7y74q988s_1788177478747.png"
   },
   {
-    name: "Coinbase Wallet • Numeric Keypad",
-    imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/e3aw7qc336j_1788155734870.png"
+    "name": "Cash App • Transferring Money",
+    "imageUrl": "/cashapp-transfer-screen.png"
   },
   {
-    name: "PayPal • Fund Transfer",
-    imageUrl: "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/9pd0ozc93up_1787830116944.png"
+    "name": "PayPal • Fund Transfer",
+    "imageUrl": "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/9pd0ozc93up_1787830116944.png"
+  },
+  {
+    "name": "Oportun • Select Amount",
+    "imageUrl": "https://yqsjruicqhvisnftreal.supabase.co/storage/v1/object/public/apps/screens/x7pyxcvmrfn_1788417723649.webp"
   }
 ];
 

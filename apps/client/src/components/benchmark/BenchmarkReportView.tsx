@@ -54,14 +54,24 @@ interface BenchmarkReportViewProps {
 
 const getConfidencePill = (conf: string) => {
   if (!conf) return null;
-  const isHigh = conf.toLowerCase().includes('high');
-  const isMed = conf.toLowerCase().includes('medium');
-  const isLow = conf.toLowerCase().includes('low');
+  const lower = conf.toLowerCase().trim();
+  // Check the leading classification word/level first
+  const isHigh = lower.startsWith('high') || (lower.includes('high') && !lower.includes('medium') && !lower.includes('low'));
+  const isMed = lower.startsWith('medium') || lower.includes('medium') || lower.includes('med');
+  const isLow = lower.startsWith('low') || lower.includes('low');
+
   let bg = 'bg-[#333]';
   let text = 'text-[#ccc]';
-  if (isHigh) { bg = 'bg-green-500/20'; text = 'text-green-400'; }
-  else if (isMed) { bg = 'bg-yellow-500/20'; text = 'text-yellow-400'; }
-  else if (isLow) { bg = 'bg-red-500/20'; text = 'text-red-400'; }
+  if (isLow) {
+    bg = 'bg-red-500/20';
+    text = 'text-red-400';
+  } else if (isMed) {
+    bg = 'bg-yellow-500/20';
+    text = 'text-yellow-400';
+  } else if (isHigh) {
+    bg = 'bg-green-500/20';
+    text = 'text-green-400';
+  }
   
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-[13px] font-medium ${bg} ${text}`}>
