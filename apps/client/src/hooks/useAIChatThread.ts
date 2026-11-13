@@ -10,7 +10,7 @@ export function useAIChatThread(sessionId: string | null | undefined, initialPro
   const [localTurns, setLocalTurns] = useState<ChatTurn[]>([]);
   const hasExecutedInitialRef = useRef<string | null>(null);
 
-  const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api/v1";
+  const rawApiUrl = import.meta.env.PROD ? "/api/v1" : (import.meta.env.VITE_API_URL || "http://localhost:4000/api/v1");
   const baseApi = rawApiUrl.replace(/\/$/, "");
   const prefix = baseApi.includes("/api/v1") ? baseApi : `${baseApi}/api/v1`;
 

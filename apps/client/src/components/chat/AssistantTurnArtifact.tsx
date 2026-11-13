@@ -88,7 +88,7 @@ export function AssistantTurnArtifact({
   const handleRating = async (val: number) => {
     setRating(val);
     if (turn.messageId && user?.id) {
-      const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api/v1";
+      const rawApiUrl = import.meta.env.PROD ? "/api/v1" : (import.meta.env.VITE_API_URL || "http://localhost:4000/api/v1");
       const baseApi = rawApiUrl.replace(/\/$/, "");
       const prefix = baseApi.includes("/api/v1") ? baseApi : `${baseApi}/api/v1`;
       try {

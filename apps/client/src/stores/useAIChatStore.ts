@@ -35,6 +35,9 @@ interface AIChatState {
 }
 
 const getApiPrefix = () => {
+  if (import.meta.env.PROD) {
+    return "/api/v1";
+  }
   const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api/v1";
   const baseApi = rawApiUrl.replace(/\/$/, "");
   return baseApi.includes("/api/v1") ? baseApi : `${baseApi}/api/v1`;
