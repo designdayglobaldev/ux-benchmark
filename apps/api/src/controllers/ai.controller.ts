@@ -367,10 +367,11 @@ export class AIController {
       const shouldRunCognitive = useCognitive === true || headerFlag;
       const effectiveMessageId = ctx?.requestKey || clientMessageId;
 
-      // Setup Server-Sent Events headers
+      // Setup Server-Sent Events headers (with X-Accel-Buffering: no for Nginx)
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache, no-transform');
       res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no');
       res.flushHeaders?.();
 
       const sendEvent = (event: string, data: any) => {

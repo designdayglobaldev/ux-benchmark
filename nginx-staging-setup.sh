@@ -21,7 +21,7 @@ server {
         try_files $uri $uri/ /index.html;
     }
 
-    # Proxy API Requests to Staging Node.js Backend on port 5000
+    # Proxy API Requests to Staging Node.js Backend on port 5000 (with SSE streaming support)
     location /api/ {
         proxy_pass http://localhost:5000/api/;
         proxy_http_version 1.1;
@@ -32,6 +32,12 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Disable buffering so Server-Sent Events (SSE) stream in real time
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 24h;
+        chunked_transfer_encoding on;
     }
 
     # Proxy WebSocket / Socket.io Connections to Staging Backend
