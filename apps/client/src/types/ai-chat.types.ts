@@ -30,6 +30,13 @@ export interface ComparisonFlow {
   totalScreens?: number;
 }
 
+export interface ThoughtStep {
+  id: string;
+  title: string;
+  status: "running" | "completed" | "error";
+  badges?: string[];
+}
+
 export interface AssistantTurnPayload {
   introText: string;
   sections: GenUISection[];
@@ -37,6 +44,8 @@ export interface AssistantTurnPayload {
   comparisonFlows: ComparisonFlow[];
   uxInsights?: string;
   suggestedFollowUps: string[];
+  thoughtSteps?: ThoughtStep[];
+  thoughtDurationSeconds?: number;
 }
 
 export interface ChatTurn {

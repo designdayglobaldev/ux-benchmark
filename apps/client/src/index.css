@@ -278,7 +278,7 @@
   will-change: transform, opacity, filter;
 }
 
-/* Claude / ChatGPT Minimalist Shimmer Text */
+/* Claude / ChatGPT Minimalist Shimmer Text & shadcn shimmer utility */
 @keyframes claudeShimmer {
   0% {
     background-position: -200% 0;
@@ -299,6 +299,68 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: claudeShimmer 2.2s ease-in-out infinite;
+}
+
+/* shadcn/ui & tw-shimmer specification */
+@keyframes tw-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.shimmer {
+  --shimmer-duration: 2s;
+  --shimmer-angle: 90deg;
+  background: linear-gradient(
+    var(--shimmer-angle),
+    rgba(168, 85, 247, 0.4) 0%,
+    rgba(236, 72, 153, 0.95) 25%,
+    rgba(250, 204, 21, 0.95) 50%,
+    rgba(168, 85, 247, 0.95) 75%,
+    rgba(168, 85, 247, 0.4) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: tw-shimmer var(--shimmer-duration) linear infinite;
+  display: inline-block;
+}
+
+.shimmer.shimmer-gradient {
+  background: linear-gradient(
+    90deg,
+    rgba(168, 85, 247, 0.4) 0%,
+    rgba(236, 72, 153, 0.95) 25%,
+    rgba(250, 204, 21, 0.95) 50%,
+    rgba(168, 85, 247, 0.95) 75%,
+    rgba(168, 85, 247, 0.4) 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: tw-shimmer 2.4s linear infinite;
+}
+
+.shimmer-subtle {
+  background: linear-gradient(
+    90deg,
+    rgba(244, 244, 245, 0.45) 0%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(244, 244, 245, 0.45) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: tw-shimmer 2s ease-in-out infinite;
 }
 
 /* Claude Bouncing Dots */

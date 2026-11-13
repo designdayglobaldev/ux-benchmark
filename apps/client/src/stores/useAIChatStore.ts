@@ -182,6 +182,8 @@ export const useAIChatStore = create<AIChatState>()(
               comparisonFlows: meta.comparisonFlows || [],
               uxInsights: meta.uxInsights || "",
               suggestedFollowUps: meta.suggestedFollowUps || [],
+              thoughtSteps: meta.thoughtSteps || [],
+              thoughtDurationSeconds: meta.thoughtDurationSeconds,
             };
             return {
               id: msg.id,
@@ -446,7 +448,46 @@ export const useAIChatStore = create<AIChatState>()(
 
                 if (isStale()) return false;
 
-                if (event === "text_delta" && data.delta) {
+                if (event === "thought_step" && data) {
+                  set((state) => ({
+                    threads: {
+                      ...state.threads,
+                      [newSessionId]: (state.threads[newSessionId] || []).map((t) => {
+                        if (t.id !== assistantTurnId) return t;
+                        const existingSteps = (t.data as AssistantTurnPayload)?.thoughtSteps || [];
+                        const exists = existingSteps.some((s) => s.id === data.id);
+                        const updatedSteps = exists
+                          ? existingSteps.map((s) => (s.id === data.id ? { ...s, ...data } : s))
+                          : [...existingSteps, data];
+                        return {
+                          ...t,
+                          data: {
+                            ...(t.data as AssistantTurnPayload),
+                            thoughtSteps: updatedSteps,
+                          },
+                        };
+                      }),
+                    },
+                  }));
+                } else if (event === "thought_complete" && data.steps) {
+                  set((state) => ({
+                    threads: {
+                      ...state.threads,
+                      [newSessionId]: (state.threads[newSessionId] || []).map((t) =>
+                        t.id === assistantTurnId
+                          ? {
+                              ...t,
+                              data: {
+                                ...(t.data as AssistantTurnPayload),
+                                thoughtSteps: data.steps,
+                                thoughtDurationSeconds: data.durationSeconds,
+                              },
+                            }
+                          : t
+                      ),
+                    },
+                  }));
+                } else if (event === "text_delta" && data.delta) {
                   accumulatedText += data.delta;
                   set((state) => ({
                     threads: {
@@ -477,6 +518,8 @@ export const useAIChatStore = create<AIChatState>()(
                                 apps: data.apps || [],
                                 comparisonFlows: data.comparisonFlows || [],
                                 uxInsights: data.uxInsights || "",
+                                thoughtSteps: data.thoughtSteps || (t.data as AssistantTurnPayload)?.thoughtSteps,
+                                thoughtDurationSeconds: data.thoughtDurationSeconds || (t.data as AssistantTurnPayload)?.thoughtDurationSeconds,
                                 suggestedFollowUps: data.suggestedFollowUps || [],
                               },
                             }
@@ -748,7 +791,46 @@ export const useAIChatStore = create<AIChatState>()(
                   break streamFollowUpLoop;
                 }
 
-                if (event === "text_delta" && data.delta) {
+                if (event === "thought_step" && data) {
+                  set((state) => ({
+                    threads: {
+                      ...state.threads,
+                      [activeSessionId]: (state.threads[activeSessionId] || []).map((t) => {
+                        if (t.id !== assistantTurnId) return t;
+                        const existingSteps = (t.data as AssistantTurnPayload)?.thoughtSteps || [];
+                        const exists = existingSteps.some((s) => s.id === data.id);
+                        const updatedSteps = exists
+                          ? existingSteps.map((s) => (s.id === data.id ? { ...s, ...data } : s))
+                          : [...existingSteps, data];
+                        return {
+                          ...t,
+                          data: {
+                            ...(t.data as AssistantTurnPayload),
+                            thoughtSteps: updatedSteps,
+                          },
+                        };
+                      }),
+                    },
+                  }));
+                } else if (event === "thought_complete" && data.steps) {
+                  set((state) => ({
+                    threads: {
+                      ...state.threads,
+                      [activeSessionId]: (state.threads[activeSessionId] || []).map((t) =>
+                        t.id === assistantTurnId
+                          ? {
+                              ...t,
+                              data: {
+                                ...(t.data as AssistantTurnPayload),
+                                thoughtSteps: data.steps,
+                                thoughtDurationSeconds: data.durationSeconds,
+                              },
+                            }
+                          : t
+                      ),
+                    },
+                  }));
+                } else if (event === "text_delta" && data.delta) {
                   accumulatedText += data.delta;
                   if (abortController.signal.aborted || get().activeSessionId !== activeSessionId) {
                     try { await reader.cancel(); } catch {}
@@ -787,6 +869,8 @@ export const useAIChatStore = create<AIChatState>()(
                                 apps: data.apps || [],
                                 comparisonFlows: data.comparisonFlows || [],
                                 uxInsights: data.uxInsights || "",
+                                thoughtSteps: data.thoughtSteps || (t.data as AssistantTurnPayload)?.thoughtSteps,
+                                thoughtDurationSeconds: data.thoughtDurationSeconds || (t.data as AssistantTurnPayload)?.thoughtDurationSeconds,
                                 suggestedFollowUps: data.suggestedFollowUps || [],
                               },
                             }

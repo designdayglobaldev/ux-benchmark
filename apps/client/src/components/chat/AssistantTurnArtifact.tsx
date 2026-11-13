@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { ArrowUpRight, Layers, ChevronLeft, ChevronRight, Maximize2, X, ThumbsUp, ThumbsDown, Check, Copy } from "lucide-react";
+import { ArrowUpRight, Layers, Maximize2, ThumbsUp, ThumbsDown, Check, Copy } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { motion, AnimatePresence } from "motion/react";
+import { MESSAGE_ANIMATIONS } from "@/lib/message-animations";
+import { Message, MessageContent, MessageFooter } from "@/components/ui/message";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ZiboAiIcon } from "../ZiboAiIcon";
+import { FeedbackModal } from "../FeedbackModal";
 import { DynamicGenUIRenderer } from "../genui/GenUIRenderer";
-import { ClaudeThinkingBar } from "./ClaudeThinkingBar";
+import { ChainOfThought } from "./ChainOfThought";
+import { Suggestion } from "./Suggestion";
 import revolutScreen from "../../assets/Revolut.png";
 import revolutLogo from "../../assets/Revolut_logo.png";
 import { useAuth } from "../../contexts/AuthContext";
-import type { ChatTurn, ComparisonFlow, FlowStep, AIResearchApp } from "../../types/ai-chat.types";
+import type { ChatTurn, ComparisonFlow, AIResearchApp } from "../../types/ai-chat.types";
 
 interface AssistantTurnArtifactProps {
   turn: ChatTurn;
@@ -31,26 +36,54 @@ export function AssistantTurnArtifact({
   const [rating, setRating] = useState<number | null>(turn.rating ?? null);
   const [copied, setCopied] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [correctionInput, setCorrectionInput] = useState("");
 
-  if (!data) {
+  const introText = data?.introText || "";
+  const sections = data?.sections || [];
+  const comparisonFlows = data?.comparisonFlows || [];
+  const suggestedFollowUps = data?.suggestedFollowUps || [];
+  const isStreaming = turn.isStreaming;
+  const hasBodyContent = Boolean(introText || sections.length > 0 || (data?.apps && data.apps.length > 0) || comparisonFlows.length > 0);
+
+  // If streaming and no body content has arrived yet, show live Chain of Thought Trace
+  if (isStreaming && !hasBodyContent) {
     return (
-      <div className="w-full flex items-start gap-4 mb-8">
-        <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg mt-1">
+      <div className="w-full flex items-start gap-3 sm:gap-3.5 mb-8">
+        <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg mt-0.5">
           <div className="w-full h-full bg-[#141414] rounded-full flex items-center justify-center">
             <ZiboAiIcon size={18} className="text-white" />
           </div>
         </div>
-        <div className="flex-1 bg-[#181818] border border-[#2A2A2A] rounded-2xl p-4 text-[14px] text-[#A8A8A8]">
-          {turn.content || "Generating benchmark synthesis..."}
+        <div className="flex-1 max-w-2xl">
+          <ChainOfThought
+            steps={data?.thoughtSteps}
+            defaultOpen={true}
+            streaming={true}
+            answering={false}
+          />
         </div>
       </div>
     );
   }
 
-  const { introText, sections = [], apps = [], comparisonFlows = [], suggestedFollowUps = [] } = data;
-  const isStreaming = turn.isStreaming;
-  const hasBodyContent = !!introText || sections.length > 0 || apps.length > 0 || comparisonFlows.length > 0;
+  // If not streaming and still no data, show completed trace placeholder
+  if (!data) {
+    return (
+      <div className="w-full flex items-start gap-3 sm:gap-3.5 mb-8">
+        <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg mt-0.5">
+          <div className="w-full h-full bg-[#141414] rounded-full flex items-center justify-center">
+            <ZiboAiIcon size={18} className="text-white" />
+          </div>
+        </div>
+        <div className="flex-1 max-w-2xl">
+          <ChainOfThought
+            defaultOpen={false}
+            streaming={false}
+            answering={true}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const handleRating = async (val: number) => {
     setRating(val);
@@ -70,71 +103,77 @@ export function AssistantTurnArtifact({
     }
   };
 
-  const handleCorrectionSubmit = async () => {
-    if (turn.messageId && user?.id) {
-      const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api/v1";
-      const baseApi = rawApiUrl.replace(/\/$/, "");
-      const prefix = baseApi.includes("/api/v1") ? baseApi : `${baseApi}/api/v1`;
-      try {
-        await fetch(`${prefix}/ai/feedback`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messageId: turn.messageId,
-            userId: user.id,
-            rating: -1,
-            correctionText: correctionInput,
-          }),
-        });
-      } catch (err) {
-        console.warn("Correction submit failed:", err);
-      }
-    }
-    setFeedbackOpen(false);
-  };
-
   return (
-    <div className="w-full flex items-start gap-3 sm:gap-3.5 mb-10 min-w-0">
+    <Message className="w-full mb-10 min-w-0">
       {/* 1. Left AI Avatar Icon */}
-      <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg">
+      <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg select-none">
         <div className="w-full h-full bg-[#141414] rounded-full flex items-center justify-center">
           <ZiboAiIcon size={18} className="text-white" />
         </div>
       </div>
 
       {/* 2. Main Response Body */}
-      <div className="flex-1 flex flex-col gap-5 min-w-0">
+      <MessageContent className="flex-1 flex flex-col gap-4 min-w-0">
         
-        {/* Claude-style Minimalist Elegant Thinking Bar */}
-        {isStreaming && !hasBodyContent && (
-          <ClaudeThinkingBar />
+        {/* Chain of Thought built on official shadcn Trace + Badge */}
+        {hasBodyContent && (
+          <ChainOfThought
+            steps={data.thoughtSteps}
+            durationSeconds={data.thoughtDurationSeconds}
+            defaultOpen={false}
+            streaming={false}
+            answering={true}
+          />
         )}
 
-        {/* Intro Markdown Text with Claude Streaming Cursor */}
+        {/* Intro Markdown Text (Claude style: clean streaming without trailing cursor line) */}
         {introText && (
           <div className="prose prose-invert max-w-none text-[#E0E0E0] text-[14px] sm:text-[15px] leading-[26px] font-normal tracking-[-0.01em] prose-headings:font-medium prose-headings:text-white prose-p:my-2.5 prose-strong:text-white prose-strong:font-semibold prose-ul:my-2 prose-li:my-1">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{introText}</ReactMarkdown>
-            {isStreaming && (
-              <span className="animate-claude-cursor" aria-hidden="true" />
-            )}
           </div>
         )}
 
-        {/* Dynamic GenUI Sections (Interactive Flow Carousels, Insight Cards, Text Blocks) - Shown after text finishes or when streaming is complete */}
-        {!isStreaming && sections.length > 0 && (
-          <div className="flex flex-col gap-5 w-full animate-in fade-in duration-500">
-            <DynamicGenUIRenderer sections={sections} />
-          </div>
-        )}
+        {/* Dynamic GenUI Sections (Interactive Flow Carousels, Insight Cards, Text Blocks) - Animated Entrance */}
+        <AnimatePresence mode="popLayout">
+          {!isStreaming && sections.length > 0 && (() => {
+            const filteredSections = sections.filter((sec) => {
+              if (sec.type === "text" && sec.content) {
+                const trimmedContent = sec.content.trim().toLowerCase();
+                const trimmedIntro = introText.trim().toLowerCase();
+                return trimmedContent !== trimmedIntro && !trimmedIntro.startsWith(trimmedContent.slice(0, 50));
+              }
+              return true;
+            });
 
-        {/* Interactive Comparison Flows (Dual-App Step Comparison View) - Shown after streaming completes */}
-        {!isStreaming && comparisonFlows.length > 0 && (() => {
-          const maxSteps = Math.max(...comparisonFlows.map((f: ComparisonFlow) => f.steps.length), 1);
-          const clampedIndex = Math.min(activeStepIndex, maxSteps - 1);
+            if (filteredSections.length === 0) return null;
 
-          return (
-            <div className="flex flex-col gap-4 my-2 w-full rounded-2xl bg-[#121212] border border-[#252525] p-5 shadow-2xl overflow-hidden animate-in fade-in duration-500">
-              {/* Top Toolbar: Heading + Step Scrubber Tabs */}
+            return (
+              <motion.div
+                key="genui-sections"
+                initial={MESSAGE_ANIMATIONS["slide-up"].variants.initial}
+                animate={MESSAGE_ANIMATIONS["slide-up"].variants.animate}
+                className="flex flex-col gap-5 w-full"
+              >
+                <DynamicGenUIRenderer sections={filteredSections} />
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>
+
+        {/* Interactive Comparison Flows (Dual-App Step Comparison View) - Animated Entrance */}
+        <AnimatePresence mode="popLayout">
+          {!isStreaming && comparisonFlows.length > 0 && (() => {
+            const maxSteps = Math.max(...comparisonFlows.map((f: ComparisonFlow) => f.steps.length), 1);
+            const clampedIndex = Math.min(activeStepIndex, maxSteps - 1);
+
+            return (
+              <motion.div
+                key="comparison-flows"
+                initial={MESSAGE_ANIMATIONS["slide-up"].variants.initial}
+                animate={MESSAGE_ANIMATIONS["slide-up"].variants.animate}
+                className="flex flex-col gap-4 my-2 w-full rounded-2xl bg-[#121212] border border-[#252525] p-5 shadow-2xl overflow-hidden"
+              >
+                {/* Top Toolbar: Heading + Step Scrubber Tabs */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#222222]">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-[#1F1F1F] border border-[#2F2F2F] flex items-center justify-center text-[#A873E8]">
@@ -161,160 +200,143 @@ export function AssistantTurnArtifact({
                         className={`px-3 py-1 rounded-lg text-[12px] font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
                           isSelected
                             ? "bg-[#2E2E2E] text-white shadow-sm"
-                            : "text-[#888888] hover:text-white hover:bg-[#222222]"
+                            : "text-[#8E8E8E] hover:text-[#C2C2C2] hover:bg-[#222222]"
                         }`}
                       >
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isSelected ? "#A873E8" : "#555555" }} />
-                        Step {stepIdx + 1}
+                        <span>Step {stepIdx + 1}</span>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Side-by-Side Synchronized App Screen Columns */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
-                {comparisonFlows.map((flow: ComparisonFlow, fIdx: number) => {
-                  const currentStep: FlowStep | undefined = flow.steps[clampedIndex] || flow.steps[flow.steps.length - 1];
+              {/* Dual-App Comparison Grid (Synchronized Side-by-Side) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {comparisonFlows.map((flow: ComparisonFlow, flowIdx: number) => {
+                  const step = flow.steps[clampedIndex] || flow.steps[flow.steps.length - 1];
+                  const hasImage = Boolean(step?.screenImageUrl);
+                  const isRevolutFallback = flow.appName.toLowerCase().includes("revolut");
+                  const displayImage = hasImage ? step.screenImageUrl! : isRevolutFallback ? revolutScreen : null;
+
                   return (
                     <div
-                      key={fIdx}
-                      className="flex flex-col gap-3 p-4 rounded-xl bg-[#161616] border border-[#262626] relative group"
+                      key={flow.appName || flowIdx}
+                      className="flex flex-col rounded-xl bg-[#171717] border border-[#262626] overflow-hidden group hover:border-[#383838] transition-all"
                     >
-                      <div className="flex items-center justify-between">
+                      {/* App Header & Step Indicator */}
+                      <div className="flex items-center justify-between p-3.5 bg-[#1C1C1C] border-b border-[#262626]">
                         <div className="flex items-center gap-2.5">
                           {flow.appLogo ? (
-                            <img src={flow.appLogo} alt={flow.appName} className="w-7 h-7 rounded-lg object-contain bg-white shrink-0" />
+                            <img
+                              src={flow.appLogo}
+                              alt={flow.appName}
+                              className="w-6 h-6 rounded-md object-contain bg-[#222]"
+                            />
+                          ) : isRevolutFallback ? (
+                            <img
+                              src={revolutLogo}
+                              alt={flow.appName}
+                              className="w-6 h-6 rounded-md object-contain"
+                            />
                           ) : (
-                            <div className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                            <div className="w-6 h-6 rounded-md bg-[#252525] flex items-center justify-center text-[11px] font-bold text-white">
                               {flow.appName.charAt(0)}
                             </div>
                           )}
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-[14px] text-white leading-tight">
-                              {flow.appName}
-                            </span>
-                            <span className="text-[11px] text-[#7C7C7C]">
-                              Step {clampedIndex + 1}: {currentStep?.title || "Screen"}
-                            </span>
-                          </div>
+                          <span className="text-[13px] font-semibold text-white">
+                            {flow.appName}
+                          </span>
                         </div>
 
                         {flow.badge && (
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-[#242424] text-[#A873E8] border border-[#333333]">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#252525] text-[#A873E8] border border-[#353535]">
                             {flow.badge}
                           </span>
                         )}
                       </div>
 
-                      {/* Screen Preview Frame */}
-                      <div className="relative aspect-[9/16] max-h-[380px] w-full bg-[#0A0A0A] rounded-xl overflow-hidden border border-[#2A2A2A] flex items-center justify-center group/screen">
-                        {currentStep?.screenImageUrl ? (
-                          <img
-                            src={currentStep.screenImageUrl}
-                            alt={currentStep.title}
-                            className="w-full h-full object-cover object-top transition-transform duration-300 group-hover/screen:scale-[1.02]"
-                          />
+                      {/* Screen Image Preview with Click-to-Zoom */}
+                      <div
+                        onClick={() => {
+                          if (displayImage) {
+                            setZoomImage({
+                              url: displayImage,
+                              title: step?.title || `Step ${clampedIndex + 1}`,
+                              appName: flow.appName,
+                            });
+                          }
+                        }}
+                        className="relative w-full h-[320px] bg-[#0D0D0D] flex items-center justify-center p-3 cursor-pointer overflow-hidden group/img"
+                      >
+                        {displayImage ? (
+                          <>
+                            <img
+                              src={displayImage}
+                              alt={step?.title || flow.appName}
+                              className="max-h-full max-w-full object-contain rounded-lg shadow-md transition-transform duration-300 group-hover/img:scale-[1.02]"
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <span className="px-3 py-1.5 rounded-full bg-black/75 border border-white/20 text-white text-xs font-medium backdrop-blur flex items-center gap-1.5">
+                                <Maximize2 size={13} /> Inspect Screen
+                              </span>
+                            </div>
+                          </>
                         ) : (
-                          <div className="flex flex-col items-center justify-center text-[#555555] gap-2 p-4 text-center">
-                            <span className="text-xs">No direct screen capture available</span>
+                          <div className="text-center p-4 text-[#666666] text-xs">
+                            <p className="font-medium text-[#888888] mb-1">Interactive Screen Visual</p>
+                            <p>No preview capture available for this step</p>
                           </div>
                         )}
-
-                        <button
-                          onClick={() => {
-                            if (currentStep?.screenImageUrl) {
-                              setZoomImage({
-                                url: currentStep.screenImageUrl,
-                                title: currentStep.title,
-                                appName: flow.appName,
-                              });
-                            }
-                          }}
-                          className="absolute bottom-3 right-3 px-2.5 py-1.5 rounded-lg bg-black/80 hover:bg-black text-white text-[11px] font-medium backdrop-blur-md border border-white/20 flex items-center gap-1.5 opacity-0 group-hover/screen:opacity-100 transition-opacity cursor-pointer shadow-lg"
-                        >
-                          <Maximize2 size={12} /> Inspect
-                        </button>
                       </div>
 
-                      {/* Step UX Rationale Description */}
-                      <div className="p-3 rounded-lg bg-[#141414] border border-[#222222] flex flex-col gap-1">
-                        <span className="text-[10px] font-semibold text-[#888888] uppercase tracking-wider">
-                          Design Rationale
+                      {/* UX Tactical Rationale Footer */}
+                      <div className="p-3.5 bg-[#171717] border-t border-[#242424] flex flex-col gap-1">
+                        <span className="text-[11px] font-medium text-[#A873E8] uppercase tracking-wider">
+                          Step {clampedIndex + 1}: {step?.title || "Verification Step"}
                         </span>
-                        <p className="text-[12px] text-[#A8A8A8] leading-relaxed m-0">
-                          {currentStep?.description || "No specific step breakdown provided."}
+                        <p className="text-[12px] text-[#A8A8A8] m-0 leading-relaxed">
+                          {step?.uxTactic || step?.description || "Optimized frictionless micro-step interaction."}
                         </p>
                       </div>
                     </div>
                   );
                 })}
               </div>
-
-              {/* Bottom Scrubber Navigation Controls */}
-              <div className="flex items-center justify-between pt-3 border-t border-[#222222]">
-                <button
-                  disabled={clampedIndex === 0}
-                  onClick={() => setActiveStepIndex(prev => Math.max(0, prev - 1))}
-                  className="px-3.5 py-1.5 rounded-lg text-[12px] font-medium bg-[#1C1C1C] hover:bg-[#252525] disabled:opacity-40 disabled:pointer-events-none text-white border border-[#2E2E2E] flex items-center gap-1.5 cursor-pointer transition-all"
-                >
-                  <ChevronLeft size={14} /> Previous Step
-                </button>
-
-                <span className="text-[12px] text-[#7E7E7E]">
-                  Comparing Step <strong className="text-white">{clampedIndex + 1}</strong> of <strong className="text-white">{maxSteps}</strong>
-                </span>
-
-                <button
-                  disabled={clampedIndex >= maxSteps - 1}
-                  onClick={() => setActiveStepIndex(prev => Math.min(maxSteps - 1, prev + 1))}
-                  className="px-3.5 py-1.5 rounded-lg text-[12px] font-medium bg-[#1C1C1C] hover:bg-[#252525] disabled:opacity-40 disabled:pointer-events-none text-white border border-[#2E2E2E] flex items-center gap-1.5 cursor-pointer transition-all"
-                >
-                  Next Step <ChevronRight size={14} />
-                </button>
-              </div>
-            </div>
+            </motion.div>
           );
         })()}
+        </AnimatePresence>
 
-        {/* Screen Lightbox Zoom Modal */}
-        {zoomImage && (
-          <Dialog open={!!zoomImage} onOpenChange={(open) => !open && setZoomImage(null)}>
-            <DialogContent className="max-w-[85vw] max-h-[92vh] w-auto h-auto bg-[#141414] border-[#2E2E2E] p-6 rounded-2xl flex flex-col gap-3 items-center overflow-hidden">
-              <div className="flex items-center justify-between w-full pb-2 border-b border-[#262626]">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-[15px] text-white">{zoomImage.appName}</span>
-                  <span className="text-[13px] text-[#8E8E8E]">· {zoomImage.title}</span>
+        {/* Modal: Fullscreen Zoom Inspector for Screen Capture */}
+        <Dialog open={Boolean(zoomImage)} onOpenChange={(open) => !open && setZoomImage(null)}>
+          <DialogContent className="max-w-4xl bg-[#141414] border border-[#262626] p-4 text-white overflow-hidden flex flex-col items-center">
+            {zoomImage && (
+              <div className="flex flex-col items-center gap-3 w-full">
+                <div className="flex items-center justify-between w-full pb-2 border-b border-[#242424]">
+                  <div>
+                    <h4 className="text-sm font-semibold text-white">{zoomImage.appName}</h4>
+                    <p className="text-xs text-[#888888]">{zoomImage.title}</p>
+                  </div>
                 </div>
-                <button
-                  onClick={() => setZoomImage(null)}
-                  className="p-1 rounded-lg hover:bg-[#252525] text-[#AAAAAA] hover:text-white transition-colors cursor-pointer"
-                >
-                  <X size={18} />
-                </button>
+                <div className="max-h-[75vh] overflow-auto flex items-center justify-center p-2 bg-[#0A0A0A] rounded-xl w-full">
+                  <img
+                    src={zoomImage.url}
+                    alt={zoomImage.title}
+                    className="max-h-[70vh] object-contain rounded-lg"
+                  />
+                </div>
               </div>
-              <div className="max-h-[75vh] overflow-y-auto flex items-center justify-center p-2">
-                <img
-                  src={zoomImage.url}
-                  alt={zoomImage.title}
-                  className="max-h-[72vh] w-auto rounded-lg object-contain shadow-2xl border border-[#2A2A2A]"
-                />
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
+            )}
+          </DialogContent>
+        </Dialog>
 
-        {/* App Showcase Cards Container - Shown once streaming finishes */}
-        {!isStreaming && apps.length > 0 && (
+        {/* App Showcase Cards Container - High-fidelity visual cards for benchmarked apps */}
+        {!isStreaming && data.apps && data.apps.length > 0 && (
           <div className="flex flex-col gap-3 pt-2 animate-in fade-in duration-500">
-            <div
-              className={`flex items-center gap-6 overflow-x-auto no-scrollbar pb-3 pt-1 w-full scroll-smooth ${
-                apps.length <= 3 ? "justify-start" : "justify-start"
-              }`}
-            >
-              {apps.map((app: AIResearchApp) => (
+            <div className="flex items-center gap-6 overflow-x-auto no-scrollbar pb-3 pt-1 w-full scroll-smooth justify-start">
+              {data.apps.map((app: AIResearchApp) => (
                 <div
-                  key={app.id}
+                  key={app.id || app.name}
                   className="flex flex-col gap-4 shrink-0 cursor-pointer w-[280px] sm:w-[300px]"
                   onClick={() => navigate(app.slug ? `/app/${app.slug}` : "/")}
                 >
@@ -391,7 +413,7 @@ export function AssistantTurnArtifact({
 
         {/* 4. Action Toolbar: Like, Dislike (Correction), Copy - Only shown after generation is done */}
         {!isStreaming && hasBodyContent && (
-          <div className="flex items-center gap-3 text-[12px] text-[#8E8E8E] pt-3 pb-1 border-t border-[#222222]/80 mt-2">
+          <MessageFooter className="gap-3 text-[12px] text-[#8E8E8E] pt-3 pb-1 border-t border-[#222222]/80 mt-2 select-none">
             <div className="flex items-center gap-1 bg-[#181818] border border-[#2A2A2A] rounded-lg p-0.5">
               <button
                 type="button"
@@ -409,7 +431,7 @@ export function AssistantTurnArtifact({
                 type="button"
                 onClick={() => {
                   handleRating(-1);
-                  setFeedbackOpen(!feedbackOpen);
+                  setFeedbackOpen(true);
                 }}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all cursor-pointer ${
                   rating === -1 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "hover:bg-[#222222] hover:text-white"
@@ -435,55 +457,39 @@ export function AssistantTurnArtifact({
               {copied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
               <span>{copied ? "Copied" : "Copy"}</span>
             </button>
-          </div>
+          </MessageFooter>
         )}
 
-        {/* Designer Correction Popover Form */}
-        {feedbackOpen && (
-          <div className="p-3 rounded-lg bg-[#181818] border border-[#333333] flex flex-col gap-2 max-w-xl">
-            <span className="text-xs font-medium text-white">How should the AI have answered?</span>
-            <textarea
-              value={correctionInput}
-              onChange={(e) => setCorrectionInput(e.target.value)}
-              placeholder="e.g. Standard fintech flow should prioritize phone OTP before asking for Passport/ID..."
-              className="w-full bg-[#0E0E0E] border border-[#2A2A2A] rounded p-2 text-xs text-white focus:outline-none placeholder:text-[#666666]"
-              rows={2}
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setFeedbackOpen(false)}
-                className="px-2.5 py-1 text-xs rounded hover:bg-[#252525] text-[#888888]"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleCorrectionSubmit}
-                className="px-3 py-1 text-xs rounded bg-purple-600 hover:bg-purple-700 text-white font-medium cursor-pointer"
-              >
-                Submit Correction
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Feedback / Correction Modal (Tailored for UX AI Recommendation Correction) */}
+        <FeedbackModal
+          open={feedbackOpen}
+          onOpenChange={setFeedbackOpen}
+          messageId={turn.messageId}
+          userId={user?.id}
+          initialRating={3}
+          title="Improve this recommendation"
+          subtitle="Your correction directly trains and refines our UX benchmark synthesis model."
+          ratingQuestion="How accurately did this recommendation answer your prompt?"
+          feedbackLabel="How should the AI have answered, or what was inaccurate?"
+          feedbackPlaceholder="e.g. For fintech onboarding, KYC identity verification should happen progressively after phone OTP, not upfront..."
+          submitButtonText="Submit Correction"
+          onSubmitSuccess={() => {
+            setRating(-1);
+            setFeedbackOpen(false);
+          }}
+        />
 
-        {/* 5. Suggested Follow-up Prompts Pills - Only shown after generation is done */}
+        {/* 5. Suggested Follow-up Prompts (shadcn Suggestion Element Pattern) */}
         {!isStreaming && suggestedFollowUps.length > 0 && (
-          <div className="mt-1 flex items-center justify-start gap-2.5 w-full overflow-x-auto no-scrollbar py-1">
-            {suggestedFollowUps.map((question: string, qIdx: number) => (
-              <button
-                key={qIdx}
-                onClick={() => onSelectFollowUp && onSelectFollowUp(question)}
-                className="px-3.5 py-1.5 rounded-full text-[12px] bg-[#222222] hover:bg-[#2C2C2C] text-[#C2C2C2] hover:text-white transition-all cursor-pointer border border-[#333333] shrink-0 whitespace-nowrap flex items-center"
-              >
-                <span>{question}</span>
-              </button>
-            ))}
-          </div>
+          <Suggestion
+            suggestions={suggestedFollowUps}
+            onSelect={(q) => onSelectFollowUp && onSelectFollowUp(q)}
+          />
         )}
 
-      </div>
-    </div>
+      </MessageContent>
+    </Message>
   );
 }
+
+export default AssistantTurnArtifact;

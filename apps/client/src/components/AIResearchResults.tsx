@@ -2,7 +2,15 @@ import { useEffect, useRef } from "react";
 import { ZiboAiIcon } from "./ZiboAiIcon";
 import { UserTurnBubble } from "./chat/UserTurnBubble";
 import { AssistantTurnArtifact } from "./chat/AssistantTurnArtifact";
-import { ClaudeThinkingBar } from "./chat/ClaudeThinkingBar";
+import { ChainOfThought } from "./chat/ChainOfThought";
+import {
+  MessageScrollerProvider,
+  MessageScroller,
+  MessageScrollerViewport,
+  MessageScrollerContent,
+  MessageScrollerItem,
+  MessageScrollerButton,
+} from "./ui/message-scroller";
 import { StickyChatInput } from "./chat/StickyChatInput";
 import { useAIChatStore } from "../stores/useAIChatStore";
 import { useAuth } from "../contexts/AuthContext";
@@ -271,12 +279,13 @@ export function AIResearchResults({
 
     // Only fire if turns actually increased AFTER initial load
     if (sessionId === prevSessionIdRef.current && turns.length > prevTurnsLengthRef.current) {
-      const scrollParent = containerRef.current?.closest('main') || containerRef.current?.parentElement;
-      if (scrollParent) {
-        // Read the pre-commit wasNearBottomRef state (not post-render height)
-        if (wasNearBottomRef.current || turns.length <= 2) {
-          scrollParent.scrollTo({ top: scrollParent.scrollHeight, behavior: "smooth" });
-        }
+      // Find the MessageScrollerViewport or parent and smoothly scroll down to bring the new turn into focus
+      const viewportEl = containerRef.current?.querySelector('[data-message-scroller-viewport]') as HTMLElement | null;
+      const scrollTarget = viewportEl || containerRef.current?.closest('main') || containerRef.current?.parentElement;
+      if (scrollTarget) {
+        requestAnimationFrame(() => {
+          scrollTarget.scrollTo({ top: scrollTarget.scrollHeight, behavior: "smooth" });
+        });
       }
     }
     prevTurnsLengthRef.current = turns.length;
@@ -284,40 +293,78 @@ export function AIResearchResults({
 
   const handleFollowUpClick = (question: string) => {
     sendFollowUp(question, user?.id);
+    // Smoothly scroll down immediately when a recommendation pill is clicked
+    requestAnimationFrame(() => {
+      const viewportEl = containerRef.current?.querySelector('[data-message-scroller-viewport]') as HTMLElement | null;
+      const scrollTarget = viewportEl || containerRef.current?.closest('main') || containerRef.current?.parentElement;
+      if (scrollTarget) {
+        scrollTarget.scrollTo({ top: scrollTarget.scrollHeight, behavior: "smooth" });
+      }
+    });
   };
 
   return (
-    <div ref={containerRef} className="w-full max-w-full flex-1 flex flex-col justify-between z-10 px-2 sm:px-4 pt-4 min-w-0 pb-0">
-      {/* Scrollable Conversation Thread */}
-      <div className="flex-1 flex flex-col w-full min-w-0">
-        {turns.map((turn) => {
-          if (turn.role === "user") {
-            return <UserTurnBubble key={turn.id} content={turn.content} />;
-          }
-          return (
-            <AssistantTurnArtifact
-              key={turn.id}
-              turn={turn}
-              onSelectFollowUp={handleFollowUpClick}
-            />
-          );
-        })}
+    <div ref={containerRef} className="w-full max-w-full flex-1 flex flex-col justify-between z-10 px-2 sm:px-4 pt-4 min-w-0 pb-0 h-full overflow-hidden">
+      {/* Scrollable Conversation Thread with shadcn Message Scroller Primitives */}
+      <MessageScrollerProvider autoScroll>
+        <MessageScroller className="flex-1 flex flex-col w-full min-w-0 h-full min-h-0">
+          <MessageScrollerViewport className="flex-1 w-full h-full min-h-0">
+            <MessageScrollerContent className="gap-4">
+              {turns.map((turn, turnIdx) => {
+                if (turn.role === "user") {
+                  return (
+                    <MessageScrollerItem
+                      key={turn.id}
+                      messageId={turn.id}
+                      scrollAnchor
+                    >
+                      <UserTurnBubble
+                        content={turn.content}
+                        isFirstTurn={turnIdx === 0}
+                        onEdit={(editedText) => sendFollowUp(editedText, user?.id)}
+                      />
+                    </MessageScrollerItem>
+                  );
+                }
+                return (
+                  <MessageScrollerItem
+                    key={turn.id}
+                    messageId={turn.id}
+                  >
+                    <AssistantTurnArtifact
+                      turn={turn}
+                      onSelectFollowUp={handleFollowUpClick}
+                    />
+                  </MessageScrollerItem>
+                );
+              })}
 
-        {/* Claude-style Minimalist Thinking State: Only shown when loading and no turn has rendered */}
-        {isLoading && turns.length === 0 && (
-          <div className="w-full flex items-start gap-3 sm:gap-3.5 mb-8 min-w-0 animate-in fade-in duration-300">
-            <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg">
-              <div className="w-full h-full bg-[#141414] rounded-full flex items-center justify-center">
-                <ZiboAiIcon size={18} className="text-white" />
-              </div>
-            </div>
+              {/* Thinking State: Render Chain of Thought Trace live while waiting for stream */}
+              {isLoading && turns.length === 0 && (
+                <div className="w-full flex items-start gap-3 sm:gap-3.5 mb-8 min-w-0 animate-in fade-in duration-300">
+                  <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 p-[1.5px] shrink-0 shadow-lg mt-0.5">
+                    <div className="w-full h-full bg-[#141414] rounded-full flex items-center justify-center">
+                      <ZiboAiIcon size={18} className="text-white" />
+                    </div>
+                  </div>
 
-            <ClaudeThinkingBar />
-          </div>
-        )}
+                  <div className="flex-1 max-w-2xl">
+                    <ChainOfThought
+                      defaultOpen={true}
+                      streaming={true}
+                      answering={false}
+                      steps={[]}
+                    />
+                  </div>
+                </div>
+              )}
 
-        <div ref={threadEndRef} />
-      </div>
+              <div ref={threadEndRef} />
+            </MessageScrollerContent>
+          </MessageScrollerViewport>
+          <MessageScrollerButton isStreaming={isLoading || turns.some(t => t.isStreaming)} />
+        </MessageScroller>
+      </MessageScrollerProvider>
 
       {/* Sticky Bottom Multi-Turn Chat Bar */}
       <StickyChatInput

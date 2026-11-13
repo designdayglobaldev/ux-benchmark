@@ -1414,14 +1414,16 @@ COMPONENTS AVAILABLE:
 3. "insight_card": 2-3 key takeaways.
 
 CRITICAL RULES:
+- YOU MUST RETURN VALID JSON MATCHING THE SCHEMA BELOW.
+- NEVER return conversational filler or prose outside the JSON.
 - ALWAYS PREFER "interactive_flow" to showcase flows! Do NOT use "single_screen" unless the user explicitly asks for only 1 isolated screenshot.
-- Keep text concise and let the flow visual do the talking.
+- When the query is conceptual or copy-focused, return rich "text" sections and "insight_card" sections with tactical UX breakdowns.
 - Reference real screenId values from VERIFIED RETRIEVED FLOWS above.
-- Output RAW JSON ONLY without markdown backticks.
+- Output RAW JSON ONLY without markdown backticks or commentary.
 
 SCHEMA:
 {
-  "introText": "Crisp 1-sentence executive summary.",
+  "introText": "Crisp 1-2 sentence executive summary.",
   "sections": [
     { "type": "text", "content": "..." },
     { "type": "interactive_flow", "flowName": "...", "appName": "...", "appSlug": "...", "description": "...", "screens": [{ "screenId": "...", "name": "...", "uxAnalysis": "..." }] },
@@ -1466,7 +1468,7 @@ SCHEMA:
     // Invoke Claude with Ephemeral Prompt Caching on verified system RAG context
     const message = await client.messages.create({
       model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 1800,
+      max_tokens: 4096,
       system: [
         {
           type: 'text',
@@ -1514,8 +1516,18 @@ SCHEMA:
     }
 
     if (!parsedResult) {
+      // Strip any raw schema leak or section markers from intro text
+      let cleanIntro = aiText
+        .replace(/^\{[\s\S]*?"introText"\s*:\s*"/, '')
+        .replace(/"[\s\S]*$/, '')
+        .replace(/sections\s*:\s*[\s\S]*$/i, '')
+        .replace(/\d+\.\s*type:\s*text[\s\S]*$/i, '')
+        .replace(/\\n/g, '\n')
+        .trim();
+
       parsedResult = {
-        introText: aiText.replace(/^\{[\s\S]*?"introText"\s*:\s*"/, '').replace(/"[\s\S]*$/, '').replace(/\\n/g, '\n'),
+        introText: cleanIntro || aiText,
+        sections: [],
         recommendedApps: [],
         uxInsights: "",
         suggestedFollowUps: []
@@ -1952,8 +1964,18 @@ CRITICAL RULES:
     }
 
     if (!parsedResult) {
+      // Strip any raw schema leak or section markers from intro text
+      let cleanIntro = aiText
+        .replace(/^\{[\s\S]*?"introText"\s*:\s*"/, '')
+        .replace(/"[\s\S]*$/, '')
+        .replace(/sections\s*:\s*[\s\S]*$/i, '')
+        .replace(/\d+\.\s*type:\s*text[\s\S]*$/i, '')
+        .replace(/\\n/g, '\n')
+        .trim();
+
       parsedResult = {
-        introText: aiText.replace(/^\{[\s\S]*?"introText"\s*:\s*"/, '').replace(/"[\s\S]*$/, '').replace(/\\n/g, '\n'),
+        introText: cleanIntro || aiText,
+        sections: [],
         recommendedApps: [],
         uxInsights: "",
         suggestedFollowUps: []

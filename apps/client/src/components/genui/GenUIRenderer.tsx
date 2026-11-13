@@ -622,6 +622,7 @@ export interface GenUISection {
 
 const componentRegistry: Record<string, React.ComponentType<any>> = {
   text: TextBlock,
+  screen_gallery: ScreenGallery,
   comparison_table: ComparisonTable,
   insight_card: InsightCard,
   timeline: TimelineFlow,

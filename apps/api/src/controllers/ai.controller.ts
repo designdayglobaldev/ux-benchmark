@@ -389,17 +389,96 @@ export class AIController {
 
       sendEvent('session_init', { sessionId: activeSessionId });
 
-      // Execute AI research chat with Claude
-      const data = await AIService.chatWorkspace({
+      // Record actual start time to compute genuine thought duration
+      const startTimeMs = Date.now();
+      const cleanPromptPreview = prompt.length > 36 ? prompt.substring(0, 33) + '...' : prompt;
+
+      // Step 1: Searching screens & embeddings
+      sendEvent('thought_step', {
+        id: 'step-search',
+        title: `Searching screens and benchmark embeddings for "${cleanPromptPreview}"`,
+        status: 'running',
+      });
+
+      // Launch Claude execution concurrently with intermediate progressive step progression
+      const chatWorkspacePromise = AIService.chatWorkspace({
         prompt,
         conversationHistory,
         useCognitive: shouldRunCognitive
       });
 
+      // After 2.5s, progress from search to friction & architecture evaluation
+      const step2Timer = setTimeout(() => {
+        try {
+          sendEvent('thought_step', {
+            id: 'step-search',
+            title: `Retrieved relevant screen and flow benchmarks for "${cleanPromptPreview}"`,
+            status: 'completed',
+          });
+          sendEvent('thought_step', {
+            id: 'step-eval',
+            title: 'Analyzing interaction friction, drop-offs & conversion architectures',
+            status: 'running',
+          });
+        } catch { }
+      }, 2500);
+
+      // After 6s, progress to synthesis if still calculating
+      const step3Timer = setTimeout(() => {
+        try {
+          sendEvent('thought_step', {
+            id: 'step-eval',
+            title: 'Analyzed interaction friction, drop-offs & conversion architectures',
+            status: 'completed',
+          });
+          sendEvent('thought_step', {
+            id: 'step-synth',
+            title: 'Synthesizing UX best practices and comparative screen flows',
+            status: 'running',
+          });
+        } catch { }
+      }, 6000);
+
+      const data = await chatWorkspacePromise;
+      clearTimeout(step2Timer);
+      clearTimeout(step3Timer);
+
+      // Compute elapsed calculation time
+      const thoughtDurationSeconds = Math.max(1, Math.round((Date.now() - startTimeMs) / 1000));
+
+      // Collect real matched app domain badges
+      const appBadges = (data?.data?.apps || [])
+        .map((a: any) => a.name)
+        .filter(Boolean);
+
+      const dynamicThoughtSteps = [
+        {
+          id: 'step-search',
+          title: `Queried screen and flow benchmarks for "${cleanPromptPreview}"`,
+          status: 'completed',
+          badges: appBadges.length > 0 ? appBadges : undefined,
+        },
+        {
+          id: 'step-eval',
+          title: 'Analyzed interaction friction, drop-offs & conversion architectures',
+          status: 'completed',
+        },
+        {
+          id: 'step-synth',
+          title: 'Synthesized UX best practices and comparative screen flows',
+          status: 'completed',
+        },
+      ];
+
+      sendEvent('thought_complete', {
+        steps: dynamicThoughtSteps,
+        durationSeconds: thoughtDurationSeconds,
+      });
+
       // Stream text intro in progressive token words (TTFT < 400ms)
       const fullIntroText = data?.data?.introText || '';
       const words = fullIntroText.split(' ');
-      
+
       // Mark output started on first token delivery (Page 10 Refund Boundary)
       if (ctx) {
         ctx.state.outputStarted = true;
@@ -411,19 +490,21 @@ export class AIController {
         await new Promise((r) => setTimeout(r, 25)); // Smooth reading pace
       }
 
-      // Stream complete structured artifacts
+      // Stream complete structured artifacts IMMEDIATELY so the client receives them seamlessly
       const payloadMetadata = {
         sections: data?.data?.sections || [],
         apps: data?.data?.apps || [],
         suggestedFollowUps: data?.data?.suggestedFollowUps || [],
         comparisonFlows: data?.data?.comparisonFlows || [],
         uxInsights: data?.data?.uxInsights || '',
+        thoughtSteps: dynamicThoughtSteps,
+        thoughtDurationSeconds,
       };
       sendEvent('artifacts', payloadMetadata);
 
-      // Settle reservation atomically
+      // Settle reservation in parallel non-blocking background promise
       if (ctx) {
-        await CreditService.settle({
+        CreditService.settle({
           reservationId: ctx.reservationId,
           userId: ctx.userId,
           sessionId: activeSessionId,
@@ -432,45 +513,51 @@ export class AIController {
           model: 'claude-3-5-sonnet-20241022',
           inputTokens: 1800,
           outputTokens: 900,
-        });
+        }).catch((err) => console.warn('[CreditService.settle] Non-blocking warning:', err));
       }
 
-      // Persist to PostgreSQL & Redis
+      // Persist to PostgreSQL in background without blocking SSE stream completion
       let messageId: string = crypto.randomUUID();
-      if (activeSessionId && resolvedUserId) {
-        try {
-          const existingUserMsg = await prisma.aiChatMessage.findFirst({
-            where: {
-              sessionId: activeSessionId,
-              role: 'USER',
-              content: prompt,
-            }
-          });
-
-          if (!existingUserMsg) {
-            await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
-              role: 'USER',
-              content: prompt,
-              clientMessageId: effectiveMessageId,
-              promptTokens: AiChatService.estimateTokens(prompt),
+      const persistPromise = (async () => {
+        if (activeSessionId && resolvedUserId) {
+          try {
+            const existingUserMsg = await prisma.aiChatMessage.findFirst({
+              where: {
+                sessionId: activeSessionId,
+                role: 'USER',
+                content: prompt,
+              }
             });
+
+            if (!existingUserMsg) {
+              await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
+                role: 'USER',
+                content: prompt,
+                clientMessageId: effectiveMessageId,
+                promptTokens: AiChatService.estimateTokens(prompt),
+              });
+            }
+
+            const assistantMsg = await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
+              role: 'ASSISTANT',
+              content: fullIntroText,
+              clientMessageId: effectiveMessageId ? `${effectiveMessageId}:reply` : undefined,
+              metadata: payloadMetadata,
+              completionTokens: AiChatService.estimateTokens(fullIntroText),
+            });
+            messageId = assistantMsg.id;
+          } catch (dbErr) {
+            console.warn('[AIController.workspaceChatStream] DB persist warning:', dbErr);
           }
-
-          const assistantMsg = await AiChatService.appendMessage(activeSessionId, resolvedUserId, {
-            role: 'ASSISTANT',
-            content: fullIntroText,
-            clientMessageId: effectiveMessageId ? `${effectiveMessageId}:reply` : undefined,
-            metadata: payloadMetadata,
-            completionTokens: AiChatService.estimateTokens(fullIntroText),
-          });
-          messageId = assistantMsg.id;
-        } catch (dbErr) {
-          console.warn('[AIController.workspaceChatStream] DB persist warning:', dbErr);
         }
-      }
+      })();
 
+      // Send done event immediately so UI finishes streaming instantly without a pause
       sendEvent('done', { messageId, sessionId: activeSessionId });
       res.end();
+
+      // Await persist to guarantee completion before worker thread terminates
+      await persistPromise;
     } catch (error: any) {
       console.error('[AIController.workspaceChatStream] Error:', error);
       res.write(`event: error\ndata: ${JSON.stringify({ error: error?.message || 'Streaming failed' })}\n\n`);

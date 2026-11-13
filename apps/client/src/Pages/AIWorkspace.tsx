@@ -194,8 +194,8 @@ export function AIWorkspace() {
       {/* 2. CENTER HERO STAGE & RESEARCH CANVAS (Frame 2147230977)    */}
       {/* ============================================================ */}
       <main 
-        className={`flex-1 flex flex-col justify-between relative overflow-y-auto overflow-x-hidden my-[19px] mr-[24px] min-w-0 max-w-full ${
-          activeSessionId ? "px-4 sm:px-8 pt-7 pb-0" : "px-4 sm:px-8 py-7"
+        className={`flex-1 flex flex-col justify-between relative my-[19px] mr-[24px] min-w-0 max-w-full h-[calc(100vh-64px-38px)] ${
+          activeSessionId ? "overflow-hidden px-4 sm:px-8 pt-7 pb-0" : "overflow-y-auto overflow-x-hidden px-4 sm:px-8 py-7"
         }`}
         style={{
           backgroundColor: "#161616",
