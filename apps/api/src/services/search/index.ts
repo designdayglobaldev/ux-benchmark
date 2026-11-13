@@ -16,6 +16,7 @@ export { GraphWalkEngine } from './graph-walk';
 export { FlowStitcher } from './flow-stitcher';
 export { IntentBalancer } from './intent-balancer';
 export { RerankEngine } from './rerank-engine';
+export { FlowDocumentService } from './flow-document.service';
 
 export class CognitiveSearchEngine {
   /**
@@ -64,8 +65,13 @@ export class CognitiveSearchEngine {
         let rankedFlows = candidateFlows;
         if (candidateFlows.length > 1) {
           const flowCandidates = candidateFlows.map((f) => {
-            // Pick up to 5 key screens per flow to conserve token budget
-            const representativeScreens = f.screens.slice(0, 5);
+            // Arm A-anchors: Prioritize query-matched anchor screens, then fill with context steps
+            // preserving natural chronological step order
+            const anchors = f.screens.filter((s) => s.isAnchor);
+            const nonAnchors = f.screens.filter((s) => !s.isAnchor);
+            const selected = [...anchors, ...nonAnchors].slice(0, 5);
+            const representativeScreens = selected.sort((a, b) => a.screenNo - b.screenNo);
+
             const screenSummaries = representativeScreens
               .map((s) => {
                 if (!injectRationale) {

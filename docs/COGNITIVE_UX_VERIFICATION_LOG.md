@@ -269,6 +269,60 @@ The automated validator [`apps/api/src/benchmark/validate-dataset.ts`](file:///c
 2. **Generic Reranking Has Negative Marginal Value Without Field Specialization:** Feeding concatenated screen names into `rerank-2` actually hurts ranking ($\Delta = -0.0175$, $p < 0.05$).
 3. **Validates Phase 1 Roadmap:** Reranking and retrieval only succeed when targeted at dedicated semantic fields (`WHERE_TO_USE`, `WHERE_NOT_TO_USE`, and `FlowDocument` summaries), directly affirming the Phase 1 architectural spec.
 
+---
+
+## 8. Phase 1 Implementation & Data Architecture Audit Log
+
+**Evaluation Date:** November 13, 2026  
+**Related Specs:** [`docs/COGNITIVE_UX_RETRIEVAL_SPEC_V2.md`](file:///c:/projects/ux-libaray/docs/COGNITIVE_UX_RETRIEVAL_SPEC_V2.md) (Section 16.8)  
+
+### 8.1 Flow Description Sync from Curated Ground Truth
+- **Problem:** Database audit revealed 363 of 369 flow records had missing (`NULL` or empty) descriptions, crippling flow-level retrieval semantics.
+- **Action:** Created and executed a normalized mapping script from [`docs/Flow_rows_with_descriptions.csv`](file:///c:/projects/ux-libaray/docs/Flow_rows_with_descriptions.csv).
+- **Result:** **369 / 369 flows (100.0%)** now possess designer-curated descriptions in PostgreSQL.
+
+### 8.2 Hierarchical Level-1 `FlowDocument` Backfill (`concat-v1-2000`)
+- **Service Created:** [`apps/api/src/services/search/flow-document.service.ts`](file:///c:/projects/ux-libaray/apps/api/src/services/search/flow-document.service.ts).
+- **Synthesis:** Combines App Name, Flow Name, curated Description, ordered constituent step journey with UI elements, and aggregated `Where To Use` / `Where NOT To Use` rationale.
+- **Character & Token Guard:** Discovered that unbounded concatenation generated $>450,000$ characters on mega-flows (e.g. Shazam Onboarding with 343 screens), exceeding Voyage's 10k TPM rate limit. Enforced strict 2,000-character ceiling (~500 tokens) sampling beginning, middle, and completion steps.
+- **Model & Vector Space:** Embedded via `voyage-multimodal-3` (1024-d) with SHA-256 `sourceHash` staleness tracking.
+- **Pacing & Throughput:** Backfilled all 305 flows with active screens across 77 batches of size 4 with a 22-second cooldown to strictly respect Voyage free-tier 3 RPM / 10k TPM limits.
+- **Result:** **305 / 305 (100.0%)** `FlowDocument` records created with `status: READY`, `modelVersion: voyage-multimodal-3`, and `promptVersion: concat-v1-2000`.
+
+### 8.3 Data Topology Discovery: Shared Flow Buckets
+A deep database integrity audit was conducted across all 3,693 screens and 305 active flows:
+- **Core Discovery:** 48 of 305 flows (15.7%) are shared cross-app category buckets (e.g., "Onboarding", "Transferring Money", "Setting Up") that contain screens from up to 15 different apps (2,398 screens total, or 66.2% of library screens).
+- **Screen Integrity:** Screen records themselves have correct individual `appId` values matching their screen names (e.g. `"Google Pay Pre-Onboarding 1"`).
+- **Stitcher Integrity:** Verified that [`FlowStitcher`](file:///c:/projects/ux-libaray/apps/api/src/services/search/flow-stitcher.ts) filters gap-filling queries by `appId: bound.appId`, so returned candidate journeys **never leak other apps' screens**.
+- **Graph Edge Integrity:** Queried all 5,982 `FLOW_SEQUENCE` edges in `ScreenEdge`: **0 out of 5,982 cross apps (0.0%)**. Edge construction had already enforced `s1.appId = s2.appId`.
+- **Benchmark Exposure:** In `UX_BENCH_V2_DATASET.json` (150 queries), 160 of 272 Grade 1/2 targets (58.8%) and 85 of 150 queries (56.7%) point to one of these 48 mixed flow buckets. All prior Gate 0 baselines (Arm A: 0.4187, Arm A0: 0.4362) were measured on this grouping.
+
+### 8.4 The 68 Orphan Screens Audit
+- **Audit:** 68 screens in the library had `flowId = NULL` (17 Revolut, 15 Cleo, 10 Shazam, 9 Dave, 8 Flighty, 7 Oportun, 2 CRED).
+- **Cache Check:** Audit of [`scratch/arm_a_full_dev_baseline.json`](file:///c:/projects/ux-libaray/apps/api/scratch/arm_a_full_dev_baseline.json) confirmed 0 retrieved candidates had null `flowId`, and 0 orphan screens were returned in candidate payloads.
+- **Resolution:** Authored [`orphan-resolver.ts`](file:///c:/projects/ux-libaray/apps/api/src/services/search/orphan-resolver.ts) mapping numbered orphan series (e.g. `Revolut Subscribing & Upgrading 1..17`) to `revolut:subscribing-upgrading` and single-screen features (e.g. `Shazam: Dark Mode Widget`) to standalone single-screen journeys.
+
+### 8.5 Additive `ScreenJourney` Regrouping (`build-v1`)
+- **Schema Migration:** Added additive model `ScreenJourney` in `apps/api/prisma/schema.prisma` (`buildId`, `appId`, `journeySlug`, `screenId`, `stepNo`, `sourceFlowId`), leaving production `Screen.flowId` completely untouched.
+- **Populated:** Ran [`apps/api/src/scripts/build-screen-journeys.ts`](file:///c:/projects/ux-libaray/apps/api/src/scripts/build-screen-journeys.ts) creating **3,693 / 3,693 (100.0%)** `ScreenJourney` records in `build-v1`.
+- **Regrouping Outcome:**
+  - Decomposed 305 bucket flows into **531 clean, discrete app journeys** (`<appSlug>:<flowSlug>`).
+  - Max journey size dropped from **343 screens** down to **53 screens** (`cred:transferring-money`).
+  - Median journey size: **4 screens**; 95th percentile: **25 screens**.
+  - Only 12 journeys (2.2%) exceed 30 screens, confirming that segmented documents (B-seg) are not needed for 98% of the dataset.
+  - Step numbers re-indexed contiguously $1..N$ within each app's journey.
+
+### 8.6 Arm A-anchors Implementation
+- **Problem:** In generic Arm A, `f.screens.slice(0, 5)` sent the earliest 5 screens in the range to Voyage `rerank-2`, causing deep query-matched screens to be invisible to the reranker.
+- **Code Change:** Updated [`apps/api/src/services/search/index.ts`](file:///c:/projects/ux-libaray/apps/api/src/services/search/index.ts):
+  ```typescript
+  const anchors = f.screens.filter((s) => s.isAnchor);
+  const nonAnchors = f.screens.filter((s) => !s.isAnchor);
+  const selected = [...anchors, ...nonAnchors].slice(0, 5);
+  const representativeScreens = selected.sort((a, b) => a.screenNo - b.screenNo);
+  ```
+- **Status:** Deployed and ready for dev benchmark scoring.
+
 
 
 

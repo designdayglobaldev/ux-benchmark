@@ -94,6 +94,7 @@ model App {
   screens  Screen[]
   appEmbedding AppEmbedding?
   appFlows AppFlow[]
+  screenJourneys ScreenJourney[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -156,6 +157,7 @@ model Screen {
   outboundEdges   ScreenEdge[]    @relation("SourceScreen")
   inboundEdges    ScreenEdge[]    @relation("TargetScreen")
   chatMessages ChatMessage[]
+  screenJourneys ScreenJourney[]
 }
 
 model UiElement {
@@ -677,4 +679,23 @@ model ScreenFieldEmbedding {
   screen        Screen                      @relation(fields: [screenId], references: [id], onDelete: Cascade)
 
   @@unique([screenId, field, model])
+}
+
+// 3. Regrouped Clean Journeys (Resolves Shared Flow Bucket Cross-App Contamination)
+model ScreenJourney {
+  id           String   @id @default(uuid())
+  buildId      String   // Versioned grouping identifier, e.g. "build-v1"
+  appId        String
+  journeySlug  String   // "<appSlug>:<flowSlug>" matches benchmark gold labels
+  screenId     String
+  stepNo       Int      // Re-indexed 1..N within this app's journey
+  sourceFlowId String   // Original Flow row for audit & rollback tracing
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  app    App    @relation(fields: [appId], references: [id], onDelete: Cascade)
+  screen Screen @relation(fields: [screenId], references: [id], onDelete: Cascade)
+
+  @@unique([buildId, screenId])
+  @@index([buildId, appId, journeySlug, stepNo])
 }

@@ -1,0 +1,370 @@
+name,description
+Searching H&M (text input),User types a query into the H&M search field to find products by keyword.
+Size guide,User opens a size chart to compare measurements and pick the right size for a product.
+Premium,Screen or flow presenting premium plan benefits and the option to upgrade.
+Setting Up,Initial setup steps that configure the app or workspace before first real use.
+Chatting with support,User opens a live chat with a support agent to get help with an issue.
+Terms & conditions,User views the legal terms and conditions governing use of the product.
+Adding a smart link  ,User inserts a smart link that renders as a rich preview or embed of the linked content.
+Account information,"User views their account details such as name, email, and plan."
+Assistant options,User opens the options menu for the AI assistant to adjust or choose its actions.
+Sharing a story,User shares a story with others through a share sheet or in-app sharing.
+Scanning,User scans a physical item or code with the camera to capture its content.
+About,"Screen showing information about the app, its version, and its makers."
+Blocking a user,User blocks another user so they can no longer interact with or see them.
+Adding a list (checkbox),User creates a checklist whose items can be ticked off.
+Limit policy,User reads the policy that explains how spending or usage limits work.
+Hiding comments,User hides comments so they are collapsed or removed from view.
+Adding an entry,"User creates a new entry in a list, table, or log."
+Completing a lesson (data),User finishes a data-focused lesson and sees the completion and results screen.
+Adding a row,User inserts a new row into a table or database.
+Setting video speed,User changes video playback speed from a speed menu or control.
+Adding a link to texts,User selects text and attaches a hyperlink to it.
+Resolving a comment,User marks a comment thread as resolved so it is closed out.
+Subscribing to MUBI GO,User subscribes to the MUBI GO cinema ticket offer through a plan and payment flow.
+Debugging Flow,User inspects and troubleshoots a flow to find and fix problems.
+Adding an assignee,User assigns a person to a task or issue.
+Deleting account,User permanently deletes their account after confirming the action.
+Likes & saves,User likes or saves content to appreciate it or revisit it later.
+Commenting on a post,User writes and submits a comment on a post.
+Subscribing to Brilliant,User subscribes to a Brilliant premium plan via plan selection and checkout.
+Editing cell formatting styles,"User changes the formatting of table cells, such as fill, border, or number format."
+ Adding a field,User adds a new field or column to a record structure.
+Search,User searches across the app and browses matching results.
+View other card,User views another card in their set to see its details.
+Order physical card,User requests a physical card to be produced and delivered.
+Grouping entries,User groups entries by a property to organize them into sections.
+Add a comment,User adds a comment to an item or document.
+Editing text formatting styles,"User changes text styling such as bold, italic, size, or heading level."
+Filtering & Sorting,User narrows and orders a list using filter and sort controls.
+Changing Language,User switches the app's display language.
+Inviting Teammates & Friends,"User invites others by link, email, or contacts to join or collaborate."
+Copying a code,"User copies a code, such as a promo, invite, or verification code, to the clipboard."
+Request mileage,User submits a mileage claim for travel for reimbursement.
+Turn on sound,User turns on audio for a video or experience that is muted by default.
+Following another user's action,User follows another user's activity to see what they do.
+Comments,User views the comments thread on an item.
+Copying & Duplicating,User copies or duplicates an item to reuse it.
+Adding a quote,User inserts a quote block into a document.
+Changing a code block theme,User switches the color theme of a code block.
+Course detail,"User views details of a course including description, lessons, and progress."
+Privacy policy,User reads the privacy policy that explains how their data is handled.
+Switching Account,User switches between multiple accounts without logging out.
+Editing & Updating,User edits existing content or details and saves the changes.
+Moving,User moves an item to a different location or container.
+Selecting a priority,User picks a priority level for a task or issue.
+Connecting & Linking,"User connects or links an item, account, or service to another."
+Account & settings,Hub where the user manages their account and app settings.
+Drafts,User views and manages saved unpublished drafts.
+Editing a backdrop,"User modifies an existing backdrop's color, pattern, or style."
+Liking & Upvoting,User likes or upvotes content to show approval.
+Reacting to a comment,User adds an emoji reaction to a comment.
+Watching a story,User watches a story and steps through its frames.
+Creating a page (grouping),User creates a new page used to group related content.
+Deleting & Deactivating Account,User deletes or temporarily deactivates their account after confirmation.
+Watching Video,User plays and watches a video.
+Logging out,User logs out of their account and returns to the signed-out state.
+Purchasing & Ordering,User selects items and completes a purchase or order through checkout.
+Creating a document,User creates a new blank or templated document.
+Adding a code block,User inserts a formatted code block into a document.
+Zoom to fit,User zooms the canvas so all content fits on screen.
+Rating help center,User rates whether a help center article was useful.
+Scanning a document (live text),User scans a document and the app extracts selectable live text from the camera view.
+Saving to Collection,User saves an item into one of their collections.
+You,"Personal tab showing the user's own profile, activity, and shortcuts."
+Adding a list (bullet point),User creates a bulleted list in a document.
+Drawing on a canvas,User draws freehand strokes on a canvas with drawing tools.
+Base detail,"User views the details of a base, including its tables and settings."
+Logout,User signs out of the app from the logout option.
+AI assistant usage,User uses an AI assistant to generate or refine content from a prompt.
+Refer a friend,User refers a friend through a referral link or invite to earn a reward.
+Grouping records,User groups database records by a field.
+Edit card name,User renames a card to a custom label.
+Product filter,"User filters a product list by attributes such as size, color, or brand."
+Connecting a bank account,User links a bank account by selecting a bank and authenticating.
+Creating Account,User signs up for a new account by entering credentials and details.
+Adding an option,User adds a new option to a select field or choice list.
+Participating theaters,User views the list of theaters that take part in the offer.
+Editing text formatting,User applies formatting changes to selected text.
+Wallet,"User views the wallet with balances, cards, and payment methods."
+File a dispute  ,User disputes a transaction and submits the reason and details.
+Adding a memo,User adds a memo or note to an item such as an expense.
+Giving Feedbacks,User sends feedback or suggestions to the product team.
+View collection,User opens a collection and browses the items in it.
+Legal,"Screen listing legal documents such as terms, privacy, and licenses."
+Adding a table,User inserts a table into a document or page.
+Previous weekly selections,User browses past weekly curated selections.
+Reporting a story,User reports a story for violating guidelines by choosing a reason.
+Following & Subscribing,User follows a person or subscribes to a channel or topic for updates.
+Editing a separator pattern (washi gallery),User chooses a washi tape pattern for a separator from the gallery.
+Adding a card,User adds a new payment or content card.
+Creating an account,User signs up with their details to create a new account.
+Turning on commenting,User enables commenting on a document or post.
+Enabling & Disabling,User toggles a feature on or off.
+All expenses,User views the full list of recorded expenses.
+Reviewing & Rating,User writes a review and gives a star rating.
+Banning & Blocking,User bans or blocks an account to restrict its access or interactions.
+Filtering entries,User filters entries by conditions to show only those that match.
+Post-Onboarding,Screens shown right after onboarding to guide the user's first actions.
+Cancel a card,User cancels a card so it can no longer be used.
+Share & export,User shares content or exports it to another format or app.
+Uploading a file,User picks a file from their device and uploads it.
+Chatting & sending Messages,User opens a conversation and sends messages.
+Marking a reminder as resolved,User marks a reminder as done so it clears from the list.
+Adding sticky notes,User places sticky notes on a whiteboard to capture ideas.
+Muting,"User mutes a person, thread, or sound to stop alerts."
+Starting a recording,User starts recording audio or video.
+Scanning a document,User scans a paper document with the camera and saves it as a digital file.
+Acknowledgements,Screen crediting contributors and third-party software.
+Scheduling a reminder (task),User sets a date and time for a reminder on a task.
+Inbox,User views incoming notifications and messages in the inbox.
+Favoriting & Pinning,User favorites or pins an item for quick access.
+Commenting on a text block,User attaches a comment to a text block in a document.
+Filtering inbox,"User filters inbox items by type, status, or sender."
+Adding a page,User adds a new page to a document or workspace.
+Courses,User browses the catalog of available courses.
+Following a user - Notifications,User follows another user from the notifications screen.
+Editing text color (document),User changes the color of selected text in a document.
+View products in H&M,User browses a list of products in H&M.
+Adding a collection,User creates a new collection to organize items.
+Eligibility unmet,User sees a message that they do not meet the requirements for an offer or feature.
+Editing a document color,User changes a document's color or accent.
+Article detail,User reads a full article.
+My profile,User views their own profile and its stats.
+Resizing a photo,User resizes or crops a photo by dragging handles.
+Settings,User views and changes app settings and preferences.
+Booking & Reserving,"User picks a date, time, and details to book or reserve a slot or seat."
+Switching View,"User switches between layouts such as list, grid, or board."
+User profile,User views another user's profile.
+Switch category,User moves between categories to browse a different set of content.
+Copying card number,User copies a card number to the clipboard.
+Searching & Finding,User searches for content and locates it in results.
+Copying an image,User copies an image to paste elsewhere.
+Saving a streak image,User saves an image of their learning streak to the device or shares it.
+Top songs,User views a ranked list of their most played songs.
+Selecting FigJam creation tools,"User picks a creation tool, such as sticky, shape, or connector, from the FigJam toolbar."
+Starting & Completing,"User starts an activity and completes it, reaching a completion state."
+View prototype,User opens a prototype in view mode and interacts with it.
+Updating export settings,User changes export options such as format and scale.
+Customize fields,User chooses which fields to show and how they appear.
+Duplicating a record,User creates a copy of an existing database record.
+Sorting entries,User sets a sort order for entries.
+Editing FigJam file,User edits the contents of a FigJam file on the canvas.
+Wrapped,User views a year-in-review style summary of their activity.
+Calling,User starts a phone or voice call.
+Saving a draft,User saves unfinished work as a draft to continue later.
+Reordering,User changes the order of items by dragging them.
+Sharing,User shares an item by link or through a share sheet.
+Adding content in a whiteboard,"User adds text, shapes, or media onto a whiteboard."
+Verifying,User verifies their identity or a code to confirm an action.
+Compliance rating,User sees a compliance rating or score for an expense or policy.
+View product image in H&M,User opens and zooms into a product image in H&M.
+Starting personal spotlight,User starts a personal spotlight that highlights their view or content for others.
+Deleting & Removing,User deletes or removes an item after confirming.
+Changing location,User changes their location to update available content or delivery options.
+View limit details,"User views the details of a spending limit, including amount and usage."
+Adding an external attendee,User adds an attendee from outside the organization to an event.
+Applying a template,User picks a template and applies it to a document or page.
+Selecting a learning path,User picks a learning path to follow a guided series of lessons.
+Pending request,User views a request that is still awaiting approval.
+Deleting a comment,User deletes a comment after confirming.
+Adding profile information,"User fills in profile details such as name, photo, and bio."
+Scheduling,User sets a date and time to schedule an event or action.
+Selecting & Choosing,User selects one or more options from a list or menu.
+Canceling a budget request,User cancels a pending budget request.
+Searching Lemon8,"User searches Lemon8 for posts, users, or topics."
+Notifications,User views the list of notifications.
+Issue detail (Inbox),User opens an issue from the inbox to see its details and activity.
+Commenting on the video,User writes a comment on a video.
+Uploading & Downloading,User uploads files to the app or downloads them to the device.
+Creating an issue,"User creates a new issue with a title, description, and properties."
+Replace a card,"User requests a replacement for a lost, damaged, or expired card."
+Updating notification settings,User changes which notifications they receive and how.
+Team project,"User views a project shared with a team, including its members and items."
+Editing a separator pattern (patterns)  ,User picks a pattern for a separator from the patterns tab.
+Listening to Audio,User plays and listens to an audio track.
+Replying to a comment,User writes a reply to an existing comment.
+Adding an alert,User inserts an alert or callout block into a document.
+Adding a toggle header,User adds a collapsible toggle heading to a document.
+Request a limit increase,User requests a higher spending limit and submits a reason.
+Adding a comment,User adds a comment to an item.
+Adding to Cart & Bag,User adds a product to the shopping cart or bag.
+Adding & Creating,User adds or creates a new item from an add or create control.
+Recent files,User views recently opened files for quick access.
+Turning on notifications,"User enables notifications, often through a permission prompt."
+Replying to thread,User replies within a conversation thread.
+Video detail,User views a video's detail page with its description and actions.
+Sending record,User sends a database record to another person or app.
+Adding a formula,User enters a formula that computes a value from other fields.
+Manage subscription,User views and manages their subscription plan and billing.
+Reimbursement reviewed,User sees that a reimbursement request has been reviewed.
+Browse FigJam resources,User browses templates and resources for FigJam.
+Inviting a referral,User sends a referral invite to a friend.
+Editing notification settings,User edits notification preferences by channel or type.
+Cancelling Order & Refunding,User cancels an order and requests a refund.
+Requesting new spend limit,User requests a new spend limit for a card or budget.
+Editing a record (number field),User edits a number field in a database record.
+Adding labels,User adds labels or tags to an item.
+Send an email to support,User composes and sends an email to the support team.
+Adding a video post,User creates a post with a video attached.
+Followers & following,User views lists of their followers and the accounts they follow.
+Dashboard,User views an overview dashboard with key metrics and shortcuts.
+View a Figma file,User opens a Figma file in view mode.
+ Unmuting product video,User turns on sound for a product video.
+Updating export settings (image),"User changes image export options such as format, size, and scale."
+Show activity,User opens the activity feed showing recent changes and events.
+Following a user - Post detail,User follows the author from a post's detail page.
+Hiding a field,User hides a field so it no longer shows in the view.
+Joining & Accepting,User joins a group or accepts an invitation.
+Scheduling a reminder (document),User sets a reminder on a document for a specific date and time.
+Transferring Money,"User sends money by choosing a recipient, entering an amount, and confirming."
+More,Overflow menu that holds additional options and links.
+Renaming file,User renames a file by editing its title.
+Adding a backdrop,User adds a backdrop behind the content.
+Engagement insights,"User views engagement metrics such as views, likes, and reach."
+Showing & Hiding,User toggles the visibility of an element or content.
+Creating an account H&M,User signs up for an H&M account with their details.
+Marking,"User marks an item, for example as read, done, or important."
+Using FigJam timer,User starts and manages the timer in a FigJam session.
+Adding stamps,User adds stamps to a canvas or whiteboard to react or mark items.
+Responding to the video,User responds to a video with a comment or reaction.
+Creating a label,User creates a new label with a name and color.
+Selecting a status,"User chooses a status such as To do, In progress, or Done for an item."
+Liking a story,User likes a story.
+Reporting an issue,User reports a problem and describes what went wrong.
+Searching for a FigJam file,User searches for a FigJam file by name.
+ Fields tutorial,Tutorial that explains how to use fields.
+Adding a whiteboard,User creates a new whiteboard.
+Showing card details,"User reveals full card details such as the number, expiry, and CVV."
+Onboarding H&M,First-run onboarding screens that introduce the H&M app.
+FigJam file options,User opens the options menu for a FigJam file.
+Get started with Craft,Intro flow that guides a new user through the first steps in Craft.
+Disabling notifications,User turns off notifications.
+Splash,Splash screen shown briefly while the app launches.
+Verifiying account,User verifies their account with a code or identity check.
+Creating a new virtual card,User creates a new virtual card and sets its name and limit.
+Completing a lesson (math),User finishes a math lesson and sees the completion screen.
+Turning On/Off,User flips a toggle to turn a setting on or off.
+Card details,User views a card's details and controls.
+Mentioning a user,User mentions another user with @ to notify them.
+Linking a block,User links a block to another block or page.
+Moving a document,User moves a document to a different folder or space.
+Connecting to Google Calendar,User connects their Google Calendar to sync events.
+Creating a new record,User creates a new record in a database.
+Editing table,User edits a table's contents and structure.
+Change address,User updates a delivery or billing address.
+ Adding an item to favorites,User adds an item to their favorites list.
+Uploading a photo,User chooses a photo from the camera or library and uploads it.
+Filtering products (price range),User narrows products with a price range slider or inputs.
+Searching in a file,User searches for text inside an open file.
+Selecting cells,User selects one or more table cells to act on them.
+Snoozing notifications,User snoozes notifications for a set period.
+Disconnect a bank account,User unlinks a connected bank account after confirming.
+User stats,User views statistics about their own activity and progress.
+Adding a checkbox,User adds a checkbox to an item or document.
+Recording Audio & Video,User records audio or video within the app.
+Pages,User browses the list of pages.
+Product detail,"User views a product's detail page with images, price, and options."
+View a FigJam file,User opens a FigJam file in view mode.
+Filtering records,User filters database records by conditions.
+Completing the first lesson,New user finishes their first lesson and sees the celebration or next steps.
+Help & support,User opens the help center and support options.
+Archiving,User archives an item to remove it from the active list while keeping it.
+Mirroring frames,User mirrors a frame horizontally or vertically.
+Updating a whiteboard background,User changes the whiteboard's background color or pattern.
+Watching a trailer,User plays a film or show trailer.
+Chatting with chatbot,User converses with an automated chatbot to get answers.
+Switch limit,User switches between limit types or cards to view or change them.
+Adding a new collection,User creates a new named collection.
+View task,User opens a task to see its details and status.
+Logging & Tracking,User logs an activity and tracks progress over time.
+ Sale info,User views sale details such as discounts and dates.
+Notifications (Settings),User manages notification preferences from the settings screen.
+Terms of service,User reads the terms of service.
+Adding to cart in H&M,User adds a product to the H&M cart after choosing size and color.
+Drawing on a whiteboard,User draws freehand on a whiteboard.
+Editing base,"User edits a base's name, structure, or settings."
+ Duplicating a table,User creates a copy of a table.
+Adding a reaction,User adds an emoji reaction to content.
+Asking an AI for assistance,User asks an AI assistant a question or gives it a task.
+ Copying record URL,User copies a record's link to share it.
+Adding a view,"User creates a new view of data, such as a grid, kanban, or calendar."
+Adding a cover picture,User adds or changes a cover image.
+Brex Assistant,User interacts with the Brex AI assistant to get help with spend and expense tasks.
+Adding a due date,User sets a due date on a task.
+Saving story to collection,User saves a story into a collection.
+Drawing,User draws with a pen tool.
+Deleting a draft,User deletes a saved draft after confirming.
+Picture-in-picture mode,User shrinks a playing video into a floating window while using other screens.
+Changing password,User enters their current and new password to update it.
+Managing Accounts,User views and manages their linked accounts.
+ Record options,User opens the options menu for a database record.
+Publishing,User publishes content so it becomes visible to others.
+Reporting,User reports content or a user for a policy violation.
+Downloading a video,User downloads a video for offline viewing.
+Turning on hotspot hints,User enables hotspot hints that highlight tappable areas in a prototype.
+Reimbursement approved,User sees that a reimbursement request was approved.
+Editing a font style,"User changes the font family, size, or weight of text."
+Resetting Password,User requests a password reset and sets a new password.
+Explanation,Screen that explains how a feature or concept works.
+Post detail,"User views a post with its content, reactions, and comments."
+View an expense,"User opens an expense to see its amount, category, and receipt."
+Browsing Tutorial,Tutorial that shows how to browse and discover content.
+Locking a card,User temporarily locks a card to block transactions.
+ Editing a record (note field),User edits a note or long-text field in a record.
+Reordering fields,User reorders fields by dragging them.
+Listing,User views items in a list.
+Export as a markdown,User exports a document as a Markdown file.
+Signing out,User signs out of their account.
+Adding a separator (line),User inserts a divider line between content.
+Referring Friends,User invites friends through a referral program.
+Hashtag detail,User views a hashtag page listing posts that use it.
+Uploading images,User selects and uploads one or more images.
+Editing Profile,"User edits their profile details such as name, photo, and bio."
+Film detail,"User views a film's detail page with synopsis, cast, and showtimes."
+Commenting & Replying,User comments on content and replies to others' comments.
+Assigning a new limit,User sets a new spending limit for a card or person.
+Library,User browses their saved library of content.
+Deleting a field,User deletes a field from a record structure after confirming.
+Screening detail,"User views the details of a screening, including time, venue, and tickets."
+"Searching for title, folder, tag or person","User searches by title, folder, tag, or person to find items."
+Activity,User views the activity log of recent actions and updates.
+Add to Apple Wallet,User adds a card or pass to Apple Wallet.
+Creating a post,User composes and publishes a new post.
+Onboarding,First-run screens that introduce the product and set up the user.
+Editing a field,"User edits a field's name, type, or options."
+Prototype menu options,User opens the menu with prototype options and controls.
+Importing & Exporting,User imports data into the app or exports it out.
+Delete a receipt,User deletes a receipt attached to an expense.
+Managing collaborators,"User adds, removes, or changes permissions of collaborators."
+Editing a separator style,User changes the style of a separator.
+Moving an issue to a project,User moves an issue into a different project.
+Moving a file to project,User moves a file into a project.
+Available limit,User views the remaining spending limit.
+Redeeming,"User redeems a code, reward, or voucher."
+Adding a template,User saves content as a template or adds one to the library.
+Login,User logs in with credentials or a social account.
+Sorting table,User sorts table rows by a column.
+Leaving,"User leaves a group, team, or workspace after confirming."
+Itemize expense,User splits an expense into itemized line items.
+Logging in,User enters credentials and signs in.
+Subscribing & Upgrading,User subscribes to or upgrades to a paid plan.
+Editing a text block color,User changes the text or background color of a text block.
+Turning on auto-invite,User enables auto-invite to add new members automatically.
+Adding a separator (page break),User inserts a page break to start a new page in a document.
+Tasks,User views and manages their list of tasks.
+Editing a text color (table),User changes text color within a table.
+Gifting,User gifts a subscription or item to another person.
+Cancelling Subscription,User cancels their subscription after confirming.
+Request reimbursement,User submits an expense for reimbursement with details and receipts.
+ Sorting products,"User sorts products, for example by price, popularity, or newest."
+Setting a streak goal,User sets a daily goal for maintaining a learning streak.
+Home,Main landing screen with primary content and navigation.
+Account,User views and manages their account.
+ETA information,User sees estimated time of arrival information.
+Adding a receipt,User captures or uploads a receipt and attaches it to an expense.
+Hiding fields,User hides one or more fields from the view.
+Registering,User registers a new account.
+Requesting,"User submits a request for something, such as access, funds, or a change."
+Taking Photos,User takes a photo with the in-app camera.
+Switching to Dark Mode,User switches the app's appearance to dark mode.
