@@ -90,11 +90,15 @@ export function ChainOfThought({
   className,
 }: ChainOfThoughtProps) {
   const [open, setOpen] = React.useState<boolean>(defaultOpen ?? (streaming && !answering));
+  const [userToggled, setUserToggled] = React.useState<boolean>(false);
   const [elapsedSeconds, setElapsedSeconds] = React.useState<number>(durationSeconds || 0);
   const startTimeRef = React.useRef<number>(Date.now());
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const running = streaming && !answering;
+
+  // Keep open during live thinking unless user explicitly closes it
+  const isExpanded = userToggled ? open : (running || open);
 
   // Real-time elapsed stopwatch timer
   React.useEffect(() => {
@@ -134,7 +138,13 @@ export function ChainOfThought({
   return (
     <div className={cn("w-full py-1 mb-2 select-none", className)}>
       <Trace>
-        <TraceCollapsible open={hasSteps && open} onOpenChange={setOpen}>
+        <TraceCollapsible
+          open={hasSteps && isExpanded}
+          onOpenChange={(val) => {
+            setUserToggled(true);
+            setOpen(val);
+          }}
+        >
           <TraceCollapsibleTrigger disabled={!hasSteps}>
             <div className={cn("flex items-center justify-between w-full group py-0.5 transition-opacity", hasSteps ? "hover:opacity-90 cursor-pointer" : "cursor-default")}>
               <TraceLine status={status}>
@@ -154,8 +164,8 @@ export function ChainOfThought({
 
               {hasSteps && (
                 <div className="flex items-center gap-1.5 text-[#71717A] text-[11px] group-hover:text-[#A1A1AA] transition-colors">
-                  <span>{open ? "Hide reasoning" : "View reasoning"}</span>
-                  <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", open && "rotate-180")} />
+                  <span>{isExpanded ? "Hide reasoning" : "View reasoning"}</span>
+                  <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", isExpanded && "rotate-180")} />
                 </div>
               )}
             </div>

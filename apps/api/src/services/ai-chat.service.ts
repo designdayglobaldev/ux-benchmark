@@ -105,14 +105,14 @@ export class AiChatService {
     const fullSessionKey = `chat:session:${sessionId}:full`;
 
     // 1. Try Redis cache first (sub-2ms high performance hydration)
-    if (this.redis) {
+    if (this.redis && this.redis.status === 'ready') {
       try {
         const cachedFull = await this.redis.get(fullSessionKey);
         if (cachedFull) {
           return JSON.parse(cachedFull);
         }
       } catch (err) {
-        console.warn('[Redis] Full session cache read warning:', err);
+        // Fallback to DB
       }
     }
 
@@ -153,11 +153,11 @@ export class AiChatService {
     };
 
     // Cache in Redis for 1 hour (sub-2ms next time)
-    if (this.redis) {
+    if (this.redis && this.redis.status === 'ready') {
       try {
         await this.redis.set(fullSessionKey, JSON.stringify(result), 'EX', 3600);
       } catch (err) {
-        console.warn('[Redis] Session cache write warning:', err);
+        // Ignored
       }
     }
 
@@ -203,8 +203,8 @@ export class AiChatService {
       },
     });
 
-    // Invalidate Redis session caches
-    if (this.redis) {
+    // Invalidate Redis session caches only if Redis is active & ready
+    if (this.redis && this.redis.status === 'ready') {
       try {
         await this.redis.del(`chat:session:${sessionId}:full`);
         await this.redis.del(`chat:session:${sessionId}:context`);
@@ -213,8 +213,8 @@ export class AiChatService {
         const monthKey = `user:${userId}:tokens:${now.getFullYear()}-${now.getMonth() + 1}`;
         await this.redis.incrby(monthKey, totalTokens);
         await this.redis.expire(monthKey, 86400 * 35); // 35 days TTL
-      } catch (err) {
-        console.warn('[Redis] Token counter warning:', err);
+      } catch (err: any) {
+        // Silently handle if connection dropped
       }
     }
 
