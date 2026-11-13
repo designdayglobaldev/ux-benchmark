@@ -233,9 +233,10 @@ The automated validator [`apps/api/src/benchmark/validate-dataset.ts`](file:///c
 - **Gate 0 Criteria & Formal Audit:**
   1. **100% of target flows embedded:** ✅ **Done** (3,693 / 3,693 screens indexed in `voyage-multimodal-3`).
   2. **Arm A scored on Dev split:** ✅ **Done** (77 in-domain queries scored on pinned commit `2323668a`, Mean nDCG@10 = **0.4187**, 95% Bootstrap CI: `[0.3446, 0.4928]`).
-  3. **Arm 0 (un-reranked vector baseline) scored:** ❌ **Open / Not Yet Scored** (Required by spec to isolate the exact contribution of cross-encoder reranking vs raw vector retrieval).
-  4. **Annotator Agreement / Designer Label Review:** ❌ **Open / Not Done** (Label audit by a product designer is required, especially on situational, component, and compare splits where ground truth polarity between "flow that exemplifies pattern" vs "flow containing avoid guidance" must be formalized before locking the test split).
-- **Gate 0 Decision:** **OPEN / PENDING.** The Arm A numbers stand as a provisional reference benchmark, but Gate 0 cannot formally pass until Arm 0 is scored and the designer label review is documented. The 60-query Test split remains strictly locked.
+  3. **Arm A0 (dense-only, un-reranked vector baseline) scored:** ✅ **Done** (Mean nDCG@10 = **0.4362**, 95% Bootstrap CI: `[0.3620, 0.5101]`, Hit@1 = **39.0%**, Hit@3 = **68.8%**).
+     * *Empirical Finding:* The generic cross-encoder reranker without full multi-vector fields (`ScreenFieldEmbedding`) does not provide a positive gain over raw multimodal-3 cosine ranking (Δ = -0.0175). Dense multimodal-3 anchor ranking actually achieves higher precision (39.0% vs 33.8% Hit@1).
+  4. **Annotator Agreement / Designer Label Review:** ❌ **Open / Currently Underway** (Designers are actively verifying [`docs/UX_BENCH_V2_LABELS.csv`](file:///c:/projects/ux-libaray/docs/UX_BENCH_V2_LABELS.csv) to settle ground truth on avoid queries, fix `UXB-043`, and eliminate over-indexing).
+- **Gate 0 Decision:** **OPEN / PENDING DESIGNER LABEL REVIEW.** 3 of the 4 Gate 0 criteria are now completely measured and locked. The 60-query Test split remains strictly locked.
 
 
 
