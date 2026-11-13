@@ -321,7 +321,37 @@ A deep database integrity audit was conducted across all 3,693 screens and 305 a
   const selected = [...anchors, ...nonAnchors].slice(0, 5);
   const representativeScreens = selected.sort((a, b) => a.screenNo - b.screenNo);
   ```
-- **Status:** Deployed and ready for dev benchmark scoring.
+- **Status:** Deployed and evaluated on 77 in-domain dev queries.
+
+### 8.7 Arm A-anchors Benchmark Evaluation Results
+
+- **Evaluation Date:** 2026-11-13
+- **Dataset:** `UX_BENCH_V2_DATASET.json` (77 in-domain dev queries across 4 intents).
+- **First-stage retrieval:** Identical cached candidates from Arm A (dense `voyage-multimodal-3` screen vector + metadata filter).
+- **Reranker:** `rerank-2` (Voyage AI).
+
+#### Empirical Scores (nDCG@10)
+
+| Intent | Count ($n$) | Arm A (`slice(0, 5)`) | Arm A0 (Dense Only) | Arm A-anchors (Anchors Prioritized) | $\Delta$ (Arm A-anchors vs Arm A) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **flow** | 21 | 0.6244 | 0.6588 | **0.6377** | +0.0134 |
+| **situational** | 21 | 0.2350 | 0.2354 | **0.2334** | -0.0016 |
+| **component** | 18 | 0.2623 | 0.2722 | **0.2722** | +0.0099 |
+| **compare** | 17 | 0.5570 | 0.6045 | **0.6193** | **+0.0623** |
+| **OVERALL (Dev)** | **77** | **0.4187** | **0.4410** | **0.4379** | **+0.0192** |
+
+#### Statistical Significance (Paired Bootstrap, $B=10,000$)
+- **Mean Paired Difference ($\Delta$):** `+0.0192` nDCG@10
+- **95% Bootstrap Confidence Interval:** `[+0.0040, +0.0372]` (strictly excludes 0)
+- **Empirical $p$-value:** `p = 0.0044` ($p < 0.01$, highly statistically significant)
+
+#### Diagnostic Insights
+1. **Resolution of Reranker Invisibility:** Under Arm A's naive `slice(0, 5)`, relevant query-matched anchor screens located deep in long flows (e.g. step 12 or step 35) were truncated and never seen by `rerank-2`. Prioritizing query-matched anchors restored critical context to the reranker, closing 87% of the gap between Arm A and Arm A0.
+2. **Impact on Intent Categories:**
+   - **`compare` intent:** Dramatic gain of **+0.0623** (from 0.5570 to 0.6193), surpassing dense-only Arm A0 (0.6045). In multi-app comparison queries, showing the anchor screens directly allows the cross-encoder to accurately evaluate matching patterns across both apps.
+   - **`flow` & `component` intents:** Steady improvements (+0.0134 and +0.0099).
+   - **`situational` intent:** Remained essentially flat (-0.0016). This confirms that situational queries cannot be solved by screen selection alone; they require per-field embeddings (`ScreenFieldEmbedding` for `WHERE_TO_USE` / `WHERE_NOT_TO_USE`) because situational intent is diluted in global screen embeddings.
+
 
 
 
