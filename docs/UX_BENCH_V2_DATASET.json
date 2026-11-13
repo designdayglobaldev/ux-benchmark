@@ -14,17 +14,6 @@
         "flowSlug": "post-onboarding",
         "grade": 2,
         "notes": "Passport verification & selfie capture flow"
-      },
-      {
-        "appSlug": "coinbase-wallet",
-        "flowSlug": "post-onboarding",
-        "grade": 1,
-        "notes": "ID document verification"
-      },
-      {
-        "appSlug": "oportun",
-        "flowSlug": "onboarding",
-        "grade": 1
       }
     ],
     "secondAnnotatorLabel": "flow"
@@ -69,11 +58,6 @@
         "flowSlug": "setting-up",
         "grade": 2,
         "notes": "Recovery phrase setup & confirmation"
-      },
-      {
-        "appSlug": "coinbase-wallet",
-        "flowSlug": "post-onboarding",
-        "grade": 1
       }
     ],
     "secondAnnotatorLabel": "flow"
@@ -97,11 +81,6 @@
         "appSlug": "venmo",
         "flowSlug": "transferring-money",
         "grade": 2
-      },
-      {
-        "appSlug": "paypal",
-        "flowSlug": "transferring-money",
-        "grade": 1
       }
     ],
     "secondAnnotatorLabel": "flow"
@@ -1403,19 +1382,10 @@
     ],
     "targets": [
       {
-        "appSlug": "cash-app",
+        "appSlug": "coinbase-wallet",
         "flowSlug": "transferring-money",
-        "grade": 2
-      },
-      {
-        "appSlug": "venmo",
-        "flowSlug": "transferring-money",
-        "grade": 2
-      },
-      {
-        "appSlug": "paypal",
-        "flowSlug": "transferring-money",
-        "grade": 1
+        "grade": 2,
+        "notes": "Irreversible crypto transfer review & confirmation friction"
       }
     ],
     "secondAnnotatorLabel": "situational"

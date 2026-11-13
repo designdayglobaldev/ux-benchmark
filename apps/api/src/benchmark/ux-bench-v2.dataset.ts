@@ -54,9 +54,7 @@ export const UX_BENCH_V2_DATASET: UxBenchQuery[] = [
     description: 'Biometric verification & identity document upload in banking onboarding',
     expectedPrimaryRoutes: ['flow'],
     targets: [
-      { appSlug: 'revolut', flowSlug: 'post-onboarding', grade: 2, notes: 'Passport verification & selfie capture flow' },
-      { appSlug: 'coinbase-wallet', flowSlug: 'post-onboarding', grade: 1, notes: 'ID document verification' },
-      { appSlug: 'oportun', flowSlug: 'onboarding', grade: 1 }
+      { appSlug: 'revolut', flowSlug: 'post-onboarding', grade: 2, notes: 'Passport verification & selfie capture flow' }
     ],
     secondAnnotatorLabel: 'flow'
   },
@@ -81,8 +79,7 @@ export const UX_BENCH_V2_DATASET: UxBenchQuery[] = [
     description: 'Web3 non-custodial recovery phrase backup & confirmation sequence',
     expectedPrimaryRoutes: ['flow'],
     targets: [
-      { appSlug: 'coinbase-wallet', flowSlug: 'setting-up', grade: 2, notes: 'Recovery phrase setup & confirmation' },
-      { appSlug: 'coinbase-wallet', flowSlug: 'post-onboarding', grade: 1 }
+      { appSlug: 'coinbase-wallet', flowSlug: 'setting-up', grade: 2, notes: 'Recovery phrase setup & confirmation' }
     ],
     secondAnnotatorLabel: 'flow'
   },
@@ -95,8 +92,7 @@ export const UX_BENCH_V2_DATASET: UxBenchQuery[] = [
     expectedPrimaryRoutes: ['flow'],
     targets: [
       { appSlug: 'cash-app', flowSlug: 'transferring-money', grade: 2 },
-      { appSlug: 'venmo', flowSlug: 'transferring-money', grade: 2 },
-      { appSlug: 'paypal', flowSlug: 'transferring-money', grade: 1 }
+      { appSlug: 'venmo', flowSlug: 'transferring-money', grade: 2 }
     ],
     secondAnnotatorLabel: 'flow'
   },
@@ -825,9 +821,7 @@ export const UX_BENCH_V2_DATASET: UxBenchQuery[] = [
     description: 'Review step differentiating instant debit versus standard ACH transfer',
     expectedPrimaryRoutes: ['situational'],
     targets: [
-      { appSlug: 'cash-app', flowSlug: 'transferring-money', grade: 2 },
-      { appSlug: 'venmo', flowSlug: 'transferring-money', grade: 2 },
-      { appSlug: 'paypal', flowSlug: 'transferring-money', grade: 1 }
+      { appSlug: 'coinbase-wallet', flowSlug: 'transferring-money', grade: 2, notes: 'Irreversible crypto transfer review & confirmation friction' }
     ],
     secondAnnotatorLabel: 'situational'
   },
