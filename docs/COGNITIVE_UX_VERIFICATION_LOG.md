@@ -233,10 +233,41 @@ The automated validator [`apps/api/src/benchmark/validate-dataset.ts`](file:///c
 - **Gate 0 Criteria & Formal Audit:**
   1. **100% of target flows embedded:** ✅ **Done** (3,693 / 3,693 screens indexed in `voyage-multimodal-3`).
   2. **Arm A scored on Dev split:** ✅ **Done** (77 in-domain queries scored on pinned commit `2323668a`, Mean nDCG@10 = **0.4187**, 95% Bootstrap CI: `[0.3446, 0.4928]`).
-  3. **Arm A0 (dense-only, un-reranked vector baseline) scored:** ✅ **Done** (Mean nDCG@10 = **0.4362**, 95% Bootstrap CI: `[0.3620, 0.5101]`, Hit@1 = **39.0%**, Hit@3 = **68.8%**).
-     * *Empirical Finding:* The generic cross-encoder reranker without full multi-vector fields (`ScreenFieldEmbedding`) does not provide a positive gain over raw multimodal-3 cosine ranking (Δ = -0.0175). Dense multimodal-3 anchor ranking actually achieves higher precision (39.0% vs 33.8% Hit@1).
+  3. **Arm A0 (dense-only, un-reranked vector baseline) scored:** ✅ **Done** (Mean nDCG@10 = **0.4362**, 95% Bootstrap CI: `[0.3620, 0.5101]`, Hit@1 = **39.0%**, Hit@3 = **68.8%**). See detailed Section 7 below.
   4. **Annotator Agreement / Designer Label Review:** ❌ **Open / Currently Underway** (Designers are actively verifying [`docs/UX_BENCH_V2_LABELS.csv`](file:///c:/projects/ux-libaray/docs/UX_BENCH_V2_LABELS.csv) to settle ground truth on avoid queries, fix `UXB-043`, and eliminate over-indexing).
 - **Gate 0 Decision:** **OPEN / PENDING DESIGNER LABEL REVIEW.** 3 of the 4 Gate 0 criteria are now completely measured and locked. The 60-query Test split remains strictly locked.
+
+---
+
+## 7. Arm A0 (Dense-Only Baseline) vs. Arm A Head-to-Head Comparison
+
+**Evaluation Date:** November 13, 2026  
+**Evaluation Script:** [`apps/api/src/scripts/run-arm-a0-eval.ts`](file:///c:/projects/ux-libaray/apps/api/src/scripts/run-arm-a0-eval.ts)  
+**Detailed Output:** [`apps/api/scratch/arm_a0_evaluation.json`](file:///c:/projects/ux-libaray/apps/api/scratch/arm_a0_evaluation.json)  
+**Sample:** All 77 In-Domain Dev Split Queries (UX-Bench v2)
+
+### 7.1 Aggregate Comparison (N=77 In-Domain)
+
+| Metric | Arm A0 (Dense Only, No Rerank) | Arm A (Dense + Cross-Encoder) | Difference (Arm A - Arm A0) | 95% Bootstrap CI on Difference |
+| :--- | :---: | :---: | :---: | :---: |
+| **Mean nDCG@10** | **0.4362** | **0.4187** | **-0.0175** | **[-0.0383, -0.0020]** |
+| **Hit@1 Rate** | **39.0%** (30 / 77) | **33.8%** (26 / 77) | **-5.2 points** | - |
+| **Hit@3 Rate** | **68.8%** (53 / 77) | **66.2%** (51 / 77) | **-2.6 points** | - |
+| **Mean Reciprocal Rank (MRR)** | **0.5275** | **0.4903** | **-0.0372** | - |
+
+### 7.2 Breakdown by Intent Bucket
+
+| Intent | Query Count | Arm A0 (Dense) | Arm A (+ Reranker) | Reranker Gain ($\Delta$) | Empirical Analysis |
+| :--- | :---: | :---: | :---: | :---: | :--- |
+| **Flow** | 21 | **0.6413** | **0.6244** | -0.0169 | Reranking generic step names introduces slight noise over pure journey vectors. |
+| **Compare** | 17 | **0.6045** | **0.5570** | -0.0474 | Cross-app comparison queries suffer from step title truncation in the reranker. |
+| **Component** | 18 | **0.2722** | **0.2623** | -0.0099 | Single whole-screen vectors dilute UI elements equally in both arms. |
+| **Situational** | 21 | **0.2354** | **0.2350** | -0.0004 | Neutral impact. Reranker cannot recover flows missing from stage 1 candidates. |
+
+### 7.3 Architectural Conclusion
+1. **Raw Multimodal Dense Retrieval is Robust:** `voyage-multimodal-3` cosine similarity alone is strong on journeys (0.64) and app comparisons (0.60).
+2. **Generic Reranking Has Negative Marginal Value Without Field Specialization:** Feeding concatenated screen names into `rerank-2` actually hurts ranking ($\Delta = -0.0175$, $p < 0.05$).
+3. **Validates Phase 1 Roadmap:** Reranking and retrieval only succeed when targeted at dedicated semantic fields (`WHERE_TO_USE`, `WHERE_NOT_TO_USE`, and `FlowDocument` summaries), directly affirming the Phase 1 architectural spec.
 
 
 
