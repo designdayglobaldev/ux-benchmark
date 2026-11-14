@@ -25,7 +25,7 @@ export async function backfillScreenFieldEmbeddings(options: {
   batchSize?: number;
   delayMs?: number;
 } = {}) {
-  const batchSize = options.batchSize || 16;
+  const batchSize = options.batchSize || 24;
   const delayMs = options.delayMs || 22000;
   const benchmarkOnly = options.benchmarkOnly ?? false;
 
@@ -209,10 +209,13 @@ if (require.main === module) {
   const benchmarkOnly = args.includes('--benchmark-only');
   const maxScreensArg = args.find((a) => a.startsWith('--max='));
   const maxScreens = maxScreensArg ? parseInt(maxScreensArg.split('=')[1], 10) : undefined;
+  const batchSizeArg = args.find((a) => a.startsWith('--batch='));
+  const batchSize = batchSizeArg ? parseInt(batchSizeArg.split('=')[1], 10) : undefined;
 
   backfillScreenFieldEmbeddings({
     benchmarkOnly,
     maxScreens,
+    batchSize,
   })
     .catch((err) => {
       console.error('Fatal error in backfill script:', err);
