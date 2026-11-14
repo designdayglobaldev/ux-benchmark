@@ -413,9 +413,9 @@ A deep database integrity audit was conducted across all 3,693 screens and 305 a
 - **`UXB-056`** (*"Where not to use push notification priming during cold start"*): **0.0000 $\to$ 0.3405** (+0.3405).
 - **`UXB-055`** (*"When to prompt users for app store rating without disruption"*): **0.0000 $\to$ 0.2809** (+0.2809).
 
-##### Statistical Conclusion:
-Per-field embedding of UX situational guidance completely resolves single-vector dilution. The +0.1922 gain on situational queries is statistically significant with 95% bootstrap confidence interval strictly bounded between +0.0845 and +0.3131 ($p < 0.0001$).
-
+##### Important Methodological Note & Isolation Audit (Section 16.12 / 16.14):
+> [!WARNING] **Result Withdrawn as Laboratory Artifact**
+> The +0.1922 gain above was evaluated on an isolated index of 3,610 field vectors restricted strictly to the 1,204 screens appearing in benchmark journeys (`--benchmark-only`). On the **full library index of 11,014 field vectors** (3,677 screens), the honest paired difference is **+0.0578** (95% bootstrap CI `[-0.0175, +0.1325]`, $p = 0.0648$), which **spans zero and is not statistically significant**. The drop from +0.1922 to +0.0578 was driven 100% by library-wide distractors competing for candidate slots under unweighted/heavy fusion, as formally detailed in Section 8.9 and 8.10.
 
 ---
 
@@ -466,3 +466,45 @@ Testing the realistic baseline condition where the 11,014 per-field vectors are 
    - Pooled blind grading of the top 5 on the 21 situational queries to eliminate circular label bias.
    - Construct JourneyDocument and Arm B for flow and compare buckets.
    - Keep test split strictly locked.
+
+---
+
+### 8.10 Offline Fusion Design Variants Evaluation (All 77 Dev Queries)
+
+- **Date:** November 14, 2026
+- **Test Script:** [`apps/api/src/scripts/eval-fusion-variants.ts`](file:///c:/projects/ux-libaray/apps/api/src/scripts/eval-fusion-variants.ts)
+- **Baseline Compared Against:** **Arm A0 (`0.4410`)** (Dense-only, no cross-encoder reranker, true strongest simple baseline)
+- **Evaluation Index:** Full library index of 11,014 field vectors across 3,677 screens.
+- **Safety / Audit Note:** All runs are exploratory offline variants evaluated across the 77 in-domain dev queries without touching the locked test split.
+
+#### 1. Rationale & Hypotheses Tested
+Under unrouted fusion ($w = 0.50$, equal candidate pooling), candidate lists are diluted by weak situational field matches displacing dense flow candidates. Before building an intent router, we tested three cheap, non-invasive fusion adjustments:
+1. **Variant 1 (Rerank-Only / Zero Candidate Injection):** Dense retrieval supplies all top-20 candidates. Per-field vectors are queried, but only used to add field similarity scores to candidates already present in the dense top-20 pool. (Candidate addition = 0).
+2. **Variant 2 (Capped Top-3 Candidate Injection):** Dense retrieval supplies top-20 candidates. At most the top 3 field hits not already in dense top-20 are permitted to enter candidate pool.
+3. **Variant 3 (Low-Weight Fusion, $w=0.20$):** Per-field candidate hits are downweighted relative to dense flow hits ($w_{\text{dense}} = 1.0, w_{\text{field}} = 0.20$), functioning as a gentle tie-breaker rather than an equal competitor.
+4. **Variant 4 (Full Unrouted Fusion, $w=0.50$):** Unweighted candidate pooling ($w_{\text{dense}} = 1.0, w_{\text{field}} = 1.0$) as evaluated in Section 8.9.
+
+#### 2. Overall Scoreboard vs. Arm A0 ($n=77$)
+
+| Pipeline Variant | Mean nDCG@10 | Mean $\Delta$ vs. Arm A0 | 95% Bootstrap CI ($B=10,000$) | Empirical $p$-value ($p \le 0$) | Status |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Arm A0 Baseline (Dense-Only)** | **0.4410** | — | — | — | Gate 1 Target Baseline |
+| **Variant 1 (Rerank-Only)** | **0.4542** | +0.0132 | `[-0.0188, +0.0466]` | $p = 0.2123$ | Not Significant |
+| **Variant 2 (Capped Top-3)** | **0.4673** | +0.0263 | `[-0.0148, +0.0670]` | $p = 0.0996$ | Not Significant |
+| **Variant 3 (Low-Weight $w=0.20$)** | **0.4879** | **+0.0469** | **`[+0.0076, +0.0863]`** | **$p = 0.0090$** | **Statistically Significant ($\text{CI} > 0$)** |
+| **Variant 4 (Unrouted $w=0.50$)** | **0.4410** | -0.0000 | `[-0.0525, +0.0506]` | $p = 0.4967$ | Neutral / Regressive on flow |
+
+#### 3. Intent Breakdown for Winning Variant 3 ($w=0.20$)
+
+| Intent Category | $n$ | Arm A0 Baseline | Variant 3 ($w=0.20$) | Paired $\Delta$ | 95% Bootstrap CI | Empirical $p$-value | Regression Check |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **flow** | 21 | **0.6588** | **0.6582** | -0.0006 | `[-0.0768, +0.0645]` | $p = 0.5049$ | **NO REGRESSION** ($\Delta \approx 0$) |
+| **compare** | 17 | **0.6045** | **0.6713** | **+0.0668** | `[+0.0039, +0.1342]` | $p = 0.0178$ | Significant Gain |
+| **component** | 18 | **0.2722** | **0.2736** | +0.0014 | `[-0.0384, +0.0435]` | $p = 0.4682$ | Stable |
+| **situational** | 21 | **0.2354** | **0.3546** | **+0.1192** | `[+0.0387, +0.2072]` | $p = 0.0019$ | Significant Gain |
+| **OVERALL (Dev)** | **77** | **0.4410** | **0.4879** | **+0.0469** | **`[+0.0076, +0.0863]`** | **$p = 0.0090$** | **Net Positive** |
+
+#### 4. Scientific Findings & Honest Caveats
+1. **Low-Weight Fusion ($w=0.20$) Resolves Cross-Intent Pollution:** In unweighted fusion ($w=0.50$), situational candidates overpowered true flow candidates (e.g. `UXB-020` dropped from $0.5212 \to 0.0000$). At $w=0.20$, the flow score is fully preserved ($0.6582$ vs $0.6588$), while situational queries gain **+0.1192** ($p = 0.0019$) and compare queries gain **+0.0668** ($p = 0.0178$).
+2. **Exploratory Tuning Caution:** As established in Section 16.14 of the spec, these are offline exploratory variants tested on the dev set. Selecting $w=0.20$ post-hoc must not be used to prematurely claim Gate 1 passage before independent pooled blind grading confirms that the situational gains are authentic user utility rather than circular label alignments.
+3. **Intent Router Requirement Unchanged:** While $w=0.20$ prevents flow catastrophe, an intentional router ($R_0$) that completely disables field queries for pure component/flow intents is cleaner and prevents unnecessary latency/vector overhead.
