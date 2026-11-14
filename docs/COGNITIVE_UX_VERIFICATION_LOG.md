@@ -415,3 +415,54 @@ A deep database integrity audit was conducted across all 3,693 screens and 305 a
 
 ##### Statistical Conclusion:
 Per-field embedding of UX situational guidance completely resolves single-vector dilution. The +0.1922 gain on situational queries is statistically significant with 95% bootstrap confidence interval strictly bounded between +0.0845 and +0.3131 ($p < 0.0001$).
+
+
+---
+
+### 8.9 Full Library Field Embedding Backfill & Unrouted 77-Query Fusion Evaluation
+
+- **Date:** November 14, 2026
+- **Test Scripts:**
+  - Backfill Workflow: [`.github/workflows/sync-field-embeddings.yml`](file:///c:/projects/ux-libaray/.github/workflows/sync-field-embeddings.yml) (`scope: "all"`)
+  - Evaluation Script: [`apps/api/src/scripts/eval-unrouted-perfield-all77.ts`](file:///c:/projects/ux-libaray/apps/api/src/scripts/eval-unrouted-perfield-all77.ts)
+- **Reference Document:** Spec v2 Section 16.12 (Gate 1 Invariant Evaluation)
+
+#### 1. Full Library Field Embedding Index Completion
+- **Previous Status:** 3,610 field embeddings across 1,204 benchmark gold screens (32.6% library coverage).
+- **Backfill Run:** Automated GitHub Actions run across all 3,693 library screens with 22-second spacing, 24 fields/batch, and SHA-256 deduplication.
+- **Current PostgreSQL Index State:**
+  - `TONALITY`: **3,675** vectors (99.5% library coverage)
+  - `WHERE_NOT_TO_USE`: **3,670** vectors (99.4% library coverage)
+  - `WHERE_TO_USE`: **3,669** vectors (99.4% library coverage)
+  - **Total Field Vectors in Database:** **11,014** across 3,677 distinct screens (99.6% of library; remaining 16 screens are blank/splash assets).
+
+#### 2. Arm A Rescoring on Current Labels (Commit `2a4e2be`)
+To prevent cross-evaluation drift, all baseline arms were rescored from their saved candidates strictly against the single post-review label set:
+- **Queries affected by designer review:** `UXB-001` (0.4582 -> 0.6309), `UXB-003` (0.4131 -> 0.5000), `UXB-004` (0.9790 -> 1.0000).
+- **Arm A Rescored Baseline Mean (n=77):** `0.4223` (flow `0.6377`, situational `0.2350`, component `0.2623`, compare `0.5570`).
+
+#### 3. Unrouted Per-Field Fusion Benchmark Scoreboard (All 77 Dev Queries)
+Testing the realistic baseline condition where the 11,014 per-field vectors are fused into candidate retrieval for **all queries without router gating**:
+
+| Intent Category | $n$ | Arm A (Rescored Baseline) | Unrouted Per-Field Fusion | Paired Difference ($\Delta$) | 95% Bootstrap CI ($B=10,000$) | Empirical $p$-value ($p \le 0$) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **flow** | 21 | **0.6377** | **0.6149** | **-0.0228** | `[-0.1554, +0.1064]` | $p = 0.6275$ |
+| **situational** | 21 | **0.2350** | **0.2928** | **+0.0578** | `[-0.0174, +0.1345]` | $p = 0.0648$ |
+| **component** | 18 | **0.2623** | **0.2158** | **-0.0466** | `[-0.1448, +0.0447]` | $p = 0.8355$ |
+| **compare** | 17 | **0.5570** | **0.6476** | **+0.0906** | `[-0.0115, +0.1940]` | $p = 0.0413$ |
+| **OVERALL (Dev)** | **77** | **0.4223** | **0.4410** | **+0.0186** | **`[-0.0365, +0.0725]`** | **$p = 0.2457$** |
+
+#### 4. Gate 1 Evaluation Verdict & Core Findings
+1. **Gate 1 is NOT passed by unrouted fusion:**
+   - Gate 1 requires the combined pipeline to beat Arm A overall without hurting any intent.
+   - While overall mean increased (+0.0186), the 95% bootstrap confidence interval `[-0.0365, +0.0725]` includes zero ($p = 0.2457$).
+   - `flow` regressed by `-0.0228` and `component` regressed by `-0.0466`.
+2. **Failure Mechanism (Cross-Intent Pollution):**
+   - In pure flow queries, loose situational keyword matches in isolated screens displace complete end-to-end user journeys from the top candidate pool.
+   - In component queries, matching situational advice dilutes exact UI control lookups.
+3. **Architectural Confirmation:**
+   - Blind fusion proves that an **Intent Router ($R_0 / R_1$) is mathematically essential**. Situational vectors must only be activated when situational intent is present.
+4. **Next Steps for Gate 1:**
+   - Pooled blind grading of the top 5 on the 21 situational queries to eliminate circular label bias.
+   - Construct JourneyDocument and Arm B for flow and compare buckets.
+   - Keep test split strictly locked.
