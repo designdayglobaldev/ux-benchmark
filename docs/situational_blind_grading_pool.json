@@ -1,0 +1,1271 @@
+[
+  {
+    "id": "PAIR-001",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "dave",
+    "candidateFlow": "chatting-sending-messages",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-002",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "filtering-products-price-range",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-003",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "product-filter",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-004",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "cash-app",
+    "candidateFlow": "managing-accounts",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-005",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "brex",
+    "candidateFlow": "chatting-with-support",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-006",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "cleo",
+    "candidateFlow": "chatting-sending-messages",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-007",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "cred",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-008",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "setting-up",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-009",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "dashboard",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-010",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "logging-tracking",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-011",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "cleo",
+    "candidateFlow": "logging-tracking",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-012",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "brex",
+    "candidateFlow": "available-limit",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-013",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-an-alert",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-014",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "deleting-removing",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-015",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "venmo",
+    "candidateFlow": "banning-blocking",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-016",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cred",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-017",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "dave",
+    "candidateFlow": "deleting-removing",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-018",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "venmo",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-019",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cash-app",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-020",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cash-app",
+    "candidateFlow": "managing-accounts",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-021",
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "candidateApp": "cash-app",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-022",
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "candidateApp": "airtable",
+    "candidateFlow": "hiding-fields",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-023",
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "candidateApp": "arc-search",
+    "candidateFlow": "deleting-removing",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-024",
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "candidateApp": "cash-app",
+    "candidateFlow": "adding-creating",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-025",
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "candidateApp": "craft",
+    "candidateFlow": "deleting-a-comment",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-026",
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "candidateApp": "cred",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-027",
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "candidateApp": "cleo",
+    "candidateFlow": "chatting-sending-messages",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-028",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "craft",
+    "candidateFlow": "editing-a-separator-pattern-washi-gallery",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-029",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "linear",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-030",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "dave",
+    "candidateFlow": "setting-up",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-031",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "figma",
+    "candidateFlow": "browse-figjam-resources",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-032",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "arc-search",
+    "candidateFlow": "showing-hiding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-033",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "arc-search",
+    "candidateFlow": "enabling-disabling",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-034",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "revolut",
+    "candidateFlow": "post-onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-035",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "shazam",
+    "candidateFlow": "searching-finding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-036",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-a-receipt",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-037",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "revolut",
+    "candidateFlow": "post-onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-038",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "post-onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-039",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "craft",
+    "candidateFlow": "scanning-a-document",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-040",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "venmo",
+    "candidateFlow": "setting-up",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-041",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "brex",
+    "candidateFlow": "request-reimbursement",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-042",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "request-reimbursement",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-043",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "eta-information",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-044",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "reimbursement-reviewed",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-045",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "google-pay",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-046",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-a-receipt",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-047",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-an-external-attendee",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-048",
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "candidateApp": "brex",
+    "candidateFlow": "deleting-a-draft",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-049",
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "candidateApp": "brilliant",
+    "candidateFlow": "deleting-account",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-050",
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "candidateApp": "airtable",
+    "candidateFlow": "hiding-fields",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-051",
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "candidateApp": "linear",
+    "candidateFlow": "creating-an-issue",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-052",
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "candidateApp": "airtable",
+    "candidateFlow": "fields-tutorial",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-053",
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "candidateApp": "craft",
+    "candidateFlow": "deleting-a-comment",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-054",
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "candidateApp": "cred",
+    "candidateFlow": "chatting-sending-messages",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-055",
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "candidateApp": "dave",
+    "candidateFlow": "creating-account",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-056",
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "candidateApp": "brex",
+    "candidateFlow": "connecting-a-bank-account",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-057",
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-058",
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "candidateApp": "revolut",
+    "candidateFlow": "post-onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-059",
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "candidateApp": "cleo",
+    "candidateFlow": "creating-account",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-060",
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "candidateApp": "apple-wallet",
+    "candidateFlow": "creating-account",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-061",
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "candidateApp": "venmo",
+    "candidateFlow": "setting-up",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-062",
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "candidateApp": "oportun",
+    "candidateFlow": "setting-up",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-063",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "cleo",
+    "candidateFlow": "reviewing-rating",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-064",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "cash-app",
+    "candidateFlow": "setting-up",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-065",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "cred",
+    "candidateFlow": "redeeming",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-066",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "google-pay",
+    "candidateFlow": "redeeming",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-067",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "brilliant",
+    "candidateFlow": "setting-a-streak-goal",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-068",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "arc-search",
+    "candidateFlow": "login",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-069",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "shazam",
+    "candidateFlow": "recording-audio-video",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-070",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "shazam",
+    "candidateFlow": "searching-finding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-071",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "spotify",
+    "candidateFlow": "home",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-072",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "shazam",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-073",
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "editing-updating",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-074",
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "candidateApp": "cash-app",
+    "candidateFlow": "managing-accounts",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-075",
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-076",
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "candidateApp": "apple-wallet",
+    "candidateFlow": "setting-up",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-077",
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "setting-up",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-078",
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "candidateApp": "brex",
+    "candidateFlow": "locking-a-card",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-079",
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "candidateApp": "brex",
+    "candidateFlow": "add-to-apple-wallet",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-080",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "brilliant",
+    "candidateFlow": "subscribing-to-brilliant",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-081",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "linear",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-082",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "brilliant",
+    "candidateFlow": "premium",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-083",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "brilliant",
+    "candidateFlow": "disabling-notifications",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-084",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "spotify",
+    "candidateFlow": "manage-subscription",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-085",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "arc-search",
+    "candidateFlow": "archiving",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-086",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "airtable",
+    "candidateFlow": "grouping-records",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-087",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "dave",
+    "candidateFlow": "editing-profile",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-088",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "cred",
+    "candidateFlow": "editing-profile",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-089",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "venmo",
+    "candidateFlow": "editing-profile",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-090",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "craft",
+    "candidateFlow": "uploading-images",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-091",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "linear",
+    "candidateFlow": "adding-an-assignee",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-092",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "craft",
+    "candidateFlow": "grouping-entries",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-093",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "brex",
+    "candidateFlow": "requesting-new-spend-limit",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-094",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "setting-up",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-095",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "airtable",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-096",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "figma",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-097",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "oportun",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-098",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "dave",
+    "candidateFlow": "giving-feedbacks",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-099",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "oportun",
+    "candidateFlow": "cancelling-subscription",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-100",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "spotify",
+    "candidateFlow": "manage-subscription",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-101",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "post-onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-102",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "spotify",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-103",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "arc-search",
+    "candidateFlow": "selecting-choosing",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-104",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "brilliant",
+    "candidateFlow": "subscribing-to-brilliant",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-105",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "brilliant",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-106",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "mubi-go",
+    "candidateFlow": "home",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-107",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "craft",
+    "candidateFlow": "adding-content-in-a-whiteboard",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-108",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "craft",
+    "candidateFlow": "editing-cell-formatting-styles",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-109",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "linear",
+    "candidateFlow": "creating-a-label",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-110",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "brex",
+    "candidateFlow": "reimbursement-reviewed",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-111",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "craft",
+    "candidateFlow": "adding-a-row",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-112",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "linear",
+    "candidateFlow": "creating-an-issue",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-113",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "brilliant",
+    "candidateFlow": "giving-feedbacks",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-114",
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "candidateApp": "linear",
+    "candidateFlow": "creating-an-issue",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-115",
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "candidateApp": "arc-search",
+    "candidateFlow": "archiving",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-116",
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "candidateApp": "figma",
+    "candidateFlow": "deleting-a-comment",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-117",
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "candidateApp": "craft",
+    "candidateFlow": "editing-text-formatting-styles",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-118",
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "candidateApp": "arc-search",
+    "candidateFlow": "deleting-removing",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-119",
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "candidateApp": "brex",
+    "candidateFlow": "send-an-email-to-support",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-120",
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "candidateApp": "cash-app",
+    "candidateFlow": "managing-accounts",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-121",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "product-detail",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-122",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "sale-info",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-123",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "view-collection",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-124",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "size-guide",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-125",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "product-filter",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-126",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "adding-an-item-to-favorites",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-127",
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "candidateApp": "brex",
+    "candidateFlow": "compliance-rating",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-128",
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "candidateApp": "cleo",
+    "candidateFlow": "reviewing-rating",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-129",
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "candidateApp": "brex",
+    "candidateFlow": "deleting-a-draft",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-130",
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "candidateApp": "brex",
+    "candidateFlow": "tasks",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-131",
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "candidateApp": "linear",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-132",
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "candidateApp": "dave",
+    "candidateFlow": "giving-feedbacks",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-133",
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "candidateApp": "brex",
+    "candidateFlow": "giving-feedbacks",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-134",
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "candidateApp": "brilliant",
+    "candidateFlow": "giving-feedbacks",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-135",
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "candidateApp": "cred",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-136",
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "candidateApp": "shazam",
+    "candidateFlow": "searching-finding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-137",
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "candidateApp": "revolut",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-138",
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "candidateApp": "figma",
+    "candidateFlow": "activity",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-139",
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "candidateApp": "brex",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-140",
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "candidateApp": "spotify",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "PAIR-141",
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "candidateApp": "cleo",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "rationaleNotes": ""
+  }
+]
