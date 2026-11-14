@@ -1,0 +1,48 @@
+name: Eval Unrouted Per-Field (All 77 Dev Queries)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  eval-unrouted-perfield:
+    name: Evaluate Unrouted Per-Field Fusion
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js & pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter api exec prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL || secrets.DATABASE_URL }}
+
+      - name: Run Unrouted Evaluation Script
+        run: pnpm --filter api exec tsx src/scripts/eval-unrouted-perfield-all77.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL || secrets.DATABASE_URL }}
+          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+
+      - name: Upload Evaluation Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: unrouted-perfield-results
+          path: apps/api/scratch/unrouted_perfield_77_results.json
+          if-no-files-found: ignore
