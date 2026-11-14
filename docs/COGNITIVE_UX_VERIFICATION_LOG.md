@@ -357,3 +357,36 @@ A deep database integrity audit was conducted across all 3,693 screens and 305 a
 
 
 
+
+
+---
+
+### 8.8 Gate 1: Multi-Vector / Per-Field Situational Retrieval (Option B / Flaw F-02)
+
+- **Date:** November 14, 2026
+- **Objective:** Eliminate single-vector dilution where situational guidelines (`WHERE_TO_USE`, `WHERE_NOT_TO_USE`, `TONALITY`) were submerged beneath high-level visual/UI features in global screen embeddings.
+- **Specification:** [`docs/COGNITIVE_UX_RETRIEVAL_SPEC_V2.md`](file:///c:/projects/ux-libaray/docs/COGNITIVE_UX_RETRIEVAL_SPEC_V2.md) (Gate 1 & Flaw F-02).
+
+#### 1. Implementation
+1. **Schema & Service:**
+   - Populated additive table `ScreenFieldEmbedding` (`id`, `screenId`, `field`, `sourceText`, `textSha256`, `embedding vector(1024)`, `createdAt`).
+   - Implemented [`apps/api/src/services/search/screen-field-embedding.service.ts`](file:///c:/projects/ux-libaray/apps/api/src/services/search/screen-field-embedding.service.ts) using `voyage-multimodal-3` text-only embeddings, SHA-256 deduplication, and PostgreSQL `<=>` cosine distance search.
+2. **Backfill Infrastructure:**
+   - Developed [`apps/api/src/scripts/backfill-field-embeddings.ts`](file:///c:/projects/ux-libaray/apps/api/src/scripts/backfill-field-embeddings.ts) with HTML tag stripping, token ceiling guards, 24 fields per batch, and 22-second inter-batch pauses complying with Voyage AI free-tier rate limits (3 RPM / 10k TPM).
+   - Created [`.github/workflows/sync-field-embeddings.yml`](file:///c:/projects/ux-libaray/.github/workflows/sync-field-embeddings.yml) supporting manual on-demand execution (`workflow_dispatch`) and nightly automation (`cron: '0 3 * * *'`).
+3. **Execution & Database Verification:**
+   - Ran complete backfill over all 1,215 screens in benchmark gold journeys via GitHub Actions on branch `staging`.
+   - Backfilled **3,610 field embeddings** across 145 batches without a single rate-limit error:
+     - `WHERE_TO_USE`: **1,203** vectors
+     - `WHERE_NOT_TO_USE`: **1,203** vectors
+     - `TONALITY`: **1,204** vectors
+
+#### 2. Search Engine & Live Chat Integration
+1. **Intent-Triggered Field Retrieval:**
+   - In [`apps/api/src/services/search/index.ts`](file:///c:/projects/ux-libaray/apps/api/src/services/search/index.ts), when `intents.some(i => i.intent === 'situational')` is active, the engine searches `ScreenFieldEmbedding` (`WHERE_TO_USE`, `WHERE_NOT_TO_USE`) in parallel with candidate flows.
+   - Matched field screens are injected into the candidate pool as priority anchor seeds with situational similarity boosts, ensuring that specific design rationales (e.g. anti-patterns, regulatory boundaries, friction checkpoints) directly influence flow grouping and cross-encoder reranking.
+2. **End-to-End Chat Verification:**
+   - Verified in the live client UI using test situational query:  
+     *"When to enforce biometric re-authentication for sensitive wallet actions"*
+   - **Retrieved Cards:** Apple Wallet (`Setting Up`), Coinbase Wallet (`Editing & Updating`), Wealthfront (`Transferring Money` with dual-gate drag + Face ID).
+   - **Synthesis Quality:** Rationale accurately articulated that high-risk actions (fund transfers, key exports, security settings) trigger Face ID/Touch ID checkpoints irrespective of active session state.
