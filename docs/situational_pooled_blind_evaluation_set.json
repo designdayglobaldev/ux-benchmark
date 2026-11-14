@@ -1,0 +1,1060 @@
+[
+  {
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "appSlug": "brex",
+    "flowSlug": "chatting-with-support",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "appSlug": "cleo",
+    "flowSlug": "chatting-sending-messages",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "appSlug": "cash-app",
+    "flowSlug": "managing-accounts",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "appSlug": "h-and-m",
+    "flowSlug": "product-filter",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "appSlug": "h-and-m",
+    "flowSlug": "filtering-products-price-range",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "appSlug": "brex",
+    "flowSlug": "adding-an-alert",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "appSlug": "cleo",
+    "flowSlug": "logging-tracking",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "appSlug": "coinbase-wallet",
+    "flowSlug": "setting-up",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "appSlug": "wealthfront",
+    "flowSlug": "dashboard",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "appSlug": "brex",
+    "flowSlug": "available-limit",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "appSlug": "venmo",
+    "flowSlug": "banning-blocking",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "appSlug": "dave",
+    "flowSlug": "deleting-removing",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "appSlug": "cash-app",
+    "flowSlug": "managing-accounts",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "appSlug": "venmo",
+    "flowSlug": "transferring-money",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "appSlug": "wealthfront",
+    "flowSlug": "deleting-removing",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "appSlug": "arc-search",
+    "flowSlug": "deleting-removing",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "appSlug": "craft",
+    "flowSlug": "deleting-a-comment",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "appSlug": "airtable",
+    "flowSlug": "hiding-fields",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "appSlug": "cash-app",
+    "flowSlug": "adding-creating",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-039",
+    "queryText": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "appSlug": "cleo",
+    "flowSlug": "chatting-sending-messages",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "appSlug": "arc-search",
+    "flowSlug": "showing-hiding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "appSlug": "linear",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0"
+    ]
+  },
+  {
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "appSlug": "figma",
+    "flowSlug": "browse-figjam-resources",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "appSlug": "dave",
+    "flowSlug": "setting-up",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "appSlug": "arc-search",
+    "flowSlug": "enabling-disabling",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "appSlug": "craft",
+    "flowSlug": "editing-a-separator-pattern-washi-gallery",
+    "arms": [
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "appSlug": "revolut",
+    "flowSlug": "post-onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "appSlug": "craft",
+    "flowSlug": "scanning-a-document",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "appSlug": "brex",
+    "flowSlug": "request-reimbursement",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "appSlug": "brex",
+    "flowSlug": "adding-a-receipt",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "appSlug": "venmo",
+    "flowSlug": "setting-up",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "appSlug": "brex",
+    "flowSlug": "reimbursement-reviewed",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "appSlug": "brex",
+    "flowSlug": "adding-a-receipt",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "appSlug": "brex",
+    "flowSlug": "request-reimbursement",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "appSlug": "brex",
+    "flowSlug": "adding-an-external-attendee",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "appSlug": "brex",
+    "flowSlug": "eta-information",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "appSlug": "brex",
+    "flowSlug": "deleting-a-draft",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "appSlug": "brilliant",
+    "flowSlug": "deleting-account",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "appSlug": "craft",
+    "flowSlug": "deleting-a-comment",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "appSlug": "airtable",
+    "flowSlug": "hiding-fields",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-043",
+    "queryText": "When to require two-step confirmation for destructive workspace entity deletion",
+    "appSlug": "cred",
+    "flowSlug": "chatting-sending-messages",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "appSlug": "dave",
+    "flowSlug": "creating-account",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "appSlug": "venmo",
+    "flowSlug": "setting-up",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "appSlug": "wealthfront",
+    "flowSlug": "transferring-money",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "appSlug": "apple-wallet",
+    "flowSlug": "creating-account",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-044",
+    "queryText": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "appSlug": "cleo",
+    "flowSlug": "creating-account",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "appSlug": "brilliant",
+    "flowSlug": "setting-a-streak-goal",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "appSlug": "cred",
+    "flowSlug": "redeeming",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "appSlug": "google-pay",
+    "flowSlug": "redeeming",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "appSlug": "cleo",
+    "flowSlug": "reviewing-rating",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "appSlug": "cash-app",
+    "flowSlug": "setting-up",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "appSlug": "shazam",
+    "flowSlug": "recording-audio-video",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "appSlug": "shazam",
+    "flowSlug": "searching-finding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "appSlug": "shazam",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "appSlug": "spotify",
+    "flowSlug": "home",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "appSlug": "arc-search",
+    "flowSlug": "login",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "appSlug": "coinbase-wallet",
+    "flowSlug": "editing-updating",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "appSlug": "brex",
+    "flowSlug": "locking-a-card",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "appSlug": "coinbase-wallet",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "appSlug": "cash-app",
+    "flowSlug": "managing-accounts",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "appSlug": "brex",
+    "flowSlug": "add-to-apple-wallet",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "appSlug": "brilliant",
+    "flowSlug": "subscribing-to-brilliant",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "appSlug": "brilliant",
+    "flowSlug": "premium",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "appSlug": "spotify",
+    "flowSlug": "manage-subscription",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "appSlug": "linear",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "appSlug": "brilliant",
+    "flowSlug": "disabling-notifications",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "appSlug": "craft",
+    "flowSlug": "grouping-entries",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "appSlug": "linear",
+    "flowSlug": "adding-an-assignee",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "appSlug": "airtable",
+    "flowSlug": "grouping-records",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "appSlug": "craft",
+    "flowSlug": "uploading-images",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "appSlug": "arc-search",
+    "flowSlug": "archiving",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "appSlug": "dave",
+    "flowSlug": "giving-feedbacks",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "appSlug": "figma",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "appSlug": "airtable",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "appSlug": "oportun",
+    "flowSlug": "cancelling-subscription",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "appSlug": "wealthfront",
+    "flowSlug": "setting-up",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "appSlug": "spotify",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "appSlug": "brilliant",
+    "flowSlug": "subscribing-to-brilliant",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "appSlug": "coinbase-wallet",
+    "flowSlug": "post-onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "appSlug": "arc-search",
+    "flowSlug": "selecting-choosing",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "appSlug": "spotify",
+    "flowSlug": "manage-subscription",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "appSlug": "brilliant",
+    "flowSlug": "giving-feedbacks",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "appSlug": "brex",
+    "flowSlug": "reimbursement-reviewed",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "appSlug": "linear",
+    "flowSlug": "creating-a-label",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "appSlug": "craft",
+    "flowSlug": "adding-a-row",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "appSlug": "craft",
+    "flowSlug": "editing-cell-formatting-styles",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "appSlug": "figma",
+    "flowSlug": "deleting-a-comment",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "appSlug": "arc-search",
+    "flowSlug": "deleting-removing",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "appSlug": "cash-app",
+    "flowSlug": "managing-accounts",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "appSlug": "brex",
+    "flowSlug": "send-an-email-to-support",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-053",
+    "queryText": "Preserving user input context during unexpected session expiration",
+    "appSlug": "arc-search",
+    "flowSlug": "archiving",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "appSlug": "h-and-m",
+    "flowSlug": "product-detail",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "appSlug": "h-and-m",
+    "flowSlug": "view-collection",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "appSlug": "h-and-m",
+    "flowSlug": "product-filter",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "appSlug": "h-and-m",
+    "flowSlug": "sale-info",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "appSlug": "h-and-m",
+    "flowSlug": "adding-an-item-to-favorites",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "appSlug": "brex",
+    "flowSlug": "compliance-rating",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "appSlug": "brex",
+    "flowSlug": "tasks",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "appSlug": "brex",
+    "flowSlug": "giving-feedbacks",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "appSlug": "linear",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-055",
+    "queryText": "When to prompt users for app store rating without disrupting critical tasks",
+    "appSlug": "brex",
+    "flowSlug": "deleting-a-draft",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "appSlug": "spotify",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "appSlug": "cleo",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "appSlug": "revolut",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "appSlug": "brex",
+    "flowSlug": "onboarding",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  },
+  {
+    "queryId": "UXB-056",
+    "queryText": "Where not to use push notification priming during cold app launch",
+    "appSlug": "figma",
+    "flowSlug": "activity",
+    "arms": [
+      "Arm A0",
+      "Arm A (anchors)"
+    ]
+  }
+]
