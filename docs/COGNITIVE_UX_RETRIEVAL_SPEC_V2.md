@@ -376,7 +376,9 @@ To establish unassailable scientific validity, evaluation moves from the 10-quer
 | Arm ID | Configuration / Interventions Tested | Core Research Question |
 | :---: | :--- | :--- |
 | **Arm 0** | Production baseline (mismatched embeddings corrected) | Benchmark continuity baseline |
-| **Arm A** | Dense screen search + rerank-2 (No Graph) | What is the standalone baseline of dense retrieval? |
+| **Arm A0** | Dense-only screen search (cosine ordering, no reranker) | True standalone baseline of dense vector retrieval (0.4410 nDCG@10) |
+| **Arm A** | Dense screen search + rerank-2 (naive payload) | What is the impact of naive cross-encoder reranking? (0.4223 nDCG@10) |
+| **Arm A-anchors** | Dense screen search + rerank-2 (anchor-prioritized payload) | Does anchor prioritization resolve reranker context truncation? (0.4379 nDCG@10) |
 | **Arm A+** | Arm A + `whereToUse` & `whereNotToUse` in reranker | Does injecting expert rationale improve precision? |
 | **Arm B** | Hierarchical FlowDocument retrieval + step stitching | Does searching journey summaries beat leaf chunks? |
 | **Arm B′** | Arm B + Contextual notes ($N-1 \rightarrow N \rightarrow N+1$) | Does Anthropic-style contextual framing reduce misses? |
@@ -398,11 +400,11 @@ gantt
     section Phase 0: Measure First
     Label 150 UX-Bench v2 Queries          :p0_1, 2026-11-15, 4d
     Finish Embedding Remaining 714 Screens :p0_2, after p0_1, 2d
-    Arm A vs Arm A+ (Inject whereToUse)    :p0_3, after p0_2, 2d
+    Score Arm A0 (0.4410) vs Arm A (0.4223):p0_3, after p0_2, 2d
     section Phase 1: Flow Index & Hybrid
     FlowDocument & ScreenField Schema Migrations :p1_1, after p0_3, 2d
     Contextual Notes (B') & Keyword Indexing     :p1_2, after p1_1, 3d
-    Arm B and Arm C Fused Evaluation             :p1_3, after p1_2, 2d
+    Arm B and Arm C Fused Evaluation (Beat Arm A0):p1_3, after p1_2, 2d
     section Phase 2: Router & Calibration
     Rule Router (R0) vs LLM Router (R1)          :p2_1, after p1_3, 3d
     Isotonic Calibration & Abstention Threshold  :p2_2, after p2_1, 2d
@@ -416,8 +418,8 @@ gantt
 ```
 
 ### Gate Invariants:
-* **Gate 0:** Every gold flow is embedded; annotator agreement $\kappa \ge 0.60$; Arm A and Arm A+ evaluated with paired bootstrap intervals.
-* **Gate 1:** Arm C beats Arm A on nDCG@10 (95% bootstrap interval strictly $> 0$); no intent bucket regresses. Contextual notes (B′) survive only if they beat Arm B.
+* **Gate 0:** Every gold flow is embedded; annotator agreement $\kappa \ge 0.60$; Arm A and Arm A0 evaluated with paired bootstrap intervals.
+* **Gate 1:** Arm C (or the combined retrieval pipeline) beats the true baseline **Arm A0** (0.4410) — or Arm A-anchors (0.4379), whichever is higher — on nDCG@10 with a 95% bootstrap interval strictly $> 0$; no intent bucket regresses. Contextual notes (B′) survive only if they beat Arm B. Comparing against Arm A alone is explicitly rejected as a straw-man baseline.
 * **Gate 2:** LLM router (R1) beats rule-based router (R0) on macro-F1 and downstream nDCG@10. Isotonic ECE is reported.
 * **Gate 3:** Graph expansion (Arm D) survives **only if it beats Arm C on compare queries**. Step roles survive only if pilot agreement $\kappa \ge 0.60$.
 * **Gate 4:** LTR offline evaluation demonstrates nDCG improvement over fixed RRF fusion; weekly canary benchmark stays green.
