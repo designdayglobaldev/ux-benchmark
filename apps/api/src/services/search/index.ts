@@ -1,8 +1,10 @@
-import { VectorEngine } from './vector-engine';
+import { VectorEngine, DenseSeedScreen } from './vector-engine';
 import { GraphWalkEngine } from './graph-walk';
 import { FlowStitcher } from './flow-stitcher';
 import { IntentBalancer } from './intent-balancer';
 import { RerankEngine } from './rerank-engine';
+import { ScreenFieldEmbeddingService } from './screen-field-embedding.service';
+import { IntentRouter } from './intent-router';
 import type {
   CognitiveRetrievalParams,
   CognitiveSearchResult,
@@ -17,6 +19,8 @@ export { FlowStitcher } from './flow-stitcher';
 export { IntentBalancer } from './intent-balancer';
 export { RerankEngine } from './rerank-engine';
 export { FlowDocumentService } from './flow-document.service';
+export { ScreenFieldEmbeddingService } from './screen-field-embedding.service';
+export { IntentRouter } from './intent-router';
 
 export class CognitiveSearchEngine {
   /**
@@ -41,25 +45,52 @@ export class CognitiveSearchEngine {
 
     for (const q of subQueries) {
       try {
-        // 1. Embed query
-        const vector = await VectorEngine.embedQuery(q);
+        // 1. Embed query and route intent
+        const [vector, routeClassification] = await Promise.all([
+          VectorEngine.embedQuery(q),
+          Promise.resolve(IntentRouter.classify(q)),
+        ]);
         const vectorJson = JSON.stringify(vector);
+        const isSituationalActive = routeClassification.activeRoutes.includes('situational');
 
-        // 2. Dense vector searches (App & Screen levels in parallel)
-        const [apps, seedScreens] = await Promise.all([
+        // 2. Dense vector searches (App, Screen, and Situational Fields in parallel)
+        const [apps, seedScreens, situationalFields] = await Promise.all([
           VectorEngine.searchApps(vectorJson, 6),
           VectorEngine.searchAnchorScreens(vectorJson, 14),
+          isSituationalActive
+            ? ScreenFieldEmbeddingService.searchFields(vector, {
+                fields: ['WHERE_TO_USE', 'WHERE_NOT_TO_USE'],
+                limit: 10,
+                minSimilarity: 0.35,
+              })
+            : Promise.resolve([]),
         ]);
 
-        seedScreens.forEach((s) => rawAnchors.push(s));
+        // Integrate situational field matches as seed anchors
+        const situationalSeeds: DenseSeedScreen[] = [];
+        for (const sf of situationalFields) {
+          if (sf.screen && !seedScreens.some((s) => s.id === sf.screenId)) {
+            situationalSeeds.push({
+              id: sf.screen.id,
+              name: sf.screen.name,
+              screenNo: sf.screen.screenNo,
+              similarity: sf.similarity,
+              appId: sf.screen.appId,
+              flowId: sf.screen.flowId,
+            });
+          }
+        }
+
+        const combinedSeeds = [...situationalSeeds, ...seedScreens];
+        combinedSeeds.forEach((s) => rawAnchors.push(s));
 
         // 3. Spreading activation graph walk
-        const anchorIds = seedScreens.map((s) => s.id);
+        const anchorIds = combinedSeeds.map((s) => s.id);
         const activatedNodes = await GraphWalkEngine.walk(anchorIds, 50);
 
         // 4. Contiguous flow stitching (reconstruct complete flows)
         // Keep top candidate flows capped to stay well under Voyage's 10k TPM limit
-        const candidateFlows = await FlowStitcher.stitchFlows(seedScreens, activatedNodes, Math.min(5, perQueryLimit * 2));
+        const candidateFlows = await FlowStitcher.stitchFlows(combinedSeeds, activatedNodes, Math.min(5, perQueryLimit * 2));
 
         // 5. Cross-Encoder Re-Ranking (rerank-2)
         let rankedFlows = candidateFlows;

@@ -10,6 +10,13 @@ export interface FieldEmbeddingCandidate {
   field: ScreenFieldType;
   sourceText: string;
   similarity: number;
+  screen?: {
+    id: string;
+    name: string;
+    screenNo: number;
+    appId: string;
+    flowId: string | null;
+  };
 }
 
 export class ScreenFieldEmbeddingService {
@@ -85,8 +92,14 @@ export class ScreenFieldEmbeddingService {
         sfe."screenId",
         sfe."field",
         sfe."sourceText",
-        1 - (sfe."embedding" <=> ${vectorJson}::vector) AS similarity
+        1 - (sfe."embedding" <=> ${vectorJson}::vector) AS similarity,
+        s."id" AS "s_id",
+        s."name" AS "s_name",
+        s."screenNo" AS "s_screenNo",
+        s."appId" AS "s_appId",
+        s."flowId" AS "s_flowId"
       FROM "ScreenFieldEmbedding" sfe
+      JOIN "Screen" s ON sfe."screenId" = s.id
       WHERE sfe."field" = ANY(${fields}::text[])
         AND sfe."model" = ${this.MODEL}
         AND (1 - (sfe."embedding" <=> ${vectorJson}::vector)) >= ${minSim}
@@ -99,6 +112,13 @@ export class ScreenFieldEmbeddingService {
       field: r.field as ScreenFieldType,
       sourceText: r.sourceText || '',
       similarity: Number(r.similarity),
+      screen: r.s_id ? {
+        id: String(r.s_id),
+        name: r.s_name,
+        screenNo: r.s_screenNo ?? 1,
+        appId: String(r.s_appId),
+        flowId: r.s_flowId ? String(r.s_flowId) : null,
+      } : undefined,
     }));
   }
 }

@@ -71,11 +71,14 @@ export class IntentRouter {
 
     // 2. Situational Intent Patterns (Where to use, when to avoid, trade-offs, drop-off, guidelines)
     const situationalTriggers = [
-      /\bwhere to use\b/,
-      /\bwhere not to use\b/,
-      /\bwhen (should|to) (i|use)\b/,
-      /\bwhy (should|do) (i|we|users)\b/,
-      /\bhow to avoid\b/,
+      /\bwhere (to|not to|should|should not) use\b/,
+      /\bwhere to avoid\b/,
+      /\bwhen (to|should|not to|should not)\b/,
+      /\bwhy (should|do|we|users)\b/,
+      /\bhow to (avoid|handle|design|prevent)\b/,
+      /\bavoid(ing)?\b/,
+      /\bprevent(ing)?\b/,
+      /\bhandling\b/,
       /\bdrop-?offs?\b/,
       /\babandonments?\b/,
       /\bfrictions?\b/,
@@ -85,6 +88,14 @@ export class IntentRouter {
       /\banti-?patterns?\b/,
       /\bpros and cons\b/,
       /\btrade-?offs?\b/,
+      /\bcognitive load\b/,
+      /\buser anxiety\b/,
+      /\bblindness\b/,
+      /\bchoice paralysis\b/,
+      /\brecovering\b/,
+      /\bpreserving\b/,
+      /\bdesigning for\b/,
+      /\bblocking modal\b/,
     ];
     let situationalScore = 0.1;
     for (const regex of situationalTriggers) {
