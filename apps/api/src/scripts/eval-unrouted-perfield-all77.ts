@@ -32,7 +32,10 @@ async function evalUnrouted() {
   console.log('Using 22s rate limit spacing for Voyage AI free tier (3 RPM)');
   console.log('======================================================\n');
 
-  const baselinePath = path.join(__dirname, '../../scratch/arm_a_full_dev_baseline.json');
+  let baselinePath = path.join(__dirname, '../../../../docs/arm_a_full_dev_baseline.json');
+  if (!fs.existsSync(baselinePath)) {
+    baselinePath = path.join(__dirname, '../../scratch/arm_a_full_dev_baseline.json');
+  }
   const baselineData = JSON.parse(fs.readFileSync(baselinePath, 'utf8'));
   const cachedDev = baselineData.results.filter((r: any) => r.ndcg10 !== null);
 
