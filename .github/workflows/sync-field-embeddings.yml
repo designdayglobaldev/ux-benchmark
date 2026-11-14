@@ -1,0 +1,80 @@
+name: Sync Screen Field Embeddings
+
+on:
+  schedule:
+    # Runs daily at 03:00 UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: 'Target scope: "benchmark" (dev benchmark gold journeys) or "all" (entire library)'
+        required: true
+        default: 'benchmark'
+        type: choice
+        options:
+          - benchmark
+          - all
+      max_screens:
+        description: 'Maximum screens to scan (enter 0 or empty for all in scope)'
+        required: false
+        default: '0'
+        type: string
+      batch_size:
+        description: 'Number of text fields per API batch (default: 24, ~3,000 tokens)'
+        required: false
+        default: '24'
+        type: string
+
+jobs:
+  sync-field-embeddings:
+    name: Sync Situational Field Embeddings
+    runs-on: ubuntu-latest
+    timeout-minutes: 360 # 6 hours max GitHub Action limit
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js & pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Monorepo Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm --filter api exec prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL || secrets.DATABASE_URL }}
+
+      - name: Run Field Embeddings Backfill
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.scope || 'benchmark' }}" = "benchmark" ]; then
+            ARGS="$ARGS --benchmark-only"
+          fi
+          
+          MAX_SCREENS="${{ github.event.inputs.max_screens || '0' }}"
+          if [ "$MAX_SCREENS" != "0" ] && [ -n "$MAX_SCREENS" ]; then
+            ARGS="$ARGS --max=$MAX_SCREENS"
+          fi
+
+          BATCH_SIZE="${{ github.event.inputs.batch_size || '24' }}"
+          if [ -n "$BATCH_SIZE" ]; then
+            ARGS="$ARGS --batch=$BATCH_SIZE"
+          fi
+
+          echo "Running backfill with arguments: $ARGS"
+          pnpm --filter api exec tsx src/scripts/backfill-field-embeddings.ts $ARGS
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL || secrets.DATABASE_URL }}
+          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
