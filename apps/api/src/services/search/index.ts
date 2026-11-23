@@ -73,10 +73,8 @@ export class CognitiveSearchEngine {
             situationalSeeds.push({
               id: sf.screen.id,
               name: sf.screen.name,
-              screenNo: sf.screen.screenNo,
+              appName: sf.screen.name || '',
               similarity: sf.similarity,
-              appId: sf.screen.appId,
-              flowId: sf.screen.flowId,
             });
           }
         }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -21,7 +22,9 @@ import {
   ShieldCheck, 
   DollarSign,
   Plus,
-  Package
+  Package,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/v1`
@@ -45,6 +48,12 @@ export function Billing() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
+  // Pagination states
+  const [txPage, setTxPage] = useState(1)
+  const [txPageSize, setTxPageSize] = useState(10)
+  const [subPage, setSubPage] = useState(1)
+  const [subPageSize, setSubPageSize] = useState(10)
+
   // New Plan form state
   const [newPlan, setNewPlan] = useState({
     code: '',
@@ -55,23 +64,37 @@ export function Billing() {
     interval: 'monthly',
   })
 
-  const fetchOverview = () => {
-    fetch(`${API_URL}/admin/billing/overview`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.subscriptions) setSubscriptions(data.subscriptions)
-        if (data.transactions) setTransactions(data.transactions)
-        if (data.ledgerStats) setLedgerStats(data.ledgerStats)
-        if (data.plans) setPlans(data.plans)
-      })
-      .catch(console.error)
+  const getAuthHeaders = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token || localStorage.getItem('token') || ''
+    return {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    }
+  }
 
-    fetch(`${API_URL}/admin/billing/rate-card`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.rates) setRates(data.rates)
-      })
-      .catch(console.error)
+  const fetchOverview = async () => {
+    try {
+      const headers = await getAuthHeaders()
+      fetch(`${API_URL}/admin/billing/overview`, { headers })
+        .then(res => res.json())
+        .then(data => {
+          if (data.subscriptions) setSubscriptions(data.subscriptions)
+          if (data.transactions) setTransactions(data.transactions)
+          if (data.ledgerStats) setLedgerStats(data.ledgerStats)
+          if (data.plans) setPlans(data.plans)
+        })
+        .catch(console.error)
+
+      fetch(`${API_URL}/admin/billing/rate-card`, { headers })
+        .then(res => res.json())
+        .then(data => {
+          if (data.rates) setRates(data.rates)
+        })
+        .catch(console.error)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   useEffect(() => {
@@ -83,9 +106,10 @@ export function Billing() {
     setLoading(true)
     setMessage('')
     try {
+      const headers = await getAuthHeaders()
       const res = await fetch(`${API_URL}/admin/billing/plans`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(newPlan),
       })
       if (res.ok) {
@@ -114,9 +138,10 @@ export function Billing() {
     setLoading(true)
     setMessage('')
     try {
+      const headers = await getAuthHeaders()
       const res = await fetch(`${API_URL}/admin/billing/rate-card`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ action, cost }),
       })
       if (res.ok) {
@@ -136,6 +161,13 @@ export function Billing() {
     .reduce((sum, t) => sum + (t.amount || 0), 0) / 100
 
   const activeSubCount = subscriptions.filter(s => s.status === 'ACTIVE').length
+
+  // Paginated slices
+  const txTotalPages = Math.max(1, Math.ceil(transactions.length / txPageSize))
+  const paginatedTransactions = transactions.slice((txPage - 1) * txPageSize, txPage * txPageSize)
+
+  const subTotalPages = Math.max(1, Math.ceil(subscriptions.length / subPageSize))
+  const paginatedSubscriptions = subscriptions.slice((subPage - 1) * subPageSize, subPage * subPageSize)
 
   return (
     <>
@@ -284,7 +316,7 @@ export function Billing() {
                           </td>
                         </tr>
                       ) : (
-                        transactions.map(t => (
+                        paginatedTransactions.map(t => (
                           <tr key={t.id} className="hover:bg-muted/30 transition-colors">
                             <td className="p-4">
                               <div className="font-medium text-foreground">{t.user?.email || t.userId}</div>
@@ -316,6 +348,40 @@ export function Billing() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Transactions Pagination Footer */}
+                {transactions.length > 0 && (
+                  <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20 text-xs text-muted-foreground">
+                    <div>
+                      Showing {(txPage - 1) * txPageSize + 1} to {Math.min(txPage * txPageSize, transactions.length)} of {transactions.length} records
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={txPage <= 1}
+                        onClick={() => setTxPage(p => Math.max(1, p - 1))}
+                        className="h-8 px-2 gap-1"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        Previous
+                      </Button>
+                      <span className="text-xs font-medium px-2 text-foreground">
+                        Page {txPage} of {txTotalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={txPage >= txTotalPages}
+                        onClick={() => setTxPage(p => Math.min(txTotalPages, p + 1))}
+                        className="h-8 px-2 gap-1"
+                      >
+                        Next
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -355,7 +421,7 @@ export function Billing() {
                           </td>
                         </tr>
                       ) : (
-                        subscriptions.map(s => (
+                        paginatedSubscriptions.map(s => (
                           <tr key={s.id} className="hover:bg-muted/30 transition-colors">
                             <td className="p-4">
                               <div className="font-medium text-foreground">{s.user?.name || 'Customer'}</div>
@@ -389,6 +455,40 @@ export function Billing() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Subscriptions Pagination Footer */}
+                {subscriptions.length > 0 && (
+                  <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20 text-xs text-muted-foreground">
+                    <div>
+                      Showing {(subPage - 1) * subPageSize + 1} to {Math.min(subPage * subPageSize, subscriptions.length)} of {subscriptions.length} subscriptions
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={subPage <= 1}
+                        onClick={() => setSubPage(p => Math.max(1, p - 1))}
+                        className="h-8 px-2 gap-1"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        Previous
+                      </Button>
+                      <span className="text-xs font-medium px-2 text-foreground">
+                        Page {subPage} of {subTotalPages}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={subPage >= subTotalPages}
+                        onClick={() => setSubPage(p => Math.min(subTotalPages, p + 1))}
+                        className="h-8 px-2 gap-1"
+                      >
+                        Next
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

@@ -69,12 +69,19 @@ export async function createSubscription(planCode: 'PRO_MONTHLY' | 'PRO_ANNUAL' 
 }
 
 export async function verifyPaymentSignature(payload: {
-  razorpayPaymentId: string;
-  razorpaySubscriptionId: string;
-  razorpaySignature: string;
+  razorpayPaymentId?: string;
+  razorpaySubscriptionId?: string;
+  razorpaySignature?: string;
+  razorpay_payment_id?: string;
+  razorpay_subscription_id?: string;
+  razorpay_signature?: string;
 }) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.access_token) return;
+
+  const paymentId = payload.razorpayPaymentId || payload.razorpay_payment_id;
+  const subscriptionId = payload.razorpaySubscriptionId || payload.razorpay_subscription_id;
+  const signature = payload.razorpaySignature || payload.razorpay_signature;
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
   const res = await fetch(`${apiUrl}/api/v1/billing/verify`, {
@@ -83,8 +90,20 @@ export async function verifyPaymentSignature(payload: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${session.access_token}`,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      razorpay_payment_id: paymentId,
+      razorpay_subscription_id: subscriptionId,
+      razorpay_signature: signature,
+      razorpayPaymentId: paymentId,
+      razorpaySubscriptionId: subscriptionId,
+      razorpaySignature: signature,
+    }),
   });
+
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.error || errorBody.message || 'Verification failed');
+  }
 
   return res.json();
 }

@@ -37,11 +37,50 @@ export const usersColumns: ColumnDef<User>[] = [
   {
     accessorKey: 'email',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title='Email' />
+      <DataTableColumnHeader column={column} title='Customer' />
     ),
-    cell: ({ row }) => (
-      <div className='w-fit ps-2 font-medium'>{row.getValue('email')}</div>
-    ),
+    cell: ({ row }) => {
+      const profile = row.original.onboardingProfile
+      return (
+        <div className='flex items-center gap-3 ps-2'>
+          {profile?.avatarUrl ? (
+            <img
+              src={profile.avatarUrl}
+              alt='Avatar'
+              className='w-7 h-7 rounded-full bg-[#BA96E6] object-cover shrink-0'
+            />
+          ) : (
+            <div className='w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-semibold shrink-0'>
+              {(row.getValue('email') as string || 'U')[0].toUpperCase()}
+            </div>
+          )}
+          <div className='flex flex-col'>
+            <span className='font-medium text-sm'>{row.getValue('email')}</span>
+            {profile?.username && (
+              <span className='text-xs text-muted-foreground'>@{profile.username}</span>
+            )}
+          </div>
+        </div>
+      )
+    },
+  },
+  {
+    id: 'onboarding',
+    header: 'Onboarding Status',
+    cell: ({ row }) => {
+      const profile = row.original.onboardingProfile
+      const isOnboarded = profile?.isOnboarded
+      return (
+        <div className='flex items-center gap-2'>
+          <Badge variant={isOnboarded ? 'default' : 'outline'} className={cn(isOnboarded && "bg-emerald-600 text-white")}>
+            {isOnboarded ? 'Completed' : 'Pending'}
+          </Badge>
+          {profile?.role && (
+            <span className='text-xs text-muted-foreground'>({profile.role})</span>
+          )}
+        </div>
+      )
+    },
   },
   {
     accessorKey: 'tier',

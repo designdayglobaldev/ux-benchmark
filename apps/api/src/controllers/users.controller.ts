@@ -5,11 +5,13 @@ export const getClientUsers = async (req: Request, res: Response) => {
   try {
     const users = await prisma.clientUser.findMany({
       include: {
+        onboardingProfile: true,
         usages: {
           orderBy: [{ year: 'desc' }, { month: 'desc' }],
           take: 1, // Only get current month usage
         },
       },
+      orderBy: { createdAt: 'desc' },
     });
     res.status(200).json(users);
   } catch (error) {

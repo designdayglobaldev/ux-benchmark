@@ -240,6 +240,8 @@ model ClientUser {
   tierOverrideReason  String?
   welcomeGrantedAt    DateTime?
   permissions         String[]             @default([])
+
+  onboardingProfile   UserOnboardingProfile?
   usages              AiUsage[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
@@ -257,6 +259,44 @@ model ClientUser {
   aiRequestLogs        AiRequestLog[]
   adminAuditsGiven     AdminAuditLog[]      @relation("AdminActor")
   adminAuditsReceived  AdminAuditLog[]      @relation("AdminTarget")
+}
+
+// Dedicated Onboarding & Profile model (Option A)
+model UserOnboardingProfile {
+  id               String      @id @default(uuid())
+  userId           String      @unique
+  user             ClientUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username         String      @unique
+  avatarUrl        String?     // e.g. "/Avatars/42.svg"
+  role             String?     // e.g. "Product Designer"
+  biggestChallenge String?     // e.g. "Proving design decisions with real benchmarks"
+  isOnboarded      Boolean     @default(false)
+  completedAt      DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([username])
+  @@index([role])
+}
+
+// Dynamic Admin-Configured Onboarding Options
+enum OnboardingOptionType {
+  ROLE
+  CHALLENGE
+}
+
+model OnboardingOption {
+  id          String               @id @default(uuid())
+  type        OnboardingOptionType // ROLE or CHALLENGE
+  label       String               // Display text
+  description String?              // Optional subtitle / prompt
+  iconName    String?              // Lucide icon identifier e.g. "PenTool", "BarChart3"
+  sortOrder   Int                  @default(0)
+  isActive    Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([type, isActive, sortOrder])
 }
 
 model AiUsage {

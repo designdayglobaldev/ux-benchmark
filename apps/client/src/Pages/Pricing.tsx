@@ -7,6 +7,8 @@ import {
   verifyPaymentSignature,
   pollSubscriptionUntilActive,
 } from '../lib/billing';
+import { invalidateBillingStatus } from '../hooks/queries/useBillingStatus';
+import { PaymentSuccessModal } from '../components/PaymentSuccessModal';
 
 export function Pricing() {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ export function Pricing() {
   const [isLoading, setIsLoading] = useState(false);
   const [pollingStatus, setPollingStatus] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // FAQ open/close accordion state (default first item open)
   const [openFaq, setOpenFaq] = useState<number | null>(0);
@@ -59,14 +62,14 @@ export function Pricing() {
               (_finalStatus) => {
                 setPollingStatus(null);
                 setIsLoading(false);
-                alert('🎉 Welcome to Zibo PRO! Your subscription and 1,000 monthly credits are active.');
-                navigate('/apps');
+                invalidateBillingStatus();
+                setShowSuccessModal(true);
               },
               () => {
                 setPollingStatus(null);
                 setIsLoading(false);
-                alert('Your payment was received and is processing. Your PRO features will activate in a few moments.');
-                navigate('/apps');
+                invalidateBillingStatus();
+                setShowSuccessModal(true);
               }
             );
           } catch (e: any) {
@@ -124,6 +127,12 @@ export function Pricing() {
 
   return (
     <div className="min-h-screen bg-[#111111] text-white flex flex-col items-center relative overflow-x-hidden selection:bg-[#FF924A]/30">
+      {/* Payment Success Modal (Figma Desktop - 105) */}
+      <PaymentSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
+
       {/* Status Banners */}
       {errorMessage && (
         <div className="fixed top-20 z-50 max-w-md w-full px-4">

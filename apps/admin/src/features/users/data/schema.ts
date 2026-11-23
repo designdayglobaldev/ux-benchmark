@@ -42,5 +42,13 @@ const _userSchema = z.object({
       promptsUsed: z.number(),
     })
   ).optional(),
+  onboardingProfile: z.object({
+    id: z.string(),
+    username: z.string().nullable().optional(),
+    avatarUrl: z.string().nullable().optional(),
+    role: z.string().nullable().optional(),
+    biggestChallenge: z.string().nullable().optional(),
+    isOnboarded: z.boolean().optional(),
+  }).nullable().optional(),
 })
 export type User = z.infer<typeof _userSchema>

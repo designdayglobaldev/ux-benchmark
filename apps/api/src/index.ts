@@ -33,6 +33,8 @@ import featureFlagRoutes from './routes/feature-flag.routes';
 import queueRoutes from './routes/queue.routes';
 import { billingRouter, fulfilCharge } from './routes/billing.routes';
 import { adminBillingRouter } from './routes/admin-billing.routes';
+import onboardingRoutes from './routes/onboarding.routes';
+import adminOnboardingRoutes from './routes/admin-onboarding.routes';
 import { authenticateUser } from './middleware/auth.middleware';
 import crypto from 'crypto';
 import './queues/workers'; // Initialize BullMQ background workers
@@ -102,16 +104,33 @@ app.post(
       }
 
       // 2. Dispatch to event handler (Pages 15-16 of Implementation Plan)
-      if (event === 'subscription.charged') {
+      if (
+        event === 'subscription.charged' ||
+        event === 'subscription.activated' ||
+        event === 'payment.captured' ||
+        event === 'order.paid'
+      ) {
         const payment = payload.payload?.payment?.entity;
         const subscription = payload.payload?.subscription?.entity;
-        const userId = subscription?.notes?.userId || payment?.notes?.userId;
+        const subId = subscription?.id || payment?.subscription_id || payment?.notes?.subscriptionId;
+        let userId = subscription?.notes?.userId || payment?.notes?.userId;
 
-        if (userId && payment?.id && subscription?.id) {
+        // Fallback: If notes.userId was not attached, find user by subscription ID in database
+        if (!userId && subId) {
+          const subRecord = await prisma.userSubscription.findUnique({
+            where: { razorpaySubId: subId },
+            select: { userId: true },
+          });
+          if (subRecord) {
+            userId = subRecord.userId;
+          }
+        }
+
+        if (userId && payment?.id && subId) {
           await fulfilCharge({
             userId,
             paymentId: payment.id,
-            subId: subscription.id,
+            subId,
             amountMinor: payment.amount,
             currency: payment.currency,
             paymentMethod: payment.method,
@@ -161,6 +180,8 @@ app.use('/api/v1/feature-flags', featureFlagRoutes);
 app.use('/api/v1/queues', queueRoutes);
 app.use('/api/v1/billing', billingRouter);
 app.use('/api/v1/admin', adminBillingRouter);
+app.use('/api/v1/onboarding', onboardingRoutes);
+app.use('/api/v1/admin/onboarding', adminOnboardingRoutes);
 
 const PORT = process.env.PORT || 4000;
 

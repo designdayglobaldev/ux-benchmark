@@ -18,12 +18,13 @@ import { AIWorkspace } from "./Pages/AIWorkspace"
 import { SharedBoard } from "./Pages/SharedBoard"
 import { InspectContext } from "./contexts/InspectContext"
 import { AuthProvider } from "./contexts/AuthContext"
+import { UpgradeProvider } from "./contexts/UpgradeContext";
+import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { Login } from "./Pages/Login"
 import { Register } from "./Pages/Register"
 import { AppProtectedRoute } from "./components/Layout/AppProtectedRoute";
 import { lazy, Suspense } from "react";
 import { Pricing } from "./Pages/Pricing";
-import { UpgradeProvider } from "./contexts/UpgradeContext";
 import { UpgradeModal } from "./components/Pricing/UpgradeModal";
 import { useFeatureFlag } from "./hooks/useFeatureFlag";
 import { Navigate } from "react-router-dom";
@@ -99,9 +100,10 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <UpgradeProvider>
-            <InspectContext.Provider value={{ isInspectMode, setIsInspectMode }}>
-              <BrowserRouter>
-            <Routes>
+            <OnboardingProvider>
+              <InspectContext.Provider value={{ isInspectMode, setIsInspectMode }}>
+                <BrowserRouter>
+              <Routes>
             {/* Routes with Navbar */}
             <Route element={<MainLayout />}>
               {/* AI Workspace is primary Home (/) & dedicated clean /aiworkspace/c/:id */}
@@ -155,8 +157,9 @@ function App() {
             </Routes>
           </BrowserRouter>
         </InspectContext.Provider>
-      </UpgradeProvider>
-    </AuthProvider>
+      </OnboardingProvider>
+    </UpgradeProvider>
+  </AuthProvider>
     </QueryClientProvider>
     </ErrorBoundary>
   )

@@ -22,6 +22,7 @@ import {
   FileWarning,
   SlidersHorizontal,
   CreditCard,
+  Sparkles,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -116,6 +117,11 @@ export const sidebarData: SidebarData = {
           title: 'Client Users',
           url: '/client-users',
           icon: Users,
+        },
+        {
+          title: 'Onboarding Flow',
+          url: '/onboarding',
+          icon: Sparkles,
         },
         {
           title: 'Billing & Subscriptions',

@@ -12,22 +12,34 @@ import {
 import { SearchModal } from "@/components/SearchModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUpgradeModal } from "@/contexts/UpgradeContext";
+import { useOnboarding } from "@/contexts/OnboardingContext";
+import { useBillingStatus } from "@/hooks/queries/useBillingStatus";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Logo from "@/assets/Logo.png";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const { user, signOut } = useAuth();
   const { openUpgradeModal } = useUpgradeModal();
+  const { openOnboarding } = useOnboarding();
+  const { data: billing } = useBillingStatus();
+  const isPro = billing?.tier === 'PRO' || billing?.tier === 'PREMIUM' || billing?.subscription?.status === 'ACTIVE';
   const navigate = useNavigate();
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // Derive initial for avatar (matching design letter or user initial)
-  const userInitial = user?.email
-    ? user.email.charAt(0).toUpperCase()
-    : "J";
+  // Extract saved avatar URL and display username/handle
+  const savedAvatarUrl = user?.user_metadata?.avatar_url;
+  const savedUsername = user?.user_metadata?.username;
+  const isOnboarded = user?.user_metadata?.onboarding_completed;
+  const displayName = savedUsername ? `@${savedUsername}` : user?.email?.split('@')[0];
+
+  // Derive initial for avatar fallback
+  const userInitial = displayName
+    ? displayName.replace('@', '').charAt(0).toUpperCase()
+    : (user?.email?.charAt(0).toUpperCase() || "U");
 
   const isWorkspaceActive = location.pathname === "/" || location.pathname.startsWith("/ai-workspace");
   const isAppsActive = 
@@ -151,29 +163,68 @@ export function Navbar() {
                 <button
                   type="button"
                   aria-label="User Profile Menu"
-                  className="w-[32px] h-[32px] rounded-full bg-[#3d2b1f] border border-[#6b4c37]/60 text-[#d4a373] flex items-center justify-center font-medium text-[13px] hover:opacity-90 transition-opacity cursor-pointer shadow-sm focus:outline-none"
+                  className="rounded-full hover:opacity-90 transition-opacity cursor-pointer shadow-sm focus:outline-none ring-1 ring-white/10 hover:ring-white/30"
                 >
-                  {userInitial}
+                  <Avatar className="w-[32px] h-[32px]">
+                    {savedAvatarUrl && (
+                      <AvatarImage
+                        src={savedAvatarUrl}
+                        alt={displayName || "Avatar"}
+                        className="bg-[#BA96E6]"
+                      />
+                    )}
+                    <AvatarFallback className="bg-[#3d2b1f] text-[#d4a373] text-[13px] border border-[#6b4c37]/60">
+                      {userInitial}
+                    </AvatarFallback>
+                  </Avatar>
                 </button>
               </PopoverTrigger>
 
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[230px] p-2 bg-[#141414] border border-[#262626] rounded-xl text-white shadow-2xl z-50"
+                className="w-[240px] p-2 bg-[#141414] border border-[#262626] rounded-xl text-white shadow-2xl z-50"
               >
                 {/* User Info Header */}
                 <div className="px-3 py-2.5 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#3d2b1f] text-[#d4a373] flex items-center justify-center font-medium text-xs border border-[#6b4c37]/50 shrink-0">
-                    {userInitial}
-                  </div>
+                  <Avatar className="w-9 h-9">
+                    {savedAvatarUrl && (
+                      <AvatarImage
+                        src={savedAvatarUrl}
+                        alt={displayName || "Avatar"}
+                        className="bg-[#BA96E6]"
+                      />
+                    )}
+                    <AvatarFallback className="bg-[#3d2b1f] text-[#d4a373] text-xs border border-[#6b4c37]/50">
+                      {userInitial}
+                    </AvatarFallback>
+                  </Avatar>
+
                   <div className="flex flex-col min-w-0">
-                    <p className="text-[13px] font-medium text-white truncate">
+                    {savedUsername && (
+                      <p className="text-[13.5px] font-semibold text-white truncate">
+                        @{savedUsername}
+                      </p>
+                    )}
+                    <p className="text-[12px] text-[#A0A0A0] truncate">
                       {user.email}
                     </p>
-                    <span className="text-[11px] text-[#888888]">
-                      Free Plan
-                    </span>
+                    {isPro ? (
+                      <span
+                        className="text-[11px] font-semibold mt-0.5"
+                        style={{
+                          background: "linear-gradient(96.75deg, #FF7213 0.78%, #EF27A3 99.22%)",
+                          WebkitBackgroundClip: "text",
+                          WebkitTextFillColor: "transparent",
+                        }}
+                      >
+                        PRO Plan
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-medium text-[#888888] mt-0.5">
+                        Free Plan
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -181,6 +232,20 @@ export function Navbar() {
 
                 {/* Navigation Items */}
                 <div className="flex flex-col gap-0.5">
+                  {!isOnboarded && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        openOnboarding();
+                      }}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#CCCCCC] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
+                    >
+                      <FolderKanban className="w-4 h-4 text-[#888888]" />
+                      <span>Setup Profile</span>
+                    </button>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => {
@@ -189,21 +254,23 @@ export function Navbar() {
                     }}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#CCCCCC] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
                   >
-                    <FolderKanban className="w-4 h-4 text-[#888888]" />
+                    <Bookmark className="w-4 h-4 text-[#888888]" />
                     <span>Collections</span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsProfileOpen(false);
-                      openUpgradeModal();
-                    }}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#CCCCCC] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
-                  >
-                    <Sparkles className="w-4 h-4 text-[#d4a373]" />
-                    <span>Upgrade to PRO</span>
-                  </button>
+                  {!isPro && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        openUpgradeModal();
+                      }}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] text-[#CCCCCC] hover:text-white hover:bg-[#202020] transition-colors text-left cursor-pointer w-full"
+                    >
+                      <Sparkles className="w-4 h-4 text-[#d4a373]" />
+                      <span>Upgrade to PRO</span>
+                    </button>
+                  )}
                 </div>
 
                 <div className="h-px bg-[#222222] my-1" />

@@ -43,13 +43,15 @@ export function authenticateUser(req: Request, res: Response, next: NextFunction
     }
   }
 
-  // Fallback to x-user-id header or body.userId for testing/internal calls
-  const headerUserId = req.headers['x-user-id'] as string;
-  const bodyUserId = req.body?.userId as string;
-  const effectiveUserId = headerUserId || bodyUserId;
-  if (effectiveUserId) {
-    (req as any).user = { id: effectiveUserId };
-    return next();
+  // Fallback to x-user-id header or body.userId ONLY in non-production environments
+  if (process.env.NODE_ENV !== 'production') {
+    const headerUserId = req.headers['x-user-id'] as string;
+    const bodyUserId = req.body?.userId as string;
+    const effectiveUserId = headerUserId || bodyUserId;
+    if (effectiveUserId) {
+      (req as any).user = { id: effectiveUserId };
+      return next();
+    }
   }
 
   next();

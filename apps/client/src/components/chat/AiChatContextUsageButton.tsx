@@ -6,7 +6,7 @@ export function AiChatContextUsageButton() {
   const { data: billing } = useBillingStatus();
 
   // If user is PRO, their base monthly grant is 1000 credits; Free tier welcome is 50 credits
-  const isPro = billing?.tier === "PRO";
+  const isPro = billing?.tier === "PRO" || billing?.tier === "PREMIUM" || billing?.subscription?.status === "ACTIVE";
   const limit = isPro ? 1000 : 50;
   const currentBalance = billing?.creditsBalance ?? 50;
   const consumed = Math.max(0, limit - currentBalance);

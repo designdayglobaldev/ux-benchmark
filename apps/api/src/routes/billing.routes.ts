@@ -79,14 +79,21 @@ billingRouter.post('/subscribe', async (req: Request, res: Response) => {
           return { error: 'ALREADY_SUBSCRIBED', status: 409, message: 'You already have an active subscription.' };
         }
 
-        // If it is an INCOMPLETE subscription created in the last 24 hours, reuse it
+        // If it is an INCOMPLETE subscription, check whether it actually exists and is usable on Razorpay
         if (existing.status === 'INCOMPLETE') {
-          return {
-            subscriptionId: existing.razorpaySubId,
-            planPriceId: price.id,
-            currency: price.currency,
-            amountMinor: price.amountMinor,
-          };
+          try {
+            const fetchedSub: any = await (razorpay.subscriptions as any).fetch(existing.razorpaySubId);
+            if (fetchedSub && fetchedSub.status === 'created' || fetchedSub.status === 'authenticated') {
+              return {
+                subscriptionId: existing.razorpaySubId,
+                planPriceId: price.id,
+                currency: price.currency,
+                amountMinor: price.amountMinor,
+              };
+            }
+          } catch (fetchErr) {
+            console.warn(`[POST /billing/subscribe] Stale subscription ${existing.razorpaySubId} not found on Razorpay, creating fresh one.`);
+          }
         }
       }
 
@@ -139,13 +146,20 @@ billingRouter.post('/subscribe', async (req: Request, res: Response) => {
 /**
  * POST /api/v1/billing/verify (Page 14 of Implementation Plan)
  * Frontend checkout callback posts payment id, subscription id, and signature.
- * Strictly grants nothing. Returns PROCESSING and relies on webhooks or fast-path polling.
+ * Verifies signature and immediately triggers idempotent fulfillment so credits and status
+ * are granted without waiting on delayed or dropped webhooks.
  */
 billingRouter.post('/verify', async (req: Request, res: Response) => {
   try {
-    const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } = req.body;
+    const userId = (req as any).user?.id || req.body.userId;
+    // Support both camelCase (from client lib) and snake_case (from raw Razorpay handler)
+    const razorpay_payment_id = req.body.razorpay_payment_id || req.body.razorpayPaymentId;
+    const razorpay_subscription_id = req.body.razorpay_subscription_id || req.body.razorpaySubscriptionId;
+    const razorpay_signature = req.body.razorpay_signature || req.body.razorpaySignature;
+
     if (!razorpay_payment_id || !razorpay_subscription_id || !razorpay_signature) {
-      return res.status(400).json({ error: 'MISSING_PAYMENT_DETAILS' });
+      console.warn('[POST /billing/verify] Missing payment details:', req.body);
+      return res.status(400).json({ error: 'MISSING_PAYMENT_DETAILS', received: req.body });
     }
 
     const secret = process.env.RAZORPAY_KEY_SECRET;
@@ -165,7 +179,37 @@ billingRouter.post('/verify', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'INVALID_SIGNATURE' });
     }
 
-    return res.json({ status: 'PROCESSING', message: 'Signature verified. Awaiting fulfillment.' });
+    // Resolve user ID from request or local subscription record
+    let targetUserId = userId;
+    let subRecord = await prisma.userSubscription.findUnique({
+      where: { razorpaySubId: razorpay_subscription_id },
+      include: { price: true },
+    });
+
+    if (!targetUserId && subRecord) {
+      targetUserId = subRecord.userId;
+    }
+
+    if (!targetUserId) {
+      return res.status(400).json({ error: 'USER_NOT_IDENTIFIED', message: 'Could not associate payment with user.' });
+    }
+
+    // Determine amount and currency
+    const amountMinor = subRecord?.price?.amountMinor || 0;
+    const currency = subRecord?.price?.currency || 'INR';
+
+    // Fulfill the charge immediately (idempotent via pay:<paymentId>)
+    await fulfilCharge({
+      userId: targetUserId,
+      paymentId: razorpay_payment_id,
+      subId: razorpay_subscription_id,
+      amountMinor,
+      currency,
+      paymentMethod: 'checkout_modal',
+      rawPayload: req.body,
+    });
+
+    return res.json({ status: 'SUCCESS', message: 'Signature verified and subscription fulfilled.' });
   } catch (err: any) {
     console.error('[POST /billing/verify] Error:', err);
     return res.status(500).json({ error: 'VERIFICATION_FAILED' });
@@ -204,9 +248,14 @@ billingRouter.get('/status', async (req: Request, res: Response) => {
     }
 
     const latestSub = user.subscriptions[0] || null;
+    const isSubActive = latestSub?.status === 'ACTIVE';
+    // User tier is PRO if active subscription or tier is PREMIUM or tierOverride
+    const effectiveTier = isSubActive || (user.tier as string) === 'PREMIUM' || (user.tier as string) === 'PRO' || user.tierOverride === 'PREMIUM'
+      ? 'PRO'
+      : 'FREE';
 
     return res.json({
-      tier: user.tier,
+      tier: effectiveTier,
       creditsBalance: user.creditsBalance,
       subscription: latestSub
         ? {
@@ -240,6 +289,16 @@ export async function fulfilCharge(params: {
   rawPayload?: any;
 }) {
   return prisma.$transaction(async (tx) => {
+    // 0. Look up the subscription to determine the exact plan and monthly credit allocation
+    const subRecord = await tx.userSubscription.findFirst({
+      where: { razorpaySubId: params.subId },
+      include: { price: true },
+    });
+
+    const creditsToGrant = subRecord?.price?.monthlyCredits && subRecord.price.monthlyCredits > 0
+      ? subRecord.price.monthlyCredits
+      : 2500;
+
     // 1. Upsert PaymentTransaction (Invariant I4, Race R6, R7)
     const transaction = await tx.paymentTransaction.upsert({
       where: { razorpayPaymentId: params.paymentId },
@@ -249,6 +308,8 @@ export async function fulfilCharge(params: {
         currency: params.currency,
         paymentMethod: params.paymentMethod,
         rawWebhookPayload: params.rawPayload,
+        planPriceId: subRecord?.planPriceId,
+        creditsGranted: creditsToGrant,
       },
       create: {
         userId: params.userId,
@@ -257,7 +318,8 @@ export async function fulfilCharge(params: {
         status: PaymentStatus.SUCCESS,
         razorpayPaymentId: params.paymentId,
         razorpaySubscriptionId: params.subId,
-        creditsGranted: 2500,
+        planPriceId: subRecord?.planPriceId,
+        creditsGranted: creditsToGrant,
         paymentMethod: params.paymentMethod,
         rawWebhookPayload: params.rawPayload,
       },
@@ -266,7 +328,7 @@ export async function fulfilCharge(params: {
     // 2. Grant monthly credits under key pay:<paymentId> (Race R6, R7)
     await CreditService.apply(tx, {
       userId: params.userId,
-      delta: 2500,
+      delta: creditsToGrant,
       type: LedgerType.MONTHLY_SUBSCRIPTION_REFILL,
       idempotencyKey: `pay:${params.paymentId}`,
       paymentId: transaction.id,
