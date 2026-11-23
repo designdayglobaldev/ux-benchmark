@@ -113,8 +113,8 @@ async function evalFusionVariants() {
           });
           if (s?.app?.slug && s?.flow?.slug) {
             resolvedMatches.push({
-              appSlug: s.appSlug || s.app.slug,
-              flowSlug: s.flow?.slug,
+              appSlug: s.app.slug,
+              flowSlug: s.flow.slug,
               similarity: fm.similarity,
             });
           }

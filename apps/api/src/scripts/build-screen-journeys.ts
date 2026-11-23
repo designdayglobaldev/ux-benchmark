@@ -48,7 +48,7 @@ export async function buildScreenJourneys(buildId: string = 'build-v1') {
   for (const [key, groupScreens] of journeyGroups.entries()) {
     const first = groupScreens[0];
     const appSlug = first.app.slug.toLowerCase().trim();
-    const flowSlug = first.flow.slug.toLowerCase().trim();
+    const flowSlug = first.flow?.slug ? first.flow.slug.toLowerCase().trim() : 'general';
     const journeySlug = `${appSlug}:${flowSlug}`;
 
     // Sort screens strictly by their original screenNo or numeric suffix in title
