@@ -1,0 +1,2955 @@
+[
+  {
+    "id": "UXB-001",
+    "query": "Fintech KYC identity verification selfie passport upload",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Biometric verification & identity document upload in banking onboarding",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "revolut",
+        "flowSlug": "post-onboarding",
+        "grade": 2,
+        "notes": "Passport verification & selfie capture flow"
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept verified Revolut KYC; dropped Coinbase/Oportun per designer verification."
+  },
+  {
+    "id": "UXB-002",
+    "query": "Corporate employee expense reimbursement receipt submission",
+    "intent": "flow",
+    "split": "dev",
+    "description": "B2B expense submission flow with itemized receipt capture",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "brex",
+        "flowSlug": "request-reimbursement",
+        "grade": 2,
+        "notes": "Full reimbursement request sequence"
+      },
+      {
+        "appSlug": "brex",
+        "flowSlug": "adding-a-receipt",
+        "grade": 1,
+        "notes": "Leaf receipt capture"
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-003",
+    "query": "Crypto non-custodial wallet 12-word seed backup security",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Web3 non-custodial recovery phrase backup & confirmation sequence",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "coinbase-wallet",
+        "flowSlug": "setting-up",
+        "grade": 2,
+        "notes": "Recovery phrase setup & confirmation"
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept setting-up; dropped post-onboarding."
+  },
+  {
+    "id": "UXB-004",
+    "query": "Peer to peer money transfer payment send instant cash",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Direct P2P funds transfer flow",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "cash-app",
+        "flowSlug": "transferring-money",
+        "grade": 2
+      },
+      {
+        "appSlug": "venmo",
+        "flowSlug": "transferring-money",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Cash App & Venmo; dropped PayPal."
+  },
+  {
+    "id": "UXB-005",
+    "query": "Credit card bill payment rewards cashback settlement",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Credit card statement payment with cashback rewards claim",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "cred",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "cred",
+        "flowSlug": "redeeming",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-006",
+    "query": "Interactive math lesson learning problem step solving",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Interactive STEM problem quiz flow with immediate feedback",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "brilliant",
+        "flowSlug": "completing-a-lesson-math",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "brilliant",
+        "flowSlug": "completing-the-first-lesson",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-007",
+    "query": "Project issue creation task backlog tracking kanban",
+    "intent": "flow",
+    "split": "dev",
+    "description": "New ticket/issue creation modal with fields and assignment",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "linear",
+        "flowSlug": "creating-an-issue",
+        "grade": 2,
+        "notes": "Full 12-screen issue creation modal with title, metadata, and teams"
+      },
+      {
+        "appSlug": "linear",
+        "flowSlug": "moving-an-issue-to-a-project",
+        "grade": 1
+      }
+    ],
+    "reconciliationStatus": "RESTORED",
+    "reconciliationReason": "Flow linear:creating-an-issue confirmed in DB with 12 screens matching issue creation perfectly."
+  },
+  {
+    "id": "UXB-008",
+    "query": "Audio fingerprinting music track identification listening",
+    "intent": "flow",
+    "split": "dev",
+    "description": "One-tap ambient audio recognition to track detail result",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "shazam",
+        "flowSlug": "searching-finding",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "shazam",
+        "flowSlug": "listening-to-audio",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-009",
+    "query": "Fashion ecommerce shopping product bag checkout order",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Retail apparel product selection to cart checkout",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "h-and-m",
+        "flowSlug": "adding-to-cart-bag",
+        "grade": 2,
+        "notes": "Product size selection to bag and shopping cart summary"
+      },
+      {
+        "appSlug": "h-and-m",
+        "flowSlug": "product-detail",
+        "grade": 1
+      }
+    ],
+    "reconciliationStatus": "RESTORED",
+    "reconciliationReason": "Flows confirmed in DB (adding-to-cart-bag and product-detail exist with cart summary)."
+  },
+  {
+    "id": "UXB-010",
+    "query": "Destructive account deletion permanently remove profile",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Account closure flow with security confirmation and data deletion warning",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "brilliant",
+        "flowSlug": "deleting-account",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "dave",
+        "flowSlug": "deleting-removing",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "shazam",
+        "flowSlug": "deleting-deactivating-account",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-011",
+    "query": "First-time user onboarding welcome walk-through tour",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Welcome carousel introducing core product benefits",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "cred",
+        "flowSlug": "onboarding",
+        "grade": 2
+      },
+      {
+        "appSlug": "revolut",
+        "flowSlug": "onboarding",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept CRED and Revolut; dropped Spotify per designer review."
+  },
+  {
+    "id": "UXB-012",
+    "query": "Creating a social media visual lifestyle photo post",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Media upload, captioning and tag placement for content posting",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "lemon8",
+        "flowSlug": "creating-a-post",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept lemon8:creating-a-post; dropped commenting."
+  },
+  {
+    "id": "UXB-013",
+    "query": "Connecting external bank account via Plaid aggregation",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Open banking credential linkage and verification",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "brex",
+        "flowSlug": "connecting-a-bank-account",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "google-pay",
+        "flowSlug": "connecting-linking",
+        "grade": 1,
+        "notes": ""
+      },
+      {
+        "appSlug": "paypal",
+        "flowSlug": "connecting-linking",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-014",
+    "query": "Automated robo-advisor recurring investment deposit schedule",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Setting up recurring automated portfolio deposits",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "wealthfront",
+        "flowSlug": "setting-up",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept wealthfront:setting-up; dropped transfer money."
+  },
+  {
+    "id": "UXB-015",
+    "query": "Video screen recording annotation and review comments",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Async video message review, timestamped commenting and replies",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "loom",
+        "flowSlug": "commenting-on-the-video",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "loom",
+        "flowSlug": "replying-to-thread",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-016",
+    "query": "Collaborative canvas whiteboard sticky notes ideation",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Adding content, shapes and stamps to collaborative canvas",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "craft",
+        "flowSlug": "adding-content-in-a-whiteboard",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "figma",
+        "flowSlug": "browse-figjam-resources",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-017",
+    "query": "Cinema movie ticket seat selection and theater booking",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Indie cinema screening lookup, venue selection and pass redemption",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "MUBI GO provides weekly indie cinema passes, not interactive seat selection and theater booking."
+  },
+  {
+    "id": "UXB-018",
+    "query": "Relational database table column schema field configuration",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Adding typed fields, formula, and options to relational grid",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "airtable",
+        "flowSlug": "fields-tutorial",
+        "grade": 2,
+        "notes": "Comprehensive 23-screen tutorial on field configuration and formulas"
+      }
+    ],
+    "reconciliationStatus": "RESTORED",
+    "reconciliationReason": "airtable:fields-tutorial in DB has 23 screens specifically showing column types, formulas, and field configuration."
+  },
+  {
+    "id": "UXB-019",
+    "query": "AI conversational assistant chat financial advice checkup",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Chat-based AI assistant advising on budgeting and saving",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "cleo",
+        "flowSlug": "chatting-sending-messages",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept cleo chatting; dropped logging-tracking."
+  },
+  {
+    "id": "UXB-020",
+    "query": "Flight tracking live itinerary delay notifications setup",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Searching flight number, tracking itinerary and departure gate",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "flighty",
+        "flowSlug": "searching-finding",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept flighty:searching-finding; dropped editing-profile."
+  },
+  {
+    "id": "UXB-021",
+    "query": "Card contactless payment NFC Apple Pay provisioning",
+    "intent": "flow",
+    "split": "dev",
+    "description": "Adding debit or credit card to digital wallet NFC passes",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Apple Wallet flow in library covers pass tracking, not card provisioning."
+  },
+  {
+    "id": "UXB-022",
+    "query": "Corporate card spend limit increase request workflow",
+    "intent": "flow",
+    "split": "test",
+    "description": "Employee policy limit increase submission with justification",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "brex",
+        "flowSlug": "requesting-new-spend-limit",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "brex",
+        "flowSlug": "request-reimbursement",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-023",
+    "query": "Music streaming playlist curation annual listening review wrapped",
+    "intent": "flow",
+    "split": "test",
+    "description": "Year in review listening habits recap carousel",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "spotify",
+        "flowSlug": "wrapped",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "spotify",
+        "flowSlug": "home",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-024",
+    "query": "Document rich text formatting typographic styles heading layout",
+    "intent": "flow",
+    "split": "test",
+    "description": "Document editor typographic styling and text hierarchy",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "craft",
+        "flowSlug": "editing-text-formatting-styles",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "linear",
+        "flowSlug": "editing-text-formatting",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-025",
+    "query": "Design review canvas pin comment thread feedback",
+    "intent": "flow",
+    "split": "test",
+    "description": "Placing canvas-specific design review comments and replies",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "figma",
+        "flowSlug": "adding-a-comment",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "figma",
+        "flowSlug": "reacting-to-a-comment",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-026",
+    "query": "Emergency paycheck cash advance overdraft protection loan flow",
+    "intent": "flow",
+    "split": "test",
+    "description": "Requesting small cash advance against upcoming direct deposit",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "dave",
+        "flowSlug": "adding-creating",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (Partially relatable to Oportun, but not relatable to dave.)."
+  },
+  {
+    "id": "UXB-027",
+    "query": "Web browser mobile AI browse summarizing search query flow",
+    "intent": "flow",
+    "split": "test",
+    "description": "AI-assisted web browsing search and synthesis flow",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "arc-search",
+        "flowSlug": "searching-finding",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "arc-search",
+        "flowSlug": "enabling-disabling",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-028",
+    "query": "STEM data science course module interactive quiz progression",
+    "intent": "flow",
+    "split": "test",
+    "description": "Progressing through interactive computer science lesson",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "brilliant",
+        "flowSlug": "completing-a-lesson-data",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (This flow is not specifc to Compter science domain, but it involves data analysis (data) and albegra (math) flow)."
+  },
+  {
+    "id": "UXB-029",
+    "query": "Online clothing store size guide measurement selector",
+    "intent": "flow",
+    "split": "test",
+    "description": "Checking body measurements against apparel fit chart",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not found by designer (Mentioned flow is not there for H&M in zibo yet)."
+  },
+  {
+    "id": "UXB-030",
+    "query": "Crypto token swap decentralized exchange conversion flow",
+    "intent": "flow",
+    "split": "test",
+    "description": "Exchanging crypto assets with slippage and network fee approval",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "coinbase-wallet",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "coinbase-wallet",
+        "flowSlug": "purchasing-ordering",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-031",
+    "query": "Project ticket triage backlog filtering by status and assignee",
+    "intent": "flow",
+    "split": "test",
+    "description": "Issue tracker inbox filter and prioritization workflow",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "linear",
+        "flowSlug": "filtering-inbox",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (\"Filtering inbox\" flow matches, \"Inbox\" flow doesnt.)."
+  },
+  {
+    "id": "UXB-032",
+    "query": "Peer payment split restaurant bill request money friends",
+    "intent": "flow",
+    "split": "test",
+    "description": "Splitting group tab and requesting shared charges",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "venmo",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (In paypal and venmo, the transfer money flow doesn't involves splitting and requesting money. But cash app has a similar flow by creating a money pool.)."
+  },
+  {
+    "id": "UXB-033",
+    "query": "Team member workspace collaborator invite permissions workflow",
+    "intent": "flow",
+    "split": "test",
+    "description": "Inviting colleagues via email and configuring editor roles",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "airtable",
+        "flowSlug": "managing-collaborators",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (Craft doesn't have a \"share export\" flow. But the airtable flow matches)."
+  },
+  {
+    "id": "UXB-034",
+    "query": "Loyalty reward scratch card coins redemption voucher flow",
+    "intent": "flow",
+    "split": "test",
+    "description": "Unlocking gamified shopping reward perks and cashback",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [
+      {
+        "appSlug": "cred",
+        "flowSlug": "redeeming",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "google-pay",
+        "flowSlug": "redeeming",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-035",
+    "query": "Family group shared budget debit allowance card setup",
+    "intent": "flow",
+    "split": "test",
+    "description": "Setting up family banking account with parental controls",
+    "expectedPrimaryRoutes": [
+      "flow"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (Doesn't match. No flow related to family account set-up.)."
+  },
+  {
+    "id": "UXB-036",
+    "query": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Anti-pattern guidelines on avoiding chatbot interfaces for complex wire transfers",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "cleo",
+        "flowSlug": "chatting-sending-messages",
+        "grade": 2,
+        "notes": "Direct whereNotToUse advice on conversational UI vs structured forms"
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Cleo; dropped Dave."
+  },
+  {
+    "id": "UXB-037",
+    "query": "How to handle high cognitive load in multi-account balance overviews",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Information architecture rationale for consolidating fragmented account balances",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "cred",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": "Multi-account financial dashboard cognitive load rationale"
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept CRED; dropped Wealthfront."
+  },
+  {
+    "id": "UXB-038",
+    "query": "Irreversible backend transaction confirmation blocking modal pattern",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Full-screen non-dismissible state for backend processing",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "cred",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": "Explicitly labeled for irreversible backend commits"
+      },
+      {
+        "appSlug": "cash-app",
+        "flowSlug": "transferring-money",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": ""
+  },
+  {
+    "id": "UXB-039",
+    "query": "Where to avoid using swipe-to-confirm in non-destructive flows",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Guidance on when swipe-to-confirm adds unnecessary friction",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Neither Cash App nor CRED transfer flows contain swipe-to-confirm interaction."
+  },
+  {
+    "id": "UXB-040",
+    "query": "When to display full-page interstitial versus inline permission priming",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Design trade-offs between modal push permission vs contextual inline trigger",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Permission priming pattern absent from screens."
+  },
+  {
+    "id": "UXB-041",
+    "query": "Recovering user trust after failed identity document camera scan",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Graceful degradation fallback when camera OCR fails glare detection",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "revolut",
+        "flowSlug": "post-onboarding",
+        "grade": 2,
+        "notes": "Camera glare detection and document fallback"
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Revolut; dropped Coinbase."
+  },
+  {
+    "id": "UXB-042",
+    "query": "Avoiding banner blindness in transactional receipt screens",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Positioning post-transaction upsells without masking payment receipt details",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "google-pay",
+        "flowSlug": "transferring-money",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Google Pay; dropped Brex."
+  },
+  {
+    "id": "UXB-043",
+    "query": "When to require two-step confirmation for destructive workspace entity deletion",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Safeguards against accidental ticket or record destruction in productivity apps",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Neither Linear nor Airtable flows contain two-step destructive deletion modal."
+  },
+  {
+    "id": "UXB-044",
+    "query": "Managing user anxiety during multi-minute asynchronous banking verification",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Progress state UX during backend compliance latency",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Progress states absent from library flows."
+  },
+  {
+    "id": "UXB-045",
+    "query": "Where not to use gamified scratch cards in financial apps",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Compliance and brand risk guidelines for gamified cashbacks",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "cred",
+        "flowSlug": "redeeming",
+        "grade": 2,
+        "notes": "Gamified reward cashbacks"
+      },
+      {
+        "appSlug": "google-pay",
+        "flowSlug": "redeeming",
+        "grade": 1
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": ""
+  },
+  {
+    "id": "UXB-046",
+    "query": "Designing for low-bandwidth offline connectivity during audio identification",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Caching audio query and syncing offline recognitions",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "shazam",
+        "flowSlug": "searching-finding",
+        "grade": 2,
+        "notes": "Offline audio query caching"
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Shazam; dropped Spotify."
+  },
+  {
+    "id": "UXB-047",
+    "query": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Security friction timing: viewing private seed vs signing routine transaction",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Screens only show setting toggles, not transaction re-authentication friction."
+  },
+  {
+    "id": "UXB-048",
+    "query": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Highlighting recommended tier without obfuscating monthly vs annual costs",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "brilliant",
+        "flowSlug": "subscribing-to-brilliant",
+        "grade": 2,
+        "notes": "Subscription pricing comparison table"
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Brilliant; dropped Spotify."
+  },
+  {
+    "id": "UXB-049",
+    "query": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Information hierarchy guidance for high-density mobile preferences",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "venmo",
+        "flowSlug": "editing-profile",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "cred",
+        "flowSlug": "editing-profile",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "dave",
+        "flowSlug": "editing-profile",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-050",
+    "query": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Chunking long regulatory questionnaires with micro-progress indicators",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "oportun",
+        "flowSlug": "onboarding",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "brex",
+        "flowSlug": "requesting-new-spend-limit",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-051",
+    "query": "How to design soft paywalls that preserve content exploration before login",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Allowing users to preview curated cinema or education catalog before registering",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "mubi-go",
+        "flowSlug": "home",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "brilliant",
+        "flowSlug": "onboarding",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-052",
+    "query": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Keyboard dismissal and viewport cramping anti-patterns on mobile sheets",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "linear",
+        "flowSlug": "creating-an-issue",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "craft",
+        "flowSlug": "adding-content-in-a-whiteboard",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-053",
+    "query": "Preserving user input context during unexpected session expiration",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Draft preservation and re-authentication overlay without wiping form state",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Pattern absent from flows."
+  },
+  {
+    "id": "UXB-054",
+    "query": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Disabling unavailable size swatches while offering back-in-stock notifications",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "h-and-m",
+        "flowSlug": "product-detail",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "h-and-m",
+        "flowSlug": "size-guide",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-055",
+    "query": "When to prompt users for app store rating without disrupting critical tasks",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Triggering rating dialogues only following celebratory positive milestone",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Bug by designers; screens do not show app store rating triggers."
+  },
+  {
+    "id": "UXB-056",
+    "query": "Where not to use push notification priming during cold app launch",
+    "intent": "situational",
+    "split": "dev",
+    "description": "Cold launch system modal spam vs value-triggered priming",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Cold launch push priming modals not present in screens."
+  },
+  {
+    "id": "UXB-057",
+    "query": "When to display QR code camera viewfinder directly on home tab",
+    "intent": "situational",
+    "split": "test",
+    "description": "Camera as primary affordance in offline-to-online peer retail payments",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "cred",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "cash-app",
+        "flowSlug": "transferring-money",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-058",
+    "query": "How to communicate slippage risk during volatile decentralized crypto swaps",
+    "intent": "situational",
+    "split": "test",
+    "description": "Visual warnings for price impact exceeding normal thresholds",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (nothing is there related to slipage rist)."
+  },
+  {
+    "id": "UXB-059",
+    "query": "Avoiding accidental financial transfers with distinct confirmation friction",
+    "intent": "situational",
+    "split": "test",
+    "description": "Review step differentiating instant debit versus standard ACH transfer",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "cash-app",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (coin base have that confirmation ,vemmo, paypal  dont have that friction)."
+  },
+  {
+    "id": "UXB-060",
+    "query": "When to use optimistic UI updates in collaborative document editing",
+    "intent": "situational",
+    "split": "test",
+    "description": "Instant local text render vs server acknowledgement in canvas comments",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "craft",
+        "flowSlug": "editing-text-formatting-styles",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "figma",
+        "flowSlug": "adding-a-comment",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-061",
+    "query": "Where not to use full-screen takeover modals in search discovery",
+    "intent": "situational",
+    "split": "test",
+    "description": "Preserving search query context and instant filter refinement",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "arc-search",
+        "flowSlug": "searching-finding",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "shazam",
+        "flowSlug": "searching-finding",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-062",
+    "query": "Minimizing churn during mandatory biometric KYC re-verification requests",
+    "intent": "situational",
+    "split": "test",
+    "description": "Explaining regulatory compliance rationale to prevent user panic",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "revolut",
+        "flowSlug": "post-onboarding",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (Revolut is okay ,oportun is not related)."
+  },
+  {
+    "id": "UXB-063",
+    "query": "How to handle empty search states with proactive recommendation chips",
+    "intent": "situational",
+    "split": "test",
+    "description": "Guiding zero-result states with trending searches and category chips",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (H&M dont have search screen , and sportify is not completely relatable)."
+  },
+  {
+    "id": "UXB-064",
+    "query": "When to separate billing address from shipping address in checkout",
+    "intent": "situational",
+    "split": "test",
+    "description": "Defaulting to same address checkbox to minimize cart drop-off",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (H&M dont have search screen , and brex dont have related screen)."
+  },
+  {
+    "id": "UXB-065",
+    "query": "Tone and copy guidelines for debt collection payment reminders",
+    "intent": "situational",
+    "split": "test",
+    "description": "Empathetic and constructive tonality to encourage user engagement without shame",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (not relatable )."
+  },
+  {
+    "id": "UXB-066",
+    "query": "When to enforce password complexity rules inline versus on submit",
+    "intent": "situational",
+    "split": "test",
+    "description": "Real-time password requirement checklist validation",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (For brillinat it dont have password guidelines , H&M dont have flows)."
+  },
+  {
+    "id": "UXB-067",
+    "query": "Where not to use infinite scroll in data-dense table exploration",
+    "intent": "situational",
+    "split": "test",
+    "description": "Pagination and fixed footer accessibility vs infinite scrolling",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (not relatable )."
+  },
+  {
+    "id": "UXB-068",
+    "query": "Handling camera permission rejection gracefully during barcode scanning",
+    "intent": "situational",
+    "split": "test",
+    "description": "Displaying manual entry fallback when camera permission is denied",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "cred",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (Cred  is relatble not shazham is not related)."
+  },
+  {
+    "id": "UXB-069",
+    "query": "When to use swipe gestures for triage vs explicit icon buttons",
+    "intent": "situational",
+    "split": "test",
+    "description": "Swipe discoverability vs explicit action buttons on desktop and mobile",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "linear",
+        "flowSlug": "inbox",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "loom",
+        "flowSlug": "replying-to-thread",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-070",
+    "query": "Designing streak protection freeze UX to prevent user demoralization",
+    "intent": "situational",
+    "split": "test",
+    "description": "Offering streak freeze repair mechanics following missed learning session",
+    "expectedPrimaryRoutes": [
+      "situational"
+    ],
+    "targets": [
+      {
+        "appSlug": "brilliant",
+        "flowSlug": "setting-a-streak-goal",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (screns are related but it dont hace freeze UX )."
+  },
+  {
+    "id": "UXB-071",
+    "query": "Segmented Control toggle for monthly versus annual billing",
+    "intent": "component",
+    "split": "dev",
+    "description": "Two-state or three-state Segmented Control component in pricing UI",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Screens do not feature segmented control toggle for billing periods."
+  },
+  {
+    "id": "UXB-072",
+    "query": "Bottom Sheet modal for bank account selection list",
+    "intent": "component",
+    "split": "dev",
+    "description": "Draggable half-sheet modal presenting selectable payment sources",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "google-pay",
+        "flowSlug": "transferring-money",
+        "grade": 2
+      },
+      {
+        "appSlug": "cash-app",
+        "flowSlug": "transferring-money",
+        "grade": 2
+      },
+      {
+        "appSlug": "cred",
+        "flowSlug": "transferring-money",
+        "grade": 1
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": ""
+  },
+  {
+    "id": "UXB-073",
+    "query": "OTP 6-digit verification Text field with automatic SMS autofill",
+    "intent": "component",
+    "split": "dev",
+    "description": "Segmented individual digit input boxes for one-time passcode",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "revolut",
+        "flowSlug": "onboarding",
+        "grade": 2
+      },
+      {
+        "appSlug": "cred",
+        "flowSlug": "onboarding",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": ""
+  },
+  {
+    "id": "UXB-074",
+    "query": "Progress Indicator multi-step stepper header for identity verification",
+    "intent": "component",
+    "split": "dev",
+    "description": "Segmented top progress bar showing current stage in KYC",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Designers verified stepper header component is not present on these screens."
+  },
+  {
+    "id": "UXB-075",
+    "query": "Interactive Slider for loan repayment term duration calculation",
+    "intent": "component",
+    "split": "dev",
+    "description": "Draggable slider component dynamically recalculating monthly installments",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Neither Oportun nor Dave has interactive repayment slider component."
+  },
+  {
+    "id": "UXB-076",
+    "query": "Filter Chip bar for apparel catalog category refinement",
+    "intent": "component",
+    "split": "dev",
+    "description": "Horizontally scrollable chips for multi-select product filtering",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "h-and-m",
+        "flowSlug": "product-filter",
+        "grade": 2,
+        "notes": "Horizontally scrollable filter categories and facet list"
+      }
+    ],
+    "reconciliationStatus": "RESTORED",
+    "reconciliationReason": "h-and-m:product-filter in DB has multi-facet category filters."
+  },
+  {
+    "id": "UXB-077",
+    "query": "Floating Action Button FAB for quick issue logging",
+    "intent": "component",
+    "split": "dev",
+    "description": "Persistent circular trigger button initiating creation modal",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Linear uses modal sheet / keyboard shortcut, not a floating action button."
+  },
+  {
+    "id": "UXB-078",
+    "query": "Custom numeric Keypad keypad for entering dollar transfer amounts",
+    "intent": "component",
+    "split": "dev",
+    "description": "Large in-app numpad with currency decimal and clear keys",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "cash-app",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": "In-app custom numpad"
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Cash App (true in-app keypad); dropped Venmo (system keyboard)."
+  },
+  {
+    "id": "UXB-079",
+    "query": "Toast notification snackbar for successful file upload confirmation",
+    "intent": "component",
+    "split": "dev",
+    "description": "Transient non-blocking status pill confirming background action",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Upload confirmation snackbar absent from flows."
+  },
+  {
+    "id": "UXB-080",
+    "query": "Stacked List grouped settings navigation with chevrons",
+    "intent": "component",
+    "split": "dev",
+    "description": "iOS-style grouped table view with trailingDisclosure chevrons",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "venmo",
+        "flowSlug": "editing-profile",
+        "grade": 2
+      },
+      {
+        "appSlug": "cred",
+        "flowSlug": "editing-profile",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": ""
+  },
+  {
+    "id": "UXB-081",
+    "query": "Avatar stack group presence indicator in collaborative canvas",
+    "intent": "component",
+    "split": "dev",
+    "description": "Overlapping circular user profile pictures showing live active editors",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "figma",
+        "flowSlug": "adding-a-comment",
+        "grade": 2
+      },
+      {
+        "appSlug": "craft",
+        "flowSlug": "adding-content-in-a-whiteboard",
+        "grade": 1
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": ""
+  },
+  {
+    "id": "UXB-082",
+    "query": "Accordion expandable disclosure panel for legal terms FAQ",
+    "intent": "component",
+    "split": "dev",
+    "description": "Vertically collapsible section headers revealing explanatory copy",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Legal terms FAQ accordions absent from screens."
+  },
+  {
+    "id": "UXB-083",
+    "query": "Carousel full-width hero banner with pagination dots",
+    "intent": "component",
+    "split": "dev",
+    "description": "Swipeable horizontal card carousel with bottom page indicators",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Screens feature onboarding pagination dots, not hero banner carousels."
+  },
+  {
+    "id": "UXB-084",
+    "query": "Date Picker calendar modal for receipt expense date selection",
+    "intent": "component",
+    "split": "dev",
+    "description": "Interactive calendar grid selecting day, month and fiscal year",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Calendar date picker modal absent from screens."
+  },
+  {
+    "id": "UXB-085",
+    "query": "Switch toggle control for biometric Face ID authentication enablement",
+    "intent": "component",
+    "split": "dev",
+    "description": "Binary toggle switch in account security settings",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Face ID toggle switch absent from screens."
+  },
+  {
+    "id": "UXB-086",
+    "query": "Empty State illustration with call to action button for empty inbox",
+    "intent": "component",
+    "split": "dev",
+    "description": "Zero-data screen state with inviting artwork and primary action trigger",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "linear",
+        "flowSlug": "inbox",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Linear inbox (contains filter empty states); dropped Craft."
+  },
+  {
+    "id": "UXB-087",
+    "query": "Color Picker palette swatch selector for canvas drawing",
+    "intent": "component",
+    "split": "dev",
+    "description": "Circular color preset swatches for pen or highlighter tool",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "craft",
+        "flowSlug": "editing-a-document-color",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": ""
+  },
+  {
+    "id": "UXB-088",
+    "query": "Camera viewfinder overlay frame for document and selfie scanning",
+    "intent": "component",
+    "split": "dev",
+    "description": "Live camera stream frame with oval face or rectangular card guide",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "revolut",
+        "flowSlug": "post-onboarding",
+        "grade": 2,
+        "notes": "Live camera viewfinder overlay for passport and selfie"
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Revolut viewfinder; dropped Coinbase."
+  },
+  {
+    "id": "UXB-089",
+    "query": "Command Palette quick switcher keyboard shortcut dialog",
+    "intent": "component",
+    "split": "test",
+    "description": "Centrally anchored Cmd+K modal for rapid project search and commands",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (Not related)."
+  },
+  {
+    "id": "UXB-090",
+    "query": "Top Navigation Bar with back button and contextual overflow menu",
+    "intent": "component",
+    "split": "test",
+    "description": "Standard mobile top app bar with navigation icon and title",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "revolut",
+        "flowSlug": "post-onboarding",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (Revolut is not related , vemo is related  )."
+  },
+  {
+    "id": "UXB-091",
+    "query": "Checkbox list for multi-select task resolution checklist",
+    "intent": "component",
+    "split": "test",
+    "description": "Square interactive checkboxes in issue description or task list",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "linear",
+        "flowSlug": "adding-a-list-checkbox",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "craft",
+        "flowSlug": "editing-text-formatting-styles",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-092",
+    "query": "Badge count notification pill on bottom tab bar icon",
+    "intent": "component",
+    "split": "test",
+    "description": "Red or colored numerical count pill indicating unread activity",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (Not related)."
+  },
+  {
+    "id": "UXB-093",
+    "query": "Search Bar with clear text button and voice search microphone icon",
+    "intent": "component",
+    "split": "test",
+    "description": "Rounded search input field with leading search icon and trailing cancel",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "shazam",
+        "flowSlug": "searching-finding",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (it have search field but dont have the microphone option )."
+  },
+  {
+    "id": "UXB-094",
+    "query": "Bottom Navigation Tab Bar with active state tinted icons",
+    "intent": "component",
+    "split": "test",
+    "description": "Five-tab persistent bottom navigation bar on mobile",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "cash-app",
+        "flowSlug": "dashboard",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "spotify",
+        "flowSlug": "home",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "venmo",
+        "flowSlug": "dashboard",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-095",
+    "query": "Swipe-to-Action table row reveal delete and archive buttons",
+    "intent": "component",
+    "split": "test",
+    "description": "Horizontal cell drag revealing contextual actions underneath",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (Not related)."
+  },
+  {
+    "id": "UXB-096",
+    "query": "Rating Control star rating dialogue with optional comment field",
+    "intent": "component",
+    "split": "test",
+    "description": "Five-star interactive rating widget for feedback submission",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (Not related )."
+  },
+  {
+    "id": "UXB-097",
+    "query": "Context Menu popup on long press for ticket item",
+    "intent": "component",
+    "split": "test",
+    "description": "Contextual floating action menu anchored to targeted item",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (Not related )."
+  },
+  {
+    "id": "UXB-098",
+    "query": "Skeleton Screen shimmer loading placeholder cards",
+    "intent": "component",
+    "split": "test",
+    "description": "Animated gray wireframe placeholders simulating card shapes during fetch",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (Not related)."
+  },
+  {
+    "id": "UXB-099",
+    "query": "Audio waveform scrubbing visualizer bar for track playback",
+    "intent": "component",
+    "split": "test",
+    "description": "Interactive amplitude waveform representing sound track preview",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (shazzam have play song but not the audio wave , loom dont have thar screen)."
+  },
+  {
+    "id": "UXB-100",
+    "query": "Video Player floating picture-in-picture PiP thumbnail",
+    "intent": "component",
+    "split": "test",
+    "description": "Minimized video playback container overlaying active UI",
+    "expectedPrimaryRoutes": [
+      "component"
+    ],
+    "targets": [
+      {
+        "appSlug": "loom",
+        "flowSlug": "commenting-on-the-video",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (both screen what mentioned in sheet realted to screen but its not floting and PIP thumbnail )."
+  },
+  {
+    "id": "UXB-101",
+    "query": "Compare money transfer flow between Cash App and Venmo",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Comparing P2P transfer steps between Cash App and Venmo",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "cash-app",
+        "flowSlug": "transferring-money",
+        "grade": 2
+      },
+      {
+        "appSlug": "venmo",
+        "flowSlug": "transferring-money",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Cash App & Venmo; dropped PayPal."
+  },
+  {
+    "id": "UXB-102",
+    "query": "Difference in KYC identity verification in Revolut versus Coinbase Wallet",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Contrasting biometric identity onboarding in neobanking vs crypto wallet",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "revolut",
+        "flowSlug": "post-onboarding",
+        "grade": 2
+      },
+      {
+        "appSlug": "coinbase-wallet",
+        "flowSlug": "post-onboarding",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "FIXED_TARGETS",
+    "reconciliationReason": "Corrected target pairing to Revolut and Coinbase Wallet as stated in query (removed Oportun)."
+  },
+  {
+    "id": "UXB-103",
+    "query": "How does Linear issue creation compare to Airtable record creation",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Fast shortcut developer ticket creation vs flexible relational field input",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "linear",
+        "flowSlug": "creating-an-issue",
+        "grade": 2
+      },
+      {
+        "appSlug": "airtable",
+        "flowSlug": "creating-a-new-record",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "RESTORED",
+    "reconciliationReason": "Both flows exist in DB with rich creation screens (linear: 12 screens, airtable: 7 screens)."
+  },
+  {
+    "id": "UXB-104",
+    "query": "Compare canvas commenting in Figma versus Loom video thread comments",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Spatial 2D coordinate pinned comments vs timestamped asynchronous video comments",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "figma",
+        "flowSlug": "adding-a-comment",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "loom",
+        "flowSlug": "commenting-on-the-video",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-105",
+    "query": "Cleo versus Dave overdraft protection and financial coaching chat",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Sassy AI agent chatbot interface vs structured micro-loan advances",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "cleo",
+        "flowSlug": "chatting-sending-messages",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "dave",
+        "flowSlug": "adding-creating",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "oportun",
+        "flowSlug": "setting-up",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-106",
+    "query": "Compare reward redemption mechanics in CRED versus Google Pay",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Gamified coins spin wheel vs direct payment cashback scratch cards",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "cred",
+        "flowSlug": "redeeming",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "google-pay",
+        "flowSlug": "redeeming",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-107",
+    "query": "Craft whiteboard tools versus Figma FigJam canvas stickies",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Structured document embedded whiteboard vs standalone vector collaboration canvas",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "craft",
+        "flowSlug": "adding-content-in-a-whiteboard",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "figma",
+        "flowSlug": "browse-figjam-resources",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-108",
+    "query": "Compare search discovery experience in Shazam versus Spotify",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Single-button ambient audio query vs faceted artist and playlist catalog search",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "shazam",
+        "flowSlug": "searching-finding",
+        "grade": 2
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept Shazam discovery; dropped Spotify home per designer feedback."
+  },
+  {
+    "id": "UXB-109",
+    "query": "PayPal vs Google Pay bank account and debit card linking flow",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Legacy web redirect card provisioning vs native OS wallet NFC linking",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "paypal",
+        "flowSlug": "connecting-linking",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "google-pay",
+        "flowSlug": "connecting-linking",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "apple-wallet",
+        "flowSlug": "setting-up",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-110",
+    "query": "Compare corporate reimbursement submission in Brex versus personal expense tracking in Cleo",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Receipt OCR and audit policy approval vs conversational expense aggregation",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "brex",
+        "flowSlug": "request-reimbursement",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "cleo",
+        "flowSlug": "logging-tracking",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-111",
+    "query": "Brilliant interactive quizzes versus Spotify onboarding preference selection",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Active problem solving evaluation vs passive taste profiling chips",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "brilliant",
+        "flowSlug": "completing-the-first-lesson",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "spotify",
+        "flowSlug": "onboarding",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-112",
+    "query": "Compare account deletion friction between Brilliant and Dave",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Self-serve subscription pause retention offer vs regulatory banking account closure",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "brilliant",
+        "flowSlug": "deleting-account",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "dave",
+        "flowSlug": "deleting-removing",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-113",
+    "query": "Arc Search browse for me AI synthesis versus Shazam quick search",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Generative multi-source web page compilation vs direct single-entity lookup",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "arc-search",
+        "flowSlug": "searching-finding",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "shazam",
+        "flowSlug": "searching-finding",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-114",
+    "query": "Wealthfront automated portfolio investing versus Coinbase crypto self-custody",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Hands-off diversified index rebalancing vs active self-custody key management",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "wealthfront",
+        "flowSlug": "setting-up",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "coinbase-wallet",
+        "flowSlug": "setting-up",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-115",
+    "query": "Compare peer to peer payment request flow across Cash App, Venmo and PayPal",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Comparing cash request notification and claim friction across three major P2P apps",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "cash-app",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "venmo",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "paypal",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-116",
+    "query": "Differences in biometric login between Apple Wallet and Google Pay",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Native FaceID device authorization vs cross-platform biometric unlock",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Neither flow shows biometric login screens."
+  },
+  {
+    "id": "UXB-117",
+    "query": "Contrast Lemon8 lifestyle feed creation with Figma canvas asset sharing",
+    "intent": "compare",
+    "split": "dev",
+    "description": "Mobile social consumer photo formatting vs pro-tier design system sharing",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked not related / incomparable by designers."
+  },
+  {
+    "id": "UXB-118",
+    "query": "Compare document hierarchy navigation in Craft versus Linear project views",
+    "intent": "compare",
+    "split": "test",
+    "description": "Nested document pages and folders vs issue cycles, projects and teams",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "craft",
+        "flowSlug": "adding-content-in-a-whiteboard",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "linear",
+        "flowSlug": "moving-an-issue-to-a-project",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-119",
+    "query": "Dave salary advance qualification versus Oportun personal loan onboarding",
+    "intent": "compare",
+    "split": "test",
+    "description": "Direct deposit checking account link vs formal credit installment application",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "dave",
+        "flowSlug": "setting-up",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "oportun",
+        "flowSlug": "onboarding",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-120",
+    "query": "Compare flight status card details in Flighty versus Apple Wallet travel passes",
+    "intent": "compare",
+    "split": "test",
+    "description": "Live aircraft radar telemetry timeline vs boarding pass QR bar code presentation",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "flighty",
+        "flowSlug": "searching-finding",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "apple-wallet",
+        "flowSlug": "logging-tracking",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-121",
+    "query": "Retail apparel product filter UX: H&M versus general ecommerce bag checkout",
+    "intent": "compare",
+    "split": "test",
+    "description": "Faceted size and color grid filtering vs immediate one-click checkout",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "h-and-m",
+        "flowSlug": "product-filter",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "h-and-m",
+        "flowSlug": "adding-to-cart-bag",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-122",
+    "query": "MUBI GO cinema pass booking versus typical retail event ticket reserving",
+    "intent": "compare",
+    "split": "test",
+    "description": "Weekly curated cinema ticket voucher vs standard seat map reservation",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "mubi-go",
+        "flowSlug": "home",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "google-pay",
+        "flowSlug": "booking-reserving",
+        "grade": 1,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-123",
+    "query": "Compare asynchronous video review in Loom versus text issue comments in Linear",
+    "intent": "compare",
+    "split": "test",
+    "description": "Rich audiovisual context with face bubble vs markdown text with code snippets",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "loom",
+        "flowSlug": "commenting-on-the-video",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (Creating an issue flows not found in linear)."
+  },
+  {
+    "id": "UXB-124",
+    "query": "Airtable formula and relational links versus Linear custom label workflows",
+    "intent": "compare",
+    "split": "test",
+    "description": "Full spreadsheet relational lookup computation vs lightweight workflow tagging",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [],
+    "reconciliationStatus": "DROPPED",
+    "reconciliationReason": "Marked Not related by designer (Airtable doesn't have the screens, while liner doesnt have the mentioned flow.)."
+  },
+  {
+    "id": "UXB-125",
+    "query": "Compare onboarding questionnaire friction: Brilliant vs Revolut",
+    "intent": "compare",
+    "split": "test",
+    "description": "Diagnostic skill assessment questions vs legal KYC tax residency compliance",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "brilliant",
+        "flowSlug": "onboarding",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "revolut",
+        "flowSlug": "onboarding",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-126",
+    "query": "Compare Venmo social payment feed privacy controls versus Cash App anonymous cashtags",
+    "intent": "compare",
+    "split": "test",
+    "description": "Public transaction feed with emoji comments vs private transaction cashtag lookups",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "venmo",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "TRIMMED",
+    "reconciliationReason": "Kept primary target; secondary trimmed per designer review (Cashapp's cashtg flow not found in transfer money. Venmo was found.)."
+  },
+  {
+    "id": "UXB-127",
+    "query": "Spotify music audio playback player versus Shazam track preview player",
+    "intent": "compare",
+    "split": "test",
+    "description": "Full playback queue with lyrics and crossfade vs 30-second snippet preview",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "spotify",
+        "flowSlug": "home",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "shazam",
+        "flowSlug": "listening-to-audio",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-128",
+    "query": "Compare card spend policies in Brex versus credit card statements in CRED",
+    "intent": "compare",
+    "split": "test",
+    "description": "Pre-spend limits and manager approval vs post-statement bill rewards settlement",
+    "expectedPrimaryRoutes": [
+      "compare"
+    ],
+    "targets": [
+      {
+        "appSlug": "brex",
+        "flowSlug": "requesting-new-spend-limit",
+        "grade": 2,
+        "notes": ""
+      },
+      {
+        "appSlug": "cred",
+        "flowSlug": "transferring-money",
+        "grade": 2,
+        "notes": ""
+      }
+    ],
+    "reconciliationStatus": "VERIFIED_CLEAN",
+    "reconciliationReason": "Confirmed valid by designer and present in DB."
+  },
+  {
+    "id": "UXB-129",
+    "query": "How to calculate gross domestic product in macroeconomics",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "General academic macroeconomic economics theory",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-130",
+    "query": "Best recipe for homemade Italian sourdough pizza dough",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Culinary recipe and food preparation query",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-131",
+    "query": "Python script to train convolutional neural network on MNIST",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Machine learning backend code without UI context",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-132",
+    "query": "What is the speed of light in vacuum in meters per second",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Physics factual constant inquiry",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-133",
+    "query": "Troubleshooting BMW 3 Series engine oil pressure sensor failure",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Automotive mechanical repair instructions",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-134",
+    "query": "History of the Peloponnesian War between Athens and Sparta",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Ancient Greek history question",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-135",
+    "query": "Kubernetes ingress controller configuration YAML for AWS EKS",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "DevOps cloud infrastructure orchestration config",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-136",
+    "query": "Symptoms and clinical diagnosis of acute appendicitis",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Medical health diagnosis advice",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-137",
+    "query": "Stock market price analysis for Tesla TSLA earnings call",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Financial equity speculation and stock market news",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-138",
+    "query": "How to install water heater plumbing copper pipe fittings",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Home improvement plumbing guide",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-139",
+    "query": "Rules of competitive curling winter olympics broom sweeping",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Sports rules inquiry",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-140",
+    "query": "C++ memory leak detection using Valgrind on Linux",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Systems programming debugging query",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-141",
+    "query": "Weather forecast for Tokyo Japan next weekend",
+    "intent": "out_of_domain",
+    "split": "dev",
+    "description": "Meteorological live weather query",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-142",
+    "query": "How to grow organic tomatoes in backyard raised garden bed",
+    "intent": "out_of_domain",
+    "split": "test",
+    "description": "Gardening horticulture agriculture advice",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-143",
+    "query": "Chemical synthesis route for ibuprofen from isobutylbenzene",
+    "intent": "out_of_domain",
+    "split": "test",
+    "description": "Organic chemistry synthesis mechanism",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-144",
+    "query": "Guitar chord progression for jazz blues in B flat",
+    "intent": "out_of_domain",
+    "split": "test",
+    "description": "Music theory and instrumental chord chart",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-145",
+    "query": "How to replace brake pads on a mountain bike hydraulic disc",
+    "intent": "out_of_domain",
+    "split": "test",
+    "description": "Bicycle mechanical maintenance guide",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-146",
+    "query": "Translate hello good morning to Japanese kanji and hiragana",
+    "intent": "out_of_domain",
+    "split": "test",
+    "description": "Linguistic language translation inquiry",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-147",
+    "query": "Quantum entanglement Einstein Podolsky Rosen paradox Bell inequality",
+    "intent": "out_of_domain",
+    "split": "test",
+    "description": "Theoretical quantum mechanics physics research",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-148",
+    "query": "How to clean hardwood flooring without damaging polyurethane finish",
+    "intent": "out_of_domain",
+    "split": "test",
+    "description": "Household cleaning and maintenance advice",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-149",
+    "query": "Rules and board layout for traditional Chinese chess Xiangqi",
+    "intent": "out_of_domain",
+    "split": "test",
+    "description": "Board game rules and strategy",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  },
+  {
+    "id": "UXB-150",
+    "query": "Tax deductible expenses for freelance contractors in Germany",
+    "intent": "out_of_domain",
+    "split": "test",
+    "description": "International taxation and legal accounting advice",
+    "expectedPrimaryRoutes": [
+      "out_of_domain"
+    ],
+    "targets": [],
+    "reconciliationStatus": "KEEP_OOD",
+    "reconciliationReason": "Negative baseline control query with no targets."
+  }
+]
