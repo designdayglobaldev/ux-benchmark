@@ -5,7 +5,6 @@ import {
   Trash2,
   Edit2,
   Check,
-  X,
   PenTool,
   BarChart3,
   Code2,

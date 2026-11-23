@@ -24,7 +24,7 @@ export function Navbar() {
   const { openUpgradeModal } = useUpgradeModal();
   const { openOnboarding } = useOnboarding();
   const { data: billing } = useBillingStatus();
-  const isPro = billing?.tier === 'PRO' || billing?.tier === 'PREMIUM' || billing?.subscription?.status === 'ACTIVE';
+  const isPro = billing?.tier === 'PRO' || (billing?.tier as string) === 'PREMIUM' || billing?.subscription?.status === 'ACTIVE';
   const navigate = useNavigate();
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);

@@ -50,9 +50,9 @@ export function Billing() {
 
   // Pagination states
   const [txPage, setTxPage] = useState(1)
-  const [txPageSize, setTxPageSize] = useState(10)
+  const [txPageSize] = useState(10)
   const [subPage, setSubPage] = useState(1)
-  const [subPageSize, setSubPageSize] = useState(10)
+  const [subPageSize] = useState(10)
 
   // New Plan form state
   const [newPlan, setNewPlan] = useState({

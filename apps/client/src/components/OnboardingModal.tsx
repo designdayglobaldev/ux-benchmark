@@ -221,11 +221,6 @@ export function OnboardingModal({ isOpen, onClose, onComplete }: OnboardingModal
     }
   };
 
-  const handleClose = () => {
-    localStorage.setItem(`zibo_onboarding_${user?.id || 'guest'}`, 'dismissed');
-    onClose();
-  };
-
   const isStep1Valid = username.trim().length >= 2 && isUsernameAvailable !== false;
 
   return (
