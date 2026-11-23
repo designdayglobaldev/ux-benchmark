@@ -1,0 +1,262 @@
+{
+  "metadata": {
+    "generatedAt": "2026-11-23T13:08:00+05:30",
+    "specificationReference": "Section 17 (Fast-Track Roadmap, Step 1)",
+    "authoritativeSourceFile": "apps/api/scratch/fusion_variants_scoreboard.json",
+    "datasetFiles": {
+      "canonicalDataset": {
+        "path": "docs/UX_BENCH_V2_DATASET.json",
+        "sha256": "2213b9300331b5d4d28322aa4612c3f59df05264fd14f46fc03b501ddb730177"
+      },
+      "reconciledDataset": {
+        "path": "docs/UX_BENCH_V2_RECONCILED.json",
+        "sha256": "e2b9f36a3a491e81778806453324f92edb4931c439aa8d5a743fb05608a8725f"
+      }
+    },
+    "note": "All baseline arms (A, A0) and fusion variants (V1, V2, V3, V4) scored strictly from the single unified scoreboard file to ensure 100% consistency."
+  },
+  "fullDevSet_77": {
+    "subsetLabel": "Full Dev Set (n=77)",
+    "queryCount": 77,
+    "summary": [
+      {
+        "armKey": "armA",
+        "armName": "Arm A (Naive Reranker)",
+        "meanNdcg10": 0.4223281183436307,
+        "meanDeltaVsA0": -0.01863757282928674,
+        "ci95": [
+          -0.0393697777387044,
+          -0.001674572653423254
+        ],
+        "pValue": 0.987
+      },
+      {
+        "armKey": "armA0",
+        "armName": "Arm A0 (Dense Only Baseline)",
+        "meanNdcg10": 0.44096569117291745,
+        "meanDeltaVsA0": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "pValue": 1
+      },
+      {
+        "armKey": "v1_rerankOnly",
+        "armName": "Variant 1 (Rerank-Only / Zero Injections)",
+        "meanNdcg10": 0.4541551757074116,
+        "meanDeltaVsA0": 0.013189484534494145,
+        "ci95": [
+          -0.019014096385261837,
+          0.045687180994137405
+        ],
+        "pValue": 0.2182
+      },
+      {
+        "armKey": "v2_top3FieldHits",
+        "armName": "Variant 2 (Capped Top-3 Field Hits)",
+        "meanNdcg10": 0.46729076695373667,
+        "meanDeltaVsA0": 0.026325075780819218,
+        "ci95": [
+          -0.015275105011844764,
+          0.06645761836636338
+        ],
+        "pValue": 0.1041
+      },
+      {
+        "armKey": "v3_lowWeight",
+        "armName": "Variant 3 (Low-Weight w=0.20 Fusion)",
+        "meanNdcg10": 0.4878884696963372,
+        "meanDeltaVsA0": 0.04692277852341975,
+        "ci95": [
+          0.007037781058821253,
+          0.08553005702185797
+        ],
+        "pValue": 0.0088
+      },
+      {
+        "armKey": "v4_currentUnrouted",
+        "armName": "Variant 4 (Full Unrouted w=0.50 Fusion)",
+        "meanNdcg10": 0.44095942874569105,
+        "meanDeltaVsA0": -0.000006262427226400025,
+        "ci95": [
+          -0.05164832488593653,
+          0.051378058189605016
+        ],
+        "pValue": 0.4947
+      }
+    ],
+    "intentBreakdown": [
+      {
+        "intent": "flow",
+        "count": 21,
+        "meanA0": 0.6588318462547859,
+        "meanVariant3": 0.675071586018514,
+        "delta": 0.016239739763728167,
+        "ci95": [
+          -0.07519726148989578,
+          0.10607982098522284
+        ],
+        "pValue": 0.3552
+      },
+      {
+        "intent": "situational",
+        "count": 21,
+        "meanA0": 0.2353991483808796,
+        "meanVariant3": 0.32366232608108014,
+        "delta": 0.08826317770020053,
+        "ci95": [
+          0.030733527870276316,
+          0.1509625374222629
+        ],
+        "pValue": 0.0008
+      },
+      {
+        "intent": "component",
+        "count": 18,
+        "meanA0": 0.2722001644564873,
+        "meanVariant3": 0.2656960814331329,
+        "delta": -0.006504083023354423,
+        "ci95": [
+          -0.07974644474051629,
+          0.06730877892176447
+        ],
+        "pValue": 0.5704
+      },
+      {
+        "intent": "compare",
+        "count": 17,
+        "meanA0": 0.6044649631028762,
+        "meanVariant3": 0.6947923851017703,
+        "delta": 0.0903274219988941,
+        "ci95": [
+          0.018958875679066622,
+          0.16022123506628594
+        ],
+        "pValue": 0.0067
+      }
+    ]
+  },
+  "verifiedDevSet_56": {
+    "subsetLabel": "Verified Dev Set (n=56, phantom targets dropped)",
+    "queryCount": 56,
+    "summary": [
+      {
+        "armKey": "armA",
+        "armName": "Arm A (Naive Reranker)",
+        "meanNdcg10": 0.508965945453943,
+        "meanDeltaVsA0": -0.023672700884917686,
+        "ci95": [
+          -0.052432609739885665,
+          -0.0016353725404557912
+        ],
+        "pValue": 0.9834
+      },
+      {
+        "armKey": "armA0",
+        "armName": "Arm A0 (Dense Only Baseline)",
+        "meanNdcg10": 0.5326386463388607,
+        "meanDeltaVsA0": 0,
+        "ci95": [
+          0,
+          0
+        ],
+        "pValue": 1
+      },
+      {
+        "armKey": "v1_rerankOnly",
+        "armName": "Variant 1 (Rerank-Only / Zero Injections)",
+        "meanNdcg10": 0.5513915756787888,
+        "meanDeltaVsA0": 0.018752929339928115,
+        "ci95": [
+          -0.02271682827797576,
+          0.05995605774532155
+        ],
+        "pValue": 0.1892
+      },
+      {
+        "armKey": "v2_top3FieldHits",
+        "armName": "Variant 2 (Capped Top-3 Field Hits)",
+        "meanNdcg10": 0.5710377509413862,
+        "meanDeltaVsA0": 0.03839910460252549,
+        "ci95": [
+          -0.013403678489762186,
+          0.08856566528746627
+        ],
+        "pValue": 0.0729
+      },
+      {
+        "armKey": "v3_lowWeight",
+        "armName": "Variant 3 (Low-Weight w=0.20 Fusion)",
+        "meanNdcg10": 0.5974818558924114,
+        "meanDeltaVsA0": 0.06484320955355072,
+        "ci95": [
+          0.016582259374064365,
+          0.11346013010889114
+        ],
+        "pValue": 0.0053
+      },
+      {
+        "armKey": "v4_currentUnrouted",
+        "armName": "Variant 4 (Full Unrouted w=0.50 Fusion)",
+        "meanNdcg10": 0.5437903338988693,
+        "meanDeltaVsA0": 0.011151687560008616,
+        "ci95": [
+          -0.05326575426955258,
+          0.07364138417624476
+        ],
+        "pValue": 0.3702
+      }
+    ],
+    "intentBreakdown": [
+      {
+        "intent": "flow",
+        "count": 19,
+        "meanA0": 0.665968116627835,
+        "meanVariant3": 0.6856509219462423,
+        "delta": 0.01968280531840738,
+        "ci95": [
+          -0.06999019236206079,
+          0.10913899983307422
+        ],
+        "pValue": 0.332
+      },
+      {
+        "intent": "situational",
+        "count": 13,
+        "meanA0": 0.3730564798153948,
+        "meanVariant3": 0.5161558597128434,
+        "delta": 0.1430993798974486,
+        "ci95": [
+          0.06229690829773711,
+          0.22678219882311848
+        ],
+        "pValue": 0.0001
+      },
+      {
+        "intent": "component",
+        "count": 9,
+        "meanA0": 0.3298280175384986,
+        "meanVariant3": 0.35734108279128823,
+        "delta": 0.027513065252789626,
+        "ci95": [
+          -0.10722680516597903,
+          0.15574880065551466
+        ],
+        "pValue": 0.3357
+      },
+      {
+        "intent": "compare",
+        "count": 15,
+        "meanA0": 0.6237455722400472,
+        "meanVariant3": 0.7003680327738587,
+        "delta": 0.0766224605338115,
+        "ci95": [
+          -0.0018658739624365075,
+          0.1549851566335369
+        ],
+        "pValue": 0.0278
+      }
+    ]
+  }
+}

@@ -1,0 +1,222 @@
+[
+  {
+    "id": "SPOT-001",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "dave",
+    "candidateFlow": "chatting-sending-messages",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-004",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "cash-app",
+    "candidateFlow": "managing-accounts",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-007",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "cred",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-010",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "logging-tracking",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-013",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-an-alert",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-016",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cred",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-019",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cash-app",
+    "candidateFlow": "transferring-money",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-022",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "linear",
+    "candidateFlow": "onboarding",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-025",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "arc-search",
+    "candidateFlow": "showing-hiding",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-028",
+    "queryId": "UXB-040",
+    "queryText": "When to display full-page interstitial versus inline permission priming",
+    "candidateApp": "shazam",
+    "candidateFlow": "searching-finding",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-031",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "reimbursement-reviewed",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-034",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-an-external-attendee",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-037",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "cred",
+    "candidateFlow": "redeeming",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-040",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "arc-search",
+    "candidateFlow": "login",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-043",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "spotify",
+    "candidateFlow": "home",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-046",
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "candidateApp": "cash-app",
+    "candidateFlow": "managing-accounts",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-049",
+    "queryId": "UXB-047",
+    "queryText": "When to enforce biometric re-authentication for sensitive wallet actions",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "setting-up",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-052",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "arc-search",
+    "candidateFlow": "archiving",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-055",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "cred",
+    "candidateFlow": "editing-profile",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-058",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "linear",
+    "candidateFlow": "adding-an-assignee",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-061",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "sale-info",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  },
+  {
+    "id": "SPOT-064",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "product-filter",
+    "grade": null,
+    "noRelevantFlowInLibrary": false,
+    "rationaleNotes": ""
+  }
+]

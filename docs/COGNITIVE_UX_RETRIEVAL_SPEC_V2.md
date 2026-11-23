@@ -436,3 +436,41 @@ This specification represents the unified consensus:
 5. **The 5-Session Quorum Rule** and **Rival Flow Capping ($K \le 5$)** are codified as permanent safety invariants.
 6. **Empirical Verification Log:** Complete diagnostic logs and property verification results are archived in [`docs/COGNITIVE_UX_VERIFICATION_LOG.md`](file:///c:/projects/ux-libaray/docs/COGNITIVE_UX_VERIFICATION_LOG.md).
 
+---
+
+## 17. Fast-Track Roadmap to Close Gates 1 to 4
+
+This plan supersedes the phase order in Section 9 for the remaining gates. It ships dense search plus low-weight per-field fusion (Variant 3), drops the reranker, and defers the router, journey documents, the typed graph, and learning-to-rank. The effort figures are estimates, not measurements. A gate is passed only on its criterion. A gate that is skipped is marked deferred and is never counted as passed.
+
+### What Changes from Section 9
+- **The Gate 1 Baseline is Arm A0 (Dense Only):** On the 77 dev queries, A0 is ahead of A by $+0.0186$ ($0.4410$ vs $0.4223$), and A-anchors minus A0 is $-0.0030$, so the cross-encoder reranker leaves the default production path.
+- **Variant 3 Needs No Router:** Per-field fusion with low weight ($w \approx 0.20$) acts as a tie-breaker without regressing flow. The router becomes optional and the old Gate 2 router criterion is retired.
+- **Gate 2 Redefined to Calibration & Abstention:** Gate 2 becomes calibration (isotonic) and abstention on the fused score.
+- **Deferred Components (Not Counted as Passed):** Contextual notes ($B^\prime$), journey documents (Arm B), the typed graph (Arm D), and step roles are deferred. Dense first-stage recall is already $89.5\%$ for flow and $100.0\%$ for compare.
+
+### Fast-Track Step Sequence
+
+| Step | Gate | Work Description | Owner / Role | Effort Estimate | Dependencies | Done When Criterion |
+| :---: | :---: | :--- | :--- | :---: | :---: | :--- |
+| **1** | 0 | Rescore arms A, A0, A-anchors, and variants 1 to 4 on the reconciled labels. Write the dataset hash into every result file. | Engineer | 0.5 day | None | One authoritative scoreboard file with every arm on one label version + dataset SHA-256 hash. |
+| **2** | 1 | Run the weight grid ($w \in [0.05, 0.40]$ in steps of 0.05) offline. Choose $w$ from the plateau. Freeze the pipeline at a commit. | Engineer | 0.25 day | Step 1 | Commit hash and $w$ recorded; no dev tuning afterwards. |
+| **3** | 1 | Commit the formal Gate 1 pass rule (below) before any test run. | Owner | 0.1 day | Step 2 | Rule committed to spec. |
+| **4** | 0 & 1 | A designer checks that each test-split target exists, without seeing any arm results. | Designer | 2 hours | None | Test labels signed off. |
+| **5** | 0 & 1 | Spot-check grading: 10 dev situational queries where A0 and Variant 3 differ most ($\approx 80$ pairs), graded blind. A second grader takes a third of the pairs. | Two Designers | 2h + 1h | Step 2 | Inter-rater agreement $\kappa$ reported; Variant 3 is at or above A0 on pooled nDCG@5. |
+| **6** | 1 | Run frozen Variant 3 and A0 once on the test split (60 queries: 51 in-domain, 9 OOD). | Engineer | 1 hour | Steps 3 & 4 | Result file with dataset hash and commit hash. |
+| **7** | 1 | Decide by the committed Gate 1 rule. | Owner | — | Steps 5 & 6 | Gate 1 verdict logged. |
+| **8** | 2 | Calibrate the fused score (isotonic) on dev and choose the abstention threshold against an agreed precision target. Evaluate on test OOD. | Engineer & Designer | 1 day | Step 6 | Calibration error, abstention precision, and recall reported. |
+| **9** | 4 | Feature flag with an A0 fallback. Log every search with its ranks. Weekly canary on a fixed set of 30 queries. | Engineer | 1 day | Step 7 | Flag live; canary green. |
+| **10** | 4 | Held-out check on the 40 designer queries by pooled grading, Variant 3 vs A0, post-launch. | Designer | 5 hours | Step 9 | Result logged. |
+| **11** | 3 | Mark the graph and step roles deferred (not built). | Engineer & Designer | 0 days | None | Status recorded as deferred. |
+
+### Gate Rules
+- **Gate 1 Pass Rule:** On the test split's 51 in-domain queries, compare Variant 3 with A0 by paired bootstrap ($B=10,000$):
+  - **Pass:** The overall difference is above zero with the 95% bootstrap interval strictly above zero ($\text{CI}_{\text{lower}} > 0$), and no intent's interval lies entirely below zero.
+  - **Conditional Pass (Ship behind feature flag with monitoring):** The point estimate is above zero ($\Delta > 0$), the lower end of the interval is above $-0.02$, and the Step 5 spot-check agrees ($\text{nDCG@5}_{\text{Variant3}} \ge \text{nDCG@5}_{A0}$).
+  - **Fail:** Otherwise; pipeline stays on Arm A0.
+- **Gate 2:** Passed when calibration error and abstention precision and recall are reported against a precision target agreed before the run.
+- **Gate 3:** Deferred (not passed).
+- **Gate 4:** Passed when the test result for the frozen version is recorded once, the flag and A0 fallback work, logging includes ranks, and the canary is configured.
+
+

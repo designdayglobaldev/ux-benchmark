@@ -1,0 +1,542 @@
+[
+  {
+    "id": "UXB-022",
+    "intent": "flow",
+    "query": "Corporate card spend limit increase request workflow",
+    "description": "Employee policy limit increase submission with justification",
+    "goldTargets": "brex:requesting-new-spend-limit [Grade 2]; brex:request-reimbursement [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-023",
+    "intent": "flow",
+    "query": "Music streaming playlist curation annual listening review wrapped",
+    "description": "Year in review listening habits recap carousel",
+    "goldTargets": "spotify:wrapped [Grade 2]; spotify:home [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-024",
+    "intent": "flow",
+    "query": "Document rich text formatting typographic styles heading layout",
+    "description": "Document editor typographic styling and text hierarchy",
+    "goldTargets": "craft:editing-text-formatting-styles [Grade 2]; linear:editing-text-formatting [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-025",
+    "intent": "flow",
+    "query": "Design review canvas pin comment thread feedback",
+    "description": "Placing canvas-specific design review comments and replies",
+    "goldTargets": "figma:adding-a-comment [Grade 2]; figma:reacting-to-a-comment [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-026",
+    "intent": "flow",
+    "query": "Emergency paycheck cash advance overdraft protection loan flow",
+    "description": "Requesting small cash advance against upcoming direct deposit",
+    "goldTargets": "dave:adding-creating [Grade 2]; oportun:setting-up [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-027",
+    "intent": "flow",
+    "query": "Web browser mobile AI browse summarizing search query flow",
+    "description": "AI-assisted web browsing search and synthesis flow",
+    "goldTargets": "arc-search:searching-finding [Grade 2]; arc-search:enabling-disabling [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-028",
+    "intent": "flow",
+    "query": "STEM data science course module interactive quiz progression",
+    "description": "Progressing through interactive computer science lesson",
+    "goldTargets": "brilliant:completing-a-lesson-data [Grade 2]; brilliant:completing-a-lesson-math [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-029",
+    "intent": "flow",
+    "query": "Online clothing store size guide measurement selector",
+    "description": "Checking body measurements against apparel fit chart",
+    "goldTargets": "h-and-m:size-guide [Grade 2]; h-and-m:product-detail [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-030",
+    "intent": "flow",
+    "query": "Crypto token swap decentralized exchange conversion flow",
+    "description": "Exchanging crypto assets with slippage and network fee approval",
+    "goldTargets": "coinbase-wallet:transferring-money [Grade 2]; coinbase-wallet:purchasing-ordering [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-031",
+    "intent": "flow",
+    "query": "Project ticket triage backlog filtering by status and assignee",
+    "description": "Issue tracker inbox filter and prioritization workflow",
+    "goldTargets": "linear:filtering-inbox [Grade 2]; linear:inbox [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-032",
+    "intent": "flow",
+    "query": "Peer payment split restaurant bill request money friends",
+    "description": "Splitting group tab and requesting shared charges",
+    "goldTargets": "venmo:transferring-money [Grade 2]; cash-app:transferring-money [Grade 2]; paypal:transferring-money [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-033",
+    "intent": "flow",
+    "query": "Team member workspace collaborator invite permissions workflow",
+    "description": "Inviting colleagues via email and configuring editor roles",
+    "goldTargets": "airtable:managing-collaborators [Grade 2]; craft:share-export [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-034",
+    "intent": "flow",
+    "query": "Loyalty reward scratch card coins redemption voucher flow",
+    "description": "Unlocking gamified shopping reward perks and cashback",
+    "goldTargets": "cred:redeeming [Grade 2]; google-pay:redeeming [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-035",
+    "intent": "flow",
+    "query": "Family group shared budget debit allowance card setup",
+    "description": "Setting up family banking account with parental controls",
+    "goldTargets": "family:onboarding [Grade 2]; cash-app:managing-accounts [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-057",
+    "intent": "situational",
+    "query": "When to display QR code camera viewfinder directly on home tab",
+    "description": "Camera as primary affordance in offline-to-online peer retail payments",
+    "goldTargets": "cred:transferring-money [Grade 2]; cash-app:transferring-money [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-058",
+    "intent": "situational",
+    "query": "How to communicate slippage risk during volatile decentralized crypto swaps",
+    "description": "Visual warnings for price impact exceeding normal thresholds",
+    "goldTargets": "coinbase-wallet:transferring-money [Grade 2]; coinbase-wallet:purchasing-ordering [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-059",
+    "intent": "situational",
+    "query": "Avoiding accidental financial transfers with distinct confirmation friction",
+    "description": "Review step differentiating instant debit versus standard ACH transfer",
+    "goldTargets": "coinbase-wallet:transferring-money [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-060",
+    "intent": "situational",
+    "query": "When to use optimistic UI updates in collaborative document editing",
+    "description": "Instant local text render vs server acknowledgement in canvas comments",
+    "goldTargets": "craft:editing-text-formatting-styles [Grade 2]; figma:adding-a-comment [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-061",
+    "intent": "situational",
+    "query": "Where not to use full-screen takeover modals in search discovery",
+    "description": "Preserving search query context and instant filter refinement",
+    "goldTargets": "arc-search:searching-finding [Grade 2]; shazam:searching-finding [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-062",
+    "intent": "situational",
+    "query": "Minimizing churn during mandatory biometric KYC re-verification requests",
+    "description": "Explaining regulatory compliance rationale to prevent user panic",
+    "goldTargets": "revolut:post-onboarding [Grade 2]; oportun:setting-up [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-063",
+    "intent": "situational",
+    "query": "How to handle empty search states with proactive recommendation chips",
+    "description": "Guiding zero-result states with trending searches and category chips",
+    "goldTargets": "h-and-m:searching-h-m-text-input [Grade 2]; spotify:home [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-064",
+    "intent": "situational",
+    "query": "When to separate billing address from shipping address in checkout",
+    "description": "Defaulting to same address checkbox to minimize cart drop-off",
+    "goldTargets": "h-and-m:adding-to-cart-bag [Grade 2]; brex:request-reimbursement [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-065",
+    "intent": "situational",
+    "query": "Tone and copy guidelines for debt collection payment reminders",
+    "description": "Empathetic and constructive tonality to encourage user engagement without shame",
+    "goldTargets": "cleo:chatting-sending-messages [Grade 2]; dave:setting-up [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-066",
+    "intent": "situational",
+    "query": "When to enforce password complexity rules inline versus on submit",
+    "description": "Real-time password requirement checklist validation",
+    "goldTargets": "brilliant:creating-account [Grade 2]; h-and-m:creating-an-account-h-and-m [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-067",
+    "intent": "situational",
+    "query": "Where not to use infinite scroll in data-dense table exploration",
+    "description": "Pagination and fixed footer accessibility vs infinite scrolling",
+    "goldTargets": "airtable:fields-tutorial [Grade 2]; linear:filtering-inbox [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-068",
+    "intent": "situational",
+    "query": "Handling camera permission rejection gracefully during barcode scanning",
+    "description": "Displaying manual entry fallback when camera permission is denied",
+    "goldTargets": "cred:transferring-money [Grade 2]; shazam:searching-finding [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-069",
+    "intent": "situational",
+    "query": "When to use swipe gestures for triage vs explicit icon buttons",
+    "description": "Swipe discoverability vs explicit action buttons on desktop and mobile",
+    "goldTargets": "linear:inbox [Grade 2]; loom:replying-to-thread [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-070",
+    "intent": "situational",
+    "query": "Designing streak protection freeze UX to prevent user demoralization",
+    "description": "Offering streak freeze repair mechanics following missed learning session",
+    "goldTargets": "brilliant:setting-a-streak-goal [Grade 2]; brilliant:completing-the-first-lesson [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-089",
+    "intent": "component",
+    "query": "Command Palette quick switcher keyboard shortcut dialog",
+    "description": "Centrally anchored Cmd+K modal for rapid project search and commands",
+    "goldTargets": "linear:creating-an-issue [Grade 2]; craft:adding-a-smart-link [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-090",
+    "intent": "component",
+    "query": "Top Navigation Bar with back button and contextual overflow menu",
+    "description": "Standard mobile top app bar with navigation icon and title",
+    "goldTargets": "revolut:post-onboarding [Grade 2]; venmo:transferring-money [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-091",
+    "intent": "component",
+    "query": "Checkbox list for multi-select task resolution checklist",
+    "description": "Square interactive checkboxes in issue description or task list",
+    "goldTargets": "linear:adding-a-list-checkbox [Grade 2]; craft:editing-text-formatting-styles [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-092",
+    "intent": "component",
+    "query": "Badge count notification pill on bottom tab bar icon",
+    "description": "Red or colored numerical count pill indicating unread activity",
+    "goldTargets": "linear:inbox [Grade 2]; lemon8:home [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-093",
+    "intent": "component",
+    "query": "Search Bar with clear text button and voice search microphone icon",
+    "description": "Rounded search input field with leading search icon and trailing cancel",
+    "goldTargets": "shazam:searching-finding [Grade 2]; h-and-m:searching-h-m-text-input [Grade 2]; spotify:home [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-094",
+    "intent": "component",
+    "query": "Bottom Navigation Tab Bar with active state tinted icons",
+    "description": "Five-tab persistent bottom navigation bar on mobile",
+    "goldTargets": "cash-app:dashboard [Grade 2]; spotify:home [Grade 2]; venmo:dashboard [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-095",
+    "intent": "component",
+    "query": "Swipe-to-Action table row reveal delete and archive buttons",
+    "description": "Horizontal cell drag revealing contextual actions underneath",
+    "goldTargets": "linear:inbox [Grade 2]; flighty:searching-finding [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-096",
+    "intent": "component",
+    "query": "Rating Control star rating dialogue with optional comment field",
+    "description": "Five-star interactive rating widget for feedback submission",
+    "goldTargets": "dave:giving-feedbacks [Grade 2]; cleo:reviewing-rating [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-097",
+    "intent": "component",
+    "query": "Context Menu popup on long press for ticket item",
+    "description": "Contextual floating action menu anchored to targeted item",
+    "goldTargets": "linear:inbox [Grade 2]; craft:adding-content-in-a-whiteboard [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-098",
+    "intent": "component",
+    "query": "Skeleton Screen shimmer loading placeholder cards",
+    "description": "Animated gray wireframe placeholders simulating card shapes during fetch",
+    "goldTargets": "cred:transferring-money [Grade 2]; brex:request-reimbursement [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-099",
+    "intent": "component",
+    "query": "Audio waveform scrubbing visualizer bar for track playback",
+    "description": "Interactive amplitude waveform representing sound track preview",
+    "goldTargets": "shazam:listening-to-audio [Grade 2]; loom:commenting-on-the-video [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-100",
+    "intent": "component",
+    "query": "Video Player floating picture-in-picture PiP thumbnail",
+    "description": "Minimized video playback container overlaying active UI",
+    "goldTargets": "loom:commenting-on-the-video [Grade 2]; mubi-go:home [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-118",
+    "intent": "compare",
+    "query": "Compare document hierarchy navigation in Craft versus Linear project views",
+    "description": "Nested document pages and folders vs issue cycles, projects and teams",
+    "goldTargets": "craft:adding-content-in-a-whiteboard [Grade 2]; linear:moving-an-issue-to-a-project [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-119",
+    "intent": "compare",
+    "query": "Dave salary advance qualification versus Oportun personal loan onboarding",
+    "description": "Direct deposit checking account link vs formal credit installment application",
+    "goldTargets": "dave:setting-up [Grade 2]; oportun:onboarding [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-120",
+    "intent": "compare",
+    "query": "Compare flight status card details in Flighty versus Apple Wallet travel passes",
+    "description": "Live aircraft radar telemetry timeline vs boarding pass QR bar code presentation",
+    "goldTargets": "flighty:searching-finding [Grade 2]; apple-wallet:logging-tracking [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-121",
+    "intent": "compare",
+    "query": "Retail apparel product filter UX: H&M versus general ecommerce bag checkout",
+    "description": "Faceted size and color grid filtering vs immediate one-click checkout",
+    "goldTargets": "h-and-m:product-filter [Grade 2]; h-and-m:adding-to-cart-bag [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-122",
+    "intent": "compare",
+    "query": "MUBI GO cinema pass booking versus typical retail event ticket reserving",
+    "description": "Weekly curated cinema ticket voucher vs standard seat map reservation",
+    "goldTargets": "mubi-go:home [Grade 2]; google-pay:booking-reserving [Grade 1]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-123",
+    "intent": "compare",
+    "query": "Compare asynchronous video review in Loom versus text issue comments in Linear",
+    "description": "Rich audiovisual context with face bubble vs markdown text with code snippets",
+    "goldTargets": "loom:commenting-on-the-video [Grade 2]; linear:creating-an-issue [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-124",
+    "intent": "compare",
+    "query": "Airtable formula and relational links versus Linear custom label workflows",
+    "description": "Full spreadsheet relational lookup computation vs lightweight workflow tagging",
+    "goldTargets": "airtable:fields-tutorial [Grade 2]; linear:adding-labels [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-125",
+    "intent": "compare",
+    "query": "Compare onboarding questionnaire friction: Brilliant vs Revolut",
+    "description": "Diagnostic skill assessment questions vs legal KYC tax residency compliance",
+    "goldTargets": "brilliant:onboarding [Grade 2]; revolut:onboarding [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-126",
+    "intent": "compare",
+    "query": "Compare Venmo social payment feed privacy controls versus Cash App anonymous cashtags",
+    "description": "Public transaction feed with emoji comments vs private transaction cashtag lookups",
+    "goldTargets": "venmo:transferring-money [Grade 2]; cash-app:transferring-money [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-127",
+    "intent": "compare",
+    "query": "Spotify music audio playback player versus Shazam track preview player",
+    "description": "Full playback queue with lyrics and crossfade vs 30-second snippet preview",
+    "goldTargets": "spotify:home [Grade 2]; shazam:listening-to-audio [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-128",
+    "intent": "compare",
+    "query": "Compare card spend policies in Brex versus credit card statements in CRED",
+    "description": "Pre-spend limits and manager approval vs post-statement bill rewards settlement",
+    "goldTargets": "brex:requesting-new-spend-limit [Grade 2]; cred:transferring-money [Grade 2]",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-142",
+    "intent": "out_of_domain",
+    "query": "How to grow organic tomatoes in backyard raised garden bed",
+    "description": "Gardening horticulture agriculture advice",
+    "goldTargets": "",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-143",
+    "intent": "out_of_domain",
+    "query": "Chemical synthesis route for ibuprofen from isobutylbenzene",
+    "description": "Organic chemistry synthesis mechanism",
+    "goldTargets": "",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-144",
+    "intent": "out_of_domain",
+    "query": "Guitar chord progression for jazz blues in B flat",
+    "description": "Music theory and instrumental chord chart",
+    "goldTargets": "",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-145",
+    "intent": "out_of_domain",
+    "query": "How to replace brake pads on a mountain bike hydraulic disc",
+    "description": "Bicycle mechanical maintenance guide",
+    "goldTargets": "",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-146",
+    "intent": "out_of_domain",
+    "query": "Translate hello good morning to Japanese kanji and hiragana",
+    "description": "Linguistic language translation inquiry",
+    "goldTargets": "",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-147",
+    "intent": "out_of_domain",
+    "query": "Quantum entanglement Einstein Podolsky Rosen paradox Bell inequality",
+    "description": "Theoretical quantum mechanics physics research",
+    "goldTargets": "",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-148",
+    "intent": "out_of_domain",
+    "query": "How to clean hardwood flooring without damaging polyurethane finish",
+    "description": "Household cleaning and maintenance advice",
+    "goldTargets": "",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-149",
+    "intent": "out_of_domain",
+    "query": "Rules and board layout for traditional Chinese chess Xiangqi",
+    "description": "Board game rules and strategy",
+    "goldTargets": "",
+    "designerSignoff": null,
+    "designerNotes": ""
+  },
+  {
+    "id": "UXB-150",
+    "intent": "out_of_domain",
+    "query": "Tax deductible expenses for freelance contractors in Germany",
+    "description": "International taxation and legal accounting advice",
+    "goldTargets": "",
+    "designerSignoff": null,
+    "designerNotes": ""
+  }
+]
