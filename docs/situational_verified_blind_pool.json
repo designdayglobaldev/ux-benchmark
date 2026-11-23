@@ -1,0 +1,576 @@
+[
+  {
+    "id": "VERIFIED-PAIR-001",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "dave",
+    "candidateFlow": "chatting-sending-messages"
+  },
+  {
+    "id": "VERIFIED-PAIR-002",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "filtering-products-price-range"
+  },
+  {
+    "id": "VERIFIED-PAIR-003",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "product-filter"
+  },
+  {
+    "id": "VERIFIED-PAIR-004",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "cash-app",
+    "candidateFlow": "managing-accounts"
+  },
+  {
+    "id": "VERIFIED-PAIR-005",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "brex",
+    "candidateFlow": "chatting-with-support"
+  },
+  {
+    "id": "VERIFIED-PAIR-006",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "cleo",
+    "candidateFlow": "chatting-sending-messages"
+  },
+  {
+    "id": "VERIFIED-PAIR-007",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "cred",
+    "candidateFlow": "transferring-money"
+  },
+  {
+    "id": "VERIFIED-PAIR-008",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "setting-up"
+  },
+  {
+    "id": "VERIFIED-PAIR-009",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "dashboard"
+  },
+  {
+    "id": "VERIFIED-PAIR-010",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "logging-tracking"
+  },
+  {
+    "id": "VERIFIED-PAIR-011",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "cleo",
+    "candidateFlow": "logging-tracking"
+  },
+  {
+    "id": "VERIFIED-PAIR-012",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "brex",
+    "candidateFlow": "available-limit"
+  },
+  {
+    "id": "VERIFIED-PAIR-013",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-an-alert"
+  },
+  {
+    "id": "VERIFIED-PAIR-014",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "deleting-removing"
+  },
+  {
+    "id": "VERIFIED-PAIR-015",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "venmo",
+    "candidateFlow": "banning-blocking"
+  },
+  {
+    "id": "VERIFIED-PAIR-016",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cred",
+    "candidateFlow": "transferring-money"
+  },
+  {
+    "id": "VERIFIED-PAIR-017",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "dave",
+    "candidateFlow": "deleting-removing"
+  },
+  {
+    "id": "VERIFIED-PAIR-018",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "venmo",
+    "candidateFlow": "transferring-money"
+  },
+  {
+    "id": "VERIFIED-PAIR-019",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cash-app",
+    "candidateFlow": "transferring-money"
+  },
+  {
+    "id": "VERIFIED-PAIR-020",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cash-app",
+    "candidateFlow": "managing-accounts"
+  },
+  {
+    "id": "VERIFIED-PAIR-021",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-a-receipt"
+  },
+  {
+    "id": "VERIFIED-PAIR-022",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "revolut",
+    "candidateFlow": "post-onboarding"
+  },
+  {
+    "id": "VERIFIED-PAIR-023",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "post-onboarding"
+  },
+  {
+    "id": "VERIFIED-PAIR-024",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "craft",
+    "candidateFlow": "scanning-a-document"
+  },
+  {
+    "id": "VERIFIED-PAIR-025",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "venmo",
+    "candidateFlow": "setting-up"
+  },
+  {
+    "id": "VERIFIED-PAIR-026",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "brex",
+    "candidateFlow": "request-reimbursement"
+  },
+  {
+    "id": "VERIFIED-PAIR-027",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "request-reimbursement"
+  },
+  {
+    "id": "VERIFIED-PAIR-028",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "eta-information"
+  },
+  {
+    "id": "VERIFIED-PAIR-029",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "reimbursement-reviewed"
+  },
+  {
+    "id": "VERIFIED-PAIR-030",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "google-pay",
+    "candidateFlow": "transferring-money"
+  },
+  {
+    "id": "VERIFIED-PAIR-031",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-a-receipt"
+  },
+  {
+    "id": "VERIFIED-PAIR-032",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-an-external-attendee"
+  },
+  {
+    "id": "VERIFIED-PAIR-033",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "cleo",
+    "candidateFlow": "reviewing-rating"
+  },
+  {
+    "id": "VERIFIED-PAIR-034",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "cash-app",
+    "candidateFlow": "setting-up"
+  },
+  {
+    "id": "VERIFIED-PAIR-035",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "cred",
+    "candidateFlow": "redeeming"
+  },
+  {
+    "id": "VERIFIED-PAIR-036",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "google-pay",
+    "candidateFlow": "redeeming"
+  },
+  {
+    "id": "VERIFIED-PAIR-037",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "brilliant",
+    "candidateFlow": "setting-a-streak-goal"
+  },
+  {
+    "id": "VERIFIED-PAIR-038",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "arc-search",
+    "candidateFlow": "login"
+  },
+  {
+    "id": "VERIFIED-PAIR-039",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "shazam",
+    "candidateFlow": "recording-audio-video"
+  },
+  {
+    "id": "VERIFIED-PAIR-040",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "shazam",
+    "candidateFlow": "searching-finding"
+  },
+  {
+    "id": "VERIFIED-PAIR-041",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "spotify",
+    "candidateFlow": "home"
+  },
+  {
+    "id": "VERIFIED-PAIR-042",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "shazam",
+    "candidateFlow": "onboarding"
+  },
+  {
+    "id": "VERIFIED-PAIR-043",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "brilliant",
+    "candidateFlow": "subscribing-to-brilliant"
+  },
+  {
+    "id": "VERIFIED-PAIR-044",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "linear",
+    "candidateFlow": "onboarding"
+  },
+  {
+    "id": "VERIFIED-PAIR-045",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "brilliant",
+    "candidateFlow": "premium"
+  },
+  {
+    "id": "VERIFIED-PAIR-046",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "brilliant",
+    "candidateFlow": "disabling-notifications"
+  },
+  {
+    "id": "VERIFIED-PAIR-047",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "spotify",
+    "candidateFlow": "manage-subscription"
+  },
+  {
+    "id": "VERIFIED-PAIR-048",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "arc-search",
+    "candidateFlow": "archiving"
+  },
+  {
+    "id": "VERIFIED-PAIR-049",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "airtable",
+    "candidateFlow": "grouping-records"
+  },
+  {
+    "id": "VERIFIED-PAIR-050",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "dave",
+    "candidateFlow": "editing-profile"
+  },
+  {
+    "id": "VERIFIED-PAIR-051",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "cred",
+    "candidateFlow": "editing-profile"
+  },
+  {
+    "id": "VERIFIED-PAIR-052",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "venmo",
+    "candidateFlow": "editing-profile"
+  },
+  {
+    "id": "VERIFIED-PAIR-053",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "craft",
+    "candidateFlow": "uploading-images"
+  },
+  {
+    "id": "VERIFIED-PAIR-054",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "linear",
+    "candidateFlow": "adding-an-assignee"
+  },
+  {
+    "id": "VERIFIED-PAIR-055",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "craft",
+    "candidateFlow": "grouping-entries"
+  },
+  {
+    "id": "VERIFIED-PAIR-056",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "brex",
+    "candidateFlow": "requesting-new-spend-limit"
+  },
+  {
+    "id": "VERIFIED-PAIR-057",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "setting-up"
+  },
+  {
+    "id": "VERIFIED-PAIR-058",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "airtable",
+    "candidateFlow": "onboarding"
+  },
+  {
+    "id": "VERIFIED-PAIR-059",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "figma",
+    "candidateFlow": "onboarding"
+  },
+  {
+    "id": "VERIFIED-PAIR-060",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "oportun",
+    "candidateFlow": "onboarding"
+  },
+  {
+    "id": "VERIFIED-PAIR-061",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "dave",
+    "candidateFlow": "giving-feedbacks"
+  },
+  {
+    "id": "VERIFIED-PAIR-062",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "oportun",
+    "candidateFlow": "cancelling-subscription"
+  },
+  {
+    "id": "VERIFIED-PAIR-063",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "spotify",
+    "candidateFlow": "manage-subscription"
+  },
+  {
+    "id": "VERIFIED-PAIR-064",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "post-onboarding"
+  },
+  {
+    "id": "VERIFIED-PAIR-065",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "spotify",
+    "candidateFlow": "onboarding"
+  },
+  {
+    "id": "VERIFIED-PAIR-066",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "arc-search",
+    "candidateFlow": "selecting-choosing"
+  },
+  {
+    "id": "VERIFIED-PAIR-067",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "brilliant",
+    "candidateFlow": "subscribing-to-brilliant"
+  },
+  {
+    "id": "VERIFIED-PAIR-068",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "brilliant",
+    "candidateFlow": "onboarding"
+  },
+  {
+    "id": "VERIFIED-PAIR-069",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "mubi-go",
+    "candidateFlow": "home"
+  },
+  {
+    "id": "VERIFIED-PAIR-070",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "craft",
+    "candidateFlow": "adding-content-in-a-whiteboard"
+  },
+  {
+    "id": "VERIFIED-PAIR-071",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "craft",
+    "candidateFlow": "editing-cell-formatting-styles"
+  },
+  {
+    "id": "VERIFIED-PAIR-072",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "linear",
+    "candidateFlow": "creating-a-label"
+  },
+  {
+    "id": "VERIFIED-PAIR-073",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "brex",
+    "candidateFlow": "reimbursement-reviewed"
+  },
+  {
+    "id": "VERIFIED-PAIR-074",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "craft",
+    "candidateFlow": "adding-a-row"
+  },
+  {
+    "id": "VERIFIED-PAIR-075",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "linear",
+    "candidateFlow": "creating-an-issue"
+  },
+  {
+    "id": "VERIFIED-PAIR-076",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "brilliant",
+    "candidateFlow": "giving-feedbacks"
+  },
+  {
+    "id": "VERIFIED-PAIR-077",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "product-detail"
+  },
+  {
+    "id": "VERIFIED-PAIR-078",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "sale-info"
+  },
+  {
+    "id": "VERIFIED-PAIR-079",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "view-collection"
+  },
+  {
+    "id": "VERIFIED-PAIR-080",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "size-guide"
+  },
+  {
+    "id": "VERIFIED-PAIR-081",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "product-filter"
+  },
+  {
+    "id": "VERIFIED-PAIR-082",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "adding-an-item-to-favorites"
+  }
+]

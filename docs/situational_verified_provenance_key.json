@@ -1,0 +1,1061 @@
+[
+  {
+    "id": "VERIFIED-PAIR-001",
+    "originalPairId": "PAIR-001",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "dave",
+    "candidateFlow": "chatting-sending-messages",
+    "sources": [
+      "GoldTarget (grade=1)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-002",
+    "originalPairId": "PAIR-002",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "filtering-products-price-range",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-003",
+    "originalPairId": "PAIR-003",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "product-filter",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-004",
+    "originalPairId": "PAIR-004",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "cash-app",
+    "candidateFlow": "managing-accounts",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-005",
+    "originalPairId": "PAIR-005",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "brex",
+    "candidateFlow": "chatting-with-support",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-006",
+    "originalPairId": "PAIR-006",
+    "queryId": "UXB-036",
+    "queryText": "When to avoid conversational chatbot UI for high-stakes banking transactions",
+    "candidateApp": "cleo",
+    "candidateFlow": "chatting-sending-messages",
+    "sources": [
+      "GoldTarget (grade=2)",
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-007",
+    "originalPairId": "PAIR-007",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "cred",
+    "candidateFlow": "transferring-money",
+    "sources": [
+      "GoldTarget (grade=2)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-008",
+    "originalPairId": "PAIR-008",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "setting-up",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-009",
+    "originalPairId": "PAIR-009",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "dashboard",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-010",
+    "originalPairId": "PAIR-010",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "logging-tracking",
+    "sources": [
+      "GoldTarget (grade=2)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-011",
+    "originalPairId": "PAIR-011",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "cleo",
+    "candidateFlow": "logging-tracking",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-012",
+    "originalPairId": "PAIR-012",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "brex",
+    "candidateFlow": "available-limit",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-013",
+    "originalPairId": "PAIR-013",
+    "queryId": "UXB-037",
+    "queryText": "How to handle high cognitive load in multi-account balance overviews",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-an-alert",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-014",
+    "originalPairId": "PAIR-014",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "deleting-removing",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-015",
+    "originalPairId": "PAIR-015",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "venmo",
+    "candidateFlow": "banning-blocking",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-016",
+    "originalPairId": "PAIR-016",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cred",
+    "candidateFlow": "transferring-money",
+    "sources": [
+      "GoldTarget (grade=2)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-017",
+    "originalPairId": "PAIR-017",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "dave",
+    "candidateFlow": "deleting-removing",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-018",
+    "originalPairId": "PAIR-018",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "venmo",
+    "candidateFlow": "transferring-money",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-019",
+    "originalPairId": "PAIR-019",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cash-app",
+    "candidateFlow": "transferring-money",
+    "sources": [
+      "GoldTarget (grade=1)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-020",
+    "originalPairId": "PAIR-020",
+    "queryId": "UXB-038",
+    "queryText": "Irreversible backend transaction confirmation blocking modal pattern",
+    "candidateApp": "cash-app",
+    "candidateFlow": "managing-accounts",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-021",
+    "originalPairId": "PAIR-036",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-a-receipt",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-022",
+    "originalPairId": "PAIR-037",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "revolut",
+    "candidateFlow": "post-onboarding",
+    "sources": [
+      "GoldTarget (grade=2)",
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-023",
+    "originalPairId": "PAIR-038",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "post-onboarding",
+    "sources": [
+      "GoldTarget (grade=1)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-024",
+    "originalPairId": "PAIR-039",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "craft",
+    "candidateFlow": "scanning-a-document",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-025",
+    "originalPairId": "PAIR-040",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "venmo",
+    "candidateFlow": "setting-up",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-026",
+    "originalPairId": "PAIR-041",
+    "queryId": "UXB-041",
+    "queryText": "Recovering user trust after failed identity document camera scan",
+    "candidateApp": "brex",
+    "candidateFlow": "request-reimbursement",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-027",
+    "originalPairId": "PAIR-042",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "request-reimbursement",
+    "sources": [
+      "GoldTarget (grade=2)",
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-028",
+    "originalPairId": "PAIR-043",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "eta-information",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-029",
+    "originalPairId": "PAIR-044",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "reimbursement-reviewed",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-030",
+    "originalPairId": "PAIR-045",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "google-pay",
+    "candidateFlow": "transferring-money",
+    "sources": [
+      "GoldTarget (grade=1)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-031",
+    "originalPairId": "PAIR-046",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-a-receipt",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-032",
+    "originalPairId": "PAIR-047",
+    "queryId": "UXB-042",
+    "queryText": "Avoiding banner blindness in transactional receipt screens",
+    "candidateApp": "brex",
+    "candidateFlow": "adding-an-external-attendee",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-033",
+    "originalPairId": "PAIR-063",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "cleo",
+    "candidateFlow": "reviewing-rating",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-034",
+    "originalPairId": "PAIR-064",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "cash-app",
+    "candidateFlow": "setting-up",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-035",
+    "originalPairId": "PAIR-065",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "cred",
+    "candidateFlow": "redeeming",
+    "sources": [
+      "GoldTarget (grade=2)",
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-036",
+    "originalPairId": "PAIR-066",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "google-pay",
+    "candidateFlow": "redeeming",
+    "sources": [
+      "GoldTarget (grade=1)",
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-037",
+    "originalPairId": "PAIR-067",
+    "queryId": "UXB-045",
+    "queryText": "Where not to use gamified scratch cards in financial apps",
+    "candidateApp": "brilliant",
+    "candidateFlow": "setting-a-streak-goal",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-038",
+    "originalPairId": "PAIR-068",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "arc-search",
+    "candidateFlow": "login",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-039",
+    "originalPairId": "PAIR-069",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "shazam",
+    "candidateFlow": "recording-audio-video",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-040",
+    "originalPairId": "PAIR-070",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "shazam",
+    "candidateFlow": "searching-finding",
+    "sources": [
+      "GoldTarget (grade=2)",
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-041",
+    "originalPairId": "PAIR-071",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "spotify",
+    "candidateFlow": "home",
+    "sources": [
+      "GoldTarget (grade=1)",
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-042",
+    "originalPairId": "PAIR-072",
+    "queryId": "UXB-046",
+    "queryText": "Designing for low-bandwidth offline connectivity during audio identification",
+    "candidateApp": "shazam",
+    "candidateFlow": "onboarding",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-043",
+    "originalPairId": "PAIR-080",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "brilliant",
+    "candidateFlow": "subscribing-to-brilliant",
+    "sources": [
+      "GoldTarget (grade=2)",
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-044",
+    "originalPairId": "PAIR-081",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "linear",
+    "candidateFlow": "onboarding",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-045",
+    "originalPairId": "PAIR-082",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "brilliant",
+    "candidateFlow": "premium",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-046",
+    "originalPairId": "PAIR-083",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "brilliant",
+    "candidateFlow": "disabling-notifications",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-047",
+    "originalPairId": "PAIR-084",
+    "queryId": "UXB-048",
+    "queryText": "Avoiding choice paralysis in multi-tiered subscription pricing tables",
+    "candidateApp": "spotify",
+    "candidateFlow": "manage-subscription",
+    "sources": [
+      "GoldTarget (grade=1)",
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-048",
+    "originalPairId": "PAIR-085",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "arc-search",
+    "candidateFlow": "archiving",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-049",
+    "originalPairId": "PAIR-086",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "airtable",
+    "candidateFlow": "grouping-records",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-050",
+    "originalPairId": "PAIR-087",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "dave",
+    "candidateFlow": "editing-profile",
+    "sources": [
+      "GoldTarget (grade=1)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-051",
+    "originalPairId": "PAIR-088",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "cred",
+    "candidateFlow": "editing-profile",
+    "sources": [
+      "GoldTarget (grade=2)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-052",
+    "originalPairId": "PAIR-089",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "venmo",
+    "candidateFlow": "editing-profile",
+    "sources": [
+      "GoldTarget (grade=2)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-053",
+    "originalPairId": "PAIR-090",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "craft",
+    "candidateFlow": "uploading-images",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-054",
+    "originalPairId": "PAIR-091",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "linear",
+    "candidateFlow": "adding-an-assignee",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-055",
+    "originalPairId": "PAIR-092",
+    "queryId": "UXB-049",
+    "queryText": "When to use grouped stacked-lists instead of grid tiles for mobile settings",
+    "candidateApp": "craft",
+    "candidateFlow": "grouping-entries",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-056",
+    "originalPairId": "PAIR-093",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "brex",
+    "candidateFlow": "requesting-new-spend-limit",
+    "sources": [
+      "GoldTarget (grade=1)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-057",
+    "originalPairId": "PAIR-094",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "wealthfront",
+    "candidateFlow": "setting-up",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-058",
+    "originalPairId": "PAIR-095",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "airtable",
+    "candidateFlow": "onboarding",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-059",
+    "originalPairId": "PAIR-096",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "figma",
+    "candidateFlow": "onboarding",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-060",
+    "originalPairId": "PAIR-097",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "oportun",
+    "candidateFlow": "onboarding",
+    "sources": [
+      "GoldTarget (grade=2)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-061",
+    "originalPairId": "PAIR-098",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "dave",
+    "candidateFlow": "giving-feedbacks",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-062",
+    "originalPairId": "PAIR-099",
+    "queryId": "UXB-050",
+    "queryText": "Preventing user drop-off in multi-step loan underwriting questionnaire",
+    "candidateApp": "oportun",
+    "candidateFlow": "cancelling-subscription",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-063",
+    "originalPairId": "PAIR-100",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "spotify",
+    "candidateFlow": "manage-subscription",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-064",
+    "originalPairId": "PAIR-101",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "coinbase-wallet",
+    "candidateFlow": "post-onboarding",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-065",
+    "originalPairId": "PAIR-102",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "spotify",
+    "candidateFlow": "onboarding",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-066",
+    "originalPairId": "PAIR-103",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "arc-search",
+    "candidateFlow": "selecting-choosing",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-067",
+    "originalPairId": "PAIR-104",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "brilliant",
+    "candidateFlow": "subscribing-to-brilliant",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-068",
+    "originalPairId": "PAIR-105",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "brilliant",
+    "candidateFlow": "onboarding",
+    "sources": [
+      "GoldTarget (grade=1)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-069",
+    "originalPairId": "PAIR-106",
+    "queryId": "UXB-051",
+    "queryText": "How to design soft paywalls that preserve content exploration before login",
+    "candidateApp": "mubi-go",
+    "candidateFlow": "home",
+    "sources": [
+      "GoldTarget (grade=2)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-070",
+    "originalPairId": "PAIR-107",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "craft",
+    "candidateFlow": "adding-content-in-a-whiteboard",
+    "sources": [
+      "GoldTarget (grade=1)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-071",
+    "originalPairId": "PAIR-108",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "craft",
+    "candidateFlow": "editing-cell-formatting-styles",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-072",
+    "originalPairId": "PAIR-109",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "linear",
+    "candidateFlow": "creating-a-label",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-073",
+    "originalPairId": "PAIR-110",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "brex",
+    "candidateFlow": "reimbursement-reviewed",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-074",
+    "originalPairId": "PAIR-111",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "craft",
+    "candidateFlow": "adding-a-row",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-075",
+    "originalPairId": "PAIR-112",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "linear",
+    "candidateFlow": "creating-an-issue",
+    "sources": [
+      "GoldTarget (grade=2)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-076",
+    "originalPairId": "PAIR-113",
+    "queryId": "UXB-052",
+    "queryText": "Where to avoid using modal bottom sheets for complex multi-input forms",
+    "candidateApp": "brilliant",
+    "candidateFlow": "giving-feedbacks",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-077",
+    "originalPairId": "PAIR-121",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "product-detail",
+    "sources": [
+      "GoldTarget (grade=2)",
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-078",
+    "originalPairId": "PAIR-122",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "sale-info",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-079",
+    "originalPairId": "PAIR-123",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "view-collection",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-080",
+    "originalPairId": "PAIR-124",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "size-guide",
+    "sources": [
+      "GoldTarget (grade=1)"
+    ],
+    "isGoldTarget": true
+  },
+  {
+    "id": "VERIFIED-PAIR-081",
+    "originalPairId": "PAIR-125",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "product-filter",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  },
+  {
+    "id": "VERIFIED-PAIR-082",
+    "originalPairId": "PAIR-126",
+    "queryId": "UXB-054",
+    "queryText": "Handling out-of-stock variations gracefully in retail product detail pages",
+    "candidateApp": "h-and-m",
+    "candidateFlow": "adding-an-item-to-favorites",
+    "sources": [
+      "Arm A0 (dense top 5)",
+      "Arm A / A-anchors (top 5)"
+    ],
+    "isGoldTarget": false
+  }
+]
