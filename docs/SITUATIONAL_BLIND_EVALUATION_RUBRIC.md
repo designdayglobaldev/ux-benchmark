@@ -36,11 +36,13 @@
 
 ---
 
-## 3. Grader Instructions
+## 3. Grader Instructions & "No Relevant Flow" Option
 1. Open [`docs/situational_blind_grading_pool.json`](file:///c:/projects/ux-libaray/docs/situational_blind_grading_pool.json).
-2. For each pair `PAIR-001` through `PAIR-141`:
+2. The pool contains **141 candidate pairs across all 21 situational queries**.
+3. For each pair `PAIR-001` through `PAIR-141`:
    - Inspect the candidate flow in the library (via app slug and flow slug).
    - Enter `grade`: `0`, `1`, or `2`.
+   - **"No Relevant Flow Exists" Checkbox:** If you determine that the design situation asked about is fundamentally unanswerable by the current library screens (for instance, queries about app store rating triggers or swipe-to-confirm where no matching patterns exist in the library), check/mark `noRelevantFlowInLibrary: true` for that query. This provides an independent, blinded verification of whether dropped queries were truly unanswerable.
    - Optionally add brief `rationaleNotes`.
-3. Do **not** look at [`docs/situational_blind_provenance_key.json`](file:///c:/projects/ux-libaray/docs/situational_blind_provenance_key.json) until all ratings are locked.
+4. Do **not** look at [`docs/situational_blind_provenance_key.json`](file:///c:/projects/ux-libaray/docs/situational_blind_provenance_key.json) until all ratings are locked.
 

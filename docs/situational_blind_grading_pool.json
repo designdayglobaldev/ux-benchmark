@@ -6,6 +6,7 @@
     "candidateApp": "dave",
     "candidateFlow": "chatting-sending-messages",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -15,6 +16,7 @@
     "candidateApp": "h-and-m",
     "candidateFlow": "filtering-products-price-range",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -24,6 +26,7 @@
     "candidateApp": "h-and-m",
     "candidateFlow": "product-filter",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -33,6 +36,7 @@
     "candidateApp": "cash-app",
     "candidateFlow": "managing-accounts",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -42,6 +46,7 @@
     "candidateApp": "brex",
     "candidateFlow": "chatting-with-support",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -51,6 +56,7 @@
     "candidateApp": "cleo",
     "candidateFlow": "chatting-sending-messages",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -60,6 +66,7 @@
     "candidateApp": "cred",
     "candidateFlow": "transferring-money",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -69,6 +76,7 @@
     "candidateApp": "coinbase-wallet",
     "candidateFlow": "setting-up",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -78,6 +86,7 @@
     "candidateApp": "wealthfront",
     "candidateFlow": "dashboard",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -87,6 +96,7 @@
     "candidateApp": "wealthfront",
     "candidateFlow": "logging-tracking",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -96,6 +106,7 @@
     "candidateApp": "cleo",
     "candidateFlow": "logging-tracking",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -105,6 +116,7 @@
     "candidateApp": "brex",
     "candidateFlow": "available-limit",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -114,6 +126,7 @@
     "candidateApp": "brex",
     "candidateFlow": "adding-an-alert",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -123,6 +136,7 @@
     "candidateApp": "wealthfront",
     "candidateFlow": "deleting-removing",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -132,6 +146,7 @@
     "candidateApp": "venmo",
     "candidateFlow": "banning-blocking",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -141,6 +156,7 @@
     "candidateApp": "cred",
     "candidateFlow": "transferring-money",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -150,6 +166,7 @@
     "candidateApp": "dave",
     "candidateFlow": "deleting-removing",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -159,6 +176,7 @@
     "candidateApp": "venmo",
     "candidateFlow": "transferring-money",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -168,6 +186,7 @@
     "candidateApp": "cash-app",
     "candidateFlow": "transferring-money",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -177,6 +196,7 @@
     "candidateApp": "cash-app",
     "candidateFlow": "managing-accounts",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -186,6 +206,7 @@
     "candidateApp": "cash-app",
     "candidateFlow": "transferring-money",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -195,6 +216,7 @@
     "candidateApp": "airtable",
     "candidateFlow": "hiding-fields",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -204,6 +226,7 @@
     "candidateApp": "arc-search",
     "candidateFlow": "deleting-removing",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -213,6 +236,7 @@
     "candidateApp": "cash-app",
     "candidateFlow": "adding-creating",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -222,6 +246,7 @@
     "candidateApp": "craft",
     "candidateFlow": "deleting-a-comment",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -231,6 +256,7 @@
     "candidateApp": "cred",
     "candidateFlow": "transferring-money",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -240,6 +266,7 @@
     "candidateApp": "cleo",
     "candidateFlow": "chatting-sending-messages",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -249,6 +276,7 @@
     "candidateApp": "craft",
     "candidateFlow": "editing-a-separator-pattern-washi-gallery",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -258,6 +286,7 @@
     "candidateApp": "linear",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -267,6 +296,7 @@
     "candidateApp": "dave",
     "candidateFlow": "setting-up",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -276,6 +306,7 @@
     "candidateApp": "figma",
     "candidateFlow": "browse-figjam-resources",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -285,6 +316,7 @@
     "candidateApp": "arc-search",
     "candidateFlow": "showing-hiding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -294,6 +326,7 @@
     "candidateApp": "arc-search",
     "candidateFlow": "enabling-disabling",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -303,6 +336,7 @@
     "candidateApp": "revolut",
     "candidateFlow": "post-onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -312,6 +346,7 @@
     "candidateApp": "shazam",
     "candidateFlow": "searching-finding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -321,6 +356,7 @@
     "candidateApp": "brex",
     "candidateFlow": "adding-a-receipt",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -330,6 +366,7 @@
     "candidateApp": "revolut",
     "candidateFlow": "post-onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -339,6 +376,7 @@
     "candidateApp": "coinbase-wallet",
     "candidateFlow": "post-onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -348,6 +386,7 @@
     "candidateApp": "craft",
     "candidateFlow": "scanning-a-document",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -357,6 +396,7 @@
     "candidateApp": "venmo",
     "candidateFlow": "setting-up",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -366,6 +406,7 @@
     "candidateApp": "brex",
     "candidateFlow": "request-reimbursement",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -375,6 +416,7 @@
     "candidateApp": "brex",
     "candidateFlow": "request-reimbursement",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -384,6 +426,7 @@
     "candidateApp": "brex",
     "candidateFlow": "eta-information",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -393,6 +436,7 @@
     "candidateApp": "brex",
     "candidateFlow": "reimbursement-reviewed",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -402,6 +446,7 @@
     "candidateApp": "google-pay",
     "candidateFlow": "transferring-money",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -411,6 +456,7 @@
     "candidateApp": "brex",
     "candidateFlow": "adding-a-receipt",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -420,6 +466,7 @@
     "candidateApp": "brex",
     "candidateFlow": "adding-an-external-attendee",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -429,6 +476,7 @@
     "candidateApp": "brex",
     "candidateFlow": "deleting-a-draft",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -438,6 +486,7 @@
     "candidateApp": "brilliant",
     "candidateFlow": "deleting-account",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -447,6 +496,7 @@
     "candidateApp": "airtable",
     "candidateFlow": "hiding-fields",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -456,6 +506,7 @@
     "candidateApp": "linear",
     "candidateFlow": "creating-an-issue",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -465,6 +516,7 @@
     "candidateApp": "airtable",
     "candidateFlow": "fields-tutorial",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -474,6 +526,7 @@
     "candidateApp": "craft",
     "candidateFlow": "deleting-a-comment",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -483,6 +536,7 @@
     "candidateApp": "cred",
     "candidateFlow": "chatting-sending-messages",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -492,6 +546,7 @@
     "candidateApp": "dave",
     "candidateFlow": "creating-account",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -501,6 +556,7 @@
     "candidateApp": "brex",
     "candidateFlow": "connecting-a-bank-account",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -510,6 +566,7 @@
     "candidateApp": "wealthfront",
     "candidateFlow": "transferring-money",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -519,6 +576,7 @@
     "candidateApp": "revolut",
     "candidateFlow": "post-onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -528,6 +586,7 @@
     "candidateApp": "cleo",
     "candidateFlow": "creating-account",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -537,6 +596,7 @@
     "candidateApp": "apple-wallet",
     "candidateFlow": "creating-account",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -546,6 +606,7 @@
     "candidateApp": "venmo",
     "candidateFlow": "setting-up",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -555,6 +616,7 @@
     "candidateApp": "oportun",
     "candidateFlow": "setting-up",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -564,6 +626,7 @@
     "candidateApp": "cleo",
     "candidateFlow": "reviewing-rating",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -573,6 +636,7 @@
     "candidateApp": "cash-app",
     "candidateFlow": "setting-up",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -582,6 +646,7 @@
     "candidateApp": "cred",
     "candidateFlow": "redeeming",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -591,6 +656,7 @@
     "candidateApp": "google-pay",
     "candidateFlow": "redeeming",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -600,6 +666,7 @@
     "candidateApp": "brilliant",
     "candidateFlow": "setting-a-streak-goal",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -609,6 +676,7 @@
     "candidateApp": "arc-search",
     "candidateFlow": "login",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -618,6 +686,7 @@
     "candidateApp": "shazam",
     "candidateFlow": "recording-audio-video",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -627,6 +696,7 @@
     "candidateApp": "shazam",
     "candidateFlow": "searching-finding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -636,6 +706,7 @@
     "candidateApp": "spotify",
     "candidateFlow": "home",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -645,6 +716,7 @@
     "candidateApp": "shazam",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -654,6 +726,7 @@
     "candidateApp": "coinbase-wallet",
     "candidateFlow": "editing-updating",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -663,6 +736,7 @@
     "candidateApp": "cash-app",
     "candidateFlow": "managing-accounts",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -672,6 +746,7 @@
     "candidateApp": "coinbase-wallet",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -681,6 +756,7 @@
     "candidateApp": "apple-wallet",
     "candidateFlow": "setting-up",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -690,6 +766,7 @@
     "candidateApp": "coinbase-wallet",
     "candidateFlow": "setting-up",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -699,6 +776,7 @@
     "candidateApp": "brex",
     "candidateFlow": "locking-a-card",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -708,6 +786,7 @@
     "candidateApp": "brex",
     "candidateFlow": "add-to-apple-wallet",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -717,6 +796,7 @@
     "candidateApp": "brilliant",
     "candidateFlow": "subscribing-to-brilliant",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -726,6 +806,7 @@
     "candidateApp": "linear",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -735,6 +816,7 @@
     "candidateApp": "brilliant",
     "candidateFlow": "premium",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -744,6 +826,7 @@
     "candidateApp": "brilliant",
     "candidateFlow": "disabling-notifications",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -753,6 +836,7 @@
     "candidateApp": "spotify",
     "candidateFlow": "manage-subscription",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -762,6 +846,7 @@
     "candidateApp": "arc-search",
     "candidateFlow": "archiving",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -771,6 +856,7 @@
     "candidateApp": "airtable",
     "candidateFlow": "grouping-records",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -780,6 +866,7 @@
     "candidateApp": "dave",
     "candidateFlow": "editing-profile",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -789,6 +876,7 @@
     "candidateApp": "cred",
     "candidateFlow": "editing-profile",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -798,6 +886,7 @@
     "candidateApp": "venmo",
     "candidateFlow": "editing-profile",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -807,6 +896,7 @@
     "candidateApp": "craft",
     "candidateFlow": "uploading-images",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -816,6 +906,7 @@
     "candidateApp": "linear",
     "candidateFlow": "adding-an-assignee",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -825,6 +916,7 @@
     "candidateApp": "craft",
     "candidateFlow": "grouping-entries",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -834,6 +926,7 @@
     "candidateApp": "brex",
     "candidateFlow": "requesting-new-spend-limit",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -843,6 +936,7 @@
     "candidateApp": "wealthfront",
     "candidateFlow": "setting-up",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -852,6 +946,7 @@
     "candidateApp": "airtable",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -861,6 +956,7 @@
     "candidateApp": "figma",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -870,6 +966,7 @@
     "candidateApp": "oportun",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -879,6 +976,7 @@
     "candidateApp": "dave",
     "candidateFlow": "giving-feedbacks",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -888,6 +986,7 @@
     "candidateApp": "oportun",
     "candidateFlow": "cancelling-subscription",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -897,6 +996,7 @@
     "candidateApp": "spotify",
     "candidateFlow": "manage-subscription",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -906,6 +1006,7 @@
     "candidateApp": "coinbase-wallet",
     "candidateFlow": "post-onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -915,6 +1016,7 @@
     "candidateApp": "spotify",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -924,6 +1026,7 @@
     "candidateApp": "arc-search",
     "candidateFlow": "selecting-choosing",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -933,6 +1036,7 @@
     "candidateApp": "brilliant",
     "candidateFlow": "subscribing-to-brilliant",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -942,6 +1046,7 @@
     "candidateApp": "brilliant",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -951,6 +1056,7 @@
     "candidateApp": "mubi-go",
     "candidateFlow": "home",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -960,6 +1066,7 @@
     "candidateApp": "craft",
     "candidateFlow": "adding-content-in-a-whiteboard",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -969,6 +1076,7 @@
     "candidateApp": "craft",
     "candidateFlow": "editing-cell-formatting-styles",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -978,6 +1086,7 @@
     "candidateApp": "linear",
     "candidateFlow": "creating-a-label",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -987,6 +1096,7 @@
     "candidateApp": "brex",
     "candidateFlow": "reimbursement-reviewed",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -996,6 +1106,7 @@
     "candidateApp": "craft",
     "candidateFlow": "adding-a-row",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1005,6 +1116,7 @@
     "candidateApp": "linear",
     "candidateFlow": "creating-an-issue",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1014,6 +1126,7 @@
     "candidateApp": "brilliant",
     "candidateFlow": "giving-feedbacks",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1023,6 +1136,7 @@
     "candidateApp": "linear",
     "candidateFlow": "creating-an-issue",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1032,6 +1146,7 @@
     "candidateApp": "arc-search",
     "candidateFlow": "archiving",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1041,6 +1156,7 @@
     "candidateApp": "figma",
     "candidateFlow": "deleting-a-comment",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1050,6 +1166,7 @@
     "candidateApp": "craft",
     "candidateFlow": "editing-text-formatting-styles",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1059,6 +1176,7 @@
     "candidateApp": "arc-search",
     "candidateFlow": "deleting-removing",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1068,6 +1186,7 @@
     "candidateApp": "brex",
     "candidateFlow": "send-an-email-to-support",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1077,6 +1196,7 @@
     "candidateApp": "cash-app",
     "candidateFlow": "managing-accounts",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1086,6 +1206,7 @@
     "candidateApp": "h-and-m",
     "candidateFlow": "product-detail",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1095,6 +1216,7 @@
     "candidateApp": "h-and-m",
     "candidateFlow": "sale-info",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1104,6 +1226,7 @@
     "candidateApp": "h-and-m",
     "candidateFlow": "view-collection",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1113,6 +1236,7 @@
     "candidateApp": "h-and-m",
     "candidateFlow": "size-guide",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1122,6 +1246,7 @@
     "candidateApp": "h-and-m",
     "candidateFlow": "product-filter",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1131,6 +1256,7 @@
     "candidateApp": "h-and-m",
     "candidateFlow": "adding-an-item-to-favorites",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1140,6 +1266,7 @@
     "candidateApp": "brex",
     "candidateFlow": "compliance-rating",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1149,6 +1276,7 @@
     "candidateApp": "cleo",
     "candidateFlow": "reviewing-rating",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1158,6 +1286,7 @@
     "candidateApp": "brex",
     "candidateFlow": "deleting-a-draft",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1167,6 +1296,7 @@
     "candidateApp": "brex",
     "candidateFlow": "tasks",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1176,6 +1306,7 @@
     "candidateApp": "linear",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1185,6 +1316,7 @@
     "candidateApp": "dave",
     "candidateFlow": "giving-feedbacks",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1194,6 +1326,7 @@
     "candidateApp": "brex",
     "candidateFlow": "giving-feedbacks",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1203,6 +1336,7 @@
     "candidateApp": "brilliant",
     "candidateFlow": "giving-feedbacks",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1212,6 +1346,7 @@
     "candidateApp": "cred",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1221,6 +1356,7 @@
     "candidateApp": "shazam",
     "candidateFlow": "searching-finding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1230,6 +1366,7 @@
     "candidateApp": "revolut",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1239,6 +1376,7 @@
     "candidateApp": "figma",
     "candidateFlow": "activity",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1248,6 +1386,7 @@
     "candidateApp": "brex",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1257,6 +1396,7 @@
     "candidateApp": "spotify",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   },
   {
@@ -1266,6 +1406,7 @@
     "candidateApp": "cleo",
     "candidateFlow": "onboarding",
     "grade": null,
+    "noRelevantFlowInLibrary": false,
     "rationaleNotes": ""
   }
 ]

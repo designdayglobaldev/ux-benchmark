@@ -1,0 +1,255 @@
+{
+  "metadata": {
+    "description": "40 Colloquial Designer-Written Queries for Held-Out Evaluation of Variant 3 vs Arm A0",
+    "totalQueries": 40,
+    "intents": {
+      "flow": 10,
+      "situational": 10,
+      "component": 10,
+      "compare": 10
+    },
+    "gradingInstructions": "For each query, review retrieved top candidates from the UX library and assign Grade 0 (Irrelevant), 1 (Acceptable analog), or 2 (Direct exemplar)."
+  },
+  "queries": [
+    {
+      "id": "DQ-001",
+      "query": "clean checkout friction reduction in mobile shopping",
+      "targetIntent": "flow",
+      "descriptionNotes": "Checkout journey"
+    },
+    {
+      "id": "DQ-002",
+      "query": "how users sign up with phone number OTP",
+      "targetIntent": "flow",
+      "descriptionNotes": "Sign-up / onboarding sequence"
+    },
+    {
+      "id": "DQ-003",
+      "query": "crypto onboarding wallet seed phrase walkthrough",
+      "targetIntent": "flow",
+      "descriptionNotes": "Web3 onboarding flow"
+    },
+    {
+      "id": "DQ-004",
+      "query": "requesting refund for damaged delivery",
+      "targetIntent": "flow",
+      "descriptionNotes": "Refund workflow"
+    },
+    {
+      "id": "DQ-005",
+      "query": "cancelling subscription retention offer discount",
+      "targetIntent": "flow",
+      "descriptionNotes": "Cancellation flow"
+    },
+    {
+      "id": "DQ-006",
+      "query": "how drivers accept ride and view map route",
+      "targetIntent": "flow",
+      "descriptionNotes": "Dispatch journey"
+    },
+    {
+      "id": "DQ-007",
+      "query": "booking flight seat reservation with baggage add-ons",
+      "targetIntent": "flow",
+      "descriptionNotes": "Booking flow"
+    },
+    {
+      "id": "DQ-008",
+      "query": "linking external bank account via plaid",
+      "targetIntent": "flow",
+      "descriptionNotes": "Bank account connection flow"
+    },
+    {
+      "id": "DQ-009",
+      "query": "splitting dinner bill with friends instant cash",
+      "targetIntent": "flow",
+      "descriptionNotes": "P2P payment sequence"
+    },
+    {
+      "id": "DQ-010",
+      "query": "posting a photo reel with music and captions",
+      "targetIntent": "flow",
+      "descriptionNotes": "Social media post creation"
+    },
+    {
+      "id": "DQ-011",
+      "query": "handling high cognitive load in multi-currency portfolio balance",
+      "targetIntent": "situational",
+      "descriptionNotes": "Information architecture cognitive load"
+    },
+    {
+      "id": "DQ-012",
+      "query": "why modal sheets cause keyboard dismissal clipping on android",
+      "targetIntent": "situational",
+      "descriptionNotes": "Anti-pattern mobile sheets"
+    },
+    {
+      "id": "DQ-013",
+      "query": "best practices for camera glare fallback during passport scan",
+      "targetIntent": "situational",
+      "descriptionNotes": "Graceful degradation"
+    },
+    {
+      "id": "DQ-014",
+      "query": "how to reduce anxiety during slow 5-minute KYC verification",
+      "targetIntent": "situational",
+      "descriptionNotes": "User anxiety progress UX"
+    },
+    {
+      "id": "DQ-015",
+      "query": "should we prompt for push notifications on first app launch",
+      "targetIntent": "situational",
+      "descriptionNotes": "Permission priming timing"
+    },
+    {
+      "id": "DQ-016",
+      "query": "trade-offs between optimistic UI comments vs spinner loading",
+      "targetIntent": "situational",
+      "descriptionNotes": "Optimistic UI trade-offs"
+    },
+    {
+      "id": "DQ-017",
+      "query": "preventing rage clicks during slow network retry",
+      "targetIntent": "situational",
+      "descriptionNotes": "Network error handling UX"
+    },
+    {
+      "id": "DQ-018",
+      "query": "tone of voice guidelines for overdraft warning banners",
+      "targetIntent": "situational",
+      "descriptionNotes": "Copy & empathy guidelines"
+    },
+    {
+      "id": "DQ-019",
+      "query": "why full-screen takeovers kill search exploration conversion",
+      "targetIntent": "situational",
+      "descriptionNotes": "Search takeover anti-pattern"
+    },
+    {
+      "id": "DQ-020",
+      "query": "guidance on streak freeze recovery mechanics in learning apps",
+      "targetIntent": "situational",
+      "descriptionNotes": "Gamification recovery psychology"
+    },
+    {
+      "id": "DQ-021",
+      "query": "numeric numpad for dollar amount input",
+      "targetIntent": "component",
+      "descriptionNotes": "Keypad component"
+    },
+    {
+      "id": "DQ-022",
+      "query": "segmented control pill toggle for monthly vs annual",
+      "targetIntent": "component",
+      "descriptionNotes": "Segmented control"
+    },
+    {
+      "id": "DQ-023",
+      "query": "bottom sheet payment method selector with handle",
+      "targetIntent": "component",
+      "descriptionNotes": "Bottom sheet modal"
+    },
+    {
+      "id": "DQ-024",
+      "query": "toast notification confirmation pill for upload",
+      "targetIntent": "component",
+      "descriptionNotes": "Toast snackbar"
+    },
+    {
+      "id": "DQ-025",
+      "query": "circular floating action button for quick add",
+      "targetIntent": "component",
+      "descriptionNotes": "FAB"
+    },
+    {
+      "id": "DQ-026",
+      "query": "skeleton shimmer loading placeholder cards",
+      "targetIntent": "component",
+      "descriptionNotes": "Skeleton loading"
+    },
+    {
+      "id": "DQ-027",
+      "query": "search bar with microphone voice input icon",
+      "targetIntent": "component",
+      "descriptionNotes": "Search input"
+    },
+    {
+      "id": "DQ-028",
+      "query": "checkbox multi-select task resolution checklist",
+      "targetIntent": "component",
+      "descriptionNotes": "Checkbox list"
+    },
+    {
+      "id": "DQ-029",
+      "query": "stacked list grouped iOS settings with chevrons",
+      "targetIntent": "component",
+      "descriptionNotes": "Stacked list table"
+    },
+    {
+      "id": "DQ-030",
+      "query": "avatar stack showing active online collaborators",
+      "targetIntent": "component",
+      "descriptionNotes": "Avatar stack presence"
+    },
+    {
+      "id": "DQ-031",
+      "query": "Revolut vs Monzo biometric identity onboarding differences",
+      "targetIntent": "compare",
+      "descriptionNotes": "Neobank KYC comparison"
+    },
+    {
+      "id": "DQ-032",
+      "query": "how does Cash App transfer compare with Venmo social feed",
+      "targetIntent": "compare",
+      "descriptionNotes": "P2P app comparison"
+    },
+    {
+      "id": "DQ-033",
+      "query": "Linear ticket creation vs Jira issue backlog workflow",
+      "targetIntent": "compare",
+      "descriptionNotes": "Issue tracker comparison"
+    },
+    {
+      "id": "DQ-034",
+      "query": "Figma canvas comments versus Loom video thread feedback",
+      "targetIntent": "compare",
+      "descriptionNotes": "Feedback paradigms"
+    },
+    {
+      "id": "DQ-035",
+      "query": "Spotify audio discovery compared to Shazam quick listening",
+      "targetIntent": "compare",
+      "descriptionNotes": "Music discovery comparison"
+    },
+    {
+      "id": "DQ-036",
+      "query": "Uber driver map routing compared with Lyft dispatch UI",
+      "targetIntent": "compare",
+      "descriptionNotes": "Ride-share UI comparison"
+    },
+    {
+      "id": "DQ-037",
+      "query": "wealthfront automated robo rebalancing vs coinbase self-custody",
+      "targetIntent": "compare",
+      "descriptionNotes": "Investing vs crypto comparison"
+    },
+    {
+      "id": "DQ-038",
+      "query": "Duolingo streak freeze versus Brilliant lesson streak mechanics",
+      "targetIntent": "compare",
+      "descriptionNotes": "Edtech gamification compare"
+    },
+    {
+      "id": "DQ-039",
+      "query": "Arc Search browse for me AI compilation versus Google Search cards",
+      "targetIntent": "compare",
+      "descriptionNotes": "Search AI compare"
+    },
+    {
+      "id": "DQ-040",
+      "query": "contrast Apple Pay NFC card provisioning with Google Wallet linking",
+      "targetIntent": "compare",
+      "descriptionNotes": "Digital wallet comparison"
+    }
+  ]
+}
